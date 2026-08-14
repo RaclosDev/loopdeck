@@ -7,13 +7,23 @@ export default function Browser() {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
+
+  const uniqueTags = [...new Set(notes.flatMap(n => (n.tags || '').toLowerCase().trim().split(/\s+/).filter(Boolean)))].sort();
 
   const filteredNotes = notes.filter(note => {
+    const tags = (note.tags || '').toLowerCase();
+    
+    // Exact tag filter
+    if (selectedTag && !tags.split(/\s+/).includes(selectedTag)) {
+      return false;
+    }
+
+    // Text search filter
     if (!searchQuery) return true;
     const fields = JSON.parse(note.fieldsJson || '{}');
     const front = (fields.front || fields.Front || fields.text || '').toLowerCase();
     const back = (fields.back || fields.Back || fields.extra || '').toLowerCase();
-    const tags = (note.tags || '').toLowerCase();
     const q = searchQuery.toLowerCase();
     return front.includes(q) || back.includes(q) || tags.includes(q);
   });
@@ -73,6 +83,23 @@ export default function Browser() {
           ))}
         </select>
         
+        {uniqueTags.length > 0 && (
+          <>
+            <label style={{ color: 'var(--text-muted)' }}>Etiqueta:</label>
+            <select 
+              className="glass-input" 
+              value={selectedTag} 
+              onChange={(e) => setSelectedTag(e.target.value)}
+              style={{ width: '150px' }}
+            >
+              <option value="">Todas</option>
+              {uniqueTags.map(tag => (
+                <option key={tag} value={tag}>{tag}</option>
+              ))}
+            </select>
+          </>
+        )}
+        
         <div style={{ flex: 1 }} />
         
         <div style={{ position: 'relative', width: '300px' }}>
@@ -114,9 +141,9 @@ export default function Browser() {
                       <td style={{ padding: '1rem', color: 'var(--text-main)' }}>{fields.front || fields.Front || fields.text || ''}</td>
                       <td style={{ padding: '1rem', color: 'var(--text-dim)' }}>{fields.back || fields.Back || fields.extra || ''}</td>
                       <td style={{ padding: '1rem' }}>
-                        {note.tags ? note.tags.split(',').map(tag => (
-                          <span key={tag} style={{ display: 'inline-block', background: 'rgba(139, 92, 246, 0.15)', color: '#c4b5fd', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', marginRight: '4px' }}>
-                            {tag.trim()}
+                        {note.tags ? note.tags.trim().split(/\s+/).filter(Boolean).map(tag => (
+                          <span key={tag} style={{ display: 'inline-block', background: 'rgba(139, 92, 246, 0.15)', color: '#c4b5fd', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', marginRight: '4px', marginBottom: '4px' }}>
+                            {tag}
                           </span>
                         )) : '-'}
                       </td>
