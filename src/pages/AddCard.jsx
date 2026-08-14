@@ -84,6 +84,14 @@ function AddCard() {
       if (!frontText || !backText) { addToast('Rellena el frente y el dorso', 'error'); return; }
     }
 
+    const finalTags = [...tags];
+    if (tagInput.trim()) {
+      const newTag = tagInput.trim().toLowerCase();
+      if (!finalTags.includes(newTag)) finalTags.push(newTag);
+      setTagInput('');
+      setTags(finalTags);
+    }
+
     setSaving(true);
     try {
       const fieldsJson = selectedType === 'cloze'
@@ -94,7 +102,7 @@ function AddCard() {
         deckId: selectedDeckId,
         noteType: selectedType,
         fieldsJson,
-        tags: tags.join(' '),
+        tags: finalTags.join(' '),
       });
 
       const numCards = selectedType === 'reverse' ? 2 : 1;
