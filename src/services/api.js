@@ -1,5 +1,5 @@
 /**
- * FlashForge — API Service
+ * LoopDeck — API Service
  * HTTP client for communicating with the Spring Boot backend.
  */
 

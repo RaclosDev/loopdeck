@@ -16,8 +16,8 @@ export default defineConfig({
         clientsClaim: true,
       },
       manifest: {
-        name: 'FlashForge',
-        short_name: 'FlashForge',
+        name: 'LoopDeck',
+        short_name: 'LoopDeck',
         description: 'Memoriza cualquier cosa con repetición espaciada',
         theme_color: '#0f172a',
         background_color: '#0f172a',
@@ -25,13 +25,13 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: 'flashforge-icon-192.png',
+            src: 'loopdeck-icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any maskable'
           },
           {
-            src: 'flashforge-icon-512.png',
+            src: 'loopdeck-icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

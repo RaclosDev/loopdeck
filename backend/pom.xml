@@ -11,11 +11,11 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.flashforge</groupId>
-    <artifactId>flashforge-backend</artifactId>
+    <groupId>com.loopdeck</groupId>
+    <artifactId>loopdeck-backend</artifactId>
     <version>0.1.0</version>
-    <name>FlashForge Backend</name>
-    <description>Backend for FlashForge - Spaced Repetition App</description>
+    <name>LoopDeck Backend</name>
+    <description>Backend for LoopDeck - Spaced Repetition App</description>
 
     <properties>
         <java.version>21</java.version>

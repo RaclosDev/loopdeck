@@ -1,5 +1,5 @@
 /**
- * FlashForge — Global Store (Zustand)
+ * LoopDeck — Global Store (Zustand)
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -32,6 +32,10 @@ const useStore = create(
   openModal: (name, data = null) => set({ activeModal: name, modalData: data }),
   closeModal: () => set({ activeModal: null, modalData: null }),
 
+  // ── PWA Install State ───────────────────────────────────────
+  deferredPrompt: null,
+  setDeferredPrompt: (prompt) => set({ deferredPrompt: prompt }),
+
   // ── Settings ────────────────────────────────────────────────
   settings: {
     showTimer: false,
@@ -41,7 +45,7 @@ const useStore = create(
   updateSettings: (newSettings) => set((s) => ({ settings: { ...s.settings, ...newSettings } })),
     }),
     {
-      name: 'flashforge-settings',
+      name: 'loopdeck-settings',
       partialize: (state) => ({ settings: state.settings }),
     }
   )

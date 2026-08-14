@@ -218,7 +218,7 @@ function Dashboard() {
       {decks.length === 0 && (
         <div className="empty-state" style={{ marginTop: -20 }}>
           <div className="empty-state-icon">🧠</div>
-          <h3>¡Bienvenido a FlashForge!</h3>
+          <h3>¡Bienvenido a LoopDeck!</h3>
           <p>Crea tu primer mazo de tarjetas y empieza a memorizar con repetición espaciada.</p>
           <button className="primary-btn" onClick={() => setShowNewDeck(true)}>
             ➕ Crear mi primer mazo

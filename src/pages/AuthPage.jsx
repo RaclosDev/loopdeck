@@ -34,7 +34,7 @@ export default function AuthPage() {
         {/* Logo */}
         <div className="auth-logo">
           <div className="auth-logo-icon">⚡</div>
-          <h1 className="auth-logo-text">FlashForge</h1>
+          <h1 className="auth-logo-text">LoopDeck</h1>
           <p className="auth-logo-sub">Spaced repetition, reimagined</p>
         </div>
 

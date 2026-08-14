@@ -11,7 +11,7 @@ function Settings() {
 
   const handleClearLocalData = () => {
     if (window.confirm('¿Estás seguro de que quieres borrar la caché local de configuración? Tus mazos seguirán a salvo en la nube.')) {
-      localStorage.removeItem('flashforge-settings');
+      localStorage.removeItem('loopdeck-settings');
       addToast('Caché local borrada. Recarga la página.', 'info');
     }
   };
@@ -106,7 +106,7 @@ function Settings() {
             </div>
 
             <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', padding: '1rem', background: 'rgba(6,182,212,0.08)', borderRadius: 'var(--radius-md)' }}>
-              ℹ️ FlashForge actualmente utiliza un diseño Dark Glassmorphism de alto contraste por defecto para reducir la fatiga visual. Pronto añadiremos más temas.
+              ℹ️ LoopDeck actualmente utiliza un diseño Dark Glassmorphism de alto contraste por defecto para reducir la fatiga visual. Pronto añadiremos más temas.
             </div>
           </div>
         )}

@@ -1,4 +1,4 @@
-# ⚡ FlashForge
+# ⚡ LoopDeck
 
 App de **repetición espaciada** (estilo Anki) construida con:
 
@@ -36,14 +36,14 @@ La app estará en **http://localhost:5173** con proxy hacia el backend.
 ## 🗂️ Estructura
 
 ```
-flashforge/
+loopdeck/
 ├── src/                  # Frontend React
 │   ├── components/       # Layout, FlashCard, Modal...
 │   ├── pages/            # Dashboard, Study, AddCard, Stats, AuthPage
 │   ├── services/api.js   # Cliente HTTP
 │   └── store/            # Zustand stores
 └── backend/              # Spring Boot
-    └── src/main/java/com/flashforge/
+    └── src/main/java/com/loopdeck/
         ├── controller/   # REST endpoints
         ├── service/      # Lógica de negocio + SM-2
         ├── model/        # Entidades JPA

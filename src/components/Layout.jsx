@@ -3,11 +3,21 @@ import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
 
 function Layout({ children }) {
-  const { sidebarOpen, toggleSidebar, closeSidebar, toasts } = useStore();
+  const { sidebarOpen, toggleSidebar, closeSidebar, toasts, deferredPrompt, setDeferredPrompt } = useStore();
   const { user, logout } = useAuthStore();
   const location = useLocation();
 
   const isStudyPage = location.pathname.startsWith('/study');
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    }
+  };
 
   return (
     <>
@@ -16,7 +26,7 @@ function Layout({ children }) {
         <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Menu">
           ☰
         </button>
-        <span className="mobile-header-title">⚡ FlashForge</span>
+        <span className="mobile-header-title">⚡ LoopDeck</span>
         <div style={{ width: 28 }} />
       </div>
 
@@ -32,7 +42,7 @@ function Layout({ children }) {
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
               <div className="sidebar-logo-icon">⚡</div>
-              <span className="sidebar-logo">FlashForge</span>
+              <span className="sidebar-logo">LoopDeck</span>
             </div>
 
             <nav className="sidebar-nav">
@@ -87,6 +97,17 @@ function Layout({ children }) {
                 <span className="link-icon">⚙️</span>
                 Configuración
               </NavLink>
+
+              {deferredPrompt && (
+                <button
+                  className="sidebar-link"
+                  onClick={handleInstallClick}
+                  style={{ width: '100%', textAlign: 'left' }}
+                >
+                  <span className="link-icon">📱</span>
+                  Instalar App
+                </button>
+              )}
             </nav>
 
             <div className="sidebar-footer">
@@ -116,7 +137,7 @@ function Layout({ children }) {
                 Cerrar sesión
               </button>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 8 }}>
-                FlashForge v0.1.0
+                LoopDeck v0.1.0
               </div>
             </div>
           </aside>

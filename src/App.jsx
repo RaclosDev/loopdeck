@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Study from './pages/Study';
@@ -8,6 +9,7 @@ import AuthPage from './pages/AuthPage';
 import Browser from './pages/Browser';
 import Settings from './pages/Settings';
 import useAuthStore from './store/useAuthStore';
+import useStore from './store/useStore';
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -16,6 +18,16 @@ function ProtectedRoute({ children }) {
 
 function App() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const setDeferredPrompt = useStore(s => s.setDeferredPrompt);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, [setDeferredPrompt]);
 
   return (
     <Router>

@@ -1,5 +1,5 @@
 /**
- * FlashForge — Auth Store (Zustand)
+ * LoopDeck — Auth Store (Zustand)
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
