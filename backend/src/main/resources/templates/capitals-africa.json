@@ -1,41 +1,244 @@
 {
   "id": "capitals-africa",
   "name": "Capitales de África",
-  "description": "Aprende las capitales de los principales países africanos.",
+  "description": "Aprende las capitales de los países de África.",
   "category": "Geografía",
-  "icon": "🗺️",
   "cards": [
     {
+      "front": "Angola",
+      "back": "Luanda"
+    },
+    {
+      "front": "Argelia",
+      "back": "Algiers"
+    },
+    {
+      "front": "Benín",
+      "back": "Porto-Novo"
+    },
+    {
+      "front": "Botswana",
+      "back": "Gaborone"
+    },
+    {
+      "front": "Burkina Faso",
+      "back": "Ouagadougou"
+    },
+    {
+      "front": "Burundi",
+      "back": "Gitega"
+    },
+    {
+      "front": "Cabo Verde",
+      "back": "Praia"
+    },
+    {
+      "front": "Camerún",
+      "back": "Yaoundé"
+    },
+    {
+      "front": "Chad",
+      "back": "N'Djamena"
+    },
+    {
+      "front": "Comoras",
+      "back": "Moroni"
+    },
+    {
+      "front": "Congo",
+      "back": "Brazzaville"
+    },
+    {
+      "front": "Congo (Rep. Dem.)",
+      "back": "Kinshasa"
+    },
+    {
+      "front": "Costa de Marfil",
+      "back": "Yamoussoukro"
+    },
+    {
+      "front": "Djibouti",
+      "back": "Djibouti"
+    },
+    {
       "front": "Egipto",
-      "back": "El Cairo"
+      "back": "Cairo"
     },
     {
-      "front": "Sudáfrica",
-      "back": "Pretoria"
+      "front": "Eritrea",
+      "back": "Asmara"
     },
     {
-      "front": "Nigeria",
-      "back": "Abuya"
+      "front": "Esuatini",
+      "back": "Lobamba"
+    },
+    {
+      "front": "Etiopía",
+      "back": "Addis Ababa"
+    },
+    {
+      "front": "Gabón",
+      "back": "Libreville"
+    },
+    {
+      "front": "Gambia",
+      "back": "Banjul"
+    },
+    {
+      "front": "Ghana",
+      "back": "Accra"
+    },
+    {
+      "front": "Guinea",
+      "back": "Conakry"
+    },
+    {
+      "front": "Guinea Ecuatorial",
+      "back": "Malabo"
+    },
+    {
+      "front": "Guinea-Bisáu",
+      "back": "Bissau"
     },
     {
       "front": "Kenia",
       "back": "Nairobi"
     },
     {
+      "front": "Lesotho",
+      "back": "Maseru"
+    },
+    {
+      "front": "Liberia",
+      "back": "Monrovia"
+    },
+    {
+      "front": "Libia",
+      "back": "Tripoli"
+    },
+    {
+      "front": "Madagascar",
+      "back": "Antananarivo"
+    },
+    {
+      "front": "Malawi",
+      "back": "Lilongwe"
+    },
+    {
+      "front": "Mali",
+      "back": "Bamako"
+    },
+    {
       "front": "Marruecos",
       "back": "Rabat"
     },
     {
-      "front": "Argelia",
-      "back": "Argel"
+      "front": "Mauricio",
+      "back": "Port Louis"
     },
     {
-      "front": "Etiopía",
-      "back": "Adís Abeba"
+      "front": "Mauritania",
+      "back": "Nouakchott"
     },
     {
-      "front": "Ghana",
-      "back": "Acra"
+      "front": "Mayotte",
+      "back": "Mamoudzou"
+    },
+    {
+      "front": "Mozambique",
+      "back": "Maputo"
+    },
+    {
+      "front": "Namibia",
+      "back": "Windhoek"
+    },
+    {
+      "front": "Nigeria",
+      "back": "Abuja"
+    },
+    {
+      "front": "Níger",
+      "back": "Niamey"
+    },
+    {
+      "front": "República Centroafricana",
+      "back": "Bangui"
+    },
+    {
+      "front": "Reunión",
+      "back": "Saint-Denis"
+    },
+    {
+      "front": "Ruanda",
+      "back": "Kigali"
+    },
+    {
+      "front": "Sahara Occidental",
+      "back": "El Aaiún"
+    },
+    {
+      "front": "Santa Elena, Ascensión y Tristán de Acuña",
+      "back": "Jamestown"
+    },
+    {
+      "front": "Santo Tomé y Príncipe",
+      "back": "São Tomé"
+    },
+    {
+      "front": "Senegal",
+      "back": "Dakar"
+    },
+    {
+      "front": "Seychelles",
+      "back": "Victoria"
+    },
+    {
+      "front": "Sierra Leone",
+      "back": "Freetown"
+    },
+    {
+      "front": "Somalia",
+      "back": "Mogadishu"
+    },
+    {
+      "front": "Sudáfrica",
+      "back": "Pretoria"
+    },
+    {
+      "front": "Sudán",
+      "back": "Khartoum"
+    },
+    {
+      "front": "Sudán del Sur",
+      "back": "Juba"
+    },
+    {
+      "front": "Tanzania",
+      "back": "Dodoma"
+    },
+    {
+      "front": "Territorio Británico del Océano Índico",
+      "back": "Diego Garcia"
+    },
+    {
+      "front": "Togo",
+      "back": "Lomé"
+    },
+    {
+      "front": "Túnez",
+      "back": "Tunis"
+    },
+    {
+      "front": "Uganda",
+      "back": "Kampala"
+    },
+    {
+      "front": "Zambia",
+      "back": "Lusaka"
+    },
+    {
+      "front": "Zimbabue",
+      "back": "Harare"
     }
   ]
 }

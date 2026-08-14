@@ -1,49 +1,204 @@
 {
   "id": "capitals-asia",
   "name": "Capitales de Asia",
-  "description": "Aprende las capitales de los principales países asiáticos.",
+  "description": "Aprende las capitales de los países de Asia.",
   "category": "Geografía",
-  "icon": "🗺️",
   "cards": [
     {
-      "front": "China",
-      "back": "Pekín"
+      "front": "Afganistán",
+      "back": "Kabul"
     },
     {
-      "front": "Japón",
-      "back": "Tokio"
+      "front": "Arabia Saudí",
+      "back": "Riyadh"
+    },
+    {
+      "front": "Armenia",
+      "back": "Yerevan"
+    },
+    {
+      "front": "Azerbaiyán",
+      "back": "Baku"
+    },
+    {
+      "front": "Bahrein",
+      "back": "Manama"
+    },
+    {
+      "front": "Bangladesh",
+      "back": "Dhaka"
+    },
+    {
+      "front": "Brunei",
+      "back": "Bandar Seri Begawan"
+    },
+    {
+      "front": "Bután",
+      "back": "Thimphu"
+    },
+    {
+      "front": "Camboya",
+      "back": "Phnom Penh"
+    },
+    {
+      "front": "Catar",
+      "back": "Doha"
+    },
+    {
+      "front": "China",
+      "back": "Beijing"
+    },
+    {
+      "front": "Corea del Norte",
+      "back": "Pyongyang"
     },
     {
       "front": "Corea del Sur",
-      "back": "Seúl"
+      "back": "Seoul"
+    },
+    {
+      "front": "Emiratos Árabes Unidos",
+      "back": "Abu Dhabi"
+    },
+    {
+      "front": "Filipinas",
+      "back": "Manila"
+    },
+    {
+      "front": "Georgia",
+      "back": "Tbilisi"
+    },
+    {
+      "front": "Hong Kong",
+      "back": "City of Victoria"
     },
     {
       "front": "India",
-      "back": "Nueva Delhi"
-    },
-    {
-      "front": "Turquía",
-      "back": "Ankara"
-    },
-    {
-      "front": "Arabia Saudita",
-      "back": "Riad"
+      "back": "New Delhi"
     },
     {
       "front": "Indonesia",
-      "back": "Yakarta"
+      "back": "Jakarta"
     },
     {
-      "front": "Irán",
-      "back": "Teherán"
+      "front": "Irak",
+      "back": "Baghdad"
+    },
+    {
+      "front": "Iran",
+      "back": "Tehran"
+    },
+    {
+      "front": "Israel",
+      "back": "Jerusalem"
+    },
+    {
+      "front": "Japón",
+      "back": "Tokyo"
+    },
+    {
+      "front": "Jordania",
+      "back": "Amman"
+    },
+    {
+      "front": "Kazajistán",
+      "back": "Astana"
+    },
+    {
+      "front": "Kirguizistán",
+      "back": "Bishkek"
+    },
+    {
+      "front": "Kuwait",
+      "back": "Kuwait City"
+    },
+    {
+      "front": "Laos",
+      "back": "Vientiane"
+    },
+    {
+      "front": "Líbano",
+      "back": "Beirut"
+    },
+    {
+      "front": "Malasia",
+      "back": "Kuala Lumpur"
+    },
+    {
+      "front": "Maldivas",
+      "back": "Malé"
+    },
+    {
+      "front": "Mongolia",
+      "back": "Ulan Bator"
+    },
+    {
+      "front": "Myanmar",
+      "back": "Naypyidaw"
+    },
+    {
+      "front": "Nepal",
+      "back": "Kathmandu"
+    },
+    {
+      "front": "Omán",
+      "back": "Muscat"
     },
     {
       "front": "Pakistán",
       "back": "Islamabad"
     },
     {
+      "front": "Palestina",
+      "back": "Ramallah"
+    },
+    {
+      "front": "Singapur",
+      "back": "Singapore"
+    },
+    {
+      "front": "Siria",
+      "back": "Damascus"
+    },
+    {
+      "front": "Sri Lanka",
+      "back": "Colombo"
+    },
+    {
+      "front": "Tailandia",
+      "back": "Bangkok"
+    },
+    {
+      "front": "Taiwán",
+      "back": "Taipei"
+    },
+    {
+      "front": "Tayikistán",
+      "back": "Dushanbe"
+    },
+    {
+      "front": "Timor Oriental",
+      "back": "Dili"
+    },
+    {
+      "front": "Turkmenistán",
+      "back": "Ashgabat"
+    },
+    {
+      "front": "Turquía",
+      "back": "Ankara"
+    },
+    {
+      "front": "Uzbekistán",
+      "back": "Tashkent"
+    },
+    {
       "front": "Vietnam",
-      "back": "Hanói"
+      "back": "Hanoi"
+    },
+    {
+      "front": "Yemen",
+      "back": "Sana'a"
     }
   ]
 }

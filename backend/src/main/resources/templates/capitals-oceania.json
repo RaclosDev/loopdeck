@@ -1,21 +1,116 @@
 {
   "id": "capitals-oceania",
   "name": "Capitales de Oceanía",
-  "description": "Aprende las capitales de Oceanía.",
+  "description": "Aprende las capitales de los países de Oceanía.",
   "category": "Geografía",
-  "icon": "🗺️",
   "cards": [
     {
       "front": "Australia",
       "back": "Canberra"
     },
     {
+      "front": "Fiyi",
+      "back": "Suva"
+    },
+    {
+      "front": "Guam",
+      "back": "Hagåtña"
+    },
+    {
+      "front": "Isla de Navidad",
+      "back": "Flying Fish Cove"
+    },
+    {
+      "front": "Isla de Norfolk",
+      "back": "Kingston"
+    },
+    {
+      "front": "Islas Cocos o Islas Keeling",
+      "back": "West Island"
+    },
+    {
+      "front": "Islas Cook",
+      "back": "Avarua"
+    },
+    {
+      "front": "Islas Marianas del Norte",
+      "back": "Saipan"
+    },
+    {
+      "front": "Islas Marshall",
+      "back": "Majuro"
+    },
+    {
+      "front": "Islas Pitcairn",
+      "back": "Adamstown"
+    },
+    {
+      "front": "Islas Salomón",
+      "back": "Honiara"
+    },
+    {
+      "front": "Islas Tokelau",
+      "back": "Fakaofo"
+    },
+    {
+      "front": "Kiribati",
+      "back": "South Tarawa"
+    },
+    {
+      "front": "Micronesia",
+      "back": "Palikir"
+    },
+    {
+      "front": "Nauru",
+      "back": "Yaren"
+    },
+    {
+      "front": "Niue",
+      "back": "Alofi"
+    },
+    {
+      "front": "Nueva Caledonia",
+      "back": "Nouméa"
+    },
+    {
       "front": "Nueva Zelanda",
       "back": "Wellington"
     },
     {
-      "front": "Fiyi",
-      "back": "Suva"
+      "front": "Palau",
+      "back": "Ngerulmud"
+    },
+    {
+      "front": "Papúa Nueva Guinea",
+      "back": "Port Moresby"
+    },
+    {
+      "front": "Polinesia Francesa",
+      "back": "Papeetē"
+    },
+    {
+      "front": "Samoa",
+      "back": "Apia"
+    },
+    {
+      "front": "Samoa Americana",
+      "back": "Pago Pago"
+    },
+    {
+      "front": "Tonga",
+      "back": "Nuku'alofa"
+    },
+    {
+      "front": "Tuvalu",
+      "back": "Funafuti"
+    },
+    {
+      "front": "Vanuatu",
+      "back": "Port Vila"
+    },
+    {
+      "front": "Wallis y Futuna",
+      "back": "Mata-Utu"
     }
   ]
 }

@@ -1,49 +1,224 @@
 {
   "id": "capitals-america",
   "name": "Capitales de América",
-  "description": "Aprende las capitales de los principales países americanos.",
+  "description": "Aprende las capitales de los países de América.",
   "category": "Geografía",
-  "icon": "🗺️",
   "cards": [
     {
-      "front": "Estados Unidos",
-      "back": "Washington D.C."
+      "front": "Anguilla",
+      "back": "The Valley"
     },
     {
-      "front": "Canadá",
-      "back": "Ottawa"
-    },
-    {
-      "front": "México",
-      "back": "Ciudad de México"
-    },
-    {
-      "front": "Brasil",
-      "back": "Brasilia"
+      "front": "Antigua y Barbuda",
+      "back": "Saint John's"
     },
     {
       "front": "Argentina",
       "back": "Buenos Aires"
     },
     {
-      "front": "Colombia",
-      "back": "Bogotá"
+      "front": "Aruba",
+      "back": "Oranjestad"
+    },
+    {
+      "front": "Bahamas",
+      "back": "Nassau"
+    },
+    {
+      "front": "Barbados",
+      "back": "Bridgetown"
+    },
+    {
+      "front": "Belice",
+      "back": "Belmopan"
+    },
+    {
+      "front": "Bermudas",
+      "back": "Hamilton"
+    },
+    {
+      "front": "Bolivia",
+      "back": "Sucre"
+    },
+    {
+      "front": "Brasil",
+      "back": "Brasília"
+    },
+    {
+      "front": "Canadá",
+      "back": "Ottawa"
     },
     {
       "front": "Chile",
       "back": "Santiago"
     },
     {
+      "front": "Colombia",
+      "back": "Bogotá"
+    },
+    {
+      "front": "Costa Rica",
+      "back": "San José"
+    },
+    {
+      "front": "Cuba",
+      "back": "Havana"
+    },
+    {
+      "front": "Curazao",
+      "back": "Willemstad"
+    },
+    {
+      "front": "Dominica",
+      "back": "Roseau"
+    },
+    {
+      "front": "Ecuador",
+      "back": "Quito"
+    },
+    {
+      "front": "El Salvador",
+      "back": "San Salvador"
+    },
+    {
+      "front": "Estados Unidos",
+      "back": "Washington D.C."
+    },
+    {
+      "front": "Grenada",
+      "back": "St. George's"
+    },
+    {
+      "front": "Groenlandia",
+      "back": "Nuuk"
+    },
+    {
+      "front": "Guadalupe",
+      "back": "Basse-Terre"
+    },
+    {
+      "front": "Guatemala",
+      "back": "Guatemala City"
+    },
+    {
+      "front": "Guayana Francesa",
+      "back": "Cayenne"
+    },
+    {
+      "front": "Guyana",
+      "back": "Georgetown"
+    },
+    {
+      "front": "Haití",
+      "back": "Port-au-Prince"
+    },
+    {
+      "front": "Honduras",
+      "back": "Tegucigalpa"
+    },
+    {
+      "front": "Islas Caimán",
+      "back": "George Town"
+    },
+    {
+      "front": "Islas Malvinas",
+      "back": "Stanley"
+    },
+    {
+      "front": "Islas Turks y Caicos",
+      "back": "Cockburn Town"
+    },
+    {
+      "front": "Islas Vírgenes de los Estados Unidos",
+      "back": "Charlotte Amalie"
+    },
+    {
+      "front": "Islas Vírgenes del Reino Unido",
+      "back": "Road Town"
+    },
+    {
+      "front": "Jamaica",
+      "back": "Kingston"
+    },
+    {
+      "front": "Martinica",
+      "back": "Fort-de-France"
+    },
+    {
+      "front": "Montserrat",
+      "back": "Plymouth"
+    },
+    {
+      "front": "México",
+      "back": "Mexico City"
+    },
+    {
+      "front": "Nicaragua",
+      "back": "Managua"
+    },
+    {
+      "front": "Panamá",
+      "back": "Panama City"
+    },
+    {
+      "front": "Paraguay",
+      "back": "Asunción"
+    },
+    {
       "front": "Perú",
       "back": "Lima"
     },
     {
-      "front": "Venezuela",
-      "back": "Caracas"
+      "front": "Puerto Rico",
+      "back": "San Juan"
     },
     {
-      "front": "Cuba",
-      "back": "La Habana"
+      "front": "República Dominicana",
+      "back": "Santo Domingo"
+    },
+    {
+      "front": "Saint Martin",
+      "back": "Marigot"
+    },
+    {
+      "front": "San Bartolomé",
+      "back": "Gustavia"
+    },
+    {
+      "front": "San Cristóbal y Nieves",
+      "back": "Basseterre"
+    },
+    {
+      "front": "San Pedro y Miquelón",
+      "back": "Saint-Pierre"
+    },
+    {
+      "front": "San Vicente y Granadinas",
+      "back": "Kingstown"
+    },
+    {
+      "front": "Santa Lucía",
+      "back": "Castries"
+    },
+    {
+      "front": "Sint Maarten",
+      "back": "Philipsburg"
+    },
+    {
+      "front": "Surinam",
+      "back": "Paramaribo"
+    },
+    {
+      "front": "Trinidad y Tobago",
+      "back": "Port of Spain"
+    },
+    {
+      "front": "Uruguay",
+      "back": "Montevideo"
+    },
+    {
+      "front": "Venezuela",
+      "back": "Caracas"
     }
   ]
 }

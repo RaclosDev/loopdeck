@@ -1,193 +1,976 @@
 {
   "id": "flags-world",
   "name": "Banderas del Mundo",
-  "description": "Memoriza las banderas de los principales países usando emojis nativos.",
+  "description": "Memoriza las banderas de todos los países usando emojis nativos.",
   "category": "Cultura",
-  "icon": "🚩",
   "cards": [
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇪🇸</div>",
-      "back": "España"
+      "front": "🇦🇫",
+      "back": "Afganistán"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇫🇷</div>",
-      "back": "Francia"
+      "front": "🇦🇽",
+      "back": "Alandia"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇩🇪</div>",
+      "front": "🇦🇱",
+      "back": "Albania"
+    },
+    {
+      "front": "🇩🇪",
       "back": "Alemania"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇹</div>",
-      "back": "Italia"
+      "front": "🇦🇩",
+      "back": "Andorra"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇬🇧</div>",
-      "back": "Reino Unido"
+      "front": "🇦🇴",
+      "back": "Angola"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇹</div>",
-      "back": "Portugal"
+      "front": "🇦🇮",
+      "back": "Anguilla"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇬🇷</div>",
-      "back": "Grecia"
+      "front": "🇦🇬",
+      "back": "Antigua y Barbuda"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇷🇺</div>",
-      "back": "Rusia"
+      "front": "🇸🇦",
+      "back": "Arabia Saudí"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇸🇪</div>",
-      "back": "Suecia"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇴</div>",
-      "back": "Noruega"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇫🇮</div>",
-      "back": "Finlandia"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇱</div>",
-      "back": "Polonia"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇺🇦</div>",
-      "back": "Ucrania"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇪</div>",
-      "back": "Irlanda"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇱</div>",
-      "back": "Países Bajos"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇺🇸</div>",
-      "back": "Estados Unidos"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇦</div>",
-      "back": "Canadá"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇲🇽</div>",
-      "back": "México"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇧🇷</div>",
-      "back": "Brasil"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇦🇷</div>",
-      "back": "Argentina"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇴</div>",
-      "back": "Colombia"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇱</div>",
-      "back": "Chile"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇪</div>",
-      "back": "Perú"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇻🇪</div>",
-      "back": "Venezuela"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇺</div>",
-      "back": "Cuba"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇳</div>",
-      "back": "China"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇯🇵</div>",
-      "back": "Japón"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇰🇷</div>",
-      "back": "Corea del Sur"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇳</div>",
-      "back": "India"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇹🇷</div>",
-      "back": "Turquía"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇸🇦</div>",
-      "back": "Arabia Saudita"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇩</div>",
-      "back": "Indonesia"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇷</div>",
-      "back": "Irán"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇰</div>",
-      "back": "Pakistán"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇻🇳</div>",
-      "back": "Vietnam"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇪🇬</div>",
-      "back": "Egipto"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇿🇦</div>",
-      "back": "Sudáfrica"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇬</div>",
-      "back": "Nigeria"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇰🇪</div>",
-      "back": "Kenia"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇲🇦</div>",
-      "back": "Marruecos"
-    },
-    {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇩🇿</div>",
+      "front": "🇩🇿",
       "back": "Argelia"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇪🇹</div>",
-      "back": "Etiopía"
+      "front": "🇦🇷",
+      "back": "Argentina"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇬🇭</div>",
-      "back": "Ghana"
+      "front": "🇦🇲",
+      "back": "Armenia"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇦🇺</div>",
+      "front": "🇦🇼",
+      "back": "Aruba"
+    },
+    {
+      "front": "🇦🇺",
       "back": "Australia"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇿</div>",
+      "front": "🇦🇹",
+      "back": "Austria"
+    },
+    {
+      "front": "🇦🇿",
+      "back": "Azerbaiyán"
+    },
+    {
+      "front": "🇧🇸",
+      "back": "Bahamas"
+    },
+    {
+      "front": "🇧🇭",
+      "back": "Bahrein"
+    },
+    {
+      "front": "🇧🇩",
+      "back": "Bangladesh"
+    },
+    {
+      "front": "🇧🇧",
+      "back": "Barbados"
+    },
+    {
+      "front": "🇧🇿",
+      "back": "Belice"
+    },
+    {
+      "front": "🇧🇯",
+      "back": "Benín"
+    },
+    {
+      "front": "🇧🇲",
+      "back": "Bermudas"
+    },
+    {
+      "front": "🇧🇾",
+      "back": "Bielorrusia"
+    },
+    {
+      "front": "🇧🇴",
+      "back": "Bolivia"
+    },
+    {
+      "front": "🇧🇦",
+      "back": "Bosnia y Herzegovina"
+    },
+    {
+      "front": "🇧🇼",
+      "back": "Botswana"
+    },
+    {
+      "front": "🇧🇷",
+      "back": "Brasil"
+    },
+    {
+      "front": "🇧🇳",
+      "back": "Brunei"
+    },
+    {
+      "front": "🇧🇬",
+      "back": "Bulgaria"
+    },
+    {
+      "front": "🇧🇫",
+      "back": "Burkina Faso"
+    },
+    {
+      "front": "🇧🇮",
+      "back": "Burundi"
+    },
+    {
+      "front": "🇧🇹",
+      "back": "Bután"
+    },
+    {
+      "front": "🇧🇪",
+      "back": "Bélgica"
+    },
+    {
+      "front": "🇨🇻",
+      "back": "Cabo Verde"
+    },
+    {
+      "front": "🇰🇭",
+      "back": "Camboya"
+    },
+    {
+      "front": "🇨🇲",
+      "back": "Camerún"
+    },
+    {
+      "front": "🇨🇦",
+      "back": "Canadá"
+    },
+    {
+      "front": "🇶🇦",
+      "back": "Catar"
+    },
+    {
+      "front": "🇹🇩",
+      "back": "Chad"
+    },
+    {
+      "front": "🇨🇿",
+      "back": "Chequia"
+    },
+    {
+      "front": "🇨🇱",
+      "back": "Chile"
+    },
+    {
+      "front": "🇨🇳",
+      "back": "China"
+    },
+    {
+      "front": "🇨🇾",
+      "back": "Chipre"
+    },
+    {
+      "front": "🇻🇦",
+      "back": "Ciudad del Vaticano"
+    },
+    {
+      "front": "🇨🇴",
+      "back": "Colombia"
+    },
+    {
+      "front": "🇰🇲",
+      "back": "Comoras"
+    },
+    {
+      "front": "🇨🇬",
+      "back": "Congo"
+    },
+    {
+      "front": "🇨🇩",
+      "back": "Congo (Rep. Dem.)"
+    },
+    {
+      "front": "🇰🇵",
+      "back": "Corea del Norte"
+    },
+    {
+      "front": "🇰🇷",
+      "back": "Corea del Sur"
+    },
+    {
+      "front": "🇨🇷",
+      "back": "Costa Rica"
+    },
+    {
+      "front": "🇨🇮",
+      "back": "Costa de Marfil"
+    },
+    {
+      "front": "🇭🇷",
+      "back": "Croacia"
+    },
+    {
+      "front": "🇨🇺",
+      "back": "Cuba"
+    },
+    {
+      "front": "🇨🇼",
+      "back": "Curazao"
+    },
+    {
+      "front": "🇩🇰",
+      "back": "Dinamarca"
+    },
+    {
+      "front": "🇩🇯",
+      "back": "Djibouti"
+    },
+    {
+      "front": "🇩🇲",
+      "back": "Dominica"
+    },
+    {
+      "front": "🇪🇨",
+      "back": "Ecuador"
+    },
+    {
+      "front": "🇪🇬",
+      "back": "Egipto"
+    },
+    {
+      "front": "🇸🇻",
+      "back": "El Salvador"
+    },
+    {
+      "front": "🇦🇪",
+      "back": "Emiratos Árabes Unidos"
+    },
+    {
+      "front": "🇪🇷",
+      "back": "Eritrea"
+    },
+    {
+      "front": "🇸🇰",
+      "back": "Eslovaquia"
+    },
+    {
+      "front": "🇸🇮",
+      "back": "Eslovenia"
+    },
+    {
+      "front": "🇪🇸",
+      "back": "España"
+    },
+    {
+      "front": "🇺🇸",
+      "back": "Estados Unidos"
+    },
+    {
+      "front": "🇪🇪",
+      "back": "Estonia"
+    },
+    {
+      "front": "🇸🇿",
+      "back": "Esuatini"
+    },
+    {
+      "front": "🇪🇹",
+      "back": "Etiopía"
+    },
+    {
+      "front": "🇵🇭",
+      "back": "Filipinas"
+    },
+    {
+      "front": "🇫🇮",
+      "back": "Finlandia"
+    },
+    {
+      "front": "🇫🇯",
+      "back": "Fiyi"
+    },
+    {
+      "front": "🇫🇷",
+      "back": "Francia"
+    },
+    {
+      "front": "🇬🇦",
+      "back": "Gabón"
+    },
+    {
+      "front": "🇬🇲",
+      "back": "Gambia"
+    },
+    {
+      "front": "🇬🇪",
+      "back": "Georgia"
+    },
+    {
+      "front": "🇬🇭",
+      "back": "Ghana"
+    },
+    {
+      "front": "🇬🇮",
+      "back": "Gibraltar"
+    },
+    {
+      "front": "🇬🇷",
+      "back": "Grecia"
+    },
+    {
+      "front": "🇬🇩",
+      "back": "Grenada"
+    },
+    {
+      "front": "🇬🇱",
+      "back": "Groenlandia"
+    },
+    {
+      "front": "🇬🇵",
+      "back": "Guadalupe"
+    },
+    {
+      "front": "🇬🇺",
+      "back": "Guam"
+    },
+    {
+      "front": "🇬🇹",
+      "back": "Guatemala"
+    },
+    {
+      "front": "🇬🇫",
+      "back": "Guayana Francesa"
+    },
+    {
+      "front": "🇬🇬",
+      "back": "Guernsey"
+    },
+    {
+      "front": "🇬🇳",
+      "back": "Guinea"
+    },
+    {
+      "front": "🇬🇶",
+      "back": "Guinea Ecuatorial"
+    },
+    {
+      "front": "🇬🇼",
+      "back": "Guinea-Bisáu"
+    },
+    {
+      "front": "🇬🇾",
+      "back": "Guyana"
+    },
+    {
+      "front": "🇭🇹",
+      "back": "Haití"
+    },
+    {
+      "front": "🇭🇳",
+      "back": "Honduras"
+    },
+    {
+      "front": "🇭🇰",
+      "back": "Hong Kong"
+    },
+    {
+      "front": "🇭🇺",
+      "back": "Hungría"
+    },
+    {
+      "front": "🇮🇳",
+      "back": "India"
+    },
+    {
+      "front": "🇮🇩",
+      "back": "Indonesia"
+    },
+    {
+      "front": "🇮🇶",
+      "back": "Irak"
+    },
+    {
+      "front": "🇮🇷",
+      "back": "Iran"
+    },
+    {
+      "front": "🇮🇪",
+      "back": "Irlanda"
+    },
+    {
+      "front": "🇮🇲",
+      "back": "Isla de Man"
+    },
+    {
+      "front": "🇨🇽",
+      "back": "Isla de Navidad"
+    },
+    {
+      "front": "🇳🇫",
+      "back": "Isla de Norfolk"
+    },
+    {
+      "front": "🇮🇸",
+      "back": "Islandia"
+    },
+    {
+      "front": "🇰🇾",
+      "back": "Islas Caimán"
+    },
+    {
+      "front": "🇨🇨",
+      "back": "Islas Cocos o Islas Keeling"
+    },
+    {
+      "front": "🇨🇰",
+      "back": "Islas Cook"
+    },
+    {
+      "front": "🇫🇴",
+      "back": "Islas Faroe"
+    },
+    {
+      "front": "🇫🇰",
+      "back": "Islas Malvinas"
+    },
+    {
+      "front": "🇲🇵",
+      "back": "Islas Marianas del Norte"
+    },
+    {
+      "front": "🇲🇭",
+      "back": "Islas Marshall"
+    },
+    {
+      "front": "🇵🇳",
+      "back": "Islas Pitcairn"
+    },
+    {
+      "front": "🇸🇧",
+      "back": "Islas Salomón"
+    },
+    {
+      "front": "🇸🇯",
+      "back": "Islas Svalbard y Jan Mayen"
+    },
+    {
+      "front": "🇹🇰",
+      "back": "Islas Tokelau"
+    },
+    {
+      "front": "🇹🇨",
+      "back": "Islas Turks y Caicos"
+    },
+    {
+      "front": "🇻🇮",
+      "back": "Islas Vírgenes de los Estados Unidos"
+    },
+    {
+      "front": "🇻🇬",
+      "back": "Islas Vírgenes del Reino Unido"
+    },
+    {
+      "front": "🇮🇱",
+      "back": "Israel"
+    },
+    {
+      "front": "🇮🇹",
+      "back": "Italia"
+    },
+    {
+      "front": "🇯🇲",
+      "back": "Jamaica"
+    },
+    {
+      "front": "🇯🇵",
+      "back": "Japón"
+    },
+    {
+      "front": "🇯🇪",
+      "back": "Jersey"
+    },
+    {
+      "front": "🇯🇴",
+      "back": "Jordania"
+    },
+    {
+      "front": "🇰🇿",
+      "back": "Kazajistán"
+    },
+    {
+      "front": "🇰🇪",
+      "back": "Kenia"
+    },
+    {
+      "front": "🇰🇬",
+      "back": "Kirguizistán"
+    },
+    {
+      "front": "🇰🇮",
+      "back": "Kiribati"
+    },
+    {
+      "front": "🇽🇰",
+      "back": "Kosovo"
+    },
+    {
+      "front": "🇰🇼",
+      "back": "Kuwait"
+    },
+    {
+      "front": "🇱🇦",
+      "back": "Laos"
+    },
+    {
+      "front": "🇱🇸",
+      "back": "Lesotho"
+    },
+    {
+      "front": "🇱🇻",
+      "back": "Letonia"
+    },
+    {
+      "front": "🇱🇷",
+      "back": "Liberia"
+    },
+    {
+      "front": "🇱🇾",
+      "back": "Libia"
+    },
+    {
+      "front": "🇱🇮",
+      "back": "Liechtenstein"
+    },
+    {
+      "front": "🇱🇹",
+      "back": "Lituania"
+    },
+    {
+      "front": "🇱🇺",
+      "back": "Luxemburgo"
+    },
+    {
+      "front": "🇱🇧",
+      "back": "Líbano"
+    },
+    {
+      "front": "🇲🇰",
+      "back": "Macedonia del Norte"
+    },
+    {
+      "front": "🇲🇬",
+      "back": "Madagascar"
+    },
+    {
+      "front": "🇲🇾",
+      "back": "Malasia"
+    },
+    {
+      "front": "🇲🇼",
+      "back": "Malawi"
+    },
+    {
+      "front": "🇲🇻",
+      "back": "Maldivas"
+    },
+    {
+      "front": "🇲🇱",
+      "back": "Mali"
+    },
+    {
+      "front": "🇲🇹",
+      "back": "Malta"
+    },
+    {
+      "front": "🇲🇦",
+      "back": "Marruecos"
+    },
+    {
+      "front": "🇲🇶",
+      "back": "Martinica"
+    },
+    {
+      "front": "🇲🇺",
+      "back": "Mauricio"
+    },
+    {
+      "front": "🇲🇷",
+      "back": "Mauritania"
+    },
+    {
+      "front": "🇾🇹",
+      "back": "Mayotte"
+    },
+    {
+      "front": "🇫🇲",
+      "back": "Micronesia"
+    },
+    {
+      "front": "🇲🇩",
+      "back": "Moldavia"
+    },
+    {
+      "front": "🇲🇳",
+      "back": "Mongolia"
+    },
+    {
+      "front": "🇲🇪",
+      "back": "Montenegro"
+    },
+    {
+      "front": "🇲🇸",
+      "back": "Montserrat"
+    },
+    {
+      "front": "🇲🇿",
+      "back": "Mozambique"
+    },
+    {
+      "front": "🇲🇲",
+      "back": "Myanmar"
+    },
+    {
+      "front": "🇲🇽",
+      "back": "México"
+    },
+    {
+      "front": "🇲🇨",
+      "back": "Mónaco"
+    },
+    {
+      "front": "🇳🇦",
+      "back": "Namibia"
+    },
+    {
+      "front": "🇳🇷",
+      "back": "Nauru"
+    },
+    {
+      "front": "🇳🇵",
+      "back": "Nepal"
+    },
+    {
+      "front": "🇳🇮",
+      "back": "Nicaragua"
+    },
+    {
+      "front": "🇳🇬",
+      "back": "Nigeria"
+    },
+    {
+      "front": "🇳🇺",
+      "back": "Niue"
+    },
+    {
+      "front": "🇳🇴",
+      "back": "Noruega"
+    },
+    {
+      "front": "🇳🇨",
+      "back": "Nueva Caledonia"
+    },
+    {
+      "front": "🇳🇿",
       "back": "Nueva Zelanda"
     },
     {
-      "front": "<div style='font-size: 80px; text-align: center;'>🇫🇯</div>",
-      "back": "Fiyi"
+      "front": "🇳🇪",
+      "back": "Níger"
+    },
+    {
+      "front": "🇴🇲",
+      "back": "Omán"
+    },
+    {
+      "front": "🇵🇰",
+      "back": "Pakistán"
+    },
+    {
+      "front": "🇵🇼",
+      "back": "Palau"
+    },
+    {
+      "front": "🇵🇸",
+      "back": "Palestina"
+    },
+    {
+      "front": "🇵🇦",
+      "back": "Panamá"
+    },
+    {
+      "front": "🇵🇬",
+      "back": "Papúa Nueva Guinea"
+    },
+    {
+      "front": "🇵🇾",
+      "back": "Paraguay"
+    },
+    {
+      "front": "🇳🇱",
+      "back": "Países Bajos"
+    },
+    {
+      "front": "🇵🇪",
+      "back": "Perú"
+    },
+    {
+      "front": "🇵🇫",
+      "back": "Polinesia Francesa"
+    },
+    {
+      "front": "🇵🇱",
+      "back": "Polonia"
+    },
+    {
+      "front": "🇵🇹",
+      "back": "Portugal"
+    },
+    {
+      "front": "🇵🇷",
+      "back": "Puerto Rico"
+    },
+    {
+      "front": "🇬🇧",
+      "back": "Reino Unido"
+    },
+    {
+      "front": "🇨🇫",
+      "back": "República Centroafricana"
+    },
+    {
+      "front": "🇩🇴",
+      "back": "República Dominicana"
+    },
+    {
+      "front": "🇷🇪",
+      "back": "Reunión"
+    },
+    {
+      "front": "🇷🇼",
+      "back": "Ruanda"
+    },
+    {
+      "front": "🇷🇴",
+      "back": "Rumania"
+    },
+    {
+      "front": "🇷🇺",
+      "back": "Rusia"
+    },
+    {
+      "front": "🇪🇭",
+      "back": "Sahara Occidental"
+    },
+    {
+      "front": "🇲🇫",
+      "back": "Saint Martin"
+    },
+    {
+      "front": "🇼🇸",
+      "back": "Samoa"
+    },
+    {
+      "front": "🇦🇸",
+      "back": "Samoa Americana"
+    },
+    {
+      "front": "🇧🇱",
+      "back": "San Bartolomé"
+    },
+    {
+      "front": "🇰🇳",
+      "back": "San Cristóbal y Nieves"
+    },
+    {
+      "front": "🇸🇲",
+      "back": "San Marino"
+    },
+    {
+      "front": "🇵🇲",
+      "back": "San Pedro y Miquelón"
+    },
+    {
+      "front": "🇻🇨",
+      "back": "San Vicente y Granadinas"
+    },
+    {
+      "front": "🇸🇭",
+      "back": "Santa Elena, Ascensión y Tristán de Acuña"
+    },
+    {
+      "front": "🇱🇨",
+      "back": "Santa Lucía"
+    },
+    {
+      "front": "🇸🇹",
+      "back": "Santo Tomé y Príncipe"
+    },
+    {
+      "front": "🇸🇳",
+      "back": "Senegal"
+    },
+    {
+      "front": "🇷🇸",
+      "back": "Serbia"
+    },
+    {
+      "front": "🇸🇨",
+      "back": "Seychelles"
+    },
+    {
+      "front": "🇸🇱",
+      "back": "Sierra Leone"
+    },
+    {
+      "front": "🇸🇬",
+      "back": "Singapur"
+    },
+    {
+      "front": "🇸🇽",
+      "back": "Sint Maarten"
+    },
+    {
+      "front": "🇸🇾",
+      "back": "Siria"
+    },
+    {
+      "front": "🇸🇴",
+      "back": "Somalia"
+    },
+    {
+      "front": "🇱🇰",
+      "back": "Sri Lanka"
+    },
+    {
+      "front": "🇿🇦",
+      "back": "Sudáfrica"
+    },
+    {
+      "front": "🇸🇩",
+      "back": "Sudán"
+    },
+    {
+      "front": "🇸🇸",
+      "back": "Sudán del Sur"
+    },
+    {
+      "front": "🇸🇪",
+      "back": "Suecia"
+    },
+    {
+      "front": "🇨🇭",
+      "back": "Suiza"
+    },
+    {
+      "front": "🇸🇷",
+      "back": "Surinam"
+    },
+    {
+      "front": "🇹🇭",
+      "back": "Tailandia"
+    },
+    {
+      "front": "🇹🇼",
+      "back": "Taiwán"
+    },
+    {
+      "front": "🇹🇿",
+      "back": "Tanzania"
+    },
+    {
+      "front": "🇹🇯",
+      "back": "Tayikistán"
+    },
+    {
+      "front": "🇮🇴",
+      "back": "Territorio Británico del Océano Índico"
+    },
+    {
+      "front": "🇹🇱",
+      "back": "Timor Oriental"
+    },
+    {
+      "front": "🇹🇬",
+      "back": "Togo"
+    },
+    {
+      "front": "🇹🇴",
+      "back": "Tonga"
+    },
+    {
+      "front": "🇹🇹",
+      "back": "Trinidad y Tobago"
+    },
+    {
+      "front": "🇹🇲",
+      "back": "Turkmenistán"
+    },
+    {
+      "front": "🇹🇷",
+      "back": "Turquía"
+    },
+    {
+      "front": "🇹🇻",
+      "back": "Tuvalu"
+    },
+    {
+      "front": "🇹🇳",
+      "back": "Túnez"
+    },
+    {
+      "front": "🇺🇦",
+      "back": "Ucrania"
+    },
+    {
+      "front": "🇺🇬",
+      "back": "Uganda"
+    },
+    {
+      "front": "🇺🇾",
+      "back": "Uruguay"
+    },
+    {
+      "front": "🇺🇿",
+      "back": "Uzbekistán"
+    },
+    {
+      "front": "🇻🇺",
+      "back": "Vanuatu"
+    },
+    {
+      "front": "🇻🇪",
+      "back": "Venezuela"
+    },
+    {
+      "front": "🇻🇳",
+      "back": "Vietnam"
+    },
+    {
+      "front": "🇼🇫",
+      "back": "Wallis y Futuna"
+    },
+    {
+      "front": "🇾🇪",
+      "back": "Yemen"
+    },
+    {
+      "front": "🇿🇲",
+      "back": "Zambia"
+    },
+    {
+      "front": "🇿🇼",
+      "back": "Zimbabue"
     }
   ]
 }

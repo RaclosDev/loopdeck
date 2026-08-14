@@ -1,69 +1,220 @@
 {
   "id": "capitals-europe",
   "name": "Capitales de Europa",
-  "description": "Aprende las capitales de los principales países europeos.",
+  "description": "Aprende las capitales de los países de Europa.",
   "category": "Geografía",
-  "icon": "🗺️",
   "cards": [
+    {
+      "front": "Alandia",
+      "back": "Mariehamn"
+    },
+    {
+      "front": "Albania",
+      "back": "Tirana"
+    },
+    {
+      "front": "Alemania",
+      "back": "Berlin"
+    },
+    {
+      "front": "Andorra",
+      "back": "Andorra la Vella"
+    },
+    {
+      "front": "Austria",
+      "back": "Vienna"
+    },
+    {
+      "front": "Bielorrusia",
+      "back": "Minsk"
+    },
+    {
+      "front": "Bosnia y Herzegovina",
+      "back": "Sarajevo"
+    },
+    {
+      "front": "Bulgaria",
+      "back": "Sofia"
+    },
+    {
+      "front": "Bélgica",
+      "back": "Brussels"
+    },
+    {
+      "front": "Chequia",
+      "back": "Prague"
+    },
+    {
+      "front": "Chipre",
+      "back": "Nicosia"
+    },
+    {
+      "front": "Ciudad del Vaticano",
+      "back": "Vatican City"
+    },
+    {
+      "front": "Croacia",
+      "back": "Zagreb"
+    },
+    {
+      "front": "Dinamarca",
+      "back": "Copenhagen"
+    },
+    {
+      "front": "Eslovaquia",
+      "back": "Bratislava"
+    },
+    {
+      "front": "Eslovenia",
+      "back": "Ljubljana"
+    },
     {
       "front": "España",
       "back": "Madrid"
     },
     {
-      "front": "Francia",
-      "back": "París"
-    },
-    {
-      "front": "Alemania",
-      "back": "Berlín"
-    },
-    {
-      "front": "Italia",
-      "back": "Roma"
-    },
-    {
-      "front": "Reino Unido",
-      "back": "Londres"
-    },
-    {
-      "front": "Portugal",
-      "back": "Lisboa"
-    },
-    {
-      "front": "Grecia",
-      "back": "Atenas"
-    },
-    {
-      "front": "Rusia",
-      "back": "Moscú"
-    },
-    {
-      "front": "Suecia",
-      "back": "Estocolmo"
-    },
-    {
-      "front": "Noruega",
-      "back": "Oslo"
+      "front": "Estonia",
+      "back": "Tallinn"
     },
     {
       "front": "Finlandia",
       "back": "Helsinki"
     },
     {
-      "front": "Polonia",
-      "back": "Varsovia"
+      "front": "Francia",
+      "back": "Paris"
     },
     {
-      "front": "Ucrania",
-      "back": "Kiev"
+      "front": "Gibraltar",
+      "back": "Gibraltar"
+    },
+    {
+      "front": "Grecia",
+      "back": "Athens"
+    },
+    {
+      "front": "Guernsey",
+      "back": "St. Peter Port"
+    },
+    {
+      "front": "Hungría",
+      "back": "Budapest"
     },
     {
       "front": "Irlanda",
-      "back": "Dublín"
+      "back": "Dublin"
+    },
+    {
+      "front": "Isla de Man",
+      "back": "Douglas"
+    },
+    {
+      "front": "Islandia",
+      "back": "Reykjavik"
+    },
+    {
+      "front": "Islas Faroe",
+      "back": "Tórshavn"
+    },
+    {
+      "front": "Islas Svalbard y Jan Mayen",
+      "back": "Longyearbyen"
+    },
+    {
+      "front": "Italia",
+      "back": "Rome"
+    },
+    {
+      "front": "Jersey",
+      "back": "Saint Helier"
+    },
+    {
+      "front": "Kosovo",
+      "back": "Pristina"
+    },
+    {
+      "front": "Letonia",
+      "back": "Riga"
+    },
+    {
+      "front": "Liechtenstein",
+      "back": "Vaduz"
+    },
+    {
+      "front": "Lituania",
+      "back": "Vilnius"
+    },
+    {
+      "front": "Luxemburgo",
+      "back": "Luxembourg"
+    },
+    {
+      "front": "Macedonia del Norte",
+      "back": "Skopje"
+    },
+    {
+      "front": "Malta",
+      "back": "Valletta"
+    },
+    {
+      "front": "Moldavia",
+      "back": "Chișinău"
+    },
+    {
+      "front": "Montenegro",
+      "back": "Podgorica"
+    },
+    {
+      "front": "Mónaco",
+      "back": "Monaco"
+    },
+    {
+      "front": "Noruega",
+      "back": "Oslo"
     },
     {
       "front": "Países Bajos",
-      "back": "Ámsterdam"
+      "back": "Amsterdam"
+    },
+    {
+      "front": "Polonia",
+      "back": "Warsaw"
+    },
+    {
+      "front": "Portugal",
+      "back": "Lisbon"
+    },
+    {
+      "front": "Reino Unido",
+      "back": "London"
+    },
+    {
+      "front": "Rumania",
+      "back": "Bucharest"
+    },
+    {
+      "front": "Rusia",
+      "back": "Moscow"
+    },
+    {
+      "front": "San Marino",
+      "back": "City of San Marino"
+    },
+    {
+      "front": "Serbia",
+      "back": "Belgrade"
+    },
+    {
+      "front": "Suecia",
+      "back": "Stockholm"
+    },
+    {
+      "front": "Suiza",
+      "back": "Bern"
+    },
+    {
+      "front": "Ucrania",
+      "back": "Kyiv"
     }
   ]
 }
