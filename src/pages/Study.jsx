@@ -89,12 +89,19 @@ function Study() {
   const getFront = () => {
     const f = getFields();
     if (card?.cardOrdinal === 1) return f.back || '';
+    if (note?.noteType === 'cloze') {
+      return (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--srs-new);border-bottom:2px dashed var(--srs-new);padding:0 4px">[...]</span>');
+    }
     return f.front || f.text || '';
   };
 
   const getBack = () => {
     const f = getFields();
     if (card?.cardOrdinal === 1) return f.front || '';
+    if (note?.noteType === 'cloze') {
+      const text = (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--srs-new);border-bottom:2px dashed var(--srs-new);padding:0 4px">$1</span>');
+      return text + (f.extra ? `<div style="width: 60%; height: 1px; background: var(--border-color); margin: 16px auto;"></div><div style="font-size: 0.95rem; color: var(--text-dim);">${f.extra}</div>` : '');
+    }
     return f.back || f.extra || '';
   };
 
