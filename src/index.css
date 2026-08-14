@@ -1496,9 +1496,6 @@ textarea.glass-input {
 }
 
 @media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
 
   .deck-card-counts {
     gap: 12px;
