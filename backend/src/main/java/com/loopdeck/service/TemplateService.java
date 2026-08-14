@@ -83,6 +83,7 @@ public class TemplateService {
                 return deck;
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException("Failed to import template", e);
         }
     }
@@ -97,6 +98,7 @@ public class TemplateService {
                 return objectMapper.readValue(is, new TypeReference<List<Map<String, Object>>>() {});
             }
         } catch (Exception e) {
+            e.printStackTrace();
             return List.of();
         }
     }

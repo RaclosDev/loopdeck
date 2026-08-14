@@ -34,14 +34,15 @@ public class TemplateController {
 
     @PostMapping("/import")
     public ResponseEntity<Deck> importTemplate(@RequestParam String type, Authentication authentication) {
-        String userEmail = authentication.getName();
-        User user = userRepository.findByEmail(userEmail)
+        String userId = authentication.getName();
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         try {
             Deck importedDeck = templateService.importTemplate(user, type);
             return ResponseEntity.ok(importedDeck);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
