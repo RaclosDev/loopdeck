@@ -13,8 +13,9 @@ export default function Browser() {
     const fields = JSON.parse(note.fieldsJson || '{}');
     const front = (fields.front || fields.Front || '').toLowerCase();
     const back = (fields.back || fields.Back || '').toLowerCase();
+    const tags = (note.tags || '').toLowerCase();
     const q = searchQuery.toLowerCase();
-    return front.includes(q) || back.includes(q);
+    return front.includes(q) || back.includes(q) || tags.includes(q);
   });
 
   // Fetch decks on mount
@@ -101,6 +102,7 @@ export default function Browser() {
                 <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                   <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Anverso (Front)</th>
                   <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Reverso (Back)</th>
+                  <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Etiquetas</th>
                   <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500, width: '100px' }}>Acciones</th>
                 </tr>
               </thead>
@@ -111,6 +113,13 @@ export default function Browser() {
                     <tr key={note.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
                       <td style={{ padding: '1rem', color: 'var(--text-main)' }}>{fields.front || fields.Front || ''}</td>
                       <td style={{ padding: '1rem', color: 'var(--text-dim)' }}>{fields.back || fields.Back || ''}</td>
+                      <td style={{ padding: '1rem' }}>
+                        {note.tags ? note.tags.split(',').map(tag => (
+                          <span key={tag} style={{ display: 'inline-block', background: 'rgba(139, 92, 246, 0.15)', color: '#c4b5fd', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', marginRight: '4px' }}>
+                            {tag.trim()}
+                          </span>
+                        )) : '-'}
+                      </td>
                       <td style={{ padding: '1rem' }}>
                         <button 
                           onClick={() => handleDelete(note.id)}
