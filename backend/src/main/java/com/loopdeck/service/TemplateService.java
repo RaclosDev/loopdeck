@@ -46,7 +46,7 @@ public class TemplateService {
                 
                 // Create Deck
                 Deck deck = new Deck();
-                deck.setUser(user);
+                deck.setUserId(user.getId());
                 deck.setName((String) templateData.get("name"));
                 deck.setDescription((String) templateData.get("description"));
                 deck = deckRepository.save(deck);
@@ -57,8 +57,8 @@ public class TemplateService {
                 
                 for (Map<String, String> cardData : cards) {
                     Note note = new Note();
-                    note.setUser(user);
-                    note.setDeck(deck);
+                    note.setUserId(user.getId());
+                    note.setDeckId(deck.getId());
                     note.setNoteType("basic");
                     note.setTags(tags);
                     
@@ -70,7 +70,7 @@ public class TemplateService {
                     note = noteRepository.save(note);
 
                     Card card = new Card();
-                    card.setNote(note);
+                    card.setNoteId(note.getId());
                     card.setCardOrdinal(0);
                     card.setState("new");
                     card.setIntervalDays(0.0);
