@@ -61,6 +61,31 @@ export default function Browser() {
     }
   };
 
+  const renderField = (html) => {
+    if (!html) return '-';
+    const imgMatch = html.match(/<img[^>]+src="([^">]+)"/);
+    const textOnly = html.replace(/<[^>]*>/g, ' ').trim();
+    
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '300px' }}>
+        {imgMatch && (
+          <div style={{ 
+            width: 36, height: 36, borderRadius: 4, overflow: 'hidden', flexShrink: 0,
+            border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)'
+          }}>
+            <img src={imgMatch[1]} alt="thumb" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        )}
+        {textOnly && (
+          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {textOnly}
+          </span>
+        )}
+        {!imgMatch && !textOnly && '-'}
+      </div>
+    );
+  };
+
   return (
     <div className="dashboard">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
@@ -138,8 +163,8 @@ export default function Browser() {
                   const fields = JSON.parse(note.fieldsJson || '{}');
                   return (
                     <tr key={note.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
-                      <td style={{ padding: '1rem', color: 'var(--text-main)' }}>{fields.front || fields.Front || fields.text || ''}</td>
-                      <td style={{ padding: '1rem', color: 'var(--text-dim)' }}>{fields.back || fields.Back || fields.extra || ''}</td>
+                      <td style={{ padding: '1rem', color: 'var(--text-main)' }}>{renderField(fields.front || fields.Front || fields.text)}</td>
+                      <td style={{ padding: '1rem', color: 'var(--text-dim)' }}>{renderField(fields.back || fields.Back || fields.extra)}</td>
                       <td style={{ padding: '1rem' }}>
                         {note.tags ? note.tags.trim().split(/\s+/).filter(Boolean).map(tag => (
                           <span key={tag} style={{ display: 'inline-block', background: 'rgba(139, 92, 246, 0.15)', color: '#c4b5fd', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', marginRight: '4px', marginBottom: '4px' }}>
