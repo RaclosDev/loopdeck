@@ -1474,12 +1474,27 @@ textarea.glass-input {
     grid-template-columns: 1fr;
   }
 
+  .flashcard-wrapper {
+    margin-bottom: 12px;
+  }
+
+  .flashcard {
+    min-height: 250px;
+  }
+
   .rating-buttons {
     grid-template-columns: repeat(2, 1fr);
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  .rating-btn {
+    padding: 0.75rem 1rem;
+    min-width: unset;
   }
 
   .flashcard-face {
-    min-height: 280px;
+    min-height: 250px;
     padding: 24px;
   }
 
