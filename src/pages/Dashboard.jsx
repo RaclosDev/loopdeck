@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import useStore from '../store/useStore';
-import { decksApi, studyApi } from '../services/api';
+import { decksApi, studyApi, templatesApi } from '../services/api';
 
 function Dashboard() {
   const [decks, setDecks] = useState([]);
@@ -13,6 +13,7 @@ function Dashboard() {
   const [newDeckDesc, setNewDeckDesc] = useState('');
   const [editingDeck, setEditingDeck] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
   const navigate = useNavigate();
   const { addToast } = useStore();
 
@@ -83,6 +84,19 @@ function Dashboard() {
       addToast(`"${deck.name}" eliminado`, 'info');
     } catch (e) {
       addToast('Error: ' + e.message, 'error');
+    }
+  };
+
+  const handleImportTemplate = async (type) => {
+    setImporting(true);
+    try {
+      await templatesApi.import(type);
+      addToast('Plantilla importada con éxito', 'success');
+      await loadDecks();
+    } catch (e) {
+      addToast('Error importando plantilla: ' + e.message, 'error');
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -225,6 +239,31 @@ function Dashboard() {
           </button>
         </div>
       )}
+
+      {/* Templates Section */}
+      <div className="page-header" style={{ marginTop: 40 }}>
+        <h2>Plantillas Disponibles</h2>
+        <p>Descarga mazos prediseñados para empezar a estudiar al instante.</p>
+      </div>
+      
+      <div className="decks-grid" style={{ marginBottom: 40 }}>
+        <div className="deck-card" style={{ border: '1px dashed var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+          <div className="deck-card-header">
+            <span className="deck-card-name">🌍 Capitales del Mundo</span>
+          </div>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 16 }}>
+            Aprende las capitales de los países más importantes de todos los continentes. Ideal para empezar con geografía. (21 tarjetas)
+          </div>
+          <button 
+            className="primary-btn" 
+            style={{ width: '100%' }}
+            onClick={() => handleImportTemplate('capitals')}
+            disabled={importing}
+          >
+            {importing ? <span className="spinner-sm" /> : '⬇️ Descargar Mazo'}
+          </button>
+        </div>
+      </div>
 
       {/* New Deck Modal */}
       <Modal

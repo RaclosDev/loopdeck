@@ -82,9 +82,16 @@ export const studyApi = {
   }),
 };
 
+// ── Templates ─────────────────────────────────────────────────
+
+export const templatesApi = {
+  import: (type) => request(`/templates/import?type=${type}`, { method: 'POST' }),
+};
+
 export default {
   auth: authApi,
   decks: decksApi,
   notes: notesApi,
   study: studyApi,
+  templates: templatesApi,
 };
