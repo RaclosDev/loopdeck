@@ -162,7 +162,7 @@ function AddCard() {
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <label style={{ margin: 0 }}>Frente (Pregunta)</label>
-                <button className="icon-btn" style={{ fontSize: '0.8rem', padding: '2px 8px', background: 'var(--surface-color)', borderRadius: 12 }} onClick={() => setActiveImageField('front')} title="Buscar imagen en Wikipedia">
+                <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '4px 10px' }} onClick={() => setActiveImageField('front')} title="Buscar imagen en Wikipedia">
                   🖼️ Buscar Foto
                 </button>
               </div>
@@ -171,7 +171,7 @@ function AddCard() {
             <div className="form-group">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                 <label style={{ margin: 0 }}>Dorso (Respuesta)</label>
-                <button className="icon-btn" style={{ fontSize: '0.8rem', padding: '2px 8px', background: 'var(--surface-color)', borderRadius: 12 }} onClick={() => setActiveImageField('back')} title="Buscar imagen en Wikipedia">
+                <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '4px 10px' }} onClick={() => setActiveImageField('back')} title="Buscar imagen en Wikipedia">
                   🖼️ Buscar Foto
                 </button>
               </div>

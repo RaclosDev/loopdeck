@@ -55,7 +55,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect }) {
 
   return (
     <div className="modal-overlay animate-fade-in" onClick={onClose} style={{ zIndex: 9999 }}>
-      <div className="modal-content animate-slide-up" onClick={e => e.stopPropagation()} style={{ maxWidth: 700, padding: 24 }}>
+      <div className="modal animate-slide-up" onClick={e => e.stopPropagation()} style={{ maxWidth: 700, padding: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <h2 style={{ margin: 0, fontSize: '1.25rem' }}>🖼️ Buscar Imagen (Wikipedia)</h2>
           <button className="icon-btn" onClick={onClose}>✕</button>
@@ -64,7 +64,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect }) {
         <form onSubmit={searchImages} style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
           <input
             ref={inputRef}
-            className="form-input"
+            className="glass-input"
             type="text"
             placeholder="Ej: Ceviche, Perro, Madrid..."
             value={query}
