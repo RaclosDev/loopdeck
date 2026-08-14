@@ -105,7 +105,7 @@ public class CardService {
     private static final int GRADUATING_INTERVAL_DAYS = 1;
     private static final int EASY_INTERVAL_DAYS = 4;
 
-    private void applySmTwo(Card card, int rating) {
+    void applySmTwo(Card card, int rating) {
         switch (card.getState()) {
             case "new", "learning" -> applyLearning(card, rating);
             case "review" -> applyReview(card, rating);

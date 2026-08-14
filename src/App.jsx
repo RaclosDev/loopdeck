@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Study from './pages/Study';
@@ -7,8 +6,8 @@ import AddCard from './pages/AddCard';
 import Stats from './pages/Stats';
 import AuthPage from './pages/AuthPage';
 import Browser from './pages/Browser';
+import Settings from './pages/Settings';
 import useAuthStore from './store/useAuthStore';
-import useStore from './store/useStore';
 
 function ProtectedRoute({ children }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -37,6 +36,7 @@ function App() {
                   <Route path="/add/:deckId" element={<AddCard />} />
                   <Route path="/stats" element={<Stats />} />
                   <Route path="/browser" element={<Browser />} />
+                  <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>

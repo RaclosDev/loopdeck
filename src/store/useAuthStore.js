@@ -19,7 +19,7 @@ async function authRequest(endpoint, body) {
 
 const useAuthStore = create(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       token: null,
       isAuthenticated: false,

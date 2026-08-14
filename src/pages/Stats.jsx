@@ -49,14 +49,14 @@ function Stats() {
           young: allCards.filter(c => c.state === 'review' && (c.intervalDays || 0) < 21).length,
           suspended: allCards.filter(c => c.suspended).length,
         });
-      } catch (e) {
+      } catch {
         addToast('Error cargando estadísticas', 'error');
       } finally {
         setLoading(false);
       }
     };
     load();
-  }, []);
+  }, [addToast]);
 
   const stateBarTotal = stats.totalCards || 1;
 

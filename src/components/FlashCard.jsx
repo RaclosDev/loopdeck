@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
-function FlashCard({ front, back, isFlipped, onFlip }) {
+function FlashCard({ front, back, isFlipped, onFlip, animationsEnabled = true }) {
   const [cardHeight, setCardHeight] = useState(350);
   const frontRef = useRef(null);
   const backRef = useRef(null);
@@ -23,7 +23,7 @@ function FlashCard({ front, back, isFlipped, onFlip }) {
     <div className="flashcard-wrapper" onClick={onFlip}>
       <div
         className={`flashcard ${isFlipped ? 'flipped' : ''}`}
-        style={{ height: cardHeight }}
+        style={{ height: cardHeight, transition: !animationsEnabled ? 'none' : '' }}
       >
         {/* Front */}
         <div className="flashcard-face flashcard-front" ref={frontRef}>

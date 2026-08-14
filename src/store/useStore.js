@@ -2,8 +2,11 @@
  * FlashForge — Global Store (Zustand)
  */
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useStore = create((set, get) => ({
+const useStore = create(
+  persist(
+    (set) => ({
   // ── UI State ────────────────────────────────────────────────
   sidebarOpen: false,
   toggleSidebar: () => set(s => ({ sidebarOpen: !s.sidebarOpen })),
@@ -28,6 +31,20 @@ const useStore = create((set, get) => ({
   modalData: null,
   openModal: (name, data = null) => set({ activeModal: name, modalData: data }),
   closeModal: () => set({ activeModal: null, modalData: null }),
-}));
+
+  // ── Settings ────────────────────────────────────────────────
+  settings: {
+    showTimer: false,
+    animationsEnabled: true,
+    studyOrder: 'new_first',
+  },
+  updateSettings: (newSettings) => set((s) => ({ settings: { ...s.settings, ...newSettings } })),
+    }),
+    {
+      name: 'flashforge-settings',
+      partialize: (state) => ({ settings: state.settings }),
+    }
+  )
+);
 
 export default useStore;

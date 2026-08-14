@@ -24,7 +24,7 @@ function getIntervalLabel(card, rating) {
 function Study() {
   const { deckId } = useParams();
   const navigate = useNavigate();
-  const { addToast } = useStore();
+  const { addToast, settings } = useStore();
 
   const [deck, setDeck] = useState(null);
   const [queue, setQueue] = useState([]); // array of {card, note}
@@ -35,6 +35,15 @@ function Study() {
   const [undoStack, setUndoStack] = useState([]); // { card, noteFields }
   const [isComplete, setIsComplete] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [elapsedTime, setElapsedTime] = useState(0);
+
+  useEffect(() => {
+    if (!settings?.showTimer || isComplete) return;
+    const interval = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - sessionStats.startTime) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [settings?.showTimer, isComplete, sessionStats.startTime]);
 
   const loadSession = useCallback(async () => {
     setLoading(true);
@@ -55,6 +64,24 @@ function Study() {
 
       const pairs = cards.map(card => ({ card, note: notesMap[card.noteId] })).filter(p => p.note);
 
+      // Sort according to settings
+      const order = settings?.studyOrder || 'new_first';
+      if (order === 'new_first') {
+        pairs.sort((a, b) => {
+          if (a.card.state === 'new' && b.card.state !== 'new') return -1;
+          if (a.card.state !== 'new' && b.card.state === 'new') return 1;
+          return 0;
+        });
+      } else if (order === 'review_first') {
+        pairs.sort((a, b) => {
+          if (a.card.state === 'review' && b.card.state !== 'review') return -1;
+          if (a.card.state !== 'review' && b.card.state === 'review') return 1;
+          return 0;
+        });
+      } else if (order === 'mixed') {
+        pairs.sort(() => Math.random() - 0.5);
+      }
+
       const now = new Date();
       setCounts({
         new: pairs.filter(p => p.card.state === 'new').length,
@@ -70,7 +97,7 @@ function Study() {
     } finally {
       setLoading(false);
     }
-  }, [deckId]);
+  }, [deckId, addToast, navigate, settings?.studyOrder]);
 
   useEffect(() => { loadSession(); }, [loadSession]);
 
@@ -180,6 +207,7 @@ function Study() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFlipped, card, queue, currentIndex, undoStack]);
 
   if (loading) {
@@ -249,6 +277,11 @@ function Study() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <button className="glass-btn" onClick={() => navigate('/')} style={{ padding: '8px 12px' }}>←</button>
           <span className="study-deck-name">{deck?.name}</span>
+          {settings?.showTimer && (
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginLeft: '8px', fontVariantNumeric: 'tabular-nums' }}>
+              ⏱️ {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
+            </span>
+          )}
         </div>
         <div className="study-progress">
           <span className="study-count new">{counts.new}</span>
@@ -263,6 +296,7 @@ function Study() {
         back={getBack()}
         isFlipped={isFlipped}
         onFlip={handleFlip}
+        animationsEnabled={settings?.animationsEnabled ?? true}
       />
 
       {/* Actions */}

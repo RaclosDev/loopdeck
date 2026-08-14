@@ -79,10 +79,14 @@ function Layout({ children }) {
                 Explorar Tarjetas
               </NavLink>
 
-              <button className="sidebar-link" onClick={() => {/* TODO: settings */}}>
+              <NavLink
+                to="/settings"
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
                 <span className="link-icon">⚙️</span>
                 Configuración
-              </button>
+              </NavLink>
             </nav>
 
             <div className="sidebar-footer">

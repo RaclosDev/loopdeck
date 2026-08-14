@@ -43,7 +43,7 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [addToast]);
 
   useEffect(() => { loadDecks(); }, [loadDecks]);
 

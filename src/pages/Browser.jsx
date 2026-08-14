@@ -56,7 +56,7 @@ export default function Browser() {
     try {
       await notesApi.delete(noteId);
       setNotes(notes.filter(n => n.id !== noteId));
-    } catch (err) {
+    } catch {
       alert('Error al borrar la tarjeta');
     }
   };

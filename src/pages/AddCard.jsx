@@ -26,14 +26,14 @@ function AddCard() {
   const tagInputRef = useRef(null);
 
   useEffect(() => {
-    decksApi.getAll().then(setDecks).catch(e => addToast('Error cargando mazos', 'error'));
-  }, []);
+    decksApi.getAll().then(setDecks).catch(_e => addToast('Error cargando mazos', 'error'));
+  }, [addToast]);
 
   useEffect(() => {
     if (paramDeckId) setSelectedDeckId(paramDeckId);
   }, [paramDeckId]);
 
-  const noteType = NOTE_TYPES.find(t => t.id === selectedType);
+
 
   const execCommand = (command, value = null) => document.execCommand(command, false, value);
 
@@ -98,7 +98,7 @@ function AddCard() {
         ? JSON.stringify({ text: fields.text || '', extra: fields.extra || '' })
         : JSON.stringify({ front: fields.front || '', back: fields.back || '' });
 
-      const note = await notesApi.create({
+      await notesApi.create({
         deckId: selectedDeckId,
         noteType: selectedType,
         fieldsJson,
@@ -126,6 +126,7 @@ function AddCard() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fields, selectedDeckId, selectedType, tags]);
 
   return (
