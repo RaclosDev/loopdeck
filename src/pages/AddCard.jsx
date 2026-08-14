@@ -87,10 +87,16 @@ function AddCard() {
   const handleAdd = async (andClose = false) => {
     if (!selectedDeckId) { addToast('Selecciona un mazo', 'error'); return; }
 
-    const frontText = fields.front?.replace(/<[^>]*>/g, '').trim();
-    const backText = fields.back?.replace(/<[^>]*>/g, '').trim();
+    const hasContent = (html) => {
+      if (!html) return false;
+      if (html.includes('<img')) return true;
+      return html.replace(/<[^>]*>/g, '').trim().length > 0;
+    };
 
-    if (!frontText || !backText) { addToast('Rellena el frente y el dorso', 'error'); return; }
+    if (!hasContent(fields.front) || !hasContent(fields.back)) { 
+      addToast('El frente y el dorso deben tener algún texto o imagen', 'error'); 
+      return; 
+    }
 
     const finalTags = [...tags];
     if (tagInput.trim()) {
