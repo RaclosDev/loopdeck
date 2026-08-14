@@ -1,0 +1,21 @@
+{
+  "id": "capitals-oceania",
+  "name": "Capitales de Oceanía",
+  "description": "Aprende las capitales de Oceanía.",
+  "category": "Geografía",
+  "icon": "🗺️",
+  "cards": [
+    {
+      "front": "Australia",
+      "back": "Canberra"
+    },
+    {
+      "front": "Nueva Zelanda",
+      "back": "Wellington"
+    },
+    {
+      "front": "Fiyi",
+      "back": "Suva"
+    }
+  ]
+}

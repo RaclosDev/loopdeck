@@ -1,0 +1,193 @@
+{
+  "id": "flags-world",
+  "name": "Banderas del Mundo",
+  "description": "Memoriza las banderas de los principales países usando emojis nativos.",
+  "category": "Cultura",
+  "icon": "🚩",
+  "cards": [
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇪🇸</div>",
+      "back": "España"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇫🇷</div>",
+      "back": "Francia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇩🇪</div>",
+      "back": "Alemania"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇹</div>",
+      "back": "Italia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇬🇧</div>",
+      "back": "Reino Unido"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇹</div>",
+      "back": "Portugal"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇬🇷</div>",
+      "back": "Grecia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇷🇺</div>",
+      "back": "Rusia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇸🇪</div>",
+      "back": "Suecia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇴</div>",
+      "back": "Noruega"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇫🇮</div>",
+      "back": "Finlandia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇱</div>",
+      "back": "Polonia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇺🇦</div>",
+      "back": "Ucrania"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇪</div>",
+      "back": "Irlanda"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇱</div>",
+      "back": "Países Bajos"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇺🇸</div>",
+      "back": "Estados Unidos"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇦</div>",
+      "back": "Canadá"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇲🇽</div>",
+      "back": "México"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇧🇷</div>",
+      "back": "Brasil"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇦🇷</div>",
+      "back": "Argentina"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇴</div>",
+      "back": "Colombia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇱</div>",
+      "back": "Chile"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇪</div>",
+      "back": "Perú"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇻🇪</div>",
+      "back": "Venezuela"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇺</div>",
+      "back": "Cuba"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇨🇳</div>",
+      "back": "China"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇯🇵</div>",
+      "back": "Japón"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇰🇷</div>",
+      "back": "Corea del Sur"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇳</div>",
+      "back": "India"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇹🇷</div>",
+      "back": "Turquía"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇸🇦</div>",
+      "back": "Arabia Saudita"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇩</div>",
+      "back": "Indonesia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇮🇷</div>",
+      "back": "Irán"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇵🇰</div>",
+      "back": "Pakistán"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇻🇳</div>",
+      "back": "Vietnam"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇪🇬</div>",
+      "back": "Egipto"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇿🇦</div>",
+      "back": "Sudáfrica"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇬</div>",
+      "back": "Nigeria"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇰🇪</div>",
+      "back": "Kenia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇲🇦</div>",
+      "back": "Marruecos"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇩🇿</div>",
+      "back": "Argelia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇪🇹</div>",
+      "back": "Etiopía"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇬🇭</div>",
+      "back": "Ghana"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇦🇺</div>",
+      "back": "Australia"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇳🇿</div>",
+      "back": "Nueva Zelanda"
+    },
+    {
+      "front": "<div style='font-size: 80px; text-align: center;'>🇫🇯</div>",
+      "back": "Fiyi"
+    }
+  ]
+}

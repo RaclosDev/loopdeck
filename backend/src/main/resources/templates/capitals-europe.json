@@ -1,0 +1,69 @@
+{
+  "id": "capitals-europe",
+  "name": "Capitales de Europa",
+  "description": "Aprende las capitales de los principales países europeos.",
+  "category": "Geografía",
+  "icon": "🗺️",
+  "cards": [
+    {
+      "front": "España",
+      "back": "Madrid"
+    },
+    {
+      "front": "Francia",
+      "back": "París"
+    },
+    {
+      "front": "Alemania",
+      "back": "Berlín"
+    },
+    {
+      "front": "Italia",
+      "back": "Roma"
+    },
+    {
+      "front": "Reino Unido",
+      "back": "Londres"
+    },
+    {
+      "front": "Portugal",
+      "back": "Lisboa"
+    },
+    {
+      "front": "Grecia",
+      "back": "Atenas"
+    },
+    {
+      "front": "Rusia",
+      "back": "Moscú"
+    },
+    {
+      "front": "Suecia",
+      "back": "Estocolmo"
+    },
+    {
+      "front": "Noruega",
+      "back": "Oslo"
+    },
+    {
+      "front": "Finlandia",
+      "back": "Helsinki"
+    },
+    {
+      "front": "Polonia",
+      "back": "Varsovia"
+    },
+    {
+      "front": "Ucrania",
+      "back": "Kiev"
+    },
+    {
+      "front": "Irlanda",
+      "back": "Dublín"
+    },
+    {
+      "front": "Países Bajos",
+      "back": "Ámsterdam"
+    }
+  ]
+}

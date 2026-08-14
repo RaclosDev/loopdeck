@@ -85,6 +85,7 @@ export const studyApi = {
 // ── Templates ─────────────────────────────────────────────────
 
 export const templatesApi = {
+  getAll: () => request('/templates'),
   import: (type) => request(`/templates/import?type=${type}`, { method: 'POST' }),
 };
 

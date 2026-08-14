@@ -1,0 +1,193 @@
+{
+  "id": "capitals-world",
+  "name": "Capitales del Mundo",
+  "description": "El reto definitivo. Todas las capitales importantes del mundo en un solo mazo.",
+  "category": "Geografía",
+  "icon": "🌍",
+  "cards": [
+    {
+      "front": "España",
+      "back": "Madrid"
+    },
+    {
+      "front": "Francia",
+      "back": "París"
+    },
+    {
+      "front": "Alemania",
+      "back": "Berlín"
+    },
+    {
+      "front": "Italia",
+      "back": "Roma"
+    },
+    {
+      "front": "Reino Unido",
+      "back": "Londres"
+    },
+    {
+      "front": "Portugal",
+      "back": "Lisboa"
+    },
+    {
+      "front": "Grecia",
+      "back": "Atenas"
+    },
+    {
+      "front": "Rusia",
+      "back": "Moscú"
+    },
+    {
+      "front": "Suecia",
+      "back": "Estocolmo"
+    },
+    {
+      "front": "Noruega",
+      "back": "Oslo"
+    },
+    {
+      "front": "Finlandia",
+      "back": "Helsinki"
+    },
+    {
+      "front": "Polonia",
+      "back": "Varsovia"
+    },
+    {
+      "front": "Ucrania",
+      "back": "Kiev"
+    },
+    {
+      "front": "Irlanda",
+      "back": "Dublín"
+    },
+    {
+      "front": "Países Bajos",
+      "back": "Ámsterdam"
+    },
+    {
+      "front": "Estados Unidos",
+      "back": "Washington D.C."
+    },
+    {
+      "front": "Canadá",
+      "back": "Ottawa"
+    },
+    {
+      "front": "México",
+      "back": "Ciudad de México"
+    },
+    {
+      "front": "Brasil",
+      "back": "Brasilia"
+    },
+    {
+      "front": "Argentina",
+      "back": "Buenos Aires"
+    },
+    {
+      "front": "Colombia",
+      "back": "Bogotá"
+    },
+    {
+      "front": "Chile",
+      "back": "Santiago"
+    },
+    {
+      "front": "Perú",
+      "back": "Lima"
+    },
+    {
+      "front": "Venezuela",
+      "back": "Caracas"
+    },
+    {
+      "front": "Cuba",
+      "back": "La Habana"
+    },
+    {
+      "front": "China",
+      "back": "Pekín"
+    },
+    {
+      "front": "Japón",
+      "back": "Tokio"
+    },
+    {
+      "front": "Corea del Sur",
+      "back": "Seúl"
+    },
+    {
+      "front": "India",
+      "back": "Nueva Delhi"
+    },
+    {
+      "front": "Turquía",
+      "back": "Ankara"
+    },
+    {
+      "front": "Arabia Saudita",
+      "back": "Riad"
+    },
+    {
+      "front": "Indonesia",
+      "back": "Yakarta"
+    },
+    {
+      "front": "Irán",
+      "back": "Teherán"
+    },
+    {
+      "front": "Pakistán",
+      "back": "Islamabad"
+    },
+    {
+      "front": "Vietnam",
+      "back": "Hanói"
+    },
+    {
+      "front": "Egipto",
+      "back": "El Cairo"
+    },
+    {
+      "front": "Sudáfrica",
+      "back": "Pretoria"
+    },
+    {
+      "front": "Nigeria",
+      "back": "Abuya"
+    },
+    {
+      "front": "Kenia",
+      "back": "Nairobi"
+    },
+    {
+      "front": "Marruecos",
+      "back": "Rabat"
+    },
+    {
+      "front": "Argelia",
+      "back": "Argel"
+    },
+    {
+      "front": "Etiopía",
+      "back": "Adís Abeba"
+    },
+    {
+      "front": "Ghana",
+      "back": "Acra"
+    },
+    {
+      "front": "Australia",
+      "back": "Canberra"
+    },
+    {
+      "front": "Nueva Zelanda",
+      "back": "Wellington"
+    },
+    {
+      "front": "Fiyi",
+      "back": "Suva"
+    }
+  ]
+}

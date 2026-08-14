@@ -1,0 +1,49 @@
+{
+  "id": "capitals-asia",
+  "name": "Capitales de Asia",
+  "description": "Aprende las capitales de los principales países asiáticos.",
+  "category": "Geografía",
+  "icon": "🗺️",
+  "cards": [
+    {
+      "front": "China",
+      "back": "Pekín"
+    },
+    {
+      "front": "Japón",
+      "back": "Tokio"
+    },
+    {
+      "front": "Corea del Sur",
+      "back": "Seúl"
+    },
+    {
+      "front": "India",
+      "back": "Nueva Delhi"
+    },
+    {
+      "front": "Turquía",
+      "back": "Ankara"
+    },
+    {
+      "front": "Arabia Saudita",
+      "back": "Riad"
+    },
+    {
+      "front": "Indonesia",
+      "back": "Yakarta"
+    },
+    {
+      "front": "Irán",
+      "back": "Teherán"
+    },
+    {
+      "front": "Pakistán",
+      "back": "Islamabad"
+    },
+    {
+      "front": "Vietnam",
+      "back": "Hanói"
+    }
+  ]
+}

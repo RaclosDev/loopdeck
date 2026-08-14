@@ -1,0 +1,58 @@
+[
+  {
+    "id": "capitals-europe",
+    "name": "Capitales de Europa",
+    "description": "Aprende las capitales de los principales países europeos.",
+    "category": "Geografía",
+    "icon": "🗺️",
+    "cardCount": 15
+  },
+  {
+    "id": "capitals-america",
+    "name": "Capitales de América",
+    "description": "Aprende las capitales de los principales países americanos.",
+    "category": "Geografía",
+    "icon": "🗺️",
+    "cardCount": 10
+  },
+  {
+    "id": "capitals-asia",
+    "name": "Capitales de Asia",
+    "description": "Aprende las capitales de los principales países asiáticos.",
+    "category": "Geografía",
+    "icon": "🗺️",
+    "cardCount": 10
+  },
+  {
+    "id": "capitals-africa",
+    "name": "Capitales de África",
+    "description": "Aprende las capitales de los principales países africanos.",
+    "category": "Geografía",
+    "icon": "🗺️",
+    "cardCount": 8
+  },
+  {
+    "id": "capitals-oceania",
+    "name": "Capitales de Oceanía",
+    "description": "Aprende las capitales de Oceanía.",
+    "category": "Geografía",
+    "icon": "🗺️",
+    "cardCount": 3
+  },
+  {
+    "id": "capitals-world",
+    "name": "Capitales del Mundo",
+    "description": "El reto definitivo. Todas las capitales importantes del mundo en un solo mazo.",
+    "category": "Geografía",
+    "icon": "🌍",
+    "cardCount": 46
+  },
+  {
+    "id": "flags-world",
+    "name": "Banderas del Mundo",
+    "description": "Memoriza las banderas de los principales países usando emojis nativos.",
+    "category": "Cultura",
+    "icon": "🚩",
+    "cardCount": 46
+  }
+]

@@ -1,0 +1,41 @@
+{
+  "id": "capitals-africa",
+  "name": "Capitales de África",
+  "description": "Aprende las capitales de los principales países africanos.",
+  "category": "Geografía",
+  "icon": "🗺️",
+  "cards": [
+    {
+      "front": "Egipto",
+      "back": "El Cairo"
+    },
+    {
+      "front": "Sudáfrica",
+      "back": "Pretoria"
+    },
+    {
+      "front": "Nigeria",
+      "back": "Abuya"
+    },
+    {
+      "front": "Kenia",
+      "back": "Nairobi"
+    },
+    {
+      "front": "Marruecos",
+      "back": "Rabat"
+    },
+    {
+      "front": "Argelia",
+      "back": "Argel"
+    },
+    {
+      "front": "Etiopía",
+      "back": "Adís Abeba"
+    },
+    {
+      "front": "Ghana",
+      "back": "Acra"
+    }
+  ]
+}

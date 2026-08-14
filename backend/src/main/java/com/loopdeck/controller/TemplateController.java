@@ -6,10 +6,14 @@ import com.loopdeck.repository.UserRepository;
 import com.loopdeck.service.TemplateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/templates")
@@ -23,17 +27,22 @@ public class TemplateController {
         this.userRepository = userRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<List<Map<String, Object>>> getAvailableTemplates() {
+        return ResponseEntity.ok(templateService.getAvailableTemplates());
+    }
+
     @PostMapping("/import")
     public ResponseEntity<Deck> importTemplate(@RequestParam String type, Authentication authentication) {
-        if (!"capitals".equals(type)) {
-            return ResponseEntity.badRequest().build();
-        }
-
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Deck importedDeck = templateService.importCapitalsTemplate(user);
-        return ResponseEntity.ok(importedDeck);
+        try {
+            Deck importedDeck = templateService.importTemplate(user, type);
+            return ResponseEntity.ok(importedDeck);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

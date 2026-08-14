@@ -1,0 +1,49 @@
+{
+  "id": "capitals-america",
+  "name": "Capitales de América",
+  "description": "Aprende las capitales de los principales países americanos.",
+  "category": "Geografía",
+  "icon": "🗺️",
+  "cards": [
+    {
+      "front": "Estados Unidos",
+      "back": "Washington D.C."
+    },
+    {
+      "front": "Canadá",
+      "back": "Ottawa"
+    },
+    {
+      "front": "México",
+      "back": "Ciudad de México"
+    },
+    {
+      "front": "Brasil",
+      "back": "Brasilia"
+    },
+    {
+      "front": "Argentina",
+      "back": "Buenos Aires"
+    },
+    {
+      "front": "Colombia",
+      "back": "Bogotá"
+    },
+    {
+      "front": "Chile",
+      "back": "Santiago"
+    },
+    {
+      "front": "Perú",
+      "back": "Lima"
+    },
+    {
+      "front": "Venezuela",
+      "back": "Caracas"
+    },
+    {
+      "front": "Cuba",
+      "back": "La Habana"
+    }
+  ]
+}

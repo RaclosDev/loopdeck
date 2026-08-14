@@ -13,14 +13,19 @@ function Dashboard() {
   const [newDeckDesc, setNewDeckDesc] = useState('');
   const [editingDeck, setEditingDeck] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [importing, setImporting] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [importingId, setImportingId] = useState(null);
   const navigate = useNavigate();
   const { addToast } = useStore();
 
   const loadDecks = useCallback(async () => {
     try {
-      const data = await decksApi.getAll();
+      const [data, templatesData] = await Promise.all([
+        decksApi.getAll(),
+        templatesApi.getAll().catch(() => [])
+      ]);
       setDecks(data);
+      setTemplates(templatesData);
       // Load due counts for each deck in parallel
       const countResults = await Promise.allSettled(
         data.map(d => studyApi.getDueCards(d.id, 200).then(cards => ({ id: d.id, cards })))
@@ -87,16 +92,16 @@ function Dashboard() {
     }
   };
 
-  const handleImportTemplate = async (type) => {
-    setImporting(true);
+  const handleImportTemplate = async (templateId) => {
+    setImportingId(templateId);
     try {
-      await templatesApi.import(type);
+      await templatesApi.import(templateId);
       addToast('Plantilla importada con éxito', 'success');
       await loadDecks();
     } catch (e) {
       addToast('Error importando plantilla: ' + e.message, 'error');
     } finally {
-      setImporting(false);
+      setImportingId(null);
     }
   };
 
@@ -241,29 +246,36 @@ function Dashboard() {
       )}
 
       {/* Templates Section */}
-      <div className="page-header" style={{ marginTop: 40 }}>
-        <h2>Plantillas Disponibles</h2>
-        <p>Descarga mazos prediseñados para empezar a estudiar al instante.</p>
-      </div>
-      
-      <div className="decks-grid" style={{ marginBottom: 40 }}>
-        <div className="deck-card" style={{ border: '1px dashed var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-          <div className="deck-card-header">
-            <span className="deck-card-name">🌍 Capitales del Mundo</span>
+      {templates.length > 0 && (
+        <>
+          <div className="page-header" style={{ marginTop: 40 }}>
+            <h2>Plantillas Disponibles</h2>
+            <p>Descarga mazos prediseñados para empezar a estudiar al instante.</p>
           </div>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 16 }}>
-            Aprende las capitales de los países más importantes de todos los continentes. Ideal para empezar con geografía. (21 tarjetas)
+          
+          <div className="decks-grid" style={{ marginBottom: 40 }}>
+            {templates.map(t => (
+              <div key={t.id} className="deck-card" style={{ border: '1px dashed var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
+                <div className="deck-card-header" style={{ alignItems: 'flex-start' }}>
+                  <span className="deck-card-name" style={{ lineHeight: 1.2 }}>{t.icon} {t.name}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', padding: '2px 8px', background: 'var(--surface-color)', borderRadius: 12, whiteSpace: 'nowrap' }}>{t.category}</span>
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 16, minHeight: 40 }}>
+                  {t.description} ({t.cardCount} tarjetas)
+                </div>
+                <button 
+                  className="primary-btn" 
+                  style={{ width: '100%' }}
+                  onClick={() => handleImportTemplate(t.id)}
+                  disabled={importingId === t.id}
+                >
+                  {importingId === t.id ? <span className="spinner-sm" /> : '⬇️ Descargar Mazo'}
+                </button>
+              </div>
+            ))}
           </div>
-          <button 
-            className="primary-btn" 
-            style={{ width: '100%' }}
-            onClick={() => handleImportTemplate('capitals')}
-            disabled={importing}
-          >
-            {importing ? <span className="spinner-sm" /> : '⬇️ Descargar Mazo'}
-          </button>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* New Deck Modal */}
       <Modal

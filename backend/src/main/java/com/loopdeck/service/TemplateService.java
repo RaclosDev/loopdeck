@@ -1,5 +1,6 @@
 package com.loopdeck.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopdeck.model.Card;
 import com.loopdeck.model.Deck;
@@ -8,9 +9,12 @@ import com.loopdeck.model.User;
 import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -29,75 +33,71 @@ public class TemplateService {
     }
 
     @Transactional
-    public Deck importCapitalsTemplate(User user) {
-        // Create Deck
-        Deck deck = new Deck();
-        deck.setUser(user);
-        deck.setName("Capitales del Mundo");
-        deck.setDescription("Un mazo prediseñado para aprender las capitales de los países más importantes del mundo.");
-        deck = deckRepository.save(deck);
-
-        // Define Capitals
-        Map<String, String> capitals = Map.ofEntries(
-                // Europe
-                Map.entry("España", "Madrid"),
-                Map.entry("Francia", "París"),
-                Map.entry("Alemania", "Berlín"),
-                Map.entry("Italia", "Roma"),
-                Map.entry("Reino Unido", "Londres"),
-                Map.entry("Portugal", "Lisboa"),
-                // America
-                Map.entry("Estados Unidos", "Washington D.C."),
-                Map.entry("Canadá", "Ottawa"),
-                Map.entry("México", "Ciudad de México"),
-                Map.entry("Brasil", "Brasilia"),
-                Map.entry("Argentina", "Buenos Aires"),
-                Map.entry("Colombia", "Bogotá"),
-                // Asia
-                Map.entry("China", "Pekín (Beijing)"),
-                Map.entry("Japón", "Tokio"),
-                Map.entry("Corea del Sur", "Seúl"),
-                Map.entry("India", "Nueva Delhi"),
-                // Africa
-                Map.entry("Egipto", "El Cairo"),
-                Map.entry("Sudáfrica", "Pretoria / Ciudad del Cabo / Bloemfontein"),
-                Map.entry("Marruecos", "Rabat"),
-                // Oceania
-                Map.entry("Australia", "Canberra"),
-                Map.entry("Nueva Zelanda", "Wellington")
-        );
-
-        // Create Notes and Cards
-        for (Map.Entry<String, String> entry : capitals.entrySet()) {
-            Note note = new Note();
-            note.setUser(user);
-            note.setDeck(deck);
-            note.setNoteType("basic");
-            note.setTags("geografia, capitales");
-            
-            try {
-                String fieldsJson = objectMapper.writeValueAsString(Map.of(
-                        "front", entry.getKey(),
-                        "back", entry.getValue()
-                ));
-                note.setFieldsJson(fieldsJson);
-            } catch (Exception e) {
-                note.setFieldsJson("{}");
+    public Deck importTemplate(User user, String templateId) {
+        try {
+            // Load JSON from resources
+            ClassPathResource resource = new ClassPathResource("templates/" + templateId + ".json");
+            if (!resource.exists()) {
+                throw new RuntimeException("Template not found: " + templateId);
             }
             
-            note = noteRepository.save(note);
+            try (InputStream is = resource.getInputStream()) {
+                Map<String, Object> templateData = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
+                
+                // Create Deck
+                Deck deck = new Deck();
+                deck.setUser(user);
+                deck.setName((String) templateData.get("name"));
+                deck.setDescription((String) templateData.get("description"));
+                deck = deckRepository.save(deck);
 
-            Card card = new Card();
-            card.setNote(note);
-            card.setCardOrdinal(0);
-            card.setState("new");
-            card.setIntervalDays(0.0);
-            card.setEaseFactor(2.5);
-            card.setRepetitions(0);
-            card.setLapses(0);
-            cardRepository.save(card);
+                // Create Notes and Cards
+                List<Map<String, String>> cards = (List<Map<String, String>>) templateData.get("cards");
+                String tags = templateData.containsKey("category") ? ((String) templateData.get("category")).toLowerCase() : "template";
+                
+                for (Map<String, String> cardData : cards) {
+                    Note note = new Note();
+                    note.setUser(user);
+                    note.setDeck(deck);
+                    note.setNoteType("basic");
+                    note.setTags(tags);
+                    
+                    String fieldsJson = objectMapper.writeValueAsString(Map.of(
+                            "front", cardData.get("front"),
+                            "back", cardData.get("back")
+                    ));
+                    note.setFieldsJson(fieldsJson);
+                    note = noteRepository.save(note);
+
+                    Card card = new Card();
+                    card.setNote(note);
+                    card.setCardOrdinal(0);
+                    card.setState("new");
+                    card.setIntervalDays(0.0);
+                    card.setEaseFactor(2.5);
+                    card.setRepetitions(0);
+                    card.setLapses(0);
+                    cardRepository.save(card);
+                }
+
+                return deck;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to import template", e);
         }
-
-        return deck;
+    }
+    
+    public List<Map<String, Object>> getAvailableTemplates() {
+        try {
+            ClassPathResource resource = new ClassPathResource("templates/registry.json");
+            if (!resource.exists()) {
+                return List.of();
+            }
+            try (InputStream is = resource.getInputStream()) {
+                return objectMapper.readValue(is, new TypeReference<List<Map<String, Object>>>() {});
+            }
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }
