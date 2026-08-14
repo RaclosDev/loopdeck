@@ -25,20 +25,27 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect }) {
     setLoading(true);
     setError(null);
     try {
-      // Use Wikipedia API to search for images (free, no key required)
-      const url = `https://es.wikipedia.org/w/api.php?action=query&generator=search&gsrnamespace=0&gsrsearch=${encodeURIComponent(query)}&gsrlimit=20&prop=pageimages&pithumbsize=800&format=json&origin=*`;
+      // Use Wikimedia Commons API for a much larger image database
+      const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(query)}&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`;
       const response = await fetch(url);
       const data = await response.json();
       
       const pages = data.query?.pages || {};
       const images = Object.values(pages)
-        .filter(page => page.thumbnail && page.thumbnail.source)
-        .map(page => ({
-          url: page.thumbnail.source,
-          title: page.title,
-          width: page.thumbnail.width,
-          height: page.thumbnail.height
-        }));
+        .filter(page => page.imageinfo && page.imageinfo.length > 0)
+        .map(page => {
+          const info = page.imageinfo[0];
+          // Remove "File:" from title
+          const cleanTitle = page.title.replace(/^File:/, '').replace(/\.\w+$/, '');
+          return {
+            url: info.thumburl,
+            title: cleanTitle,
+            width: info.thumbwidth,
+            height: info.thumbheight
+          };
+        })
+        // Filter out icons/svgs which might be too small
+        .filter(img => img.width >= 100);
 
       setResults(images);
       if (images.length === 0) {
