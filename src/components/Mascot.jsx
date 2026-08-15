@@ -35,6 +35,9 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
   const tier2 = streak >= 7;
   const tier3 = streak >= 14;
   const tier4 = streak >= 30;
+  const tier5 = streak >= 60;
+  const tier6 = streak >= 100;
+  const tier7 = streak >= 365;
 
   return (
     <div style={{
@@ -46,11 +49,13 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
       position: 'relative'
     }}>
       {/* Glow effect */}
-      {tier4 && (
+      {(tier4 || tier7) && (
         <div style={{
-          position: 'absolute', width: '90%', height: '90%',
-          background: currentSkin.baseColor, filter: 'blur(25px)', borderRadius: '50%',
-          animation: 'pulseGlow 2s ease-in-out infinite alternate', opacity: 0.3
+          position: 'absolute', width: tier7 ? '120%' : '90%', height: tier7 ? '120%' : '90%',
+          background: tier7 ? currentSkin.coreColor : currentSkin.baseColor, 
+          filter: tier7 ? 'blur(35px)' : 'blur(25px)', borderRadius: '50%',
+          animation: tier7 ? 'pulseGlow 1s ease-in-out infinite alternate' : 'pulseGlow 2s ease-in-out infinite alternate', 
+          opacity: tier7 ? 0.5 : 0.3
         }} />
       )}
       <div style={{
@@ -62,6 +67,19 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
         borderRadius: '50%',
         animation: 'pulseGlow 2s ease-in-out infinite alternate'
       }} />
+
+      {/* Magic Runes / Orbit (Tier 5) */}
+      {tier5 && (
+        <div style={{
+          position: 'absolute',
+          width: '110%',
+          height: '110%',
+          border: `2px dashed ${currentSkin.coreColor}`,
+          borderRadius: '50%',
+          opacity: 0.5,
+          animation: 'spinRunes 10s linear infinite'
+        }} />
+      )}
 
       <svg 
         viewBox="0 0 100 100" 
@@ -80,15 +98,32 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
           </linearGradient>
         </defs>
 
+        {/* Epic Wings (Tier 7) */}
+        {tier7 && (
+          <g style={{ animation: 'flapWings 3s ease-in-out infinite', transformOrigin: '50% 50%', opacity: 0.6 }}>
+            <path d="M 40 40 Q 10 20 5 50 Q 20 60 40 50 Z" fill={currentSkin.coreColor} />
+            <path d="M 60 40 Q 90 20 95 50 Q 80 60 60 50 Z" fill={currentSkin.coreColor} />
+          </g>
+        )}
+
+        {/* Energy Particles (Tier 6) */}
+        {tier6 && (
+          <g style={{ animation: 'shootUp 2s linear infinite' }}>
+            <circle cx="40" cy="80" r="2.5" fill={currentSkin.coreColor} />
+            <circle cx="60" cy="90" r="2" fill={currentSkin.coreColor} />
+            <circle cx="50" cy="70" r="3" fill={currentSkin.coreColor} />
+          </g>
+        )}
+
         {/* Crown / Halo (Tier 3) */}
         {tier3 && (
           <path 
-            d="M 35 25 L 42 15 L 50 22 L 58 15 L 65 25" 
+            d={tier7 ? "M 30 20 L 40 5 L 50 15 L 60 5 L 70 20" : "M 35 25 L 42 15 L 50 22 L 58 15 L 65 25"} 
             fill="none" 
             stroke={currentSkin.coreColor} 
-            strokeWidth="3" 
+            strokeWidth={tier7 ? "4" : "3"} 
             strokeLinecap="round" 
-            style={{ animation: 'floatFlame 2s ease-in-out infinite alternate', opacity: 0.8 }}
+            style={{ animation: 'floatFlame 2s ease-in-out infinite alternate', opacity: tier7 ? 1 : 0.8 }}
           />
         )}
 
@@ -105,8 +140,8 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
         {/* Side Flames (Tier 1) */}
         {tier1 && (
           <g style={{ animation: 'breatheFlame 1.5s ease-in-out infinite alternate-reverse', transformOrigin: '50% 90%' }}>
-            <path d="M 25 65 C 25 65, 15 75, 12 85 C 10 90, 20 95, 25 90 Z" fill={`url(#flameGrad-${skin})`} opacity="0.8" />
-            <path d="M 75 65 C 75 65, 85 75, 88 85 C 90 90, 80 95, 75 90 Z" fill={`url(#flameGrad-${skin})`} opacity="0.8" />
+            <path d={tier5 ? "M 25 55 C 25 55, 10 70, 5 85 C 5 95, 20 95, 25 90 Z" : "M 25 65 C 25 65, 15 75, 12 85 C 10 90, 20 95, 25 90 Z"} fill={`url(#flameGrad-${skin})`} opacity={tier5 ? "1" : "0.8"} />
+            <path d={tier5 ? "M 75 55 C 75 55, 90 70, 95 85 C 95 95, 80 95, 75 90 Z" : "M 75 65 C 75 65, 85 75, 88 85 C 90 90, 80 95, 75 90 Z"} fill={`url(#flameGrad-${skin})`} opacity={tier5 ? "1" : "0.8"} />
           </g>
         )}
 
@@ -122,12 +157,16 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
 
         {/* Eyes */}
         <g style={{ animation: 'blinkEyes 4s infinite' }}>
-          <circle cx="38" cy="65" r="4" fill="#111" />
-          <circle cx="62" cy="65" r="4" fill="#111" />
+          <circle cx="38" cy="65" r="4" fill={tier6 ? currentSkin.coreColor : "#111"} />
+          <circle cx="62" cy="65" r="4" fill={tier6 ? currentSkin.coreColor : "#111"} />
           
           {/* Eye highlights */}
-          <circle cx="36" cy="63" r="1.5" fill="#fff" />
-          <circle cx="60" cy="63" r="1.5" fill="#fff" />
+          {!tier6 && (
+            <>
+              <circle cx="36" cy="63" r="1.5" fill="#fff" />
+              <circle cx="60" cy="63" r="1.5" fill="#fff" />
+            </>
+          )}
         </g>
 
         {/* Smile */}
@@ -151,6 +190,19 @@ export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
         @keyframes blinkEyes {
           0%, 96%, 98% { transform: scaleY(1); transform-origin: center 65px; }
           97% { transform: scaleY(0.1); transform-origin: center 65px; }
+        }
+        @keyframes spinRunes {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes shootUp {
+          0% { transform: translateY(0); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateY(-40px); opacity: 0; }
+        }
+        @keyframes flapWings {
+          0%, 100% { transform: scaleX(1); }
+          50% { transform: scaleX(0.7); }
         }
       `}</style>
     </div>
