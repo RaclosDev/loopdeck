@@ -11,6 +11,14 @@ const updateSW = registerSW({
       updateSW(true)
     }
   },
+  onRegistered(r) {
+    if (r) {
+      // Check for updates every 5 minutes while the app is open
+      setInterval(() => {
+        r.update()
+      }, 5 * 60 * 1000)
+    }
+  }
 })
 
 const queryClient = new QueryClient({
