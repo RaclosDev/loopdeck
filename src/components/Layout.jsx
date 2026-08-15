@@ -42,7 +42,10 @@ function Layout({ children }) {
         <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Menu">
           ☰
         </button>
-        <span className="mobile-header-title">🎴 LoopDeck</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '24px', height: '24px', borderRadius: '6px' }} />
+          <span className="mobile-header-title">LoopDeck</span>
+        </div>
         <div style={{ width: 28 }} />
       </div>
 
@@ -57,7 +60,9 @@ function Layout({ children }) {
         {!isStudyPage && (
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
-              <div className="sidebar-logo-icon">🎴</div>
+              <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
+                <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+              </div>
               <span className="sidebar-logo">LoopDeck</span>
             </div>
 
