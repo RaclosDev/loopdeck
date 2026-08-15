@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
@@ -9,6 +10,47 @@ function Layout({ children }) {
   const location = useLocation();
 
   const isStudyPage = location.pathname.startsWith('/study');
+
+  useEffect(() => {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    const handleTouchStart = (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    };
+    
+    const handleTouchEnd = (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    };
+    
+    const handleSwipe = () => {
+      const swipeDistance = touchEndX - touchStartX;
+      const swipeThreshold = 60; // minimum distance
+      
+      // Swipe Right (Open Sidebar) - only if swipe starts near the left edge (< 40px)
+      if (swipeDistance > swipeThreshold && touchStartX < 40) {
+         if (!useStore.getState().sidebarOpen && !isStudyPage) {
+             useStore.setState({ sidebarOpen: true });
+         }
+      }
+      
+      // Swipe Left (Close Sidebar)
+      if (swipeDistance < -swipeThreshold) {
+         if (useStore.getState().sidebarOpen) {
+             useStore.setState({ sidebarOpen: false });
+         }
+      }
+    };
+    
+    document.addEventListener('touchstart', handleTouchStart);
+    document.addEventListener('touchend', handleTouchEnd);
+    
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isStudyPage]);
 
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
