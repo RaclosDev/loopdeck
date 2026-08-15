@@ -68,20 +68,20 @@ function Layout({ children }) {
         {!isStudyPage && (
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header" style={{ flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
-              {user ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: user ? '20px' : '0' }}>
+                <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
+                  <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+                </div>
+                <span className="sidebar-logo">LoopDeck</span>
+              </div>
+              
+              {user && (
                 <>
                   <Mascot skin={user.mascot || 'default'} size={80} />
                   <div style={{ marginTop: '12px', display: 'flex', gap: '16px', fontWeight: 'bold', fontSize: '1.1rem' }}>
                     <span style={{ color: '#ff7b00', display: 'flex', alignItems: 'center', gap: '4px' }}>🔥 {user.streak || 0}</span>
                     <span style={{ color: '#ffd700', display: 'flex', alignItems: 'center', gap: '4px' }}>🪙 {user.points || 0}</span>
                   </div>
-                </>
-              ) : (
-                <>
-                  <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
-                    <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
-                  </div>
-                  <span className="sidebar-logo">LoopDeck</span>
                 </>
               )}
             </div>
