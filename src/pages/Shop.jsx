@@ -71,7 +71,7 @@ export default function Shop() {
               background: isEquipped ? 'rgba(var(--accent-color-rgb), 0.05)' : 'var(--surface-color)'
             }}>
               <div style={{ marginBottom: 20, marginTop: 10 }}>
-                <Mascot skin={skin.id} size={100} />
+                <Mascot skin={skin.id} size={100} streak={user.streak || 0} />
               </div>
               
               <h3 style={{ marginBottom: 8 }}>{skin.name}</h3>

@@ -28,8 +28,13 @@ const SKINS = {
   }
 };
 
-export default function Mascot({ skin = 'default', size = 64 }) {
+export default function Mascot({ skin = 'default', size = 64, streak = 0 }) {
   const currentSkin = SKINS[skin] || SKINS.default;
+
+  const tier1 = streak >= 3;
+  const tier2 = streak >= 7;
+  const tier3 = streak >= 14;
+  const tier4 = streak >= 30;
 
   return (
     <div style={{
@@ -41,10 +46,17 @@ export default function Mascot({ skin = 'default', size = 64 }) {
       position: 'relative'
     }}>
       {/* Glow effect */}
+      {tier4 && (
+        <div style={{
+          position: 'absolute', width: '90%', height: '90%',
+          background: currentSkin.baseColor, filter: 'blur(25px)', borderRadius: '50%',
+          animation: 'pulseGlow 2s ease-in-out infinite alternate', opacity: 0.3
+        }} />
+      )}
       <div style={{
         position: 'absolute',
-        width: '60%',
-        height: '60%',
+        width: tier2 ? '75%' : '60%',
+        height: tier2 ? '75%' : '60%',
         background: currentSkin.glowColor,
         filter: 'blur(15px)',
         borderRadius: '50%',
@@ -68,6 +80,18 @@ export default function Mascot({ skin = 'default', size = 64 }) {
           </linearGradient>
         </defs>
 
+        {/* Crown / Halo (Tier 3) */}
+        {tier3 && (
+          <path 
+            d="M 35 25 L 42 15 L 50 22 L 58 15 L 65 25" 
+            fill="none" 
+            stroke={currentSkin.coreColor} 
+            strokeWidth="3" 
+            strokeLinecap="round" 
+            style={{ animation: 'floatFlame 2s ease-in-out infinite alternate', opacity: 0.8 }}
+          />
+        )}
+
         {/* Base Flame Shape */}
         <path 
           d="M50 10 C50 10, 30 40, 20 60 C10 80, 30 95, 50 95 C70 95, 90 80, 80 60 C70 40, 50 10, 50 10 Z" 
@@ -77,6 +101,24 @@ export default function Mascot({ skin = 'default', size = 64 }) {
             animation: 'breatheFlame 2s ease-in-out infinite alternate'
           }}
         />
+
+        {/* Side Flames (Tier 1) */}
+        {tier1 && (
+          <g style={{ animation: 'breatheFlame 1.5s ease-in-out infinite alternate-reverse', transformOrigin: '50% 90%' }}>
+            <path d="M 25 65 C 25 65, 15 75, 12 85 C 10 90, 20 95, 25 90 Z" fill={`url(#flameGrad-${skin})`} opacity="0.8" />
+            <path d="M 75 65 C 75 65, 85 75, 88 85 C 90 90, 80 95, 75 90 Z" fill={`url(#flameGrad-${skin})`} opacity="0.8" />
+          </g>
+        )}
+
+        {/* Sparkles (Tier 2) */}
+        {tier2 && (
+          <g style={{ animation: 'pulseGlow 1s infinite alternate' }}>
+            <circle cx="20" cy="40" r="2" fill={currentSkin.coreColor} />
+            <circle cx="80" cy="50" r="1.5" fill={currentSkin.coreColor} />
+            <circle cx="70" cy="20" r="2" fill={currentSkin.coreColor} />
+            <circle cx="30" cy="25" r="1.5" fill={currentSkin.coreColor} />
+          </g>
+        )}
 
         {/* Eyes */}
         <g style={{ animation: 'blinkEyes 4s infinite' }}>

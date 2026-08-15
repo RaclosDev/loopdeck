@@ -77,7 +77,7 @@ function Layout({ children }) {
               
               {user && (
                 <>
-                  <Mascot skin={user.mascot || 'default'} size={80} />
+                  <Mascot skin={user.mascot || 'default'} size={80} streak={user.streak || 0} />
                   <div style={{ marginTop: '12px', display: 'flex', gap: '16px', fontWeight: 'bold', fontSize: '1.1rem' }}>
                     <span style={{ color: '#ff7b00', display: 'flex', alignItems: 'center', gap: '4px' }}>🔥 {user.streak || 0}</span>
                     <span style={{ color: '#ffd700', display: 'flex', alignItems: 'center', gap: '4px' }}>🪙 {user.points || 0}</span>
