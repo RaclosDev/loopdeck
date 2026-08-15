@@ -30,6 +30,18 @@ public class User {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column(columnDefinition = "integer default 0")
+    private Integer points = 0;
+
+    @Column(name = "current_streak", columnDefinition = "integer default 0")
+    private Integer currentStreak = 0;
+
+    @Column(name = "last_login_date")
+    private java.time.LocalDate lastLoginDate;
+
+    @Column(name = "equipped_mascot")
+    private String equippedMascot = "default";
+
     @PrePersist
     void prePersist() {
         if (id == null) id = java.util.UUID.randomUUID().toString();

@@ -18,7 +18,7 @@ public class AuthService {
     public record RegisterRequest(String email, String name, String password) {}
     public record LoginRequest(String email, String password) {}
     public record AuthResponse(String token, UserDto user) {}
-    public record UserDto(String id, String email, String name) {}
+    public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot) {}
 
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
@@ -53,6 +53,13 @@ public class AuthService {
     }
 
     private UserDto toDto(User user) {
-        return new UserDto(user.getId(), user.getEmail(), user.getName());
+        return new UserDto(
+            user.getId(), 
+            user.getEmail(), 
+            user.getName(), 
+            user.getPoints() != null ? user.getPoints() : 0, 
+            user.getCurrentStreak() != null ? user.getCurrentStreak() : 0, 
+            user.getEquippedMascot() != null ? user.getEquippedMascot() : "default"
+        );
     }
 }

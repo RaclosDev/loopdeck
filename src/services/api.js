@@ -96,3 +96,8 @@ export default {
   study: studyApi,
   templates: templatesApi,
 };
+
+export const usersApi = {
+  dailyLogin: () => request('/users/daily-login', { method: 'POST' }),
+  buySkin: (skin, cost) => request('/users/buy-skin', { method: 'POST', body: JSON.stringify({ skin, cost: String(cost) }) }),
+};

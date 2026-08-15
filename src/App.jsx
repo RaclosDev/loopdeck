@@ -9,6 +9,7 @@ import AuthPage from './pages/AuthPage';
 import Browser from './pages/Browser';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
+import Shop from './pages/Shop';
 import useAuthStore from './store/useAuthStore';
 import useStore from './store/useStore';
 
@@ -19,7 +20,23 @@ function ProtectedRoute({ children }) {
 
 function App() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const updateUser = useAuthStore(s => s.updateUser);
   const setDeferredPrompt = useStore(s => s.setDeferredPrompt);
+  const { isDarkMode } = useStore();
+
+  useEffect(() => {
+    document.body.className = isDarkMode ? 'dark-mode' : 'light-mode';
+  }, [isDarkMode]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      import('./services/api').then(({ usersApi }) => {
+        usersApi.dailyLogin()
+          .then(userData => updateUser(userData))
+          .catch(err => console.error("Error en daily login", err));
+      });
+    }
+  }, [isAuthenticated, updateUser]);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -51,6 +68,7 @@ function App() {
                   <Route path="/browser" element={<Browser />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/templates" element={<Templates />} />
+                  <Route path="/shop" element={<Shop />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>

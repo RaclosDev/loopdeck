@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
+import Mascot from './Mascot';
 
 function Layout({ children }) {
   const { sidebarOpen, toggleSidebar, closeSidebar, toasts, deferredPrompt, setDeferredPrompt } = useStore();
@@ -46,7 +47,14 @@ function Layout({ children }) {
           <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '24px', height: '24px', borderRadius: '6px' }} />
           <span className="mobile-header-title">LoopDeck</span>
         </div>
-        <div style={{ width: 28 }} />
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+            <span style={{ color: '#ff7b00' }}>🔥 {user.streak || 0}</span>
+            <span style={{ color: '#ffd700' }}>🪙 {user.points || 0}</span>
+          </div>
+        ) : (
+          <div style={{ width: 28 }} />
+        )}
       </div>
 
       <div className="app-layout">
@@ -59,11 +67,23 @@ function Layout({ children }) {
         {/* Sidebar */}
         {!isStudyPage && (
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-            <div className="sidebar-header">
-              <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
-                <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
-              </div>
-              <span className="sidebar-logo">LoopDeck</span>
+            <div className="sidebar-header" style={{ flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
+              {user ? (
+                <>
+                  <Mascot skin={user.mascot || 'default'} size={80} />
+                  <div style={{ marginTop: '12px', display: 'flex', gap: '16px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                    <span style={{ color: '#ff7b00', display: 'flex', alignItems: 'center', gap: '4px' }}>🔥 {user.streak || 0}</span>
+                    <span style={{ color: '#ffd700', display: 'flex', alignItems: 'center', gap: '4px' }}>🪙 {user.points || 0}</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
+                    <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
+                  </div>
+                  <span className="sidebar-logo">LoopDeck</span>
+                </>
+              )}
             </div>
 
             <nav className="sidebar-nav">
@@ -108,6 +128,15 @@ function Layout({ children }) {
               >
                 <span className="link-icon">📥</span>
                 Plantillas
+              </NavLink>
+
+              <NavLink
+                to="/shop"
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <span className="link-icon">🛍️</span>
+                Tienda
               </NavLink>
 
               <NavLink

@@ -36,6 +36,10 @@ const useAuthStore = create(
         localStorage.setItem('ff_token', data.token);
       },
 
+      updateUser: (userData) => {
+        set({ user: userData });
+      },
+
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false });
         localStorage.removeItem('ff_token');
