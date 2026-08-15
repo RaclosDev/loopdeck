@@ -80,7 +80,7 @@ export default function Shop() {
               </p>
               
               <button 
-                className={isEquipped ? "secondary-btn" : "primary-btn"}
+                className={isEquipped ? "glass-btn" : "primary-btn"}
                 style={{ width: '100%' }}
                 onClick={() => handleBuy(skin.id, skin.cost)}
                 disabled={buying === skin.id || (user.points < skin.cost && !isEquipped)}
