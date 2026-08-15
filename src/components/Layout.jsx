@@ -9,7 +9,23 @@ function Layout({ children }) {
 
   const isStudyPage = location.pathname.startsWith('/study');
 
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+
+  const isStandalone = () => {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  };
+
+  const showIosInstall = isIos() && !isStandalone();
+
   const handleInstallClick = async () => {
+    if (showIosInstall) {
+      alert('🍏 Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari (el cuadrado con la flecha hacia arriba).\n2. Selecciona "Añadir a la pantalla de inicio".\n\nAsí tendrás el icono y la app a pantalla completa.');
+      return;
+    }
+    
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
@@ -26,7 +42,7 @@ function Layout({ children }) {
         <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Menu">
           ☰
         </button>
-        <span className="mobile-header-title">⚡ LoopDeck</span>
+        <span className="mobile-header-title">🎴 LoopDeck</span>
         <div style={{ width: 28 }} />
       </div>
 
@@ -41,7 +57,7 @@ function Layout({ children }) {
         {!isStudyPage && (
           <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
-              <div className="sidebar-logo-icon">⚡</div>
+              <div className="sidebar-logo-icon">🎴</div>
               <span className="sidebar-logo">LoopDeck</span>
             </div>
 
@@ -64,7 +80,7 @@ function Layout({ children }) {
                 onClick={closeSidebar}
               >
                 <span className="link-icon">➕</span>
-                Añadir Tarjetas
+                Añadir Tarjeta
               </NavLink>
 
               <NavLink
@@ -98,7 +114,7 @@ function Layout({ children }) {
                 Configuración
               </NavLink>
 
-              {deferredPrompt && (
+              {(deferredPrompt || showIosInstall) && (
                 <button
                   className="sidebar-link"
                   onClick={handleInstallClick}
