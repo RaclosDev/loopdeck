@@ -8,6 +8,7 @@ import Stats from './pages/Stats';
 import AuthPage from './pages/AuthPage';
 import Browser from './pages/Browser';
 import Settings from './pages/Settings';
+import Templates from './pages/Templates';
 import useAuthStore from './store/useAuthStore';
 import useStore from './store/useStore';
 
@@ -49,6 +50,7 @@ function App() {
                   <Route path="/stats" element={<Stats />} />
                   <Route path="/browser" element={<Browser />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/templates" element={<Templates />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </Layout>

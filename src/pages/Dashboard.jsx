@@ -246,7 +246,7 @@ function Dashboard() {
       )}
 
       {/* Templates Section */}
-      {templates.length > 0 && (
+      {templates.length > 0 && decks.length < 3 && (
         <>
           <div className="page-header" style={{ marginTop: 40 }}>
             <h2>Plantillas Disponibles</h2>

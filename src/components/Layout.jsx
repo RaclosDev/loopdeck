@@ -102,6 +102,15 @@ function Layout({ children }) {
               </div>
 
               <NavLink
+                to="/templates"
+                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+                onClick={closeSidebar}
+              >
+                <span className="link-icon">📥</span>
+                Plantillas
+              </NavLink>
+
+              <NavLink
                 to="/browser"
                 className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
                 onClick={closeSidebar}
