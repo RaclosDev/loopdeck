@@ -6,9 +6,9 @@
 import { API_BASE } from '../services/api';
 
 /**
- * Fetch a short definition for a word, and optionally its top image.
+ * Fetch a short definition for a word.
  * @param {string} word - The word to look up
- * @returns {Promise<{definition: string, language: string, imageUrl?: string} | null>}
+ * @returns {Promise<{definition: string, language: string} | null>}
  */
 export async function lookupDefinition(word) {
   if (!word || !word.trim()) return null;
@@ -51,8 +51,21 @@ export async function lookupDefinition(word) {
 
   if (!resultDefinition) return null;
 
-  // 3. Automatically fetch the best image from Wikimedia Commons
-  let imageUrl = null;
+  return { 
+    definition: resultDefinition,
+    language: 'es'
+  };
+}
+
+/**
+ * Automatically fetch the best image from Wikimedia Commons for a given word.
+ * @param {string} word - The word to search for
+ * @returns {Promise<string | null>} The image URL, or null if not found
+ */
+export async function lookupImage(word) {
+  if (!word || !word.trim()) return null;
+  const clean = word.trim().toLowerCase();
+
   try {
     const imgUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(clean)}&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`;
     const imgRes = await fetch(imgUrl);
@@ -66,16 +79,11 @@ export async function lookupDefinition(word) {
       // Get the first decent image that isn't a tiny icon
       const bestImage = images.find(img => img.thumbwidth >= 100);
       if (bestImage) {
-        imageUrl = bestImage.thumburl;
+        return bestImage.thumburl;
       }
     }
   } catch (error) {
     console.warn('No se pudo auto-obtener la imagen:', error);
   }
-
-  return { 
-    definition: resultDefinition,
-    language: 'es',
-    imageUrl: imageUrl
-  };
+  return null;
 }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
 import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
-import { lookupDefinition } from '../utils/definitionService';
+import { lookupDefinition, lookupImage } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
 
 const NOTE_TYPES = [
@@ -26,6 +26,8 @@ function AddCard() {
   const [activeImageField, setActiveImageField] = useState(null); // 'front' or 'back'
   const [imageSearchQuery, setImageSearchQuery] = useState('');
   const [lookingUpDef, setLookingUpDef] = useState(false);
+  const [lookingUpImage, setLookingUpImage] = useState(false);
+  const [autoPhotoUsed, setAutoPhotoUsed] = useState(false);
 
   const tagInputRef = useRef(null);
   const frontFileRef = useRef(null);
@@ -113,32 +115,24 @@ function AddCard() {
   // ── Definition Lookup ───────────────────────────────────────
   const handleDefinition = async () => {
     // Extract plain text from front field
-    const frontText = (fields.front || '')
-      .replace(/<[^>]*>/g, '')  // strip HTML
-      .trim();
+    const text = (fields.front || '').replace(/<[^>]*>/g, '').trim();
+    const word = text.split(/\s+/)[0]; // take first word
 
-    if (!frontText) {
-      addToast('Escribe una palabra en el frente primero', 'error');
+    if (!word) {
+      addToast('Escribe una palabra en el frente primero', 'warning');
       return;
     }
-
-    // Take the first word (or full text if short)
-    const word = frontText.split(/\s+/)[0];
 
     setLookingUpDef(true);
     try {
       const result = await lookupDefinition(word);
-
       if (!result) {
         addToast(`No se encontró definición para "${word}"`, 'error');
         return;
       }
 
-      // Front gets the definition and potentially an auto-fetched image
+      // Front gets the definition
       let defHtml = `<div style="font-size: 0.95em">${result.definition}</div>`;
-      if (result.imageUrl) {
-        defHtml += `<br><img src="${result.imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Auto-foto"/>`;
-      }
       
       // Back gets the word (appending if there's already something)
       const existingBack = fields.back || '';
@@ -152,7 +146,7 @@ function AddCard() {
       if (els[1]) els[1].innerHTML = newBack;
 
       const lang = result.language === 'es' ? '🇪🇸' : '🇬🇧';
-      addToast(result.imageUrl ? `${lang} IA y Foto listos` : `${lang} IA lista, pero no se encontró foto`, 'success');
+      addToast(`${lang} Definición IA lista`, 'success');
     } catch (err) {
       addToast('Error buscando definición', 'error');
       console.error(err);
@@ -270,12 +264,36 @@ function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
                 <label style={{ margin: 0 }}>Frente (Pregunta)</label>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('front')} title="Añadir foto de la galería">
-                    📷
+                  <button
+                    className="glass-btn"
+                    style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                    onClick={handleDefinition}
+                    disabled={lookingUpDef}
+                    title="Definición al frente, palabra al dorso"
+                  >
+                    {lookingUpDef ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '📖 Definición IA'}
                   </button>
-                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleOpenImageSearch('front')} title="Buscar imagen en Wikipedia">
-                    🖼️ Buscar Foto
-                  </button>
+                  
+                  {!autoPhotoUsed ? (
+                    <button
+                      className="glass-btn"
+                      style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                      onClick={handleAutoImage}
+                      disabled={lookingUpImage}
+                      title="Obtener foto automáticamente"
+                    >
+                      {lookingUpImage ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '✨ Foto Automática'}
+                    </button>
+                  ) : (
+                    <>
+                      <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('front')} title="Añadir foto de la galería">
+                        📷
+                      </button>
+                      <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleOpenImageSearch('front')} title="Buscar imagen en Wikipedia">
+                        🖼️ Buscar Foto
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="editor-content" contentEditable data-placeholder="Escribe la pregunta aquí..." onInput={handleFieldChange('front')} onPaste={handlePaste('front')} style={{ borderRadius: 'var(--radius-md)' }} />
@@ -286,15 +304,6 @@ function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
                 <label style={{ margin: 0 }}>Dorso (Respuesta)</label>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  <button
-                    className="glass-btn"
-                    style={{ fontSize: '0.75rem', padding: '4px 8px' }}
-                    onClick={handleDefinition}
-                    disabled={lookingUpDef}
-                    title="Definición al frente, palabra al dorso"
-                  >
-                    {lookingUpDef ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '📖 Definición'}
-                  </button>
                   <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('back')} title="Añadir foto de la galería">
                     📷
                   </button>
