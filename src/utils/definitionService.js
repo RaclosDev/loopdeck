@@ -82,17 +82,18 @@ export async function lookupImage(word) {
       console.warn('No se pudo traducir la palabra, usando original');
     }
 
-    // 2. Generar la imagen por IA con un prompt en inglés perfeccionado
-    const prompt = `a clean, simple, and realistic photography of a ${englishWord}, isolated on white background, high quality, studio lighting, no text`;
-    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=600&height=400&nologo=true`;
+    // 2. Buscar la primera foto real en Openverse (motor de búsqueda de imágenes reales de Flickr, 500px, Wikimedia, etc.)
+    const searchUrl = `https://api.openverse.engineering/v1/images/?q=${encodeURIComponent(englishWord)}`;
     
-    // Hacemos fetch primero para asegurarnos de que se genere y devuelva 200 OK
-    const imgRes = await fetch(imgUrl);
+    const imgRes = await fetch(searchUrl);
     if (imgRes.ok) {
-      return imgUrl;
+      const imgData = await imgRes.json();
+      if (imgData.results && imgData.results.length > 0) {
+        return imgData.results[0].url; // Devolvemos la URL directa a la foto real
+      }
     }
   } catch (error) {
-    console.warn('No se pudo auto-obtener la imagen por IA:', error);
+    console.warn('No se pudo auto-obtener la imagen real:', error);
   }
   return null;
 }
