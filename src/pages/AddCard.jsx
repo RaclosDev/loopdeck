@@ -28,6 +28,8 @@ function AddCard() {
   const [lookingUpDef, setLookingUpDef] = useState(false);
 
   const tagInputRef = useRef(null);
+  const frontFileRef = useRef(null);
+  const backFileRef = useRef(null);
 
   useEffect(() => {
     decksApi.getAll().then(setDecks).catch(_e => addToast('Error cargando mazos', 'error'));
@@ -49,6 +51,39 @@ function AddCard() {
         if (content) setFields(prev => ({ ...prev, [fieldName]: content }));
       }, 50);
     });
+  };
+
+  // ── Gallery Image Picker ────────────────────────────────────
+  const handleGalleryPick = (fieldName) => {
+    const ref = fieldName === 'front' ? frontFileRef : backFileRef;
+    ref.current?.click();
+  };
+
+  const handleFileSelected = async (fieldName, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      addToast('Comprimiendo imagen...', 'info');
+      const compressedDataUrl = await compressImageFromPaste(file, 800, 0.75);
+      const imgHtml = `<img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
+
+      // Replace content with the image (removes text, puts only image)
+      setFields(prev => ({ ...prev, [fieldName]: imgHtml }));
+
+      // Update DOM directly
+      const els = document.querySelectorAll('.editor-content');
+      const idx = fieldName === 'front' ? 0 : 1;
+      if (els[idx]) els[idx].innerHTML = imgHtml;
+
+      addToast('📷 Imagen añadida', 'success');
+    } catch (err) {
+      addToast('Error procesando imagen', 'error');
+      console.error(err);
+    }
+
+    // Reset file input so same file can be selected again
+    e.target.value = '';
   };
 
   // ── Wikipedia Image Picker ────────────────────────────────
@@ -202,6 +237,10 @@ function AddCard() {
         <h1>Añadir Tarjetas</h1>
       </div>
 
+      {/* Hidden file inputs for gallery picker */}
+      <input ref={frontFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('front', e)} />
+      <input ref={backFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('back', e)} />
+
       <div className="editor-container">
         {/* Top Controls */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexDirection: 'row' }}>
@@ -227,6 +266,9 @@ function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
                 <label style={{ margin: 0 }}>Frente (Pregunta)</label>
                 <div style={{ display: 'flex', gap: 4 }}>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('front')} title="Añadir foto de la galería">
+                    📷
+                  </button>
                   <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleOpenImageSearch('front')} title="Buscar imagen en Wikipedia">
                     🖼️ Buscar Foto
                   </button>
@@ -248,6 +290,9 @@ function AddCard() {
                     title="Definición al frente, palabra al dorso"
                   >
                     {lookingUpDef ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '📖 Definición'}
+                  </button>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('back')} title="Añadir foto de la galería">
+                    📷
                   </button>
                   <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleOpenImageSearch('back')} title="Buscar imagen en Wikipedia">
                     🖼️ Buscar Foto
