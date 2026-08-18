@@ -82,14 +82,21 @@ export async function lookupImage(word) {
       console.warn('No se pudo traducir la palabra, usando original');
     }
 
-    // 2. Buscar la primera foto real en Openverse (motor de búsqueda de imágenes reales de Flickr, 500px, Wikimedia, etc.)
-    const searchUrl = `https://api.openverse.engineering/v1/images/?q=${encodeURIComponent(englishWord)}`;
+    // 2. Buscar la primera foto real en Wikimedia Commons usando la palabra en inglés
+    // Al usar inglés, los resultados son infinitamente más precisos (evita que "casa" devuelva el "Castillo de la Casa Real").
+    const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(englishWord)}&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`;
     
     const imgRes = await fetch(searchUrl);
     if (imgRes.ok) {
       const imgData = await imgRes.json();
-      if (imgData.results && imgData.results.length > 0) {
-        return imgData.results[0].url; // Devolvemos la URL directa a la foto real
+      const pages = imgData.query?.pages || {};
+      const images = Object.values(pages)
+        .filter(page => page.imageinfo && page.imageinfo.length > 0)
+        .map(page => page.imageinfo[0]);
+      
+      const bestImage = images.find(img => img.thumbwidth >= 100);
+      if (bestImage) {
+        return bestImage.thumburl;
       }
     }
   } catch (error) {
