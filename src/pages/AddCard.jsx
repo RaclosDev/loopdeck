@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
-import { handleImagePaste } from '../utils/imageUtils';
+import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
+import { lookupDefinition } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
 
 const NOTE_TYPES = [
@@ -23,8 +24,11 @@ function AddCard() {
   const [tagInput, setTagInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [activeImageField, setActiveImageField] = useState(null); // 'front' or 'back'
+  const [lookingUpDef, setLookingUpDef] = useState(false);
 
   const tagInputRef = useRef(null);
+  const frontFileRef = useRef(null);
+  const backFileRef = useRef(null);
 
   useEffect(() => {
     decksApi.getAll().then(setDecks).catch(_e => addToast('Error cargando mazos', 'error'));
@@ -40,7 +44,6 @@ function AddCard() {
 
   const handlePaste = (fieldName) => (e) => {
     handleImagePaste(e, () => {
-      // Trigger update of state after paste
       setTimeout(() => {
         const els = document.querySelectorAll('.editor-content');
         const content = fieldName === 'front' ? els[0]?.innerHTML : els[1]?.innerHTML;
@@ -49,19 +52,92 @@ function AddCard() {
     });
   };
 
+  // ── Gallery Image Picker ────────────────────────────────────
+  const handleGalleryPick = (fieldName) => {
+    const ref = fieldName === 'front' ? frontFileRef : backFileRef;
+    ref.current?.click();
+  };
+
+  const handleFileSelected = async (fieldName, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      addToast('Comprimiendo imagen...', 'info');
+      const compressedDataUrl = await compressImageFromPaste(file, 800, 0.75);
+      const imgHtml = `<img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
+
+      // Replace content with the image (removes text, puts only image)
+      setFields(prev => ({ ...prev, [fieldName]: imgHtml }));
+
+      // Update DOM directly
+      const els = document.querySelectorAll('.editor-content');
+      const idx = fieldName === 'front' ? 0 : 1;
+      if (els[idx]) els[idx].innerHTML = imgHtml;
+
+      addToast('📷 Imagen añadida', 'success');
+    } catch (err) {
+      addToast('Error procesando imagen', 'error');
+      console.error(err);
+    }
+
+    // Reset file input so same file can be selected again
+    e.target.value = '';
+  };
+
+  // ── Definition Lookup ───────────────────────────────────────
+  const handleDefinition = async () => {
+    // Extract plain text from front field
+    const frontText = (fields.front || '')
+      .replace(/<[^>]*>/g, '')  // strip HTML
+      .trim();
+
+    if (!frontText) {
+      addToast('Escribe una palabra en el frente primero', 'error');
+      return;
+    }
+
+    // Take the first word (or full text if short)
+    const word = frontText.split(/\s+/)[0];
+
+    setLookingUpDef(true);
+    try {
+      const result = await lookupDefinition(word);
+
+      if (!result) {
+        addToast(`No se encontró definición para "${word}"`, 'error');
+        return;
+      }
+
+      // Build the back content: existing content + definition
+      const existingBack = fields.back || '';
+      const defHtml = `<div style="font-size: 0.95em">${result.definition}</div>`;
+      const newBack = existingBack ? existingBack + '<br>' + defHtml : defHtml;
+
+      setFields(prev => ({ ...prev, back: newBack }));
+
+      // Update DOM
+      const els = document.querySelectorAll('.editor-content');
+      if (els[1]) els[1].innerHTML = newBack;
+
+      const lang = result.language === 'es' ? '🇪🇸' : '🇬🇧';
+      addToast(`${lang} Definición añadida al dorso`, 'success');
+    } catch (err) {
+      addToast('Error buscando definición', 'error');
+      console.error(err);
+    } finally {
+      setLookingUpDef(false);
+    }
+  };
+
   const handleImageSelect = (url) => {
     if (!activeImageField) return;
     const imgHtml = `<img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
-    
-    // Append to existing content
     const newContent = (fields[activeImageField] || '') + '<br>' + imgHtml;
     setFields(prev => ({ ...prev, [activeImageField]: newContent }));
-    
-    // Update the DOM element directly
     const els = document.querySelectorAll('.editor-content');
     if (activeImageField === 'front' && els[0]) els[0].innerHTML = newContent;
     if (activeImageField === 'back' && els[1]) els[1].innerHTML = newContent;
-    
     setActiveImageField(null);
   };
 
@@ -145,6 +221,10 @@ function AddCard() {
         <h1>Añadir Tarjetas</h1>
       </div>
 
+      {/* Hidden file inputs for gallery picker */}
+      <input ref={frontFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('front', e)} />
+      <input ref={backFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('back', e)} />
+
       <div className="editor-container">
         {/* Top Controls */}
         <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexDirection: 'row' }}>
@@ -165,23 +245,45 @@ function AddCard() {
 
         <div className="editor-grid">
           <div className="editor-fields">
+            {/* Front field */}
             <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
                 <label style={{ margin: 0 }}>Frente (Pregunta)</label>
-                <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '4px 10px' }} onClick={() => setActiveImageField('front')} title="Buscar imagen en Wikipedia">
-                  🖼️ Buscar Foto
-                </button>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('front')} title="Añadir foto de la galería">
+                    📷
+                  </button>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => setActiveImageField('front')} title="Buscar imagen en Wikipedia">
+                    🖼️
+                  </button>
+                </div>
               </div>
-              <div className="editor-content" contentEditable data-placeholder="Escribe la pregunta aquí... (Pega una imagen con Ctrl+V)" onInput={handleFieldChange('front')} onPaste={handlePaste('front')} style={{ borderRadius: 'var(--radius-md)' }} />
+              <div className="editor-content" contentEditable data-placeholder="Escribe la pregunta aquí..." onInput={handleFieldChange('front')} onPaste={handlePaste('front')} style={{ borderRadius: 'var(--radius-md)' }} />
             </div>
+
+            {/* Back field */}
             <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
                 <label style={{ margin: 0 }}>Dorso (Respuesta)</label>
-                <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '4px 10px' }} onClick={() => setActiveImageField('back')} title="Buscar imagen en Wikipedia">
-                  🖼️ Buscar Foto
-                </button>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    className="glass-btn"
+                    style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                    onClick={handleDefinition}
+                    disabled={lookingUpDef}
+                    title="Buscar definición corta de la palabra del frente"
+                  >
+                    {lookingUpDef ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '📖'}
+                  </button>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('back')} title="Añadir foto de la galería">
+                    📷
+                  </button>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => setActiveImageField('back')} title="Buscar imagen en Wikipedia">
+                    🖼️
+                  </button>
+                </div>
               </div>
-              <div className="editor-content" contentEditable data-placeholder="Escribe la respuesta aquí... (Pega una imagen con Ctrl+V)" onInput={handleFieldChange('back')} onPaste={handlePaste('back')} style={{ borderRadius: 'var(--radius-md)' }} />
+              <div className="editor-content" contentEditable data-placeholder="Escribe la respuesta aquí..." onInput={handleFieldChange('back')} onPaste={handlePaste('back')} style={{ borderRadius: 'var(--radius-md)' }} />
             </div>
 
             {/* Tags */}
