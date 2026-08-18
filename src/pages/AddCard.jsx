@@ -155,6 +155,46 @@ function AddCard() {
     }
   };
 
+  const handleAutoImage = async () => {
+    // Check both fields for a word, front preferred
+    let text = (fields.front || '').replace(/<[^>]*>/g, '').trim();
+    if (text.length > 30) {
+      text = (fields.back || '').replace(/<[^>]*>/g, '').trim();
+    }
+    const word = text.split(/\s+/)[0];
+
+    if (!word) {
+      addToast('Escribe una palabra primero', 'warning');
+      return;
+    }
+
+    setLookingUpImage(true);
+    try {
+      const imageUrl = await lookupImage(word);
+      if (!imageUrl) {
+        addToast(`No se encontró foto automática para "${word}"`, 'error');
+        setAutoPhotoUsed(true); // Switch to manual buttons
+        return;
+      }
+
+      const imgHtml = `<br><img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Auto-foto"/>`;
+      
+      const newFront = (fields.front || '') + imgHtml;
+      setFields(prev => ({ ...prev, front: newFront }));
+      
+      const els = document.querySelectorAll('.editor-content');
+      if (els[0]) els[0].innerHTML = newFront;
+
+      setAutoPhotoUsed(true);
+      addToast('📸 Foto automática añadida', 'success');
+    } catch (err) {
+      addToast('Error buscando foto', 'error');
+      console.error(err);
+    } finally {
+      setLookingUpImage(false);
+    }
+  };
+
   const addTag = (tag) => {
     const trimmed = tag.trim().toLowerCase();
     if (trimmed && !tags.includes(trimmed)) setTags(prev => [...prev, trimmed]);
