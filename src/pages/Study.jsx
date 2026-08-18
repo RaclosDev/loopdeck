@@ -10,15 +10,41 @@ function getIntervalLabel(card, rating) {
   if (!card) return '';
   const ease = card.easeFactor || 2.5;
   const interval = card.intervalDays || 0;
+  const step = card.learningStep || 0;
+  const learningSteps = [1, 10]; // default steps in minutes
+
   if (card.state === 'new' || card.state === 'learning') {
-    if (rating === 1) return '1m';
-    if (rating === 4) return '4d';
-    return interval < 1 ? '10m' : '1d';
+    if (rating === 1) return formatMinutes(learningSteps[0]); // back to first step
+    if (rating === 2) {
+      // HARD: average of current step and next, or 1.5x current
+      const curr = learningSteps[step] || learningSteps[0] || 1;
+      const next = learningSteps[step + 1] || curr * 2;
+      return formatMinutes(Math.round((curr + next) / 2));
+    }
+    if (rating === 3) {
+      // GOOD: advance to next step
+      const nextStep = step + 1;
+      if (nextStep >= learningSteps.length) return '1d'; // graduate
+      return formatMinutes(learningSteps[nextStep]);
+    }
+    return '4d'; // EASY: graduate immediately
   }
+  if (card.state === 'relearning') {
+    if (rating === 1) return '10m';
+    if (rating === 2) return '10m';
+    if (rating === 3) return `${Math.max(1, Math.round(interval * 0.7))}d`;
+    return `${Math.max(1, Math.round(interval))}d`;
+  }
+  // Review state
   if (rating === 1) return '10m';
   if (rating === 2) return `${Math.max(1, Math.round(interval * 1.2))}d`;
   if (rating === 3) return `${Math.max(1, Math.round(interval * ease))}d`;
   return `${Math.max(1, Math.round(interval * ease * 1.3))}d`;
+}
+
+function formatMinutes(m) {
+  if (m < 60) return `${m}m`;
+  return `${Math.round(m / 60)}h`;
 }
 
 function Study() {
@@ -141,16 +167,18 @@ function Study() {
 
   const handleFlip = () => { if (!isFlipped) setIsFlipped(true); };
 
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const handleRate = async (rating) => {
-    if (!card) return;
+    if (!card || isTransitioning) return;
     const startMs = Date.now();
 
     // Save undo state
     setUndoStack(prev => [...prev, { pair: current, index: currentIndex }]);
 
-    // Optimistically advance UI
+    // Start transition: flip card back first, THEN change content
+    setIsTransitioning(true);
     setIsFlipped(false);
-    const remaining = queue.filter((_, i) => i !== currentIndex);
 
     setSessionStats(prev => ({
       ...prev,
@@ -167,12 +195,17 @@ function Study() {
       return n;
     });
 
-    if (remaining.length === 0) {
-      setIsComplete(true);
-    } else {
-      setQueue(remaining);
-      setCurrentIndex(0);
-    }
+    // Wait for flip-back animation to complete before showing next card
+    setTimeout(() => {
+      const remaining = queue.filter((_, i) => i !== currentIndex);
+      if (remaining.length === 0) {
+        setIsComplete(true);
+      } else {
+        setQueue(remaining);
+        setCurrentIndex(0);
+      }
+      setIsTransitioning(false);
+    }, 350); // slightly shorter than 0.6s flip animation
 
     // Fire-and-forget: send review to backend
     try {
