@@ -28,8 +28,8 @@ public class WebConfig implements WebMvcConfigurer {
                             return requestedResource;
                         }
                         
-                        // 2. Si la ruta empieza por /api, dejamos que Spring maneje el error 404
-                        if (resourcePath.startsWith("api/")) {
+                        // 2. Si la ruta es un error de API o empieza por api, dejamos que Spring lo maneje
+                        if (resourcePath.startsWith("api/") || resourcePath.startsWith("/api/") || resourcePath.startsWith("error")) {
                             return null;
                         }
                         
