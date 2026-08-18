@@ -43,6 +43,9 @@ function AddCard() {
 
   const handleFieldChange = (fieldName) => (e) => {
     setFields(prev => ({ ...prev, [fieldName]: e.target.innerHTML }));
+    if (fieldName === 'front') {
+      setAutoPhotoUsed(false);
+    }
   };
 
   const handlePaste = (fieldName) => (e) => {

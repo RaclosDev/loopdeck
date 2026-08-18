@@ -82,25 +82,17 @@ export async function lookupImage(word) {
       console.warn('No se pudo traducir la palabra, usando original');
     }
 
-    // 2. Buscar la primera foto real en Wikimedia Commons usando la palabra en inglés
-    // Al usar inglés, los resultados son infinitamente más precisos (evita que "casa" devuelva el "Castillo de la Casa Real").
-    const searchUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(englishWord)}&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`;
-    
-    const imgRes = await fetch(searchUrl);
-    if (imgRes.ok) {
-      const imgData = await imgRes.json();
-      const pages = imgData.query?.pages || {};
-      const images = Object.values(pages)
-        .filter(page => page.imageinfo && page.imageinfo.length > 0)
-        .map(page => page.imageinfo[0]);
-      
-      const bestImage = images.find(img => img.thumbwidth >= 100);
-      if (bestImage) {
-        return bestImage.thumburl;
+    // 2. Fetch image through our Spring Boot Backend Proxy (Openverse API)
+    // By proxying through the backend, we bypass browser adblockers and CORS issues 100%.
+    const aiRes = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(englishWord)}`);
+    if (aiRes.ok) {
+      const data = await aiRes.json();
+      if (data && data.imageUrl) {
+        return data.imageUrl;
       }
     }
   } catch (error) {
-    console.warn('No se pudo auto-obtener la imagen real:', error);
+    console.warn('No se pudo auto-obtener la imagen a través del backend:', error);
   }
   return null;
 }
