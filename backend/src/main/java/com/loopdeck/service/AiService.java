@@ -76,62 +76,44 @@ public class AiService {
     }
 
     /**
-     * Ask Gemini to find the best Wikipedia image URL for a given word.
-     * We search in SPANISH to avoid translation issues (e.g. "ginger" = pelirrojo).
+     * Fetch the main image of a Wikipedia article for a given word.
+     * Uses the Wikipedia API directly (pageimages) — guaranteed to return real, valid URLs.
      */
     public String getImageUrl(String word) {
         if (word == null || word.trim().isEmpty()) return null;
-        if (geminiApiKey == null || geminiApiKey.trim().isEmpty() || "TU_CLAVE_AQUI".equals(geminiApiKey)) return null;
-
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
-
-        String prompt = "Necesito la URL directa de la imagen principal del artículo de Wikipedia en español sobre \"" + word.trim() + "\". " +
-                "La URL debe ser de upload.wikimedia.org y debe ser un enlace directo a un archivo de imagen (.jpg, .png o .svg). " +
-                "Responde ÚNICAMENTE con la URL. Sin explicaciones, sin comillas, sin texto adicional. Solo la URL.";
-
-        Map<String, Object> parts = new HashMap<>();
-        parts.put("text", prompt);
-
-        Map<String, Object> content = new HashMap<>();
-        content.put("parts", List.of(parts));
-
-        Map<String, Object> generationConfig = new HashMap<>();
-        generationConfig.put("maxOutputTokens", 150);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("contents", List.of(content));
-        body.put("generationConfig", generationConfig);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
         try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            // Buscar directamente en la Wikipedia en español
+            String wikiUrl = "https://es.wikipedia.org/w/api.php?action=query"
+                    + "&generator=search&gsrsearch=" + java.net.URLEncoder.encode(word.trim(), java.nio.charset.StandardCharsets.UTF_8)
+                    + "&gsrlimit=1&prop=pageimages&pithumbsize=600&format=json";
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("User-Agent", "LoopDeck/1.0 (flashcard app)");
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(wikiUrl, HttpMethod.GET, entity, Map.class);
+
             if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.getBody().get("candidates");
-                if (candidates != null && !candidates.isEmpty()) {
-                    Map<String, Object> resContent = (Map<String, Object>) candidates.get(0).get("content");
-                    if (resContent != null) {
-                        List<Map<String, Object>> resParts = (List<Map<String, Object>>) resContent.get("parts");
-                        if (resParts != null && !resParts.isEmpty()) {
-                            String imageUrl = ((String) resParts.get(0).get("text")).trim();
-                            // Limpiar posibles caracteres extra
-                            imageUrl = imageUrl.replaceAll("[`\"'\\s]", "");
-                            // Verificar que parece una URL válida de imagen
-                            if (imageUrl.startsWith("https://") && 
-                                    (imageUrl.contains(".jpg") || imageUrl.contains(".png") || 
-                                     imageUrl.contains(".svg") || imageUrl.contains(".webp") ||
-                                     imageUrl.contains(".JPG") || imageUrl.contains(".PNG"))) {
-                                return imageUrl;
+                Map<String, Object> query = (Map<String, Object>) response.getBody().get("query");
+                if (query != null) {
+                    Map<String, Map<String, Object>> pages = (Map<String, Map<String, Object>>) query.get("pages");
+                    if (pages != null && !pages.isEmpty()) {
+                        Map<String, Object> page = pages.values().iterator().next();
+                        Map<String, Object> thumbnail = (Map<String, Object>) page.get("thumbnail");
+                        if (thumbnail != null) {
+                            String source = (String) thumbnail.get("source");
+                            if (source != null && !source.isEmpty()) {
+                                return source;
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            System.err.println("Error buscando imagen con Gemini: " + e.getMessage());
+            System.err.println("Error buscando imagen en Wikipedia: " + e.getMessage());
         }
         return null;
     }
 }
+
