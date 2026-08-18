@@ -3,6 +3,8 @@
  * Uses Google Gemini AI via Backend with fallback to Wikipedia API.
  */
 
+import { API_BASE } from '../services/api';
+
 /**
  * Fetch a short definition for a word.
  * @param {string} word - The word to look up
@@ -14,7 +16,7 @@ export async function lookupDefinition(word) {
 
   try {
     // 1. Try fetching from our Spring Boot Backend AI Endpoint
-    const aiRes = await fetch(`/api/ai/definition?word=${encodeURIComponent(clean)}`);
+    const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`);
     if (aiRes.ok) {
       const data = await aiRes.json();
       if (data && data.definition && !data.definition.startsWith('Error:')) {
