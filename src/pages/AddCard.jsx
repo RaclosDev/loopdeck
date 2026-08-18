@@ -134,8 +134,12 @@ function AddCard() {
         return;
       }
 
-      // Front gets the definition
-      const defHtml = `<div style="font-size: 0.95em">${result.definition}</div>`;
+      // Front gets the definition and potentially an auto-fetched image
+      let defHtml = `<div style="font-size: 0.95em">${result.definition}</div>`;
+      if (result.imageUrl) {
+        defHtml += `<br><img src="${result.imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Auto-foto"/>`;
+      }
+      
       // Back gets the word (appending if there's already something)
       const existingBack = fields.back || '';
       const newBack = existingBack ? `${existingBack}<br><strong>${word}</strong>` : `<strong>${word}</strong>`;
@@ -148,7 +152,7 @@ function AddCard() {
       if (els[1]) els[1].innerHTML = newBack;
 
       const lang = result.language === 'es' ? '🇪🇸' : '🇬🇧';
-      addToast(`${lang} Definición en frente, palabra en dorso`, 'success');
+      addToast(result.imageUrl ? `${lang} IA y Foto listos` : `${lang} IA lista, pero no se encontró foto`, 'success');
     } catch (err) {
       addToast('Error buscando definición', 'error');
       console.error(err);
