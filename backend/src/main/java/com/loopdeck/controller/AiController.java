@@ -31,10 +31,12 @@ public class AiController {
     public ResponseEntity<Map<String, String>> getImage(@RequestParam String word) {
         Map<String, String> response = new HashMap<>();
         try {
-            // Utilizamos HttpClient para hacer proxy de Openverse y evitar bloqueos de CORS/AdBlocker en el frontend
-            java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+            // Utilizamos HttpClient configurado para seguir redirecciones (Openverse movió su API)
+            java.net.http.HttpClient client = java.net.http.HttpClient.newBuilder()
+                    .followRedirects(java.net.http.HttpClient.Redirect.ALWAYS)
+                    .build();
             java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
-                    .uri(java.net.URI.create("https://api.openverse.engineering/v1/images/?q=" + java.net.URLEncoder.encode(word, java.nio.charset.StandardCharsets.UTF_8)))
+                    .uri(java.net.URI.create("https://api.openverse.org/v1/images/?q=" + java.net.URLEncoder.encode(word, java.nio.charset.StandardCharsets.UTF_8)))
                     .header("User-Agent", "LoopDeck/1.0")
                     .GET()
                     .build();
