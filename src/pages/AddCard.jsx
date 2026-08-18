@@ -180,7 +180,7 @@ function AddCard() {
         return;
       }
 
-      const imgHtml = `<br><img src="${imageUrl}" crossorigin="anonymous" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
+      const imgHtml = `<br><img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
       
       const newFront = (fields.front || '') + imgHtml;
       setFields(prev => ({ ...prev, front: newFront }));
