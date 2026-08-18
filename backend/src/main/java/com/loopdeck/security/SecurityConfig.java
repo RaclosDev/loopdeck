@@ -36,8 +36,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Endpoints de autenticación públicos
-                .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                // Endpoints de autenticación y de IA públicos
+                .requestMatchers("/api/auth/register", "/api/auth/login", "/api/ai/**").permitAll()
                 // Archivos estáticos del frontend de React
                 .requestMatchers("/", "/index.html", "/assets/**", "/vite.svg", "/icons.svg", "/manifest.webmanifest", "/sw.js", "/workbox-*.js", "/favicon.svg", "/pwa-*.png").permitAll()
                 // Cualquier otra ruta que NO sea /api, la permitimos porque React Router (Frontend) la manejará y protegerá
