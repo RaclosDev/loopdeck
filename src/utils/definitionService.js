@@ -14,8 +14,8 @@ export async function lookupDefinition(word) {
 
   try {
     // We use Spanish Wikipedia by default.
-    // Querying for exactly 2 sentences in plain text
-    const url = `https://es.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=2&exlimit=1&titles=${encodeURIComponent(clean)}&explaintext=1&formatversion=2&format=json&origin=*`;
+    // Querying for exactly 1 sentence in plain text to keep it very short
+    const url = `https://es.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=1&exlimit=1&titles=${encodeURIComponent(clean)}&explaintext=1&formatversion=2&format=json&origin=*`;
     
     const res = await fetch(url);
     if (!res.ok) return null;
@@ -27,8 +27,13 @@ export async function lookupDefinition(word) {
       return null;
     }
 
-    const extract = pages[0].extract;
+    let extract = pages[0].extract;
     if (!extract) return null;
+
+    // Even 1 sentence can be long on Wikipedia. Truncate to max 150 chars for UI aesthetics.
+    if (extract.length > 150) {
+      extract = extract.substring(0, 147) + '...';
+    }
 
     return { 
       definition: extract,
