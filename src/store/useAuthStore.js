@@ -12,8 +12,16 @@ async function authRequest(endpoint, body) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Error');
+  
+  const text = await res.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (e) {
+    throw new Error(`Server returned HTTP ${res.status}: ${text.substring(0, 50)}`);
+  }
+  
+  if (!res.ok) throw new Error(data.error || `HTTP ${res.status} Error`);
   return data;
 }
 
