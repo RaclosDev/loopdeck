@@ -26,7 +26,7 @@ public class AiService {
             return "Error: Clave de IA no configurada.";
         }
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=" + geminiApiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
 
         // Prompt para la IA
         String prompt = "Actúa como un diccionario. Da una definición súper breve, de una sola línea (máximo 15 palabras) para la palabra: " + word + ". Solo responde con la definición, sin nada más.";
@@ -37,9 +37,14 @@ public class AiService {
 
         Map<String, Object> content = new HashMap<>();
         content.put("parts", List.of(parts));
+        
+        // Optimización: Limitar tokens para que responda instantáneamente
+        Map<String, Object> generationConfig = new HashMap<>();
+        generationConfig.put("maxOutputTokens", 30);
 
         Map<String, Object> body = new HashMap<>();
         body.put("contents", List.of(content));
+        body.put("generationConfig", generationConfig);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
