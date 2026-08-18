@@ -67,15 +67,29 @@ export async function lookupImage(word) {
   const clean = word.trim().toLowerCase();
 
   try {
-    // Generar una imagen por IA en tiempo real (gratis, sin API key) usando Pollinations.ai
-    // Le pasamos un prompt para que sea una foto limpia, ideal para estudiar.
-    const prompt = `una fotografía clara, sencilla y realista de ${clean}, fondo blanco, alta calidad, sin texto`;
+    // 1. Traducir la palabra a inglés primero (la IA de imágenes funciona infinitamente mejor en inglés)
+    let englishWord = clean;
+    try {
+      const translateUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=es|en`;
+      const transRes = await fetch(translateUrl);
+      if (transRes.ok) {
+        const transData = await transRes.json();
+        if (transData.responseData?.translatedText) {
+          englishWord = transData.responseData.translatedText.toLowerCase();
+        }
+      }
+    } catch (e) {
+      console.warn('No se pudo traducir la palabra, usando original');
+    }
+
+    // 2. Generar la imagen por IA con un prompt en inglés perfeccionado
+    const prompt = `a clean, simple, and realistic photography of a ${englishWord}, isolated on white background, high quality, studio lighting, no text`;
     const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=600&height=400&nologo=true`;
     
-    // Hacemos fetch primero para asegurarnos de que se genere y devuelva 200 OK antes de ponerla en la tarjeta
+    // Hacemos fetch primero para asegurarnos de que se genere y devuelva 200 OK
     const imgRes = await fetch(imgUrl);
     if (imgRes.ok) {
-      return imgUrl; // Devolvemos la URL directa para que el navegador la cargue
+      return imgUrl;
     }
   } catch (error) {
     console.warn('No se pudo auto-obtener la imagen por IA:', error);
