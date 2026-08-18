@@ -67,20 +67,18 @@ export async function lookupImage(word) {
   const clean = word.trim().toLowerCase();
 
   try {
-    // Search Spanish Wikipedia for the most relevant article and get its main image (much better quality/relevance than random Commons search)
-    const imgUrl = `https://es.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(clean)}&gsrlimit=1&prop=pageimages&pithumbsize=600&format=json&origin=*`;
+    // Generar una imagen por IA en tiempo real (gratis, sin API key) usando Pollinations.ai
+    // Le pasamos un prompt para que sea una foto limpia, ideal para estudiar.
+    const prompt = `una fotografía clara, sencilla y realista de ${clean}, fondo blanco, alta calidad, sin texto`;
+    const imgUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=600&height=400&nologo=true`;
+    
+    // Hacemos fetch primero para asegurarnos de que se genere y devuelva 200 OK antes de ponerla en la tarjeta
     const imgRes = await fetch(imgUrl);
     if (imgRes.ok) {
-      const imgData = await imgRes.json();
-      const pages = imgData.query?.pages || {};
-      const page = Object.values(pages)[0];
-      
-      if (page && page.thumbnail && page.thumbnail.source) {
-        return page.thumbnail.source;
-      }
+      return imgUrl; // Devolvemos la URL directa para que el navegador la cargue
     }
   } catch (error) {
-    console.warn('No se pudo auto-obtener la imagen:', error);
+    console.warn('No se pudo auto-obtener la imagen por IA:', error);
   }
   return null;
 }
