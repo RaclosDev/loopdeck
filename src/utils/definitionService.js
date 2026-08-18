@@ -67,19 +67,16 @@ export async function lookupImage(word) {
   const clean = word.trim().toLowerCase();
 
   try {
-    const imgUrl = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(clean)}&gsrlimit=3&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`;
+    // Search Spanish Wikipedia for the most relevant article and get its main image (much better quality/relevance than random Commons search)
+    const imgUrl = `https://es.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(clean)}&gsrlimit=1&prop=pageimages&pithumbsize=600&format=json&origin=*`;
     const imgRes = await fetch(imgUrl);
     if (imgRes.ok) {
       const imgData = await imgRes.json();
       const pages = imgData.query?.pages || {};
-      const images = Object.values(pages)
-        .filter(page => page.imageinfo && page.imageinfo.length > 0)
-        .map(page => page.imageinfo[0]);
+      const page = Object.values(pages)[0];
       
-      // Get the first decent image that isn't a tiny icon
-      const bestImage = images.find(img => img.thumbwidth >= 100);
-      if (bestImage) {
-        return bestImage.thumburl;
+      if (page && page.thumbnail && page.thumbnail.source) {
+        return page.thumbnail.source;
       }
     }
   } catch (error) {
