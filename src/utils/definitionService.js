@@ -58,7 +58,8 @@ export async function lookupDefinition(word) {
 }
 
 /**
- * Automatically fetch the best image from Wikimedia Commons for a given word.
+ * Fetch the best image for a word via our backend (uses Gemini AI to find Wikipedia images).
+ * We send the word in SPANISH directly — no translation needed, Gemini understands it perfectly.
  * @param {string} word - The word to search for
  * @returns {Promise<string | null>} The image URL, or null if not found
  */
@@ -67,32 +68,15 @@ export async function lookupImage(word) {
   const clean = word.trim().toLowerCase();
 
   try {
-    // 1. Traducir la palabra a inglés primero (la IA de imágenes funciona infinitamente mejor en inglés)
-    let englishWord = clean;
-    try {
-      const translateUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=es|en`;
-      const transRes = await fetch(translateUrl);
-      if (transRes.ok) {
-        const transData = await transRes.json();
-        if (transData.responseData?.translatedText) {
-          englishWord = transData.responseData.translatedText.toLowerCase();
-        }
-      }
-    } catch (e) {
-      console.warn('No se pudo traducir la palabra, usando original');
-    }
-
-    // 2. Fetch image through our Spring Boot Backend Proxy (Openverse API)
-    // By proxying through the backend, we bypass browser adblockers and CORS issues 100%.
-    const aiRes = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(englishWord)}`);
-    if (aiRes.ok) {
-      const data = await aiRes.json();
+    const res = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(clean)}`);
+    if (res.ok) {
+      const data = await res.json();
       if (data && data.imageUrl) {
         return data.imageUrl;
       }
     }
   } catch (error) {
-    console.warn('No se pudo auto-obtener la imagen a través del backend:', error);
+    console.warn('No se pudo auto-obtener la imagen:', error);
   }
   return null;
 }

@@ -74,4 +74,64 @@ public class AiService {
         
         return "No se pudo obtener la definición.";
     }
+
+    /**
+     * Ask Gemini to find the best Wikipedia image URL for a given word.
+     * We search in SPANISH to avoid translation issues (e.g. "ginger" = pelirrojo).
+     */
+    public String getImageUrl(String word) {
+        if (word == null || word.trim().isEmpty()) return null;
+        if (geminiApiKey == null || geminiApiKey.trim().isEmpty() || "TU_CLAVE_AQUI".equals(geminiApiKey)) return null;
+
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
+
+        String prompt = "Necesito la URL directa de la imagen principal del artículo de Wikipedia en español sobre \"" + word.trim() + "\". " +
+                "La URL debe ser de upload.wikimedia.org y debe ser un enlace directo a un archivo de imagen (.jpg, .png o .svg). " +
+                "Responde ÚNICAMENTE con la URL. Sin explicaciones, sin comillas, sin texto adicional. Solo la URL.";
+
+        Map<String, Object> parts = new HashMap<>();
+        parts.put("text", prompt);
+
+        Map<String, Object> content = new HashMap<>();
+        content.put("parts", List.of(parts));
+
+        Map<String, Object> generationConfig = new HashMap<>();
+        generationConfig.put("maxOutputTokens", 150);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("contents", List.of(content));
+        body.put("generationConfig", generationConfig);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.getBody().get("candidates");
+                if (candidates != null && !candidates.isEmpty()) {
+                    Map<String, Object> resContent = (Map<String, Object>) candidates.get(0).get("content");
+                    if (resContent != null) {
+                        List<Map<String, Object>> resParts = (List<Map<String, Object>>) resContent.get("parts");
+                        if (resParts != null && !resParts.isEmpty()) {
+                            String imageUrl = ((String) resParts.get(0).get("text")).trim();
+                            // Limpiar posibles caracteres extra
+                            imageUrl = imageUrl.replaceAll("[`\"'\\s]", "");
+                            // Verificar que parece una URL válida de imagen
+                            if (imageUrl.startsWith("https://") && 
+                                    (imageUrl.contains(".jpg") || imageUrl.contains(".png") || 
+                                     imageUrl.contains(".svg") || imageUrl.contains(".webp") ||
+                                     imageUrl.contains(".JPG") || imageUrl.contains(".PNG"))) {
+                                return imageUrl;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error buscando imagen con Gemini: " + e.getMessage());
+        }
+        return null;
+    }
 }
