@@ -34,7 +34,11 @@ async function request(endpoint, options = {}) {
   const response = await fetch(url, config);
 
   if (!response.ok) {
-    const data = await response.json().catch(() => ({}));
+    let data = {};
+    try {
+      const text = await response.text();
+      if (text) data = JSON.parse(text);
+    } catch {}
     throw new ApiError(
       data.error || data.message || `HTTP ${response.status}`,
       response.status,

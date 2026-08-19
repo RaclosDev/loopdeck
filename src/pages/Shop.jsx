@@ -38,7 +38,7 @@ export default function Shop() {
   if (!user) return null;
 
   return (
-    <div className="dashboard animate-fade-in" style={{ maxWidth: 800, margin: '0 auto' }}>
+    <div className="animate-fade-in" style={{ maxWidth: 800, margin: '0 auto' }}>
       <div className="page-header" style={{ marginBottom: 40, textAlign: 'center' }}>
         <h1>Tienda de Mascotas</h1>
         <p>Gasta tus puntos de racha en personalizar a tu mascota.</p>
@@ -48,7 +48,7 @@ export default function Shop() {
           display: 'inline-flex', 
           alignItems: 'center', 
           gap: 16, 
-          background: 'var(--surface-color)', 
+          background: 'var(--panel-bg)', 
           padding: '12px 24px', 
           borderRadius: 24,
           border: '1px solid var(--border-color)'
@@ -68,7 +68,7 @@ export default function Shop() {
               alignItems: 'center', 
               textAlign: 'center',
               border: isEquipped ? '2px solid var(--accent-color)' : '1px solid var(--border-color)',
-              background: isEquipped ? 'rgba(var(--accent-color-rgb), 0.05)' : 'var(--surface-color)'
+              background: isEquipped ? 'rgba(59, 130, 246, 0.06)' : 'var(--panel-bg)'
             }}>
               <div style={{ marginBottom: 20, marginTop: 10 }}>
                 <Mascot skin={skin.id} size={100} streak={user.streak || 0} />

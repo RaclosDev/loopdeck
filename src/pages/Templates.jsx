@@ -31,15 +31,18 @@ export default function Templates() {
   };
 
   return (
-    <div className="dashboard animate-fade-in">
-      <div className="page-header" style={{ marginBottom: 40 }}>
+    <div className="animate-fade-in">
+      <div className="page-header" style={{ marginBottom: 28 }}>
         <h1>Plantillas Disponibles</h1>
         <p>Descarga mazos prediseñados para empezar a estudiar al instante.</p>
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-          <div className="spinner" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 20px' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div className="spinner-sm" style={{ width: 40, height: 40, margin: '0 auto 16px', borderWidth: 3 }} />
+            <p style={{ color: 'var(--text-muted)' }}>Cargando plantillas...</p>
+          </div>
         </div>
       ) : templates.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
