@@ -258,7 +258,7 @@ function Dashboard() {
               <div key={t.id} className="deck-card" style={{ border: '1px dashed var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
                 <div className="deck-card-header" style={{ alignItems: 'flex-start' }}>
                   <span className="deck-card-name" style={{ lineHeight: 1.2 }}>{t.icon} {t.name}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', padding: '2px 8px', background: 'var(--surface-color)', borderRadius: 12, whiteSpace: 'nowrap' }}>{t.category}</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', padding: '2px 8px', background: 'rgba(255,255,255,0.08)', borderRadius: 12, whiteSpace: 'nowrap', border: '1px solid var(--border-color)' }}>{t.category}</span>
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 16, minHeight: 40 }}>
                   {t.description} ({t.cardCount} tarjetas)
