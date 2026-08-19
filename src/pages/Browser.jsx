@@ -14,21 +14,19 @@ export default function Browser() {
   const filteredNotes = notes.filter(note => {
     const tags = (note.tags || '').toLowerCase();
     
-    // Exact tag filter
     if (selectedTag && !tags.split(/\s+/).includes(selectedTag)) {
       return false;
     }
 
-    // Text search filter
     if (!searchQuery) return true;
-    const fields = JSON.parse(note.fieldsJson || '{}');
-    const front = (fields.front || fields.Front || fields.text || '').toLowerCase();
-    const back = (fields.back || fields.Back || fields.extra || '').toLowerCase();
+    let fields = {};
+    try { fields = JSON.parse(note.fieldsJson || '{}'); } catch {}
+    const front = (fields.front || fields.Front || fields.text || '').toLowerCase().replace(/<[^>]*>/g, ' ');
+    const back = (fields.back || fields.Back || fields.extra || '').toLowerCase().replace(/<[^>]*>/g, ' ');
     const q = searchQuery.toLowerCase();
     return front.includes(q) || back.includes(q) || tags.includes(q);
   });
 
-  // Fetch decks on mount
   useEffect(() => {
     decksApi.getAll()
       .then(data => {
@@ -41,7 +39,6 @@ export default function Browser() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Fetch notes when deck changes
   useEffect(() => {
     if (!selectedDeckId) return;
     setLoading(true);
@@ -61,131 +58,187 @@ export default function Browser() {
     }
   };
 
-  const renderField = (html) => {
-    if (!html) return '-';
-    const imgMatch = html.match(/<img[^>]+src="([^">]+)"/);
-    const textOnly = html.replace(/<[^>]*>/g, ' ').trim();
-    
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', maxWidth: '300px' }}>
-        {imgMatch && (
-          <div style={{ 
-            width: 36, height: 36, borderRadius: 4, overflow: 'hidden', flexShrink: 0,
-            border: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.05)'
-          }}>
-            <img src={imgMatch[1]} alt="thumb" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-        )}
-        {textOnly && (
-          <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {textOnly}
-          </span>
-        )}
-        {!imgMatch && !textOnly && '-'}
-      </div>
-    );
+  const getTextFromHtml = (html) => {
+    if (!html) return '';
+    return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+  };
+
+  const getImgSrc = (html) => {
+    if (!html) return null;
+    const m = html.match(/<img[^>]+src="([^">]+)"/);
+    return m ? m[1] : null;
   };
 
   return (
-    <div className="dashboard">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-        <div>
-          <h1 className="page-title">Explorador de Tarjetas</h1>
-          <p className="page-subtitle">Gestiona y edita tus tarjetas</p>
-        </div>
+    <div className="animate-fade-in">
+      <div className="page-header">
+        <h1>Explorador de Tarjetas</h1>
+        <p>Gestiona y edita tus tarjetas</p>
       </div>
 
-      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <label style={{ color: 'var(--text-muted)' }}>Mazo:</label>
-        <select 
-          className="glass-input" 
-          value={selectedDeckId} 
-          onChange={(e) => setSelectedDeckId(e.target.value)}
-          style={{ width: '250px' }}
-        >
-          {decks.map(deck => (
-            <option key={deck.id} value={deck.id}>{deck.name}</option>
-          ))}
-        </select>
-        
-        {uniqueTags.length > 0 && (
-          <>
-            <label style={{ color: 'var(--text-muted)' }}>Etiqueta:</label>
-            <select 
-              className="glass-input" 
-              value={selectedTag} 
+      {/* Filters */}
+      <div className="glass-panel" style={{ padding: '1rem', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <select
+            className="glass-select"
+            value={selectedDeckId}
+            onChange={(e) => setSelectedDeckId(e.target.value)}
+            style={{ flex: '1', minWidth: '150px' }}
+          >
+            {decks.map(deck => (
+              <option key={deck.id} value={deck.id}>{deck.name}</option>
+            ))}
+          </select>
+
+          {uniqueTags.length > 0 && (
+            <select
+              className="glass-select"
+              value={selectedTag}
               onChange={(e) => setSelectedTag(e.target.value)}
-              style={{ width: '150px' }}
+              style={{ flex: '1', minWidth: '120px', maxWidth: '180px' }}
             >
-              <option value="">Todas</option>
+              <option value="">Todas las tags</option>
               {uniqueTags.map(tag => (
                 <option key={tag} value={tag}>{tag}</option>
               ))}
             </select>
-          </>
-        )}
-        
-        <div style={{ flex: 1 }} />
-        
-        <div style={{ position: 'relative', width: '300px' }}>
-          <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>🔍</span>
-          <input
-            type="text"
-            className="glass-input"
-            placeholder="Buscar en tarjetas..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: '36px' }}
-          />
+          )}
+
+          <div style={{ position: 'relative', flex: '2', minWidth: '180px' }}>
+            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }}>🔍</span>
+            <input
+              type="text"
+              className="glass-input"
+              placeholder="Buscar..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ paddingLeft: '36px' }}
+            />
+          </div>
         </div>
+
+        {filteredNotes.length > 0 && (
+          <div style={{ marginTop: '0.75rem', fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+            {filteredNotes.length} tarjeta{filteredNotes.length !== 1 ? 's' : ''} encontrada{filteredNotes.length !== 1 ? 's' : ''}
+          </div>
+        )}
       </div>
 
-      <div className="glass-panel" style={{ padding: '0', overflow: 'hidden' }}>
+      {/* Cards list */}
+      <div className="glass-panel" style={{ overflow: 'hidden' }}>
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>Cargando...</div>
-        ) : notes.length === 0 ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-            No hay tarjetas en este mazo.
+            <div className="spinner-sm" style={{ width: 32, height: 32, margin: '0 auto 12px', borderWidth: 3 }} />
+            <p>Cargando...</p>
+          </div>
+        ) : filteredNotes.length === 0 ? (
+          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+            {notes.length === 0 ? 'No hay tarjetas en este mazo.' : 'No hay resultados para tu búsqueda.'}
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Anverso (Front)</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Reverso (Back)</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500 }}>Etiquetas</th>
-                  <th style={{ padding: '1rem', color: 'var(--text-muted)', fontWeight: 500, width: '100px' }}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredNotes.map(note => {
-                  const fields = JSON.parse(note.fieldsJson || '{}');
-                  return (
-                    <tr key={note.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'var(--transition-fast)' }}>
-                      <td style={{ padding: '1rem', color: 'var(--text-main)' }}>{renderField(fields.front || fields.Front || fields.text)}</td>
-                      <td style={{ padding: '1rem', color: 'var(--text-dim)' }}>{renderField(fields.back || fields.Back || fields.extra)}</td>
-                      <td style={{ padding: '1rem' }}>
-                        {note.tags ? note.tags.trim().split(/\s+/).filter(Boolean).map(tag => (
-                          <span key={tag} style={{ display: 'inline-block', background: 'rgba(139, 92, 246, 0.15)', color: '#c4b5fd', border: '1px solid rgba(139, 92, 246, 0.3)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', marginRight: '4px', marginBottom: '4px' }}>
+          <div>
+            {filteredNotes.map((note, idx) => {
+              let fields = {};
+              try { fields = JSON.parse(note.fieldsJson || '{}'); } catch {}
+              const frontText = getTextFromHtml(fields.front || fields.Front || fields.text || '');
+              const backText = getTextFromHtml(fields.back || fields.Back || fields.extra || '');
+              const frontImg = getImgSrc(fields.front || fields.Front || fields.text || '');
+              const tagList = (note.tags || '').trim().split(/\s+/).filter(Boolean);
+
+              return (
+                <div
+                  key={note.id}
+                  style={{
+                    padding: '1rem',
+                    borderBottom: idx < filteredNotes.length - 1 ? '1px solid var(--border-color)' : 'none',
+                    display: 'flex',
+                    gap: '0.75rem',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  {/* Thumbnail */}
+                  {frontImg && (
+                    <div style={{
+                      width: 48, height: 48, borderRadius: 8, overflow: 'hidden',
+                      flexShrink: 0, border: '1px solid var(--border-color)',
+                    }}>
+                      <img src={frontImg} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+
+                  {/* Content */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontWeight: 600,
+                      color: 'var(--text-main)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      fontSize: '0.9rem',
+                      marginBottom: '2px',
+                    }}>
+                      {frontText || (frontImg ? '🖼️ Imagen' : '—')}
+                    </div>
+                    {backText && (
+                      <div style={{
+                        color: 'var(--text-muted)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        fontSize: '0.8rem',
+                        marginBottom: '4px',
+                      }}>
+                        {backText}
+                      </div>
+                    )}
+                    {tagList.length > 0 && (
+                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                        {tagList.map(tag => (
+                          <span key={tag} style={{
+                            display: 'inline-block',
+                            background: 'rgba(139, 92, 246, 0.15)',
+                            color: '#c4b5fd',
+                            border: '1px solid rgba(139, 92, 246, 0.3)',
+                            padding: '1px 7px',
+                            borderRadius: '12px',
+                            fontSize: '0.7rem',
+                          }}>
                             {tag}
                           </span>
-                        )) : '-'}
-                      </td>
-                      <td style={{ padding: '1rem' }}>
-                        <button 
-                          onClick={() => handleDelete(note.id)}
-                          className="danger-btn"
-                          style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                        >
-                          Borrar
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => handleDelete(note.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--danger-color)',
+                      cursor: 'pointer',
+                      padding: '8px',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '1.1rem',
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      minWidth: 36,
+                      minHeight: 36,
+                      justifyContent: 'center',
+                      opacity: 0.7,
+                      transition: 'opacity 0.2s',
+                    }}
+                    onMouseOver={e => e.currentTarget.style.opacity = 1}
+                    onMouseOut={e => e.currentTarget.style.opacity = 0.7}
+                    title="Borrar tarjeta"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

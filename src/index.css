@@ -49,6 +49,15 @@
   --radius-lg: 14px;
   --radius-xl: 20px;
   --radius-full: 9999px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* ── Bottom Nav ──────────────────────────────────────────── */
+  --bottom-nav-height: 64px;
 
   /* ── Transitions ─────────────────────────────────────────── */
   --transition-fast: all 0.15s ease;
@@ -421,6 +430,8 @@ textarea.glass-input {
   padding: 24px;
   max-width: 1400px;
   width: calc(100% - 260px);
+  /* Fallback bottom padding for mobile bottom nav */
+  padding-bottom: 24px;
 }
 
 .page-header {
@@ -510,10 +521,16 @@ textarea.glass-input {
   border: none;
   color: var(--text-dim);
   cursor: pointer;
-  padding: 4px;
+  /* Larger touch target for mobile */
+  padding: 8px;
   border-radius: var(--radius-sm);
   font-size: 1.1rem;
   transition: var(--transition-fast);
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .deck-card-menu:hover {
@@ -1389,6 +1406,7 @@ textarea.glass-input {
   flex-direction: column;
   gap: 10px;
   z-index: 2000;
+  max-width: calc(100vw - 32px);
 }
 
 .toast {
@@ -1455,7 +1473,87 @@ textarea.glass-input {
   -webkit-text-fill-color: transparent;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   BOTTOM NAVIGATION (Mobile)
+   ═══════════════════════════════════════════════════════════════ */
+
+.bottom-nav {
+  display: none; /* Hidden on desktop */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-nav-height);
+  background: rgba(15, 23, 42, 0.97);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-color);
+  z-index: 200;
+  /* iOS safe area */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: color 0.2s, transform 0.15s;
+  font-family: 'Inter', sans-serif;
+  /* Ensure touch area is big enough */
+  min-height: 48px;
+  position: relative;
+}
+
+.bottom-nav-item.active {
+  color: var(--accent-color);
+}
+
+.bottom-nav-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  top: 6px;
+  bottom: auto;
+  box-shadow: 0 0 8px var(--accent-color);
+}
+
+.bottom-nav-item:active {
+  transform: scale(0.9);
+}
+
+.bottom-nav-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 @media (max-width: 768px) {
+  /* Show bottom nav */
+  .bottom-nav {
+    display: flex;
+  }
+
   .sidebar {
     transform: translateX(-100%);
   }
@@ -1476,6 +1574,20 @@ textarea.glass-input {
     margin-left: 0;
     width: 100%;
     padding: 16px;
+    /* Leave space for bottom nav + iOS home indicator */
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
+  }
+
+  /* Toast above bottom nav */
+  .toast-container {
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 12px);
+    right: 12px;
+    left: 12px;
+  }
+
+  .toast {
+    min-width: unset;
+    width: 100%;
   }
 
   .decks-grid {
@@ -1491,23 +1603,24 @@ textarea.glass-input {
   }
 
   .flashcard {
-    min-height: 250px;
+    min-height: 220px;
   }
 
   .rating-buttons {
     grid-template-columns: repeat(2, 1fr);
-    margin-top: 12px;
+    margin-top: 10px;
     gap: 8px;
   }
 
   .rating-btn {
-    padding: 0.75rem 1rem;
+    padding: 14px 8px;
     min-width: unset;
+    min-height: 70px;
   }
 
   .flashcard-face {
-    min-height: 250px;
-    padding: 24px;
+    min-height: 220px;
+    padding: 24px 16px;
   }
 
   .flashcard-content {
@@ -1534,9 +1647,13 @@ textarea.glass-input {
   }
 
   .study-header {
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -1989,21 +2106,11 @@ textarea.glass-input {
    MOBILE STUDY VIEW
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .sidebar-overlay.visible { display: block; }
-  .mobile-header { display: flex; }
-  .main-content { margin-left: 0; width: 100%; padding: 12px; }
-  .decks-grid { grid-template-columns: 1fr; }
-  .editor-grid { grid-template-columns: 1fr; }
-  .page-header h1 { font-size: 1.4rem; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-
-  /* Study view: fit everything in viewport */
+  /* Study view: use full height */
   .study-container {
     padding: 8px 0;
-    min-height: calc(100vh - 60px);
-    min-height: calc(100dvh - 60px);
+    height: calc(100dvh - 60px);
+    height: calc(100vh - 60px);
   }
 
   .study-header {
@@ -2034,8 +2141,9 @@ textarea.glass-input {
   }
 
   .show-answer-btn {
-    padding: 12px;
-    font-size: 0.95rem;
+    padding: 16px;
+    font-size: 1rem;
+    border-radius: var(--radius-lg);
   }
 
   .study-actions {
@@ -2043,14 +2151,12 @@ textarea.glass-input {
   }
 
   .study-action-btn {
-    padding: 5px 8px;
-    font-size: 0.7rem;
+    padding: 8px 12px;
+    font-size: 0.75rem;
   }
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
-  .study-header { flex-direction: row; gap: 8px; }
   .study-deck-name { font-size: 0.95rem; }
 }
 
@@ -2058,5 +2164,9 @@ textarea.glass-input {
   /* Desktop: 4 columns for rating buttons */
   .rating-buttons {
     grid-template-columns: repeat(4, 1fr);
+  }
+  /* Hide bottom nav on desktop */
+  .bottom-nav {
+    display: none;
   }
 }

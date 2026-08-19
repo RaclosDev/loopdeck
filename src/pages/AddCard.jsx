@@ -43,9 +43,6 @@ function AddCard() {
 
   const handleFieldChange = (fieldName) => (e) => {
     setFields(prev => ({ ...prev, [fieldName]: e.target.innerHTML }));
-    if (fieldName === 'front') {
-      setAutoPhotoUsed(false);
-    }
   };
 
   const handlePaste = (fieldName) => (e) => {
@@ -188,7 +185,6 @@ function AddCard() {
       const els = document.querySelectorAll('.editor-content');
       if (els[0]) els[0].innerHTML = newFront;
 
-      setAutoPhotoUsed(true);
       addToast('📸 Foto automática añadida', 'success');
     } catch (err) {
       addToast('Error buscando foto', 'error');
@@ -304,9 +300,9 @@ function AddCard() {
           <div className="editor-fields">
             {/* Front field */}
             <div className="form-group">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6, flexWrap: 'wrap' }}>
                 <label style={{ margin: 0 }}>Frente (Pregunta)</label>
-                <div style={{ display: 'flex', gap: 4 }}>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                   <button
                     className="glass-btn"
                     style={{ fontSize: '0.75rem', padding: '4px 8px' }}
@@ -314,29 +310,26 @@ function AddCard() {
                     disabled={lookingUpDef}
                     title="Definición al frente, palabra al dorso"
                   >
-                    {lookingUpDef ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '📖 Definición IA'}
+                    {lookingUpDef ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '📖 Def. IA'}
                   </button>
                   
-                  {!autoPhotoUsed ? (
-                    <button
-                      className="glass-btn"
-                      style={{ fontSize: '0.75rem', padding: '4px 8px' }}
-                      onClick={handleAutoImage}
-                      disabled={lookingUpImage}
-                      title="Obtener foto automáticamente"
-                    >
-                      {lookingUpImage ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '✨ Foto Automática'}
-                    </button>
-                  ) : (
-                    <>
-                      <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('front')} title="Añadir foto de la galería">
-                        📷
-                      </button>
-                      <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleOpenImageSearch('front')} title="Buscar imagen en Wikipedia">
-                        🖼️ Buscar Foto
-                      </button>
-                    </>
-                  )}
+                  {/* Always show Auto-foto button — it resets when front text changes */}
+                  <button
+                    className="glass-btn"
+                    style={{ fontSize: '0.75rem', padding: '4px 8px' }}
+                    onClick={handleAutoImage}
+                    disabled={lookingUpImage}
+                    title="Obtener foto automáticamente"
+                  >
+                    {lookingUpImage ? <span className="spinner-sm" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '✨ Foto Auto'}
+                  </button>
+                  
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleGalleryPick('front')} title="Añadir foto de la galería">
+                    📷
+                  </button>
+                  <button className="glass-btn" style={{ fontSize: '0.75rem', padding: '4px 8px' }} onClick={() => handleOpenImageSearch('front')} title="Buscar imagen en Wikipedia">
+                    🖼️ Buscar
+                  </button>
                 </div>
               </div>
               <div className="editor-content" contentEditable data-placeholder="Escribe la pregunta aquí..." onInput={handleFieldChange('front')} onPaste={handlePaste('front')} style={{ borderRadius: 'var(--radius-md)' }} />

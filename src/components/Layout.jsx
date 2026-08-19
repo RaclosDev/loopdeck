@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
 import Mascot from './Mascot';
@@ -8,6 +8,7 @@ function Layout({ children }) {
   const { sidebarOpen, toggleSidebar, closeSidebar, toasts, deferredPrompt, setDeferredPrompt } = useStore();
   const { user, logout } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isStudyPage = location.pathname.startsWith('/study');
 
@@ -26,16 +27,14 @@ function Layout({ children }) {
     
     const handleSwipe = () => {
       const swipeDistance = touchEndX - touchStartX;
-      const swipeThreshold = 60; // minimum distance
+      const swipeThreshold = 60;
       
-      // Swipe Right (Open Sidebar) - only if swipe starts near the left edge (< 40px)
       if (swipeDistance > swipeThreshold && touchStartX < 40) {
          if (!useStore.getState().sidebarOpen && !isStudyPage) {
              useStore.setState({ sidebarOpen: true });
          }
       }
       
-      // Swipe Left (Close Sidebar)
       if (swipeDistance < -swipeThreshold) {
          if (useStore.getState().sidebarOpen) {
              useStore.setState({ sidebarOpen: false });
@@ -43,8 +42,8 @@ function Layout({ children }) {
       }
     };
     
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
     
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
@@ -78,15 +77,27 @@ function Layout({ children }) {
     }
   };
 
+  // Bottom nav items for mobile
+  const bottomNavItems = [
+    { to: '/', icon: '📚', label: 'Mazos', end: true },
+    { to: '/add', icon: '➕', label: 'Añadir', end: false },
+    { to: '/stats', icon: '📊', label: 'Stats', end: false },
+    { to: '/settings', icon: '⚙️', label: 'Config', end: false },
+  ];
+
   return (
     <>
       {/* Mobile Header */}
       <div className="mobile-header">
-        <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Menu">
-          ☰
+        <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Abrir menú">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="2" y1="5.5" x2="20" y2="5.5"/>
+            <line x1="2" y1="11" x2="20" y2="11"/>
+            <line x1="2" y1="16.5" x2="20" y2="16.5"/>
+          </svg>
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '24px', height: '24px', borderRadius: '6px' }} />
+          <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '26px', height: '26px', borderRadius: '7px' }} />
           <span className="mobile-header-title">LoopDeck</span>
         </div>
         {user ? (
@@ -131,30 +142,17 @@ function Layout({ children }) {
             <nav className="sidebar-nav">
               <div className="sidebar-section-title">Principal</div>
 
-              <NavLink
-                to="/"
-                end
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">📚</span>
                 Mis Mazos
               </NavLink>
 
-              <NavLink
-                to="/add"
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/add" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">➕</span>
                 Añadir Tarjeta
               </NavLink>
 
-              <NavLink
-                to="/stats"
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/stats" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">📊</span>
                 Estadísticas
               </NavLink>
@@ -163,38 +161,22 @@ function Layout({ children }) {
                 Herramientas
               </div>
 
-              <NavLink
-                to="/templates"
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/templates" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">📥</span>
                 Plantillas
               </NavLink>
 
-              <NavLink
-                to="/shop"
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/shop" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">🛍️</span>
                 Tienda
               </NavLink>
 
-              <NavLink
-                to="/browser"
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/browser" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">🔍</span>
                 Explorar Tarjetas
               </NavLink>
 
-              <NavLink
-                to="/settings"
-                className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-                onClick={closeSidebar}
-              >
+              <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
                 <span className="link-icon">⚙️</span>
                 Configuración
               </NavLink>
@@ -223,7 +205,7 @@ function Layout({ children }) {
                     {user.name.charAt(0).toUpperCase()}
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-main)', truncate: true, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
+                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
                     <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
                   </div>
                 </div>
@@ -245,12 +227,35 @@ function Layout({ children }) {
         )}
 
         {/* Main Content */}
-        <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}
+        <main
+          className={`main-content ${isStudyPage ? 'study-mode' : ''}`}
           style={isStudyPage ? { marginLeft: 0, width: '100%', maxWidth: '100%' } : {}}
         >
           {children}
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      {!isStudyPage && (
+        <nav className="bottom-nav" aria-label="Navegación principal">
+          {bottomNavItems.map(item => {
+            const isActive = item.end
+              ? location.pathname === item.to
+              : location.pathname.startsWith(item.to);
+            return (
+              <button
+                key={item.to}
+                className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+                onClick={() => navigate(item.to)}
+                aria-label={item.label}
+              >
+                <span className="bottom-nav-icon">{item.icon}</span>
+                <span className="bottom-nav-label">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
 
       {/* Toast Notifications */}
       {toasts.length > 0 && (

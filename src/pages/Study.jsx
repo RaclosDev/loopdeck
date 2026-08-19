@@ -347,8 +347,8 @@ function Study() {
         <button className="study-action-btn" onClick={handleUndo} disabled={undoStack.length === 0}>
           ↩️ Deshacer
         </button>
-        <button className="study-action-btn" onClick={() => addToast('Progreso del mazo guardado', 'info')}>
-          💾 Guardar y Salir
+        <button className="study-action-btn" onClick={() => navigate('/')}>
+          🏠 Salir
         </button>
       </div>
     </div>

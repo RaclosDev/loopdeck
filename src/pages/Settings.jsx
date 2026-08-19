@@ -23,25 +23,58 @@ function Settings() {
         <p>Personaliza tu experiencia de estudio y gestiona tu cuenta</p>
       </div>
 
-      <div className="settings-tabs" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', gap: '0', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', overflowX: 'auto', '-webkit-overflow-scrolling': 'touch' }}>
         <button 
-          className={`tab-btn ${activeTab === 'study' ? 'active' : ''}`}
+          className={`settings-tab-btn ${activeTab === 'study' ? 'active' : ''}`}
           onClick={() => setActiveTab('study')}
-          style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'study' ? '2px solid var(--accent-color)' : '2px solid transparent', color: activeTab === 'study' ? 'var(--text-main)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ 
+            padding: '0.875rem 1.25rem', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'study' ? '2px solid var(--accent-color)' : '2px solid transparent', 
+            color: activeTab === 'study' ? 'var(--accent-light)' : 'var(--text-muted)', 
+            fontWeight: 600, 
+            cursor: 'pointer', 
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
+            minWidth: '80px',
+          }}
         >
           📚 Estudio
         </button>
         <button 
-          className={`tab-btn ${activeTab === 'appearance' ? 'active' : ''}`}
+          className={`settings-tab-btn ${activeTab === 'appearance' ? 'active' : ''}`}
           onClick={() => setActiveTab('appearance')}
-          style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'appearance' ? '2px solid var(--accent-color)' : '2px solid transparent', color: activeTab === 'appearance' ? 'var(--text-main)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ 
+            padding: '0.875rem 1.25rem', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'appearance' ? '2px solid var(--accent-color)' : '2px solid transparent', 
+            color: activeTab === 'appearance' ? 'var(--accent-light)' : 'var(--text-muted)', 
+            fontWeight: 600, 
+            cursor: 'pointer', 
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
+            minWidth: '80px',
+          }}
         >
           ✨ Apariencia
         </button>
         <button 
-          className={`tab-btn ${activeTab === 'account' ? 'active' : ''}`}
+          className={`settings-tab-btn ${activeTab === 'account' ? 'active' : ''}`}
           onClick={() => setActiveTab('account')}
-          style={{ padding: '0.75rem 1rem', background: 'none', border: 'none', borderBottom: activeTab === 'account' ? '2px solid var(--accent-color)' : '2px solid transparent', color: activeTab === 'account' ? 'var(--text-main)' : 'var(--text-muted)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ 
+            padding: '0.875rem 1.25rem', 
+            background: 'none', 
+            border: 'none', 
+            borderBottom: activeTab === 'account' ? '2px solid var(--accent-color)' : '2px solid transparent', 
+            color: activeTab === 'account' ? 'var(--accent-light)' : 'var(--text-muted)', 
+            fontWeight: 600, 
+            cursor: 'pointer', 
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap',
+            minWidth: '80px',
+          }}
         >
           👤 Cuenta
         </button>
@@ -67,22 +100,22 @@ function Settings() {
               </label>
             </div>
 
-            <div className="setting-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontWeight: 600 }}>Orden de Repaso</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>Decide qué tipo de tarjetas ver primero.</div>
+              <div className="setting-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ flex: 1, minWidth: '180px' }}>
+                  <div style={{ fontWeight: 600 }}>Orden de Repaso</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>Decide qué tipo de tarjetas ver primero.</div>
+                </div>
+                <select 
+                  className="glass-select" 
+                  value={settings.studyOrder} 
+                  onChange={(e) => updateSettings({ studyOrder: e.target.value })}
+                  style={{ width: '100%', maxWidth: '200px' }}
+                >
+                  <option value="new_first">Nuevas primero</option>
+                  <option value="review_first">Repasos primero</option>
+                  <option value="mixed">Mezclado aleatorio</option>
+                </select>
               </div>
-              <select 
-                className="glass-input" 
-                value={settings.studyOrder} 
-                onChange={(e) => updateSettings({ studyOrder: e.target.value })}
-                style={{ width: '200px' }}
-              >
-                <option value="new_first">Nuevas primero</option>
-                <option value="review_first">Repasos primero</option>
-                <option value="mixed">Mezclado aleatorio</option>
-              </select>
-            </div>
           </div>
         )}
 
