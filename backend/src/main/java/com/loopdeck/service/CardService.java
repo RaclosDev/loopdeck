@@ -60,6 +60,32 @@ public class CardService {
     }
 
     @Transactional
+    public void importNotes(String userId, String deckId, List<CreateNoteRequest> requests) {
+        deckRepository.findByIdAndUserId(deckId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        for (CreateNoteRequest req : requests) {
+            Note note = Note.builder()
+                    .userId(userId)
+                    .deckId(deckId)
+                    .noteType(req.noteType() != null ? req.noteType() : "basic")
+                    .fieldsJson(req.fieldsJson())
+                    .tags(req.tags() != null ? req.tags() : "")
+                    .build();
+            noteRepository.save(note);
+
+            int numCards = "cloze".equals(note.getNoteType()) ? 1 : ("reverse".equals(note.getNoteType()) ? 2 : 1);
+            for (int i = 0; i < numCards; i++) {
+                Card card = Card.builder()
+                        .noteId(note.getId())
+                        .cardOrdinal(i)
+                        .build();
+                cardRepository.save(card);
+            }
+        }
+    }
+
+    @Transactional
     public Note updateNote(String userId, String noteId, UpdateNoteRequest req) {
         Note note = noteRepository.findByIdAndUserId(noteId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Note not found"));

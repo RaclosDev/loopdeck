@@ -74,6 +74,7 @@ export const notesApi = {
   create: (data) => request('/notes', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/notes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/notes/${id}`, { method: 'DELETE' }),
+  importBulk: (deckId, dataList) => request(`/decks/${deckId}/import`, { method: 'POST', body: JSON.stringify(dataList) }),
 };
 
 // ── Study ─────────────────────────────────────────────────────

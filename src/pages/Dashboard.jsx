@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 import useStore from '../store/useStore';
-import { decksApi, studyApi, templatesApi } from '../services/api';
+import { decksApi, studyApi, templatesApi, notesApi } from '../services/api';
 
 function Dashboard() {
   const [decks, setDecks] = useState([]);
@@ -17,6 +17,8 @@ function Dashboard() {
   const [importingId, setImportingId] = useState(null);
   const navigate = useNavigate();
   const { addToast } = useStore();
+  const fileInputRef = useRef(null);
+  const [importTargetDeck, setImportTargetDeck] = useState(null);
 
   const loadDecks = useCallback(async () => {
     try {
@@ -105,6 +107,53 @@ function Dashboard() {
     }
   };
 
+  const handleExportDeck = async (deck) => {
+    try {
+      const notes = await notesApi.getByDeck(deck.id);
+      // Clean up notes to match import format
+      const exportData = notes.map(n => ({
+        noteType: n.noteType,
+        fieldsJson: n.fieldsJson,
+        tags: n.tags
+      }));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", `${deck.name.replace(/\s+/g, '_')}_export.json`);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+      addToast(`Mazo "${deck.name}" exportado`, 'success');
+    } catch (e) {
+      addToast('Error exportando: ' + e.message, 'error');
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !importTargetDeck) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const json = JSON.parse(event.target.result);
+        if (!Array.isArray(json)) throw new Error('El archivo no contiene una lista de tarjetas.');
+        
+        setSaving(true);
+        await notesApi.importBulk(importTargetDeck.id, json);
+        addToast(`Tarjetas importadas a "${importTargetDeck.name}"`, 'success');
+        await loadDecks();
+      } catch (err) {
+        addToast('Error al importar: ' + err.message, 'error');
+      } finally {
+        setSaving(false);
+        setImportTargetDeck(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const getCounts = (deckId) => deckCounts[deckId] || { new: 0, learning: 0, review: 0, total: 0 };
   const getTotalDue = (c) => c.new + c.learning + c.review;
 
@@ -170,6 +219,16 @@ function Dashboard() {
               <div className="deck-card-header">
                 <span className="deck-card-name">{deck.name}</span>
                 <div style={{ display: 'flex', gap: 4 }}>
+                  <button
+                    className="deck-card-menu"
+                    onClick={e => { e.stopPropagation(); handleExportDeck(deck); }}
+                    title="Exportar a JSON"
+                  >📤</button>
+                  <button
+                    className="deck-card-menu"
+                    onClick={e => { e.stopPropagation(); setImportTargetDeck(deck); fileInputRef.current?.click(); }}
+                    title="Importar desde JSON"
+                  >📥</button>
                   <button
                     className="deck-card-menu"
                     onClick={e => { e.stopPropagation(); setEditingDeck(deck); setNewDeckName(deck.name); setNewDeckDesc(deck.description || ''); }}
@@ -276,6 +335,15 @@ function Dashboard() {
           </div>
         </>
       )}
+
+      {/* Hidden file input for import */}
+      <input 
+        type="file" 
+        accept=".json" 
+        style={{ display: 'none' }} 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+      />
 
       {/* New Deck Modal */}
       <Modal

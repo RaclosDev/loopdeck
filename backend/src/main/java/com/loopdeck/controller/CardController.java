@@ -50,6 +50,23 @@ public class CardController {
         return ResponseEntity.ok(note);
     }
 
+    public record ImportNoteBody(
+        String noteType,
+        @NotBlank String fieldsJson,
+        String tags
+    ) {}
+
+    @PostMapping("/decks/{deckId}/import")
+    public ResponseEntity<Void> importNotes(Authentication auth,
+                                            @PathVariable String deckId,
+                                            @RequestBody List<ImportNoteBody> bodyList) {
+        List<CardService.CreateNoteRequest> requests = bodyList.stream()
+                .map(b -> new CardService.CreateNoteRequest(deckId, b.noteType(), b.fieldsJson(), b.tags()))
+                .toList();
+        cardService.importNotes(auth.getName(), deckId, requests);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/notes/{noteId}")
     public ResponseEntity<Note> updateNote(Authentication auth,
                                            @PathVariable String noteId,
