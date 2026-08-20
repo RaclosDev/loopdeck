@@ -98,7 +98,8 @@ export const templatesApi = {
 };
 
 export const aiApi = {
-  chat: (prompt, context) => request('/ai/chat', { method: 'POST', body: JSON.stringify({ prompt, context }) })
+  chat: (prompt, context) => request('/ai/chat', { method: 'POST', body: JSON.stringify({ prompt, context }) }),
+  massDefine: (words) => request('/ai/mass-define', { method: 'POST', body: JSON.stringify({ words }) })
 };
 
 export default {
