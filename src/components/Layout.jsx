@@ -10,7 +10,7 @@ function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isStudyPage = location.pathname.startsWith('/study') || location.pathname.startsWith('/hub');
+  const isStudyPage = location.pathname.startsWith('/study');
 
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
