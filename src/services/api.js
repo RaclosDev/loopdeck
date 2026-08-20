@@ -49,7 +49,10 @@ async function request(endpoint, options = {}) {
   // Handle 204 No Content
   if (response.status === 204) return null;
 
-  return response.json();
+  // Safely handle empty response bodies (e.g. 200 OK with no body)
+  const text = await response.text();
+  if (!text) return null;
+  return JSON.parse(text);
 }
 
 // ── Auth ──────────────────────────────────────────────────────
