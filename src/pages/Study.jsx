@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { marked } from 'marked';
 import FlashCard from '../components/FlashCard';
 import RatingButtons from '../components/RatingButtons';
 import useStore from '../store/useStore';
@@ -141,21 +142,21 @@ function Study() {
 
   const getFront = () => {
     const f = getFields();
-    if (card?.cardOrdinal === 1) return f.back || '';
+    if (card?.cardOrdinal === 1) return marked.parse(f.back || '');
     if (note?.noteType === 'cloze') {
       return (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--srs-new);border-bottom:2px dashed var(--srs-new);padding:0 4px">[...]</span>');
     }
-    return f.front || f.text || '';
+    return marked.parse(f.front || f.text || '');
   };
 
   const getBack = () => {
     const f = getFields();
-    if (card?.cardOrdinal === 1) return f.front || '';
+    if (card?.cardOrdinal === 1) return marked.parse(f.front || '');
     if (note?.noteType === 'cloze') {
       const text = (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--srs-new);border-bottom:2px dashed var(--srs-new);padding:0 4px">$1</span>');
-      return text + (f.extra ? `<div style="width: 60%; height: 1px; background: var(--border-color); margin: 16px auto;"></div><div style="font-size: 0.95rem; color: var(--text-dim);">${f.extra}</div>` : '');
+      return marked.parse(text) + (f.extra ? `<div style="width: 60%; height: 1px; background: var(--border-color); margin: 16px auto;"></div><div style="font-size: 0.95rem; color: var(--text-dim);">${marked.parse(f.extra)}</div>` : '');
     }
-    return f.back || f.extra || '';
+    return marked.parse(f.back || f.extra || '');
   };
 
   const intervals = {

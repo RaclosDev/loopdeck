@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
+import { marked } from 'marked';
 
 function shuffleArray(array) {
   const newArr = [...array];
@@ -147,7 +148,7 @@ function StudyQuiz() {
         {/* Question Card */}
         <div className="glass-panel" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: fields.front || '' }} />
+          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
         </div>
 
         {/* Options Grid */}
@@ -185,7 +186,7 @@ function StudyQuiz() {
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: option.text }} />
+                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: marked.parse(option.text) }} />
               </button>
             );
           })}

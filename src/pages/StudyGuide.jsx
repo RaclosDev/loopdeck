@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
+import { marked } from 'marked';
 
 function StudyGuide() {
   const { deckId } = useParams();
@@ -103,14 +104,14 @@ function StudyGuide() {
                 <div style={{ padding: '20px' }}>
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: fields.front || '' }} />
+                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
                   </div>
                   
                   <div style={{ width: '40%', height: '1px', background: 'var(--border-color)', margin: '0 auto 16px auto' }} />
                   
                   <div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--accent-light)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>RESPUESTA</div>
-                    <div className="flashcard-content" style={{ fontSize: '1.1rem', color: 'var(--text-main)' }} dangerouslySetInnerHTML={{ __html: fields.back || '' }} />
+                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: marked.parse(fields.back || '') }} style={{ color: 'var(--text-main)', fontSize: '1.1rem' }} />
                   </div>
                 </div>
               </div>
@@ -121,7 +122,7 @@ function StudyGuide() {
       
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
         <p style={{ color: 'var(--text-dim)', marginBottom: '1rem' }}>¿Ya te suenan los conceptos?</p>
-        <button className="primary-btn" onClick={() => navigate(`/study/${deckId}/classic`)}>
+        <button className="primary-btn" onClick={() => navigate(`/study/${deckId}`)}>
           🧠 Empezar a Memorizar
         </button>
       </div>

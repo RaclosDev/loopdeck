@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
+import { marked } from 'marked';
 import FlashCard from '../components/FlashCard';
 
 function StudyExplore() {
