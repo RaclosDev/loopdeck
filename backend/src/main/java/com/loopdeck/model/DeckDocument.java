@@ -15,7 +15,6 @@ public class DeckDocument {
     @Column(name = "deck_id")
     private String deckId;
 
-    @Lob
     @Column(name = "file_data", nullable = false)
     private byte[] fileData;
 
