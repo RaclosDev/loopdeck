@@ -273,7 +273,7 @@ function Dashboard() {
                   onClick={() => navigate(`/study/${deck.id}`)}
                   disabled={due === 0 && counts.new === 0}
                 >
-                  {due > 0 || counts.new > 0 ? `Estudiar (${due})` : 'Al día ✓'}
+                  {due > 0 || counts.new > 0 ? `Responder (${due})` : 'Al día ✓'}
                 </button>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
