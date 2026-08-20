@@ -30,7 +30,7 @@ function Dashboard() {
       setTemplates(templatesData);
       // Load due counts for each deck in parallel
       const countResults = await Promise.allSettled(
-        data.map(d => studyApi.getDueCards(d.id, 200).then(cards => ({ id: d.id, cards })))
+        data.map(d => studyApi.getDueCards(d.id, 1000).then(cards => ({ id: d.id, cards })))
       );
       const counts = {};
       countResults.forEach(r => {

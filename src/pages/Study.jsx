@@ -81,7 +81,7 @@ function Study() {
       setDeck(d);
 
       // Load due cards
-      const cards = await studyApi.getDueCards(deckId, 200);
+      const cards = await studyApi.getDueCards(deckId, 1000);
       if (cards.length === 0) { setIsComplete(true); setLoading(false); return; }
 
       // Load notes for all cards
