@@ -2315,3 +2315,42 @@ textarea.glass-input {
   padding: 0;
 }
 
+
+@media (max-width: 768px) {
+  .docx-modal-body {
+    padding: 0px !important;
+  }
+  .docx-viewer-container {
+    padding: 0 !important;
+  }
+  .docx-wrapper {
+    padding: 10px !important;
+  }
+  .docx-wrapper > section.docx {
+    padding: 20px !important;
+    width: 100% !important;
+    min-height: auto !important;
+    box-shadow: none !important;
+    margin-bottom: 10px !important;
+  }
+}
+
+
+/* Make docx-preview sections fully responsive without wrapper */
+.docx-viewer-container > section.docx-viewer {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: auto !important;
+  height: auto !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+  margin-bottom: 20px !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  .docx-viewer-container > section.docx-viewer {
+    padding: 15px !important; /* Smaller padding on mobile */
+    margin-bottom: 10px !important;
+  }
+}
+

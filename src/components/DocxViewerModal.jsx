@@ -30,8 +30,8 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
           await docx.renderAsync(blob, containerRef.current, null, {
             className: 'docx-viewer',
             inWrapper: false,
-            ignoreWidth: false,
-            ignoreHeight: false,
+            ignoreWidth: true,
+            ignoreHeight: true,
             ignoreFonts: false,
             breakPages: true,
             useBase64URL: true,
