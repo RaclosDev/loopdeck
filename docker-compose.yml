@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: flashforge-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${PGDATABASE:-loopdeck}
+      POSTGRES_USER: ${PGUSER:-postgres}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432" # Opcional: bórralo si no vas a conectarte externamente a la BBDD
+
+  app:
+    build: .
+    container_name: flashforge-app
+    restart: always
+    ports:
+      - "80:8080" # Expone el puerto 80 hacia internet
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - PGHOST=db
+      - PGPORT=5432
+      - PGDATABASE=${PGDATABASE:-loopdeck}
+      - PGUSER=${PGUSER:-postgres}
+      - PGPASSWORD=${PGPASSWORD:-secret}
+      - JWT_SECRET=${JWT_SECRET:-changeme_with_a_long_secure_string_12345!}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
