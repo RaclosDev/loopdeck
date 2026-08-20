@@ -5,51 +5,12 @@ import useAuthStore from '../store/useAuthStore';
 import Mascot from './Mascot';
 
 function Layout({ children }) {
-  const { sidebarOpen, toggleSidebar, closeSidebar, toasts, deferredPrompt, setDeferredPrompt } = useStore();
+  const { toasts, deferredPrompt, setDeferredPrompt } = useStore();
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
 
   const isStudyPage = location.pathname.startsWith('/study');
-
-  useEffect(() => {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    
-    const handleTouchStart = (e) => {
-      touchStartX = e.changedTouches[0].screenX;
-    };
-    
-    const handleTouchEnd = (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    };
-    
-    const handleSwipe = () => {
-      const swipeDistance = touchEndX - touchStartX;
-      const swipeThreshold = 60;
-      
-      if (swipeDistance > swipeThreshold && touchStartX < 40) {
-         if (!useStore.getState().sidebarOpen && !isStudyPage) {
-             useStore.setState({ sidebarOpen: true });
-         }
-      }
-      
-      if (swipeDistance < -swipeThreshold) {
-         if (useStore.getState().sidebarOpen) {
-             useStore.setState({ sidebarOpen: false });
-         }
-      }
-    };
-    
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
-    
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isStudyPage]);
 
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -89,13 +50,6 @@ function Layout({ children }) {
     <>
       {/* Mobile Header */}
       <div className="mobile-header">
-        <button className="mobile-menu-btn" onClick={toggleSidebar} aria-label="Abrir menú">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <line x1="2" y1="5.5" x2="20" y2="5.5"/>
-            <line x1="2" y1="11" x2="20" y2="11"/>
-            <line x1="2" y1="16.5" x2="20" y2="16.5"/>
-          </svg>
-        </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '26px', height: '26px', borderRadius: '7px' }} />
           <span className="mobile-header-title">LoopDeck</span>
@@ -111,15 +65,9 @@ function Layout({ children }) {
       </div>
 
       <div className="app-layout">
-        {/* Sidebar Overlay (mobile) */}
-        <div
-          className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
-          onClick={closeSidebar}
-        />
-
-        {/* Sidebar */}
+        {/* Sidebar (desktop only — hidden on mobile via CSS) */}
         {!isStudyPage && (
-          <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <aside className="sidebar">
             <div className="sidebar-header" style={{ flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: user ? '20px' : '0' }}>
                 <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
