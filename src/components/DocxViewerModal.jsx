@@ -66,14 +66,14 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay docx-modal-overlay" onClick={onClose}>
+    <div className={`modal-overlay docx-modal-overlay ${isFullscreen ? 'fullscreen-overlay' : ''}`} onClick={onClose}>
       <div 
         className={`modal-content glass-panel docx-modal-content ${isFullscreen ? 'fullscreen' : ''}`}
         onClick={e => e.stopPropagation()} 
       >
         <div className="docx-modal-header">
-          <h2>📄 Documento Original</h2>
-          <div className="docx-modal-actions">
+          <h2 style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '10px' }}>📄 Documento Original</h2>
+          <div className="docx-modal-actions" style={{ flexShrink: 0, display: 'flex', gap: '8px' }}>
             <button className="glass-btn" onClick={toggleFullscreen}>
               {isFullscreen ? 'Contraer' : 'Pantalla Completa'}
             </button>

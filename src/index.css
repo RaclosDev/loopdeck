@@ -2310,3 +2310,8 @@ textarea.glass-input {
   }
 }
 
+
+.docx-modal-overlay.fullscreen-overlay {
+  padding: 0;
+}
+
