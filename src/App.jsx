@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
+import GlobalStudy from './pages/GlobalStudy';
 import Study from './pages/Study';
 import StudyHub from './pages/StudyHub';
 import StudyGuide from './pages/StudyGuide';
@@ -66,6 +67,7 @@ function App() {
               <Layout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
+                  <Route path="/hub" element={<GlobalStudy />} />
                   <Route path="/study/:deckId" element={<Study />} />
                   <Route path="/hub/:deckId" element={<StudyHub />} />
                   <Route path="/hub/:deckId/guide" element={<StudyGuide />} />
