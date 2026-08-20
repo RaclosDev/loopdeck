@@ -73,7 +73,7 @@ function GlobalStudy() {
               
               {deck.description && <p className="deck-card-desc" style={{ marginBottom: 'auto' }}>{deck.description}</p>}
 
-              <div className="deck-card-stats" style={{ marginTop: '16px' }}>
+              <div className="deck-card-counts" style={{ marginTop: '16px' }}>
                 <div className="deck-count">
                   <span className="deck-count-number new">{counts.new}</span>
                   <span className="deck-count-label">Nuevas</span>

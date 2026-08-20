@@ -51,26 +51,18 @@ function StudyGuide() {
   return (
     <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
       
-      {/* Sticky Header */}
-      <div style={{ 
-        position: 'sticky', 
-        top: 0, 
-        background: 'var(--panel-bg)',
-        backdropFilter: 'blur(16px)',
-        padding: '1rem 0',
-        zIndex: 10,
-        borderBottom: '1px solid var(--border-color)',
-        marginBottom: '2rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '8px' }}>
-              ← Volver al Hub
-            </button>
-            <h1 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-main)' }}>📖 {deck.name} (Guía)</h1>
-          </div>
-          <div style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 600 }}>
-            {notes.length} conceptos
+      <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--panel-bg)', padding: '15px 20px', borderBottom: '1px solid var(--border-color)', margin: '-20px -20px 20px -20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
+            ← Volver
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
+            <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '1.2rem' }}>
+              📖 {deck.name} (Guía)
+            </div>
+            <div style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 600 }}>
+              {notes.length} conceptos
+            </div>
           </div>
         </div>
       </div>

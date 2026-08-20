@@ -99,7 +99,7 @@ function StudyTutor() {
   }
 
   return (
-    <div className="study-container" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', maxHeight: '100dvh', padding: 0 }}>
+    <div className="study-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
       
       <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)', flexShrink: 0 }}>
         <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
