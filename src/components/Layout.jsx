@@ -40,8 +40,8 @@ function Layout({ children }) {
 
   // Bottom nav items for mobile
   const bottomNavItems = [
-    { to: '/', icon: '🗂️', label: 'Mazos', end: true },
-    { to: '/hub', icon: '🎯', label: 'Estudiar', end: true },
+    { to: '/', icon: '📚', label: 'Mazos', end: true },
+    { to: '/hub', icon: '✏️', label: 'Estudiar', end: true },
     { to: '/add', icon: '➕', label: 'Añadir', end: false },
     { to: '/stats', icon: '📊', label: 'Stats', end: false },
     { to: '/settings', icon: '⚙️', label: 'Config', end: false },
@@ -91,12 +91,12 @@ function Layout({ children }) {
               <div className="sidebar-section-title">Principal</div>
 
               <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">🗂️</span>
+                <span className="link-icon">📚</span>
                 Mis Mazos
               </NavLink>
 
               <NavLink to="/hub" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">🎯</span>
+                <span className="link-icon">✏️</span>
                 Centro de Estudio
               </NavLink>
 
