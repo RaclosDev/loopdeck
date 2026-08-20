@@ -68,15 +68,16 @@ function AddCard() {
     try {
       addToast('Comprimiendo imagen...', 'info');
       const compressedDataUrl = await compressImageFromPaste(file, 800, 0.75);
-      const imgHtml = `<img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
+      const imgHtml = `<br><img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
 
-      // Replace content with the image (removes text, puts only image)
-      setFields(prev => ({ ...prev, [fieldName]: imgHtml }));
+      // Append image instead of replacing text
+      const newContent = (fields[fieldName] || '') + imgHtml;
+      setFields(prev => ({ ...prev, [fieldName]: newContent }));
 
       // Update DOM directly
       const els = document.querySelectorAll('.editor-content');
       const idx = fieldName === 'front' ? 0 : 1;
-      if (els[idx]) els[idx].innerHTML = imgHtml;
+      if (els[idx]) els[idx].innerHTML = newContent;
 
       addToast('📷 Imagen añadida', 'success');
     } catch (err) {
@@ -100,14 +101,15 @@ function AddCard() {
 
   const handleImageSelect = (url) => {
     if (!activeImageField) return;
-    const imgHtml = `<img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
+    const imgHtml = `<br><img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
     
-    // Replace text with image in the target field
-    setFields(prev => ({ ...prev, [activeImageField]: imgHtml }));
+    // Append image instead of replacing
+    const newContent = (fields[activeImageField] || '') + imgHtml;
+    setFields(prev => ({ ...prev, [activeImageField]: newContent }));
     
     const els = document.querySelectorAll('.editor-content');
     const idx = activeImageField === 'front' ? 0 : 1;
-    if (els[idx]) els[idx].innerHTML = imgHtml;
+    if (els[idx]) els[idx].innerHTML = newContent;
     
     setActiveImageField(null);
   };
@@ -134,9 +136,8 @@ function AddCard() {
       // Front gets the definition
       let defHtml = `<div style="font-size: 0.95em">${result.definition}</div>`;
       
-      // Back gets the word (appending if there's already something)
-      const existingBack = fields.back || '';
-      const newBack = existingBack ? `${existingBack}<br><strong>${word}</strong>` : `<strong>${word}</strong>`;
+      // Back gets the word (replacing whatever was there, as requested)
+      const newBack = `<strong>${word}</strong>`;
 
       setFields(prev => ({ ...prev, front: defHtml, back: newBack }));
 
