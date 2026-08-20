@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, aiApi } from '../services/api';
+import { marked } from 'marked';
 
 function StudyTutor() {
   const { deckId } = useParams();
@@ -91,16 +92,16 @@ function StudyTutor() {
 
   if (loading) {
     return (
-      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100dvh' }}>
         <div className="spinner" />
       </div>
     );
   }
 
   return (
-    <div className="study-container" style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className="study-container" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', maxHeight: '100dvh', padding: 0 }}>
       
-      <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)' }}>
+      <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)', flexShrink: 0 }}>
         <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
           ← Volver
         </button>
@@ -113,7 +114,7 @@ function StudyTutor() {
         {messages.map((msg, idx) => (
           <div key={idx} style={{
             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-            maxWidth: '80%',
+            maxWidth: '90%',
             background: msg.role === 'user' ? 'var(--accent-color)' : 'rgba(255, 255, 255, 0.05)',
             border: msg.role === 'ai' ? '1px solid var(--border-color)' : 'none',
             color: msg.role === 'user' ? '#fff' : 'var(--text-main)',
@@ -122,10 +123,14 @@ function StudyTutor() {
             borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px',
             borderBottomLeftRadius: msg.role === 'ai' ? '4px' : '16px',
             lineHeight: 1.5,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word'
+            wordBreak: 'break-word',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}>
-            {msg.text}
+            {msg.role === 'ai' ? (
+              <div className="flashcard-content" style={{ fontSize: '0.95rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(msg.text) }} />
+            ) : (
+              <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{msg.text}</div>
+            )}
           </div>
         ))}
         {isTyping && (
@@ -136,18 +141,18 @@ function StudyTutor() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ padding: '15px 20px', borderTop: '1px solid var(--border-color)', background: 'var(--panel-bg)' }}>
+      <div style={{ padding: '15px 20px', borderTop: '1px solid var(--border-color)', background: 'var(--panel-bg)', flexShrink: 0 }}>
         <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px' }}>
           <input
             type="text"
-            className="modern-input"
-            style={{ flex: 1, margin: 0 }}
+            className="input-field"
+            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-color)', color: 'var(--text-main)', outline: 'none' }}
             placeholder="Pregunta a la IA sobre este mazo..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
           />
-          <button type="submit" className="primary-btn" disabled={!input.trim() || isTyping}>
+          <button type="submit" className="primary-btn" style={{ borderRadius: 'var(--radius-full)', padding: '0 20px' }} disabled={!input.trim() || isTyping}>
             Enviar
           </button>
         </form>

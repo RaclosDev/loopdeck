@@ -10,7 +10,7 @@ function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isStudyPage = location.pathname.startsWith('/study');
+  const isStudyPage = location.pathname.startsWith('/study') || location.pathname.startsWith('/hub');
 
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -66,8 +66,7 @@ function Layout({ children }) {
 
       <div className="app-layout">
         {/* Sidebar (desktop only — hidden on mobile via CSS) */}
-        {!isStudyPage && (
-          <aside className="sidebar">
+        <aside className="sidebar">
             <div className="sidebar-header" style={{ flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: user ? '20px' : '0' }}>
                 <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
@@ -172,12 +171,10 @@ function Layout({ children }) {
               </div>
             </div>
           </aside>
-        )}
 
         {/* Main Content */}
         <main
           className={`main-content ${isStudyPage ? 'study-mode' : ''}`}
-          style={isStudyPage ? { marginLeft: 0, width: '100%', maxWidth: '100%' } : {}}
         >
           {children}
         </main>
