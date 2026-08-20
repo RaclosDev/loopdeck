@@ -66,22 +66,14 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.8)', zIndex: 1000 }}>
+    <div className="modal-overlay docx-modal-overlay" onClick={onClose}>
       <div 
-        className="modal-content glass-panel" 
+        className={`modal-content glass-panel docx-modal-content ${isFullscreen ? 'fullscreen' : ''}`}
         onClick={e => e.stopPropagation()} 
-        style={{ 
-          width: isFullscreen ? '100vw' : '90vw', 
-          height: isFullscreen ? '100vh' : '90vh', 
-          maxWidth: isFullscreen ? 'none' : '1000px', 
-          borderRadius: isFullscreen ? '0' : undefined,
-          display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden', background: 'var(--bg-color)',
-          transition: 'all 0.3s ease'
-        }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)', alignItems: 'center', zIndex: 10 }}>
-          <h2 style={{ margin: 0, fontSize: '1.2rem' }}>📄 Documento Original</h2>
-          <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="docx-modal-header">
+          <h2>📄 Documento Original</h2>
+          <div className="docx-modal-actions">
             <button className="glass-btn" onClick={toggleFullscreen}>
               {isFullscreen ? 'Contraer' : 'Pantalla Completa'}
             </button>
@@ -89,17 +81,13 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
           </div>
         </div>
         
-        <div style={{ flex: 1, overflow: 'auto', background: '#cbd5e1', padding: '20px', display: 'flex', justifyContent: 'center' }}>
-          {loading && <div style={{ color: '#1e293b', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: 10 }}>Cargando documento... <span className="spinner-sm" style={{borderColor: '#1e293b', borderTopColor: 'transparent'}}></span></div>}
-          {error && <div style={{ color: '#dc2626', alignSelf: 'center', background: 'white', padding: '10px 20px', borderRadius: '8px' }}>{error}</div>}
+        <div className="docx-modal-body">
+          {loading && <div className="docx-loading">Cargando documento... <span className="spinner-sm"></span></div>}
+          {error && <div className="docx-error">{error}</div>}
           <div 
             ref={containerRef} 
-            style={{ 
-              display: loading || error ? 'none' : 'block',
-              width: '100%',
-              maxWidth: '850px',
-              color: 'black'
-            }} 
+            className="docx-viewer-container"
+            style={{ display: loading || error ? 'none' : 'block' }} 
           />
         </div>
       </div>

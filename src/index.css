@@ -2198,3 +2198,115 @@ textarea.glass-input {
     display: none;
   }
 }
+
+/* -- Docx Viewer Modal ------------------------------------------ */
+.docx-modal-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.8);
+  z-index: 1000;
+}
+
+.docx-modal-content {
+  width: 90vw;
+  height: 90vh;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg-color);
+  transition: all 0.3s ease;
+  border-radius: var(--radius-lg);
+}
+
+.docx-modal-content.fullscreen {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  border-radius: 0;
+}
+
+.docx-modal-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--panel-bg);
+  align-items: center;
+  z-index: 10;
+}
+
+.docx-modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.docx-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.docx-modal-body {
+  flex: 1;
+  overflow: auto;
+  background: #cbd5e1; /* docx default gray background */
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.docx-loading {
+  color: #1e293b;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.docx-loading .spinner-sm {
+  border-color: #1e293b;
+  border-top-color: transparent;
+}
+
+.docx-error {
+  color: #dc2626;
+  align-self: center;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+
+.docx-viewer-container {
+  width: 100%;
+  max-width: 850px; /* Standard page width */
+  color: black;
+}
+
+
+@media (max-width: 768px) {
+  .docx-modal-header {
+    padding: 10px 12px;
+  }
+  .docx-modal-header h2 {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 50%;
+  }
+  .docx-modal-actions .glass-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  .docx-modal-body {
+    padding: 10px;
+  }
+  /* In mobile fullscreen, avoid address bar overlap */
+  .docx-modal-content.fullscreen {
+    height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
