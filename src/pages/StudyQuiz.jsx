@@ -43,7 +43,7 @@ function StudyQuiz() {
         const allNotes = await notesApi.getByDeck(deckId);
         if (allNotes.length < 2) {
            addToast('Necesitas al menos 2 tarjetas para el modo Quiz', 'warning');
-           navigate(`/study/${deckId}`);
+           navigate(`/hub/${deckId}`);
            return;
         }
         
@@ -118,7 +118,7 @@ function StudyQuiz() {
         <p style={{ color: 'var(--text-dim)', fontSize: '1.2rem', marginBottom: '2rem' }}>
           Has acertado <strong>{score}</strong> de {notes.length}
         </p>
-        <button className="primary-btn" onClick={() => navigate(`/study/${deckId}`)}>
+        <button className="primary-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           Volver al Centro de Estudio
         </button>
       </div>
@@ -131,7 +131,7 @@ function StudyQuiz() {
   return (
     <div className="study-container">
       <div className="study-header">
-        <button className="glass-btn" onClick={() => navigate(`/study/${deckId}`)}>
+        <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           ✕ Salir
         </button>
         <div className="study-progress">

@@ -36,7 +36,8 @@ function StudyTutor() {
         
         // Build the context string
         let context = `Mazo: ${d.name}\n\n`;
-        allNotes.forEach(n => {
+        const reversedNotes = [...allNotes].reverse();
+        reversedNotes.forEach(n => {
           const f = JSON.parse(n.fieldsJson || '{}');
           const front = f.front ? f.front.replace(/<[^>]+>/g, '') : '';
           const back = f.back ? f.back.replace(/<[^>]+>/g, '') : '';
@@ -100,7 +101,7 @@ function StudyTutor() {
     <div className="study-container" style={{ display: 'flex', flexDirection: 'column' }}>
       
       <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)' }}>
-        <button className="glass-btn" onClick={() => navigate(`/study/${deckId}`)} style={{ padding: '4px 12px' }}>
+        <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
           ← Volver
         </button>
         <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>

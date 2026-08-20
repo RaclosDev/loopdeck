@@ -275,11 +275,18 @@ function Dashboard() {
                 >
                   {due > 0 || counts.new > 0 ? `Estudiar (${due})` : 'Al día ✓'}
                 </button>
-                <button
-                  className="deck-action-btn"
-                  onClick={() => navigate(`/add/${deck.id}`)}
-                  title="Añadir tarjetas"
-                >➕</button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    className="deck-action-btn"
+                    onClick={() => navigate(`/hub/${deck.id}`)}
+                    title="Modos de Estudio (Guía, IA, Test...)"
+                  >🎓</button>
+                  <button
+                    className="deck-action-btn"
+                    onClick={() => navigate(`/add/${deck.id}`)}
+                    title="Añadir tarjetas"
+                  >➕</button>
+                </div>
               </div>
             </div>
           );

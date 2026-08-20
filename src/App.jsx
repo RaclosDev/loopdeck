@@ -66,12 +66,12 @@ function App() {
               <Layout>
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
-                  <Route path="/study/:deckId" element={<StudyHub />} />
-                  <Route path="/study/:deckId/classic" element={<Study />} />
-                  <Route path="/study/:deckId/guide" element={<StudyGuide />} />
-                  <Route path="/study/:deckId/explore" element={<StudyExplore />} />
-                  <Route path="/study/:deckId/quiz" element={<StudyQuiz />} />
-                  <Route path="/study/:deckId/tutor" element={<StudyTutor />} />
+                  <Route path="/study/:deckId" element={<Study />} />
+                  <Route path="/hub/:deckId" element={<StudyHub />} />
+                  <Route path="/hub/:deckId/guide" element={<StudyGuide />} />
+                  <Route path="/hub/:deckId/explore" element={<StudyExplore />} />
+                  <Route path="/hub/:deckId/quiz" element={<StudyQuiz />} />
+                  <Route path="/hub/:deckId/tutor" element={<StudyTutor />} />
                   <Route path="/add" element={<AddCard />} />
                   <Route path="/add/:deckId" element={<AddCard />} />
                   <Route path="/stats" element={<Stats />} />

@@ -31,8 +31,7 @@ function StudyExplore() {
 
         // For explore mode, we just load all notes and display them.
         const allNotes = await notesApi.getByDeck(deckId);
-        // Shuffle them slightly to make it fun, or keep them ordered? Let's keep them ordered for now.
-        setNotes(allNotes);
+        setNotes(allNotes.reverse());
 
       } catch (e) {
         addToast('Error cargando mazo', 'error');
@@ -87,7 +86,7 @@ function StudyExplore() {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ color: 'var(--text-dim)' }}>No hay tarjetas en este mazo.</p>
-        <button className="primary-btn" onClick={() => navigate(`/study/${deckId}`)}>Volver al Hub</button>
+        <button className="primary-btn" onClick={() => navigate(`/hub/${deckId}`)}>Volver al Hub</button>
       </div>
     );
   }
@@ -98,7 +97,7 @@ function StudyExplore() {
   return (
     <div className="study-container">
       <div className="study-header">
-        <button className="glass-btn" onClick={() => navigate(`/study/${deckId}`)}>
+        <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           ✕ Salir
         </button>
         <div className="study-progress">

@@ -25,7 +25,7 @@ function StudyGuide() {
         setDeck(d);
 
         const allNotes = await notesApi.getByDeck(deckId);
-        setNotes(allNotes);
+        setNotes(allNotes.reverse());
 
       } catch (e) {
         addToast('Error cargando mazo', 'error');
@@ -63,7 +63,7 @@ function StudyGuide() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <button className="glass-btn" onClick={() => navigate(`/study/${deckId}`)} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '8px' }}>
+            <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '8px' }}>
               ← Volver al Hub
             </button>
             <h1 style={{ margin: 0, fontSize: '1.4rem', color: 'var(--text-main)' }}>📖 {deck.name} (Guía)</h1>

@@ -71,7 +71,7 @@ function StudyHub() {
         
         {/* REPASO ESPACIADO (Clásico) */}
         <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/study/${deckId}/classic`)}
+             onClick={() => navigate(`/study/${deckId}`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🧠</div>
@@ -86,7 +86,7 @@ function StudyHub() {
 
         {/* GUÍA DE ESTUDIO */}
         <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/study/${deckId}/guide`)}
+             onClick={() => navigate(`/hub/${deckId}/guide`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--purple-accent)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>📖</div>
@@ -101,7 +101,7 @@ function StudyHub() {
 
         {/* MODO PASEO */}
         <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/study/${deckId}/explore`)}
+             onClick={() => navigate(`/hub/${deckId}/explore`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🎡</div>
@@ -115,7 +115,7 @@ function StudyHub() {
 
         {/* TEST DE OPCIONES */}
         <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/study/${deckId}/quiz`)}
+             onClick={() => navigate(`/hub/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🎯</div>
@@ -129,7 +129,7 @@ function StudyHub() {
 
         {/* TUTOR IA */}
         <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/study/${deckId}/tutor`)}
+             onClick={() => navigate(`/hub/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🤖</div>
