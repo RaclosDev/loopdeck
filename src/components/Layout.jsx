@@ -90,17 +90,17 @@ function Layout({ children }) {
             <nav className="sidebar-nav">
               <div className="sidebar-section-title">Principal</div>
 
-              <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">📚</span>
                 Mis Mazos
               </NavLink>
 
-              <NavLink to="/add" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/add" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">➕</span>
                 Añadir Tarjeta
               </NavLink>
 
-              <NavLink to="/stats" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/stats" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">📊</span>
                 Estadísticas
               </NavLink>
@@ -109,22 +109,22 @@ function Layout({ children }) {
                 Herramientas
               </div>
 
-              <NavLink to="/templates" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/templates" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">📥</span>
                 Plantillas
               </NavLink>
 
-              <NavLink to="/shop" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/shop" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">🛍️</span>
                 Tienda
               </NavLink>
 
-              <NavLink to="/browser" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/browser" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">🔍</span>
                 Explorar Tarjetas
               </NavLink>
 
-              <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={closeSidebar}>
+              <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">⚙️</span>
                 Configuración
               </NavLink>
