@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
-import { decksApi, notesApi } from '../services/api';
+import { decksApi, notesApi, aiApi } from '../services/api';
 import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
 import { lookupDefinition, lookupImage } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
@@ -28,6 +28,9 @@ function AddCard() {
   const [lookingUpDef, setLookingUpDef] = useState(false);
   const [lookingUpImage, setLookingUpImage] = useState(false);
   const [autoPhotoUsed, setAutoPhotoUsed] = useState(false);
+  const [addMode, setAddMode] = useState('single'); // 'single' | 'mass'
+  const [massWords, setMassWords] = useState('');
+  const [massGenerating, setMassGenerating] = useState(false);
 
   const tagInputRef = useRef(null);
   const frontFileRef = useRef(null);
@@ -247,22 +250,65 @@ function AddCard() {
         tags: finalTags.join(' '),
       });
 
-      const numCards = selectedType === 'reverse' ? 2 : 1;
-      addToast(`✅ ${numCards} tarjeta${numCards > 1 ? 's' : ''} añadida${numCards > 1 ? 's' : ''}`, 'success');
+      addToast(`Añadida${selectedType === 'reverse' ? 's 2' : ''} con éxito`, 'success');
+      if (andClose) { navigate('/'); return; }
+      
       clearEditor();
+      if (frontFileRef.current) frontFileRef.current.value = '';
+      if (backFileRef.current) backFileRef.current.value = '';
+      setAutoPhotoUsed(false);
 
-      if (andClose) navigate('/');
-      else setTimeout(() => { const f = document.querySelector('.editor-content'); if (f) f.focus(); }, 100);
-    } catch (e) {
-      addToast('Error guardando: ' + e.message, 'error');
+    } catch (err) {
+      addToast(err.message, 'error');
     } finally {
       setSaving(false);
     }
   };
 
+  const handleMassAdd = async () => {
+    if (!selectedDeckId) { addToast('Selecciona un mazo', 'error'); return; }
+    if (!massWords.trim()) { addToast('Introduce algunos conceptos', 'warning'); return; }
+
+    setMassGenerating(true);
+    try {
+      addToast('Generando tarjetas con IA...', 'info');
+      const cards = await aiApi.massDefine(massWords);
+      
+      if (!Array.isArray(cards) || cards.length === 0) {
+        throw new Error('La IA no devolvió un formato válido o está vacío.');
+      }
+
+      let successCount = 0;
+      for (const card of cards) {
+        if (!card.front || !card.back) continue;
+        
+        await notesApi.create({
+          deckId: selectedDeckId,
+          noteType: 'basic', // Force basic for mass definition
+          fieldsJson: JSON.stringify({ front: card.front, back: card.back }),
+          tags: 'ia-masivo'
+        });
+        successCount++;
+      }
+
+      addToast(`✨ ${successCount} tarjetas generadas y añadidas al mazo`, 'success');
+      setMassWords('');
+      setAddMode('single'); // Go back to single mode after success
+    } catch (err) {
+      addToast('Error en la generación masiva: ' + err.message, 'error');
+      console.error(err);
+    } finally {
+      setMassGenerating(false);
+    }
+  };
+
   useEffect(() => {
     const handler = (e) => {
-      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); handleAdd(false); }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { 
+        e.preventDefault(); 
+        if (addMode === 'single') handleAdd(false); 
+        else handleMassAdd();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -271,8 +317,24 @@ function AddCard() {
 
   return (
     <div className="animate-fade-in">
-      <div className="page-header">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>Añadir Tarjetas</h1>
+        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: 'var(--radius-lg)', gap: '4px' }}>
+          <button 
+            className={`glass-btn ${addMode === 'single' ? 'active' : ''}`}
+            onClick={() => setAddMode('single')}
+            style={{ border: 'none', background: addMode === 'single' ? 'var(--accent-color)' : 'transparent', color: addMode === 'single' ? '#fff' : 'var(--text-dim)' }}
+          >
+            Una a Una
+          </button>
+          <button 
+            className={`glass-btn ${addMode === 'mass' ? 'active' : ''}`}
+            onClick={() => setAddMode('mass')}
+            style={{ border: 'none', background: addMode === 'mass' ? 'var(--accent-color)' : 'transparent', color: addMode === 'mass' ? '#fff' : 'var(--text-dim)' }}
+          >
+            ✨ En Masa (IA)
+          </button>
+        </div>
       </div>
 
       {/* Hidden file inputs for gallery picker */}
@@ -289,15 +351,46 @@ function AddCard() {
               {decks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
           </div>
-          <div className="form-group" style={{ flex: 1, minWidth: 0 }}>
-            <label>Tipo de nota</label>
-            <select className="glass-select" value={selectedType} onChange={e => { setSelectedType(e.target.value); clearEditor(); }}>
-              {NOTE_TYPES.map(t => <option key={t.id} value={t.id}>{t.name} — {t.description}</option>)}
-            </select>
-          </div>
+          {addMode === 'single' && (
+            <div className="form-group" style={{ flex: 1, minWidth: 0 }}>
+              <label>Tipo de nota</label>
+              <select className="glass-select" value={selectedType} onChange={e => { setSelectedType(e.target.value); clearEditor(); }}>
+                {NOTE_TYPES.map(t => <option key={t.id} value={t.id}>{t.name} — {t.description}</option>)}
+              </select>
+            </div>
+          )}
         </div>
 
-        <div className="editor-grid">
+        {addMode === 'mass' ? (
+          <div className="form-group">
+            <div style={{ background: 'rgba(6,182,212,0.08)', padding: '15px 20px', borderRadius: 'var(--radius-md)', border: '1px solid rgba(6,182,212,0.15)', marginBottom: 20 }}>
+              <p style={{ margin: '0 0 10px 0', fontWeight: 600, color: 'var(--accent-light)' }}>🤖 Generación Mágica con Inteligencia Artificial</p>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-dim)' }}>
+                Escribe o pega una lista de conceptos, palabras clave o frases (separados por comas o saltos de línea). La IA se encargará de buscar una definición súper breve para cada uno y creará todas las tarjetas de golpe directamente en tu mazo.
+              </p>
+            </div>
+            
+            <label>Lista de Conceptos</label>
+            <textarea
+              className="input-field"
+              style={{ width: '100%', minHeight: '200px', padding: '15px', borderRadius: 'var(--radius-md)', background: 'rgba(15, 23, 42, 0.6)', border: '1px solid var(--border-color)', color: 'white', resize: 'vertical' }}
+              placeholder="Ejemplo:&#10;Polimorfismo&#10;Herencia&#10;Encapsulación&#10;Abstracción"
+              value={massWords}
+              onChange={e => setMassWords(e.target.value)}
+              disabled={massGenerating}
+            />
+            
+            <button 
+              className="primary-btn" 
+              onClick={handleMassAdd} 
+              style={{ width: '100%', marginTop: '20px', padding: '15px' }} 
+              disabled={massGenerating || !massWords.trim()}
+            >
+              {massGenerating ? <span className="spinner-sm" /> : '✨ Generar y Añadir Tarjetas (Ctrl+Enter)'}
+            </button>
+          </div>
+        ) : (
+          <div className="editor-grid">
           <div className="editor-fields">
             {/* Front field */}
             <div className="form-group">
@@ -414,7 +507,9 @@ function AddCard() {
             )}
           </div>
         </div>
+      )}
       </div>
+
       <ImageSearchModal 
         isOpen={!!activeImageField} 
         onClose={() => setActiveImageField(null)} 

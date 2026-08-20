@@ -52,4 +52,11 @@ public class AiController {
         
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/mass-define")
+    public ResponseEntity<String> massDefine(@RequestBody Map<String, String> payload) {
+        String words = payload.get("words");
+        String jsonArray = aiService.generateMassDefinitions(words);
+        return ResponseEntity.ok(jsonArray);
+    }
 }

@@ -126,6 +126,77 @@ public class AiService {
         return "Hubo un error al procesar tu solicitud con la IA.";
     }
 
+    public String generateMassDefinitions(String words) {
+        if (words == null || words.trim().isEmpty()) {
+            return "[]";
+        }
+
+        if (geminiApiKey == null || geminiApiKey.trim().isEmpty() || "TU_CLAVE_AQUI".equals(geminiApiKey)) {
+            return "[]";
+        }
+
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
+
+        String prompt = "Actúa como un creador de tarjetas de estudio (flashcards). Te voy a dar una lista de conceptos. Para CADA concepto, genera una definición súper breve (máximo 15 palabras).\n"
+                + "DEVUELVE ÚNICAMENTE un array JSON válido, sin Markdown ni texto extra. El formato debe ser estrictamente este:\n"
+                + "[\n  {\"front\": \"concepto 1\", \"back\": \"definición súper breve\"},\n  {\"front\": \"concepto 2\", \"back\": \"definición súper breve\"}\n]\n\n"
+                + "Conceptos a definir:\n" + words;
+
+        Map<String, Object> parts = new HashMap<>();
+        parts.put("text", prompt);
+
+        Map<String, Object> content = new HashMap<>();
+        content.put("parts", List.of(parts));
+        
+        Map<String, Object> generationConfig = new HashMap<>();
+        generationConfig.put("maxOutputTokens", 2000);
+        generationConfig.put("temperature", 0.1);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("contents", List.of(content));
+        body.put("generationConfig", generationConfig);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> bodyMap = response.getBody();
+                List<Map<String, Object>> candidates = (List<Map<String, Object>>) bodyMap.get("candidates");
+                if (candidates != null && !candidates.isEmpty()) {
+                    Map<String, Object> candidate = candidates.get(0);
+                    Map<String, Object> resContent = (Map<String, Object>) candidate.get("content");
+                    if (resContent != null) {
+                        List<Map<String, Object>> resParts = (List<Map<String, Object>>) resContent.get("parts");
+                        if (resParts != null && !resParts.isEmpty()) {
+                            String text = (String) resParts.get(0).get("text");
+                            if (text != null) {
+                                // Clean up markdown json block if Gemini includes it
+                                text = text.trim();
+                                if (text.startsWith("```json")) {
+                                    text = text.substring(7);
+                                } else if (text.startsWith("```")) {
+                                    text = text.substring(3);
+                                }
+                                if (text.endsWith("```")) {
+                                    text = text.substring(0, text.length() - 3);
+                                }
+                                return text.trim();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error llamando a Gemini Mass Define: " + e.getMessage());
+        }
+        
+        return "[]";
+    }
+
     /**
      * Fetch the main image of a Wikipedia article for a given word.
      * Uses the Wikipedia API directly (pageimages) — guaranteed to return real, valid URLs.
