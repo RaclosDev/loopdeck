@@ -68,6 +68,19 @@ export const decksApi = {
   create: (data) => request('/decks', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/decks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/decks/${id}`, { method: 'DELETE' }),
+  uploadDocument: (id, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return fetch(`${API_BASE}/decks/${id}/document`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: formData
+    });
+  },
+  hasDocument: (id) => request(`/decks/${id}/document/info`),
+  getDocumentUrl: (id) => `${API_BASE}/decks/${id}/document?token=${localStorage.getItem('token')}`
 };
 
 // ── Notes ─────────────────────────────────────────────────────

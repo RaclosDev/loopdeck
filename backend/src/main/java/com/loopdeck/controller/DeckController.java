@@ -55,4 +55,46 @@ public class DeckController {
         deckService.deleteDeck(auth.getName(), id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/document")
+    public ResponseEntity<Void> uploadDocument(Authentication auth, 
+                                             @PathVariable String id, 
+                                             @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
+                                             com.loopdeck.repository.DeckDocumentRepository docRepo) {
+        // Simple security check to ensure user owns the deck
+        deckService.updateDeck(auth.getName(), id, new DeckService.UpdateDeckRequest(
+            deckService.getDecks(auth.getName()).stream().filter(d -> d.getId().equals(id)).findFirst().orElseThrow().getName(), null));
+        
+        try {
+            com.loopdeck.model.DeckDocument doc = new com.loopdeck.model.DeckDocument();
+            doc.setDeckId(id);
+            doc.setFileData(file.getBytes());
+            doc.setFileName(file.getOriginalFilename());
+            doc.setContentType(file.getContentType());
+            docRepo.save(doc);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/{id}/document")
+    public ResponseEntity<byte[]> getDocument(Authentication auth, 
+                                            @PathVariable String id,
+                                            com.loopdeck.repository.DeckDocumentRepository docRepo) {
+        return docRepo.findById(id)
+            .map(doc -> ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
+                .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, doc.getContentType() != null ? doc.getContentType() : "application/octet-stream")
+                .body(doc.getFileData()))
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/document/info")
+    public ResponseEntity<java.util.Map<String, Boolean>> hasDocument(Authentication auth, 
+                                                                    @PathVariable String id,
+                                                                    com.loopdeck.repository.DeckDocumentRepository docRepo) {
+        boolean exists = docRepo.existsById(id);
+        return ResponseEntity.ok(java.util.Map.of("hasDocument", exists));
+    }
 }

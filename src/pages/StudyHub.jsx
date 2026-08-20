@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, studyApi, notesApi } from '../services/api';
+import DocxViewerModal from '../components/DocxViewerModal';
 
 function StudyHub() {
   const { deckId } = useParams();
@@ -10,6 +11,10 @@ function StudyHub() {
   const [deck, setDeck] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ due: 0, total: 0 });
+  const [hasDocument, setHasDocument] = useState(false);
+  const [showDocModal, setShowDocModal] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loadDeckInfo = async () => {
@@ -33,6 +38,13 @@ function StudyHub() {
           total: allNotes.length
         });
 
+        try {
+          const docInfo = await decksApi.hasDocument(deckId);
+          setHasDocument(docInfo?.hasDocument || false);
+        } catch (err) {
+          console.warn("No se pudo obtener info del documento", err);
+        }
+
       } catch (e) {
         addToast('Error cargando mazo', 'error');
         console.error(e);
@@ -42,6 +54,29 @@ function StudyHub() {
     };
     loadDeckInfo();
   }, [deckId, navigate, addToast]);
+
+  const handleUploadDocument = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.name.endsWith('.docx')) {
+      addToast('Solo se permiten archivos .docx', 'error');
+      return;
+    }
+    
+    setUploadingDoc(true);
+    try {
+      addToast('Subiendo documento...', 'info');
+      await decksApi.uploadDocument(deckId, file);
+      setHasDocument(true);
+      addToast('Documento vinculado correctamente', 'success');
+    } catch(err) {
+      addToast('Error subiendo documento: ' + err.message, 'error');
+    } finally {
+      setUploadingDoc(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   if (loading) {
     return (
@@ -64,6 +99,33 @@ function StudyHub() {
           <p style={{ margin: '4px 0 0 0', color: 'var(--text-dim)' }}>
             {stats.total} notas totales · <span style={{ color: stats.due > 0 ? 'var(--accent-color)' : 'inherit' }}>{stats.due} tarjetas pendientes</span>
           </p>
+          <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
+            {hasDocument ? (
+              <button 
+                className="glass-btn" 
+                onClick={() => setShowDocModal(true)}
+                style={{ padding: '6px 14px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)' }}
+              >
+                📄 Ver Documento Original
+              </button>
+            ) : (
+              <button 
+                className="glass-btn" 
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingDoc}
+                style={{ padding: '6px 14px' }}
+              >
+                {uploadingDoc ? 'Subiendo...' : '📎 Vincular Apuntes (DOCX)'}
+              </button>
+            )}
+            <input 
+              type="file" 
+              accept=".docx" 
+              ref={fileInputRef} 
+              style={{ display: 'none' }} 
+              onChange={handleUploadDocument} 
+            />
+          </div>
         </div>
       </div>
 
@@ -137,11 +199,16 @@ function StudyHub() {
             🤖 Tutor IA
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
-            Charla con tu mazo. Pídele a la IA que te explique conceptos complejos o que te haga preguntas estilo examen.
+            Chatea con la IA sobre el temario. Hazle preguntas, pídele que te explique conceptos o que te ponga a prueba.
           </p>
         </div>
-
       </div>
+
+      <DocxViewerModal 
+        isOpen={showDocModal} 
+        onClose={() => setShowDocModal(false)} 
+        deckId={deckId} 
+      />
     </div>
   );
 }

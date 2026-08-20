@@ -14,6 +14,9 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.4",
+    "docx-preview": "^0.4.0",
+    "jszip": "^3.10.1",
+    "mammoth": "^1.12.1",
     "marked": "^18.0.10",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
