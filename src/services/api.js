@@ -68,19 +68,21 @@ export const decksApi = {
   create: (data) => request('/decks', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/decks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/decks/${id}`, { method: 'DELETE' }),
-  uploadDocument: (id, file) => {
+  uploadDocument: async (id, file) => {
     const formData = new FormData();
     formData.append('file', file);
-    return fetch(`${API_BASE}/decks/${id}/document`, {
+    const res = await fetch(`${API_BASE}/decks/${id}/document`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Authorization': `Bearer ${localStorage.getItem('ff_token')}`
       },
       body: formData
     });
+    if (!res.ok) throw new Error('Error al subir el archivo');
+    return res;
   },
   hasDocument: (id) => request(`/decks/${id}/document/info`),
-  getDocumentUrl: (id) => `${API_BASE}/decks/${id}/document?token=${localStorage.getItem('token')}`
+  getDocumentUrl: (id) => `${API_BASE}/decks/${id}/document?token=${localStorage.getItem('ff_token')}`
 };
 
 // ── Notes ─────────────────────────────────────────────────────

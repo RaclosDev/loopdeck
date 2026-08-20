@@ -56,11 +56,13 @@ public class DeckController {
         return ResponseEntity.noContent().build();
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.loopdeck.repository.DeckDocumentRepository docRepo;
+
     @PostMapping("/{id}/document")
     public ResponseEntity<Void> uploadDocument(Authentication auth, 
                                              @PathVariable String id, 
-                                             @RequestParam("file") org.springframework.web.multipart.MultipartFile file,
-                                             com.loopdeck.repository.DeckDocumentRepository docRepo) {
+                                             @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         // Simple security check to ensure user owns the deck
         deckService.updateDeck(auth.getName(), id, new DeckService.UpdateDeckRequest(
             deckService.getDecks(auth.getName()).stream().filter(d -> d.getId().equals(id)).findFirst().orElseThrow().getName(), null));
@@ -80,8 +82,7 @@ public class DeckController {
 
     @GetMapping("/{id}/document")
     public ResponseEntity<byte[]> getDocument(Authentication auth, 
-                                            @PathVariable String id,
-                                            com.loopdeck.repository.DeckDocumentRepository docRepo) {
+                                            @PathVariable String id) {
         return docRepo.findById(id)
             .map(doc -> ResponseEntity.ok()
                 .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
@@ -92,8 +93,7 @@ public class DeckController {
 
     @GetMapping("/{id}/document/info")
     public ResponseEntity<java.util.Map<String, Boolean>> hasDocument(Authentication auth, 
-                                                                    @PathVariable String id,
-                                                                    com.loopdeck.repository.DeckDocumentRepository docRepo) {
+                                                                    @PathVariable String id) {
         boolean exists = docRepo.existsById(id);
         return ResponseEntity.ok(java.util.Map.of("hasDocument", exists));
     }

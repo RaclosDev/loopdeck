@@ -57,6 +57,12 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
     };
   }, [isOpen, deckId]);
 
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -64,11 +70,23 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
       <div 
         className="modal-content glass-panel" 
         onClick={e => e.stopPropagation()} 
-        style={{ width: '90vw', height: '90vh', maxWidth: '1000px', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden', background: 'var(--bg-color)' }}
+        style={{ 
+          width: isFullscreen ? '100vw' : '90vw', 
+          height: isFullscreen ? '100vh' : '90vh', 
+          maxWidth: isFullscreen ? 'none' : '1000px', 
+          borderRadius: isFullscreen ? '0' : undefined,
+          display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden', background: 'var(--bg-color)',
+          transition: 'all 0.3s ease'
+        }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)', alignItems: 'center', zIndex: 10 }}>
           <h2 style={{ margin: 0, fontSize: '1.2rem' }}>📄 Documento Original</h2>
-          <button className="glass-btn" onClick={onClose}>Cerrar</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="glass-btn" onClick={toggleFullscreen}>
+              {isFullscreen ? 'Contraer' : 'Pantalla Completa'}
+            </button>
+            <button className="glass-btn" onClick={onClose}>Cerrar</button>
+          </div>
         </div>
         
         <div style={{ flex: 1, overflow: 'auto', background: '#cbd5e1', padding: '20px', display: 'flex', justifyContent: 'center' }}>
