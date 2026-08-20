@@ -271,24 +271,49 @@ function AddCard() {
 
     setMassGenerating(true);
     try {
-      addToast('Generando tarjetas con IA...', 'info');
-      const cards = await aiApi.massDefine(massWords);
-      
-      if (!Array.isArray(cards) || cards.length === 0) {
-        throw new Error('La IA no devolvió un formato válido o está vacío.');
+      const words = massWords
+        .split(/[\n,]+/)
+        .map(w => w.trim())
+        .filter(w => w.length > 0);
+
+      if (words.length === 0) {
+        addToast('No se encontraron palabras válidas', 'warning');
+        return;
       }
 
+      addToast(`Procesando ${words.length} conceptos en paralelo...`, 'info');
+
+      const results = await Promise.all(
+        words.map(async (word) => {
+          try {
+            const result = await lookupDefinition(word);
+            return { word, definition: result?.definition };
+          } catch (e) {
+            console.error(`Error buscando ${word}`, e);
+            return { word, definition: null };
+          }
+        })
+      );
+
       let successCount = 0;
-      for (const card of cards) {
-        if (!card.front || !card.back) continue;
+      for (const res of results) {
+        if (!res.definition) continue;
         
+        const frontHtml = `<div style="font-size: 0.95em">${res.definition}</div>`;
+        const backHtml = `<strong>${res.word}</strong>`;
+
         await notesApi.create({
           deckId: selectedDeckId,
-          noteType: 'basic', // Force basic for mass definition
-          fieldsJson: JSON.stringify({ front: card.front, back: card.back }),
+          noteType: 'basic',
+          fieldsJson: JSON.stringify({ front: frontHtml, back: backHtml }),
           tags: 'ia-masivo'
         });
         successCount++;
+      }
+
+      if (successCount === 0) {
+        addToast('No se pudo generar ninguna tarjeta', 'warning');
+        return;
       }
 
       addToast(`✨ ${successCount} tarjetas generadas y añadidas al mazo`, 'success');
