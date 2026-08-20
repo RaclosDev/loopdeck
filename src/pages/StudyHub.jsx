@@ -114,13 +114,13 @@ function StudyHub() {
         </div>
 
         {/* TEST DE OPCIONES */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', opacity: 0.6 }}
+        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/study/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🎯</div>
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-            🎯 Test de Opciones <span style={{ background: 'var(--border-color)', color: 'var(--text-dim)', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px' }}>Próximamente</span>
+            🎯 Test de Opciones
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
             Adivina la respuesta correcta entre 4 opciones aleatorias del mismo mazo. Un escalón intermedio perfecto.
@@ -128,13 +128,13 @@ function StudyHub() {
         </div>
 
         {/* TUTOR IA */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', opacity: 0.6 }}
+        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/study/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🤖</div>
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-            🤖 Tutor IA <span style={{ background: 'var(--border-color)', color: 'var(--text-dim)', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '4px' }}>Próximamente</span>
+            🤖 Tutor IA
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
             Charla con tu mazo. Pídele a la IA que te explique conceptos complejos o que te haga preguntas estilo examen.

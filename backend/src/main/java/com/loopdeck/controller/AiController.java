@@ -39,4 +39,17 @@ public class AiController {
         
         return ResponseEntity.notFound().build();
     }
+
+    @PostMapping("/chat")
+    public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> payload) {
+        String prompt = payload.get("prompt");
+        String context = payload.get("context");
+        
+        String responseText = aiService.getChatResponse(prompt, context);
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("response", responseText);
+        
+        return ResponseEntity.ok(response);
+    }
 }

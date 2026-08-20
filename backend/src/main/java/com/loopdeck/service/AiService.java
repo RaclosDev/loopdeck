@@ -75,6 +75,57 @@ public class AiService {
         return "No se pudo obtener la definición.";
     }
 
+    public String getChatResponse(String prompt, String context) {
+        if (geminiApiKey == null || geminiApiKey.trim().isEmpty() || "TU_CLAVE_AQUI".equals(geminiApiKey)) {
+            return "Error: Clave de IA no configurada.";
+        }
+
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
+
+        String fullPrompt = "Eres un tutor experto. Responde a la pregunta del usuario utilizando este contexto como base de conocimiento:\n\nCONTEXTO:\n" + context + "\n\nPREGUNTA DEL USUARIO:\n" + prompt;
+
+        Map<String, Object> parts = new HashMap<>();
+        parts.put("text", fullPrompt);
+
+        Map<String, Object> content = new HashMap<>();
+        content.put("parts", List.of(parts));
+        
+        Map<String, Object> generationConfig = new HashMap<>();
+        generationConfig.put("maxOutputTokens", 500);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("contents", List.of(content));
+        body.put("generationConfig", generationConfig);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                Map<String, Object> bodyMap = response.getBody();
+                List<Map<String, Object>> candidates = (List<Map<String, Object>>) bodyMap.get("candidates");
+                if (candidates != null && !candidates.isEmpty()) {
+                    Map<String, Object> candidate = candidates.get(0);
+                    Map<String, Object> resContent = (Map<String, Object>) candidate.get("content");
+                    if (resContent != null) {
+                        List<Map<String, Object>> resParts = (List<Map<String, Object>>) resContent.get("parts");
+                        if (resParts != null && !resParts.isEmpty()) {
+                            String text = (String) resParts.get(0).get("text");
+                            return text != null ? text.trim() : "";
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error llamando a Gemini Chat: " + e.getMessage());
+        }
+        
+        return "Hubo un error al procesar tu solicitud con la IA.";
+    }
+
     /**
      * Fetch the main image of a Wikipedia article for a given word.
      * Uses the Wikipedia API directly (pageimages) — guaranteed to return real, valid URLs.

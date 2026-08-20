@@ -97,12 +97,17 @@ export const templatesApi = {
   import: (type) => request(`/templates/import?type=${type}`, { method: 'POST' }),
 };
 
+export const aiApi = {
+  chat: (prompt, context) => request('/ai/chat', { method: 'POST', body: JSON.stringify({ prompt, context }) })
+};
+
 export default {
   auth: authApi,
   decks: decksApi,
   notes: notesApi,
   study: studyApi,
   templates: templatesApi,
+  ai: aiApi,
 };
 
 export const usersApi = {

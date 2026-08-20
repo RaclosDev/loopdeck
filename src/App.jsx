@@ -6,6 +6,8 @@ import Study from './pages/Study';
 import StudyHub from './pages/StudyHub';
 import StudyGuide from './pages/StudyGuide';
 import StudyExplore from './pages/StudyExplore';
+import StudyQuiz from './pages/StudyQuiz';
+import StudyTutor from './pages/StudyTutor';
 import AddCard from './pages/AddCard';
 import Stats from './pages/Stats';
 import AuthPage from './pages/AuthPage';
@@ -68,6 +70,8 @@ function App() {
                   <Route path="/study/:deckId/classic" element={<Study />} />
                   <Route path="/study/:deckId/guide" element={<StudyGuide />} />
                   <Route path="/study/:deckId/explore" element={<StudyExplore />} />
+                  <Route path="/study/:deckId/quiz" element={<StudyQuiz />} />
+                  <Route path="/study/:deckId/tutor" element={<StudyTutor />} />
                   <Route path="/add" element={<AddCard />} />
                   <Route path="/add/:deckId" element={<AddCard />} />
                   <Route path="/stats" element={<Stats />} />
