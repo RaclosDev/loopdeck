@@ -56,14 +56,4 @@ public class AuthController {
     public ResponseEntity<AuthService.UserDto> me(Authentication auth) {
         return ResponseEntity.ok(authService.me(auth.getName()));
     }
-
-    public record MigrateBody(
-        @Email @NotBlank String oldEmail
-    ) {}
-
-    @PostMapping("/migrate")
-    public ResponseEntity<AuthService.MigrateResult> migrate(Authentication auth, @Valid @RequestBody MigrateBody body) {
-        AuthService.MigrateResult result = authService.migrateAccount(auth.getName(), body.oldEmail());
-        return ResponseEntity.ok(result);
-    }
 }

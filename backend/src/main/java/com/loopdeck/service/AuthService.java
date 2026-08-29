@@ -37,7 +37,6 @@ public class AuthService {
     public record LoginRequest(String email, String password) {}
     public record AuthResponse(String token, UserDto user) {}
     public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot) {}
-    public record MigrateResult(int decks, int notes, String oldEmail) {}
 
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
@@ -109,47 +108,6 @@ public class AuthService {
         } catch (Exception e) {
             throw new IllegalArgumentException("Error al verificar con Google: " + e.getMessage());
         }
-    }
-
-    @Transactional
-    public MigrateResult migrateAccount(String currentUserId, String oldEmail) {
-        User currentUser = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuario actual no encontrado"));
-
-        User oldUser = userRepository.findByEmail(oldEmail.toLowerCase().trim())
-                .orElseThrow(() -> new IllegalArgumentException("No se encontró ninguna cuenta con el email: " + oldEmail));
-
-        if (oldUser.getId().equals(currentUserId)) {
-            throw new IllegalArgumentException("No puedes migrar datos de tu propia cuenta");
-        }
-
-        // Transferir todos los mazos
-        List<Deck> oldDecks = deckRepository.findByUserIdOrderByNameAsc(oldUser.getId());
-        for (Deck deck : oldDecks) {
-            deck.setUserId(currentUserId);
-        }
-        deckRepository.saveAll(oldDecks);
-
-        // Transferir todas las notas/tarjetas
-        List<Note> oldNotes = noteRepository.findByUserId(oldUser.getId());
-        for (Note note : oldNotes) {
-            note.setUserId(currentUserId);
-        }
-        noteRepository.saveAll(oldNotes);
-
-        // Transferir puntos y racha si la cuenta vieja tenía más
-        if (oldUser.getPoints() != null && oldUser.getPoints() > (currentUser.getPoints() != null ? currentUser.getPoints() : 0)) {
-            currentUser.setPoints(oldUser.getPoints());
-        }
-        if (oldUser.getCurrentStreak() != null && oldUser.getCurrentStreak() > (currentUser.getCurrentStreak() != null ? currentUser.getCurrentStreak() : 0)) {
-            currentUser.setCurrentStreak(oldUser.getCurrentStreak());
-        }
-        userRepository.save(currentUser);
-
-        // Borrar la cuenta vieja (ya no tiene datos)
-        userRepository.delete(oldUser);
-
-        return new MigrateResult(oldDecks.size(), oldNotes.size(), oldEmail);
     }
 
     public UserDto me(String userId) {
