@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
+import MigrateBanner from '../components/MigrateBanner';
 import useStore from '../store/useStore';
 import { decksApi, studyApi, templatesApi, notesApi } from '../services/api';
 
@@ -184,6 +185,9 @@ function Dashboard() {
           }
         </p>
       </div>
+
+      {/* Migration Banner (temporary) */}
+      <MigrateBanner />
 
       {/* Today's Summary */}
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (

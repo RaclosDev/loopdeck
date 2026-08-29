@@ -4,21 +4,29 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.loopdeck.model.Deck;
+import com.loopdeck.model.Note;
 import com.loopdeck.model.User;
+import com.loopdeck.repository.DeckRepository;
+import com.loopdeck.repository.NoteRepository;
 import com.loopdeck.repository.UserRepository;
 import com.loopdeck.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final DeckRepository deckRepository;
+    private final NoteRepository noteRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -29,6 +37,7 @@ public class AuthService {
     public record LoginRequest(String email, String password) {}
     public record AuthResponse(String token, UserDto user) {}
     public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot) {}
+    public record MigrateResult(int decks, int notes, String oldEmail) {}
 
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
@@ -102,6 +111,47 @@ public class AuthService {
         }
     }
 
+    @Transactional
+    public MigrateResult migrateAccount(String currentUserId, String oldEmail) {
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario actual no encontrado"));
+
+        User oldUser = userRepository.findByEmail(oldEmail.toLowerCase().trim())
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró ninguna cuenta con el email: " + oldEmail));
+
+        if (oldUser.getId().equals(currentUserId)) {
+            throw new IllegalArgumentException("No puedes migrar datos de tu propia cuenta");
+        }
+
+        // Transferir todos los mazos
+        List<Deck> oldDecks = deckRepository.findByUserIdOrderByNameAsc(oldUser.getId());
+        for (Deck deck : oldDecks) {
+            deck.setUserId(currentUserId);
+        }
+        deckRepository.saveAll(oldDecks);
+
+        // Transferir todas las notas/tarjetas
+        List<Note> oldNotes = noteRepository.findByUserId(oldUser.getId());
+        for (Note note : oldNotes) {
+            note.setUserId(currentUserId);
+        }
+        noteRepository.saveAll(oldNotes);
+
+        // Transferir puntos y racha si la cuenta vieja tenía más
+        if (oldUser.getPoints() != null && oldUser.getPoints() > (currentUser.getPoints() != null ? currentUser.getPoints() : 0)) {
+            currentUser.setPoints(oldUser.getPoints());
+        }
+        if (oldUser.getCurrentStreak() != null && oldUser.getCurrentStreak() > (currentUser.getCurrentStreak() != null ? currentUser.getCurrentStreak() : 0)) {
+            currentUser.setCurrentStreak(oldUser.getCurrentStreak());
+        }
+        userRepository.save(currentUser);
+
+        // Borrar la cuenta vieja (ya no tiene datos)
+        userRepository.delete(oldUser);
+
+        return new MigrateResult(oldDecks.size(), oldNotes.size(), oldEmail);
+    }
+
     public UserDto me(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -119,4 +169,3 @@ public class AuthService {
         );
     }
 }
-

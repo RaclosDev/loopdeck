@@ -71,6 +71,7 @@ async function request(endpoint, options = {}) {
 export const authApi = {
   me: () => request('/auth/me'),
   googleLogin: (credential) => request('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) }),
+  migrateAccount: (oldEmail) => request('/auth/migrate', { method: 'POST', body: JSON.stringify({ oldEmail }) }),
 };
 
 // ── Decks ─────────────────────────────────────────────────────
