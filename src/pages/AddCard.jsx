@@ -11,6 +11,13 @@ const NOTE_TYPES = [
   { id: 'reverse', name: 'Básica + Reversa', description: 'Genera 2 tarjetas', fields: ['front', 'back'], cardsGenerated: 2 },
 ];
 
+const formatMovedText = (html) => {
+  const text = (html || '').replace(/<[^>]*>/g, '').trim();
+  if (!text) return '';
+  const titleCased = text.split(/\s+/).map(w => w.charAt(0).toUpperCase() + w.toLowerCase().slice(1)).join(' ');
+  return `<div style="font-size: 1.25em; text-align: center;"><strong>${titleCased}</strong></div>`;
+};
+
 function AddCard() {
   const { deckId: paramDeckId } = useParams();
   const navigate = useNavigate();
@@ -71,16 +78,23 @@ function AddCard() {
     try {
       addToast('Comprimiendo imagen...', 'info');
       const compressedDataUrl = await compressImageFromPaste(file, 800, 0.75);
-      const imgHtml = `<br><img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
+      let imgHtml = `<img src="${compressedDataUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Foto"/>`;
 
-      // Append image instead of replacing text
-      const newContent = (fields[fieldName] || '') + imgHtml;
-      setFields(prev => ({ ...prev, [fieldName]: newContent }));
-
-      // Update DOM directly
-      const els = document.querySelectorAll('.editor-content');
-      const idx = fieldName === 'front' ? 0 : 1;
-      if (els[idx]) els[idx].innerHTML = newContent;
+      if (fieldName === 'front') {
+        const currentFront = formatMovedText(fields.front);
+        const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
+        setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
+        
+        const els = document.querySelectorAll('.editor-content');
+        if (els[0]) els[0].innerHTML = imgHtml;
+        if (els[1]) els[1].innerHTML = newBack;
+      } else {
+        const newContent = (fields[fieldName] || '') + `<br>${imgHtml}`;
+        setFields(prev => ({ ...prev, [fieldName]: newContent }));
+        const els = document.querySelectorAll('.editor-content');
+        const idx = fieldName === 'front' ? 0 : 1;
+        if (els[idx]) els[idx].innerHTML = newContent;
+      }
 
       addToast('📷 Imagen añadida', 'success');
     } catch (err) {
@@ -96,23 +110,29 @@ function AddCard() {
   const handleOpenImageSearch = (fieldName) => {
     // Extract plain text from the field to use as initial query
     const text = (fields[fieldName] || '').replace(/<[^>]*>/g, '').trim();
-    const word = text.split(/\s+/)[0]; // take first word
 
-    setImageSearchQuery(word || '');
+    setImageSearchQuery(text || '');
     setActiveImageField(fieldName);
   };
 
   const handleImageSelect = (url) => {
     if (!activeImageField) return;
-    const imgHtml = `<br><img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
+    let imgHtml = `<img src="${url}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="Selected image"/>`;
     
-    // Append image instead of replacing
-    const newContent = (fields[activeImageField] || '') + imgHtml;
-    setFields(prev => ({ ...prev, [activeImageField]: newContent }));
-    
-    const els = document.querySelectorAll('.editor-content');
-    const idx = activeImageField === 'front' ? 0 : 1;
-    if (els[idx]) els[idx].innerHTML = newContent;
+    if (activeImageField === 'front') {
+      const currentFront = formatMovedText(fields.front);
+      const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
+      setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
+      
+      const els = document.querySelectorAll('.editor-content');
+      if (els[0]) els[0].innerHTML = imgHtml;
+      if (els[1]) els[1].innerHTML = newBack;
+    } else {
+      const newContent = (fields[activeImageField] || '') + `<br>${imgHtml}`;
+      setFields(prev => ({ ...prev, [activeImageField]: newContent }));
+      const els = document.querySelectorAll('.editor-content');
+      if (els[1]) els[1].innerHTML = newContent;
+    }
     
     setActiveImageField(null);
   };
@@ -121,7 +141,7 @@ function AddCard() {
   const handleDefinition = async () => {
     // Extract plain text from front field
     const text = (fields.front || '').replace(/<[^>]*>/g, '').trim();
-    const word = text.split(/\s+/)[0]; // take first word
+    const word = text;
 
     if (!word) {
       addToast('Escribe una palabra en el frente primero', 'warning');
@@ -165,7 +185,7 @@ function AddCard() {
     if (text.length > 30) {
       text = (fields.back || '').replace(/<[^>]*>/g, '').trim();
     }
-    const word = text.split(/\s+/)[0];
+    const word = text;
 
     if (!word) {
       addToast('Escribe una palabra primero', 'warning');
@@ -181,13 +201,15 @@ function AddCard() {
         return;
       }
 
-      const imgHtml = `<br><img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
+      let imgHtml = `<img src="${imageUrl}" style="max-width: 100%; border-radius: 8px; margin: 8px 0;" alt="" onerror="this.style.display='none'"/>`;
       
-      const newFront = (fields.front || '') + imgHtml;
-      setFields(prev => ({ ...prev, front: newFront }));
+      const currentFront = formatMovedText(fields.front);
+      const newBack = fields.back ? `${fields.back}<br><br>${currentFront}` : currentFront;
+      setFields(prev => ({ ...prev, front: imgHtml, back: newBack }));
       
       const els = document.querySelectorAll('.editor-content');
-      if (els[0]) els[0].innerHTML = newFront;
+      if (els[0]) els[0].innerHTML = imgHtml;
+      if (els[1]) els[1].innerHTML = newBack;
 
       addToast('📸 Foto automática añadida', 'success');
     } catch (err) {
