@@ -33,6 +33,17 @@ async function request(endpoint, options = {}) {
 
   const response = await fetch(url, config);
 
+  // If token expired or is invalid, auto-logout
+  if (response.status === 401 || response.status === 403) {
+    // Only auto-logout if we had a token (i.e. we were "logged in")
+    if (token) {
+      localStorage.removeItem('ff_token');
+      localStorage.removeItem('ff-auth');
+      window.location.reload();
+    }
+    throw new ApiError('Sesión expirada', response.status, {});
+  }
+
   if (!response.ok) {
     let data = {};
     try {
