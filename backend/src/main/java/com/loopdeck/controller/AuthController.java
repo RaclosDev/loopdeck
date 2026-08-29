@@ -28,6 +28,10 @@ public class AuthController {
         @NotBlank String password
     ) {}
 
+    public record GoogleLoginBody(
+        @NotBlank String credential
+    ) {}
+
     @PostMapping("/register")
     public ResponseEntity<AuthService.AuthResponse> register(@Valid @RequestBody RegisterBody body) {
         AuthService.AuthResponse res = authService.register(
@@ -39,6 +43,12 @@ public class AuthController {
     public ResponseEntity<AuthService.AuthResponse> login(@Valid @RequestBody LoginBody body) {
         AuthService.AuthResponse res = authService.login(
                 new AuthService.LoginRequest(body.email(), body.password()));
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/google")
+    public ResponseEntity<AuthService.AuthResponse> googleLogin(@Valid @RequestBody GoogleLoginBody body) {
+        AuthService.AuthResponse res = authService.googleLogin(body.credential());
         return ResponseEntity.ok(res);
     }
 

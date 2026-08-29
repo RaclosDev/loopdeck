@@ -1,14 +1,64 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
+
+const GOOGLE_CLIENT_ID = '498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com';
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [form, setForm] = useState({ email: '', name: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, register } = useAuthStore();
+  const { login, register, googleLogin } = useAuthStore();
+  const googleBtnRef = useRef(null);
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+
+  // Initialize Google Sign-In
+  useEffect(() => {
+    const initGoogle = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+        });
+        if (googleBtnRef.current) {
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            theme: 'outline',
+            size: 'large',
+            width: googleBtnRef.current.offsetWidth,
+            text: 'continue_with',
+            shape: 'rectangular',
+            logo_alignment: 'center',
+          });
+        }
+      }
+    };
+
+    // GSI script might not be loaded yet (async), so we retry
+    if (window.google?.accounts?.id) {
+      initGoogle();
+    } else {
+      const interval = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(interval);
+          initGoogle();
+        }
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, []);
+
+  const handleGoogleResponse = async (response) => {
+    setError('');
+    setLoading(true);
+    try {
+      await googleLogin(response.credential);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,6 +102,14 @@ export default function AuthPage() {
           >
             Crear cuenta
           </button>
+        </div>
+
+        {/* Google Sign-In Button */}
+        <div ref={googleBtnRef} style={{ width: '100%', marginBottom: '1rem' }}></div>
+
+        {/* Divider */}
+        <div className="auth-divider">
+          <span>o con email</span>
         </div>
 
         {/* Form */}
@@ -138,3 +196,4 @@ export default function AuthPage() {
     </div>
   );
 }
+

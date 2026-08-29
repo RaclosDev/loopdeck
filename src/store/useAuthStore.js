@@ -44,6 +44,12 @@ const useAuthStore = create(
         localStorage.setItem('ff_token', data.token);
       },
 
+      googleLogin: async (credential) => {
+        const data = await authRequest('/auth/google', { credential });
+        set({ user: data.user, token: data.token, isAuthenticated: true });
+        localStorage.setItem('ff_token', data.token);
+      },
+
       updateUser: (userData) => {
         set({ user: userData });
       },
