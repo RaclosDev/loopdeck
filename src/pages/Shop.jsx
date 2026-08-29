@@ -18,7 +18,8 @@ export default function Shop() {
   const [buying, setBuying] = useState(null);
 
   const handleBuy = async (skinId, cost) => {
-    if (user.points < cost) {
+    const isOwned = (user.unlockedSkins || []).includes(skinId) || skinId === 'default';
+    if (!isOwned && user.points < cost) {
       addToast('No tienes suficientes puntos.', 'error');
       return;
     }
@@ -60,6 +61,7 @@ export default function Shop() {
       <div className="decks-grid">
         {SKINS_STORE.map(skin => {
           const isEquipped = user.mascot === skin.id || (!user.mascot && skin.id === 'default');
+          const isOwned = (user.unlockedSkins || []).includes(skin.id) || skin.id === 'default';
           
           return (
             <div key={skin.id} className="deck-card" style={{ 
@@ -80,15 +82,17 @@ export default function Shop() {
               </p>
               
               <button 
-                className={isEquipped ? "glass-btn" : "primary-btn"}
-                style={{ width: '100%' }}
+                className={isEquipped ? "glass-btn" : (isOwned ? "glass-btn" : "primary-btn")}
+                style={{ width: '100%', borderColor: isOwned && !isEquipped ? 'var(--accent-color)' : undefined }}
                 onClick={() => handleBuy(skin.id, skin.cost)}
-                disabled={buying === skin.id || (user.points < skin.cost && !isEquipped)}
+                disabled={buying === skin.id || (!isOwned && user.points < skin.cost)}
               >
                 {buying === skin.id ? (
                   <span className="spinner-sm" />
                 ) : isEquipped ? (
                   'Equipado'
+                ) : isOwned ? (
+                  'Equipar'
                 ) : (
                   <>🪙 {skin.cost}</>
                 )}

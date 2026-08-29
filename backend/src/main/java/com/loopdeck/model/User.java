@@ -42,6 +42,9 @@ public class User {
     @Column(name = "equipped_mascot")
     private String equippedMascot = "default";
 
+    @Column(name = "unlocked_skins", columnDefinition = "text")
+    private String unlockedSkins = "default";
+
     @PrePersist
     void prePersist() {
         if (id == null) id = java.util.UUID.randomUUID().toString();

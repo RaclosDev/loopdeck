@@ -2,8 +2,10 @@ package com.loopdeck.service;
 
 import com.loopdeck.model.Deck;
 import com.loopdeck.repository.DeckRepository;
+import com.loopdeck.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -12,6 +14,7 @@ import java.util.List;
 public class DeckService {
 
     private final DeckRepository deckRepository;
+    private final NoteRepository noteRepository;
 
     public record CreateDeckRequest(String name, String description, String parentId) {}
     public record UpdateDeckRequest(String name, String description) {}
@@ -38,9 +41,11 @@ public class DeckService {
         return deckRepository.save(deck);
     }
 
+    @Transactional
     public void deleteDeck(String userId, String deckId) {
         Deck deck = deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+        noteRepository.deleteByDeckId(deckId);
         deckRepository.delete(deck);
     }
 }

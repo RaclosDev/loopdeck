@@ -17,6 +17,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final AuthService authService;
 
     @PostMapping("/daily-login")
     public ResponseEntity<AuthService.UserDto> dailyLogin(Authentication auth) {
@@ -50,10 +51,7 @@ public class UserController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new AuthService.UserDto(
-                user.getId(), user.getEmail(), user.getName(), 
-                user.getPoints(), user.getCurrentStreak(), user.getEquippedMascot()
-        ));
+        return ResponseEntity.ok(authService.me(user.getId()));
     }
 
     @PostMapping("/buy-skin")
@@ -64,19 +62,29 @@ public class UserController {
         User user = userRepository.findById(auth.getName())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        int currentPoints = user.getPoints() == null ? 0 : user.getPoints();
-
-        if (currentPoints < cost) {
-            throw new IllegalArgumentException("No tienes suficientes puntos.");
+        String currentUnlocked = user.getUnlockedSkins();
+        if (currentUnlocked == null) currentUnlocked = "default";
+        
+        boolean isOwned = false;
+        for (String s : currentUnlocked.split(",")) {
+            if (s.trim().equals(skin)) {
+                isOwned = true;
+                break;
+            }
         }
 
-        user.setPoints(currentPoints - cost);
+        if (!isOwned) {
+            int currentPoints = user.getPoints() == null ? 0 : user.getPoints();
+            if (currentPoints < cost) {
+                throw new IllegalArgumentException("No tienes suficientes puntos.");
+            }
+            user.setPoints(currentPoints - cost);
+            user.setUnlockedSkins(currentUnlocked + "," + skin);
+        }
+
         user.setEquippedMascot(skin);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new AuthService.UserDto(
-                user.getId(), user.getEmail(), user.getName(), 
-                user.getPoints(), user.getCurrentStreak(), user.getEquippedMascot()
-        ));
+        return ResponseEntity.ok(authService.me(user.getId()));
     }
 }

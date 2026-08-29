@@ -36,7 +36,7 @@ public class AuthService {
     public record RegisterRequest(String email, String name, String password) {}
     public record LoginRequest(String email, String password) {}
     public record AuthResponse(String token, UserDto user) {}
-    public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot) {}
+    public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot, java.util.List<String> unlockedSkins) {}
 
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
@@ -117,13 +117,23 @@ public class AuthService {
     }
 
     private UserDto toDto(User user) {
+        java.util.List<String> skins = new java.util.ArrayList<>();
+        if (user.getUnlockedSkins() != null && !user.getUnlockedSkins().trim().isEmpty()) {
+            for (String skin : user.getUnlockedSkins().split(",")) {
+                if (!skin.trim().isEmpty()) skins.add(skin.trim());
+            }
+        } else {
+            skins.add("default");
+        }
+
         return new UserDto(
             user.getId(), 
             user.getEmail(), 
             user.getName(), 
             user.getPoints() != null ? user.getPoints() : 0, 
             user.getCurrentStreak() != null ? user.getCurrentStreak() : 0, 
-            user.getEquippedMascot() != null ? user.getEquippedMascot() : "default"
+            user.getEquippedMascot() != null ? user.getEquippedMascot() : "default",
+            skins
         );
     }
 }
