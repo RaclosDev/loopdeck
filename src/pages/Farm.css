@@ -1,6 +1,6 @@
-/* ═══════════════════════════════════════════════════════════════
-   LoopDeck Farm — Styles
-   ═══════════════════════════════════════════════════════════════ */
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   LoopDeck Farm â€” Styles
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 .farm-page {
   max-width: 900px;
@@ -8,7 +8,7 @@
   padding-bottom: 40px;
 }
 
-/* ── Header ──────────────────────────────────────────────────── */
+/* â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-header {
   margin-bottom: 24px;
 }
@@ -81,7 +81,7 @@
   white-space: nowrap;
 }
 
-/* ── Tabs ─────────────────────────────────────────────────────── */
+/* â”€â”€ Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-tabs {
   display: flex;
   gap: 4px;
@@ -127,7 +127,7 @@
   font-weight: 700;
 }
 
-/* ── Plot Grid ────────────────────────────────────────────────── */
+/* â”€â”€ Plot Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -142,7 +142,7 @@
   }
 }
 
-/* ── Plot Card ────────────────────────────────────────────────── */
+/* â”€â”€ Plot Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-plot {
   aspect-ratio: 1;
   border-radius: 16px;
@@ -314,7 +314,7 @@
   opacity: 0.7;
 }
 
-/* ── Modals ────────────────────────────────────────────────────── */
+/* â”€â”€ Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-modal-overlay {
   position: fixed;
   inset: 0;
@@ -376,7 +376,7 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ── Crop Selector ─────────────────────────────────────────────── */
+/* â”€â”€ Crop Selector â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .crop-tier-header {
   font-size: 0.8rem;
   font-weight: 700;
@@ -443,7 +443,7 @@
   font-weight: 600;
 }
 
-/* ── Shop ──────────────────────────────────────────────────────── */
+/* â”€â”€ Shop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-shop {
   margin-top: 24px;
 }
@@ -537,7 +537,7 @@
   white-space: nowrap;
 }
 
-/* ── Inventory ─────────────────────────────────────────────────── */
+/* â”€â”€ Inventory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-inventory-empty {
   text-align: center;
   padding: 60px 20px;
@@ -552,7 +552,7 @@
   text-align: right;
 }
 
-/* ── Harvest All Button ────────────────────────────────────────── */
+/* â”€â”€ Harvest All Button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .farm-harvest-all-btn {
   display: block;
   margin: 20px auto 0;
@@ -561,43 +561,83 @@
   border-radius: 24px !important;
   animation: readyPulse 2s ease-in-out infinite alternate;
 }
-. f a r m - e n v i r o n m e n t   { 
-     p o s i t i o n :   r e l a t i v e ; 
-     p a d d i n g :   3 0 p x   1 0 p x ; 
-     b o r d e r - r a d i u s :   2 0 p x ; 
- } 
- . f a r m - e n v - - f e n c e d   { 
-     b o r d e r :   4 p x   s o l i d   # 8 B 5 A 2 B ; 
-     b a c k g r o u n d :   r g b a ( 1 3 9 ,   9 0 ,   4 3 ,   0 . 0 5 ) ; 
- } 
- . f a r m - e n v _ _ t o p - d e c o s ,   . f a r m - e n v _ _ b o t t o m - d e c o s   { 
-     d i s p l a y :   f l e x ; 
-     j u s t i f y - c o n t e n t :   s p a c e - a r o u n d ; 
-     f o n t - s i z e :   2 . 5 r e m ; 
-     m a r g i n - b o t t o m :   - 1 5 p x ; 
-     z - i n d e x :   2 ; 
-     p o s i t i o n :   r e l a t i v e ; 
- } 
- . f a r m - e n v _ _ b o t t o m - d e c o s   { 
-     m a r g i n - t o p :   1 0 p x ; 
-     m a r g i n - b o t t o m :   0 ; 
- } 
- . f a r m - d e c o - - p a t h   { 
-     w i d t h :   1 0 0 % ; 
-     h e i g h t :   2 0 p x ; 
-     b a c k g r o u n d :   r e p e a t i n g - l i n e a r - g r a d i e n t ( 9 0 d e g ,   # a a a ,   # a a a   2 0 p x ,   # 8 8 8   2 0 p x ,   # 8 8 8   4 0 p x ) ; 
-     b o r d e r - r a d i u s :   1 0 p x ; 
- } 
- . f l o a t i n g - c o i n   { 
-     p o s i t i o n :   f i x e d ; 
-     f o n t - s i z e :   1 . 5 r e m ; 
-     p o i n t e r - e v e n t s :   n o n e ; 
-     z - i n d e x :   9 9 9 9 ; 
-     a n i m a t i o n :   f l o a t U p   1 s   e a s e - o u t   f o r w a r d s ; 
- } 
- @ k e y f r a m e s   f l o a t U p   { 
-     0 %   {   t r a n s f o r m :   t r a n s l a t e Y ( 0 )   s c a l e ( 1 ) ;   o p a c i t y :   1 ;   } 
-     1 0 0 %   {   t r a n s f o r m :   t r a n s l a t e Y ( - 1 0 0 p x )   s c a l e ( 1 . 5 ) ;   o p a c i t y :   0 ;   } 
- } 
-  
- 
+.farm-environment {
+  position: relative;
+  padding: 30px 10px;
+  border-radius: 20px;
+}
+.farm-env--fenced {
+  border: 4px solid #8B5A2B;
+  background: rgba(139, 90, 43, 0.05);
+}
+.farm-env__top-decos, .farm-env__bottom-decos {
+  display: flex;
+  justify-content: space-around;
+  font-size: 2.5rem;
+  margin-bottom: -15px;
+  z-index: 2;
+  position: relative;
+}
+.farm-env__bottom-decos {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+.farm-deco--path {
+  width: 100%;
+  height: 20px;
+  background: repeating-linear-gradient(90deg, #aaa, #aaa 20px, #888 20px, #888 40px);
+  border-radius: 10px;
+}
+.floating-coin {
+  position: fixed;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: 9999;
+  animation: floatUp 1s ease-out forwards;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+}
+
+
+
+.farm-environment {
+  position: relative;
+  padding: 30px 10px;
+  border-radius: 20px;
+}
+.farm-env--fenced {
+  border: 4px solid #8B5A2B;
+  background: rgba(139, 90, 43, 0.05);
+}
+.farm-env__top-decos, .farm-env__bottom-decos {
+  display: flex;
+  justify-content: space-around;
+  font-size: 2.5rem;
+  margin-bottom: -15px;
+  z-index: 2;
+  position: relative;
+}
+.farm-env__bottom-decos {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+.farm-deco--path {
+  width: 100%;
+  height: 20px;
+  background: repeating-linear-gradient(90deg, #aaa, #aaa 20px, #888 20px, #888 40px);
+  border-radius: 10px;
+}
+.floating-coin {
+  position: fixed;
+  font-size: 1.5rem;
+  pointer-events: none;
+  z-index: 9999;
+  animation: floatUp 1s ease-out forwards;
+}
+@keyframes floatUp {
+  0% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+}
+
