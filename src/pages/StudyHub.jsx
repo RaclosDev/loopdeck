@@ -129,77 +129,90 @@ function StudyHub() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         
         {/* REPASO ESPACIADO (Clásico) */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/study/${deckId}`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🧠</div>
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🧠</div>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
             🧠 Repaso Espaciado
-            {stats.due > 0 && <span style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px' }}>{stats.due} DUE</span>}
+            {stats.due > 0 && <span style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{stats.due} DUE</span>}
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
-            El método tradicional de flashcards. Responde para optimizar tu memoria a largo plazo basándose en el algoritmo de LoopDeck.
+          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+            Algoritmo inteligente de LoopDeck. Responde para optimizar tu memoria a largo plazo.
           </p>
         </div>
 
         {/* GUÍA DE ESTUDIO */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/guide`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--purple-accent)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>📖</div>
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>📖</div>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
             📖 Guía de Estudio
-            <span style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#d8b4fe', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '12px' }}>Recomendado para empezar</span>
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
-            Lee todas las preguntas y respuestas del tirón, como si fuera un documento de apuntes. Ideal para el primer contacto con el temario.
+          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+            Lee todas las preguntas y respuestas del tirón. Ideal para el primer contacto.
           </p>
         </div>
 
         {/* MODO PASEO */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/explore`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🎡</div>
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🎡</div>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
             🎡 Modo Paseo
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
-            Navega por las tarjetas libremente, sin la presión de acertar y sin afectar a las estadísticas. Solo hojea y familiarízate.
+          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+            Navega por las tarjetas libremente, sin la presión de acertar y sin afectar a las estadísticas.
+          </p>
+        </div>
+
+        {/* TEST POR BLOQUES */}
+        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+             onClick={() => navigate(`/hub/${deckId}/chunked`)}
+             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🧱</div>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+            🧱 Test por Bloques
+          </h2>
+          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+            Estudia en orden configurando bloques (10, 20...). Perfecto para asentar conocimiento paso a paso.
           </p>
         </div>
 
         {/* TEST DE OPCIONES */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🎯</div>
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🎯</div>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
             🎯 Test de Opciones
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
-            Adivina la respuesta correcta entre 4 opciones aleatorias del mismo mazo. Un escalón intermedio perfecto.
+          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+            Adivina la respuesta correcta entre 4 opciones aleatorias. Un escalón intermedio perfecto.
           </p>
         </div>
 
         {/* TUTOR IA */}
-        <div className="glass-panel" style={{ padding: '20px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.05, pointerEvents: 'none' }}>🤖</div>
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🤖</div>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
             🤖 Tutor IA
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '80%' }}>
-            Chatea con la IA sobre el temario. Hazle preguntas, pídele que te explique conceptos o que te ponga a prueba.
+          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+            Chatea con la IA sobre el temario. Resuelve tus dudas o ponte a prueba.
           </p>
         </div>
       </div>

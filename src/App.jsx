@@ -9,6 +9,7 @@ import StudyGuide from './pages/StudyGuide';
 import StudyExplore from './pages/StudyExplore';
 import StudyQuiz from './pages/StudyQuiz';
 import StudyTutor from './pages/StudyTutor';
+import StudyChunkedQuiz from './pages/StudyChunkedQuiz';
 import AddCard from './pages/AddCard';
 import Stats from './pages/Stats';
 import AuthPage from './pages/AuthPage';
@@ -73,6 +74,7 @@ function App() {
                   <Route path="/hub/:deckId/guide" element={<StudyGuide />} />
                   <Route path="/hub/:deckId/explore" element={<StudyExplore />} />
                   <Route path="/hub/:deckId/quiz" element={<StudyQuiz />} />
+                  <Route path="/hub/:deckId/chunked" element={<StudyChunkedQuiz />} />
                   <Route path="/hub/:deckId/tutor" element={<StudyTutor />} />
                   <Route path="/add" element={<AddCard />} />
                   <Route path="/add/:deckId" element={<AddCard />} />
