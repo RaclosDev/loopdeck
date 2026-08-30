@@ -2,18 +2,15 @@ import { useEffect } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
-import Mascot from './Mascot';
-import useFarmStore from '../store/useFarmStore';
 
 function Layout({ children }) {
   const { toasts, deferredPrompt, setDeferredPrompt } = useStore();
   const { user, logout } = useAuthStore();
-  const { farm, loadFarm } = useFarmStore();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) loadFarm().catch(() => {});
+    // any general user init here
   }, [user]);
 
   const isStudyPage = location.pathname.startsWith('/study');
@@ -49,7 +46,7 @@ function Layout({ children }) {
     { to: '/', icon: '📚', label: 'Mazos', end: true },
     { to: '/hub', icon: '✏️', label: 'Estudiar', end: true },
     { to: '/add', icon: '➕', label: 'Añadir', end: false },
-    { to: '/farm', icon: '🌾', label: 'Granja', end: false },
+    { to: '/farm', icon: '🌲', label: 'Granja', end: false },
     { to: '/stats', icon: '📊', label: 'Stats', end: false },
   ];
 
@@ -64,7 +61,6 @@ function Layout({ children }) {
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 'bold' }}>
             <span style={{ color: '#ff7b00' }}>🔥 {user.streak || 0}</span>
-            <span style={{ color: '#ffd700' }}>🪙 {user.points || 0}</span>
           </div>
         ) : (
           <div style={{ width: 28 }} />
@@ -84,15 +80,8 @@ function Layout({ children }) {
               
               {user && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 'bold' }}>
-                    <span style={{ fontSize: '1.2rem' }}>🌾 Niv. {farm?.level || 1}</span>
-                  </div>
-                  <div style={{ width: '120px', height: '6px', background: 'var(--border-color)', borderRadius: '3px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${Math.min(100, ((farm?.xp || 0) / ((farm?.xp || 0) + (farm?.xpToNextLevel || 50))) * 100)}%`, background: 'linear-gradient(90deg, #4ade80, #a3e635)' }} />
-                  </div>
-                  <div style={{ marginTop: '4px', display: 'flex', gap: '16px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                  <div style={{ display: 'flex', gap: '16px', fontWeight: 'bold', fontSize: '1.1rem' }}>
                     <span style={{ color: '#ff7b00', display: 'flex', alignItems: 'center', gap: '4px' }}>🔥 {user.streak || 0}</span>
-                    <span style={{ color: '#ffd700', display: 'flex', alignItems: 'center', gap: '4px' }}>🪙 {user.points || 0}</span>
                   </div>
                 </div>
               )}
@@ -130,10 +119,10 @@ function Layout({ children }) {
                 Plantillas
               </NavLink>
 
-              <NavLink to="/farm" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">🌾</span>
-                Mi Granja
-              </NavLink>
+              <NavLink to="/farm" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <span className="icon">🧑‍🌾</span>
+              <span>Mi Granja</span>
+            </NavLink>
 
               <NavLink to="/browser" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
                 <span className="link-icon">🔍</span>

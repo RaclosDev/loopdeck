@@ -1,0 +1,54 @@
+{
+  "version": 2,
+  "services": {
+    "flashforge": {
+      "source": {
+        "repo": "RaclosDev/flashforge",
+        "branch": "main"
+      },
+      "networking": {
+        "serviceDomains": {
+          "flashforge-production-7eeb.up.railway.app": {
+            "port": 8080
+          }
+        }
+      },
+      "variables": {
+        "PGHOST": "${{ loopdeck-db.PGHOST }}",
+        "PGPORT": "${{ loopdeck-db.PGPORT }}",
+        "PGUSER": "${{ loopdeck-db.PGUSER }}",
+        "PGDATABASE": "${{ loopdeck-db.PGDATABASE }}",
+        "PGPASSWORD": "${{ loopdeck-db.PGPASSWORD }}",
+        "GEMINI_API_KEY": "",
+        "SPRING_PROFILES_ACTIVE": ""
+      },
+      "deploy": {
+        "ipv6EgressEnabled": false,
+        "multiRegionConfig": {
+          "ams": {
+            "numReplicas": 1
+          }
+        }
+      }
+    },
+    "loopdeck-db": {
+      "source": {
+        "image": "ghcr.io/railwayapp-templates/postgres-ssl:18"
+      },
+      "volumeMounts": {
+        "data": {
+          "mountPath": "/var/lib/postgresql/data",
+          "sizeMB": 10240
+        }
+      },
+      "deploy": {
+        "ipv6EgressEnabled": false,
+        "multiRegionConfig": {
+          "ams": {
+            "numReplicas": 1
+          }
+        }
+      }
+    }
+  }
+}

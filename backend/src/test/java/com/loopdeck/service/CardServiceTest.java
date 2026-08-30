@@ -12,7 +12,7 @@ class CardServiceTest {
 
     @BeforeEach
     void setUp() {
-        cardService = new CardService(null, null, null);
+        cardService = new CardService(null, null, null, null);
     }
 
     @Test

@@ -19,6 +19,7 @@ public class CardService {
     private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
+    private final FarmService farmService;
 
     public record CreateNoteRequest(String deckId, String noteType, String fieldsJson, String tags) {}
     public record UpdateNoteRequest(String fieldsJson, String tags) {}
@@ -122,7 +123,12 @@ public class CardService {
                 .orElseThrow(() -> new IllegalArgumentException("Not authorized"));
 
         applySmTwo(card, req.rating());
-        return cardRepository.save(card);
+        card = cardRepository.save(card);
+        
+        // Gamification: add 1 light point per review
+        farmService.addLightPoints(userId, 1);
+        
+        return card;
     }
 
     // ── SM-2 Algorithm ────────────────────────────────────────────────────

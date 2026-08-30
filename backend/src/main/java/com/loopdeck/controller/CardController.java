@@ -1,6 +1,6 @@
 package com.loopdeck.controller;
 
-import com.loopdeck.config.FarmCropConfig;
+
 import com.loopdeck.model.Card;
 import com.loopdeck.model.Note;
 import com.loopdeck.model.User;
@@ -103,28 +103,8 @@ public class CardController {
         Card card = cardService.reviewCard(auth.getName(), cardId,
                 new CardService.ReviewRequest(body.rating(), body.timeTakenMs()));
 
-        // Award coins based on rating
-        String ratingName = switch (body.rating()) {
-            case 1 -> "again";
-            case 2 -> "hard";
-            case 3 -> "good";
-            case 4 -> "easy";
-            default -> "good";
-        };
-        int coinsEarned = FarmCropConfig.coinsForRating(ratingName);
-
-        User user = userRepository.findById(auth.getName()).orElse(null);
-        int totalCoins = 0;
-        if (user != null) {
-            totalCoins = (user.getPoints() != null ? user.getPoints() : 0) + coinsEarned;
-            user.setPoints(totalCoins);
-            userRepository.save(user);
-        }
-
         return ResponseEntity.ok(Map.of(
-            "card", card,
-            "coinsEarned", coinsEarned,
-            "totalCoins", totalCoins
+            "card", card
         ));
     }
 }

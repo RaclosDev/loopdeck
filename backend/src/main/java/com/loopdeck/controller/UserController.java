@@ -1,12 +1,8 @@
 package com.loopdeck.controller;
 
-import com.loopdeck.config.FarmCropConfig;
 import com.loopdeck.model.User;
-import com.loopdeck.model.UserFarm;
-import com.loopdeck.repository.UserFarmRepository;
 import com.loopdeck.repository.UserRepository;
 import com.loopdeck.service.AuthService;
-import com.loopdeck.service.FarmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,7 +18,6 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final AuthService authService;
-    private final UserFarmRepository userFarmRepository;
 
     @PostMapping("/daily-login")
     public ResponseEntity<AuthService.UserDto> dailyLogin(Authentication auth) {
@@ -60,15 +55,6 @@ public class UserController {
         // If lastLogin.isEqual(today), do nothing (already claimed today)
 
         userRepository.save(user);
-
-        // Award farm XP for daily login (5 XP)
-        if (lastLogin == null || !lastLogin.isEqual(today)) {
-            userFarmRepository.findByUserId(auth.getName()).ifPresent(farm -> {
-                farm.setFarmXp(farm.getFarmXp() + 5);
-                farm.setFarmLevel(FarmCropConfig.levelForXp(farm.getFarmXp()));
-                userFarmRepository.save(farm);
-            });
-        }
 
         return ResponseEntity.ok(authService.me(user.getId()));
     }

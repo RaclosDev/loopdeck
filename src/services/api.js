@@ -144,15 +144,9 @@ export const usersApi = {
 
 export const farmApi = {
   getFarm: () => request('/farm'),
-  plant: (plotIndex, cropId) => request('/farm/plant', { method: 'POST', body: JSON.stringify({ plotIndex, cropId }) }),
-  harvest: (plotIndex) => request('/farm/harvest', { method: 'POST', body: JSON.stringify({ plotIndex }) }),
-  harvestAll: () => request('/farm/harvest-all', { method: 'POST' }),
-  buyPlot: () => request('/farm/buy-plot', { method: 'POST' }),
-  buyItem: (itemId, quantity = 1) => request('/farm/buy-item', { method: 'POST', body: JSON.stringify({ itemId, quantity }) }),
-  useItem: (itemId, plotIndex = null) => request('/farm/use-item', { method: 'POST', body: JSON.stringify({ itemId, plotIndex }) }),
-  buyTool: (toolId) => request('/farm/buy-tool', { method: 'POST', body: JSON.stringify({ toolId }) }),
-  buyDecoration: (decorationId) => request('/farm/buy-decoration', { method: 'POST', body: JSON.stringify({ decorationId }) }),
-  getShop: () => request('/farm/shop'),
-  clearPlot: (plotIndex) => request('/farm/clear-plot', { method: 'POST', body: JSON.stringify({ plotIndex }) }),
+  getAvailableCrops: () => request('/farm/available-crops'),
+  plant: (plotIndex, cropId) => request('/farm/plant', {
+    method: 'POST',
+    body: JSON.stringify({ plotIndex, cropId }),
+  }),
 };
-

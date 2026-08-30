@@ -3,13 +3,12 @@ package com.loopdeck.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user_farms")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class UserFarm {
 
     @Id
@@ -19,21 +18,27 @@ public class UserFarm {
     @Column(name = "user_id", unique = true, nullable = false)
     private String userId;
 
-    @Column(name = "farm_level", nullable = false)
-    private Integer farmLevel = 1;
+    @Builder.Default
+    @Column(name = "light_points", nullable = false)
+    private Integer lightPoints = 0;
 
-    @Column(name = "farm_xp", nullable = false)
-    private Integer farmXp = 0;
+    @Builder.Default
+    @Column(name = "pending_seeds", nullable = false)
+    private Integer pendingSeeds = 1;
 
+    @Builder.Default
     @Column(name = "total_plots_unlocked", nullable = false)
-    private Integer totalPlotsUnlocked = 2;
+    private Integer totalPlotsUnlocked = 3;
 
-    @Column(name = "owned_tools", columnDefinition = "text")
-    private String ownedTools = "";
+    @Builder.Default
+    @Column(name = "last_visit", nullable = false)
+    private Instant lastVisit = Instant.now();
 
-    @Column(name = "owned_decorations", columnDefinition = "text")
-    private String ownedDecorations = "";
+    @Builder.Default
+    @OneToMany(mappedBy = "farm", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FarmPlot> plots = new ArrayList<>();
 
-    @Column(name = "last_visit")
-    private Instant lastVisit;
+    @Builder.Default
+    @OneToMany(mappedBy = "farm", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FarmUnlock> unlocks = new ArrayList<>();
 }
