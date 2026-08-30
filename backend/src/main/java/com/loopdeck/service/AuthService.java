@@ -29,6 +29,7 @@ public class AuthService {
     private final NoteRepository noteRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final FarmService farmService;
 
     @Value("${google.client.id:}")
     private String googleClientId;
@@ -48,6 +49,7 @@ public class AuthService {
                 .passwordHash(passwordEncoder.encode(req.password()))
                 .build();
         userRepository.save(user);
+        farmService.createFarmForUser(user.getId());
         String token = jwtUtil.generateToken(user.getId(), user.getEmail());
         return new AuthResponse(token, toDto(user));
     }
@@ -94,6 +96,7 @@ public class AuthService {
                         .googleId(googleId)
                         .build();
                 userRepository.save(user);
+                farmService.createFarmForUser(user.getId());
             } else if (user.getGoogleId() == null) {
                 // Vincular cuenta existente con Google
                 user.setGoogleId(googleId);

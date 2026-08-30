@@ -673,6 +673,25 @@ textarea.glass-input {
   flex-direction: column;
 }
 
+.coin-float-indicator {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #ffd700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 100;
+  animation: coinFloatUp 1.4s ease-out forwards;
+}
+
+@keyframes coinFloatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { opacity: 1; transform: translateY(-20px) scale(1.15); }
+  100% { opacity: 0; transform: translateY(-50px) scale(0.9); }
+}
+
 .study-header {
   display: flex;
   justify-content: space-between;

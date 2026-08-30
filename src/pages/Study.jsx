@@ -4,6 +4,7 @@ import { marked } from 'marked';
 import FlashCard from '../components/FlashCard';
 import RatingButtons from '../components/RatingButtons';
 import useStore from '../store/useStore';
+import useAuthStore from '../store/useAuthStore';
 import { decksApi, studyApi, notesApi } from '../services/api';
 
 // Helper: compute SM-2 interval labels for buttons (client-side preview only)
@@ -52,17 +53,19 @@ function Study() {
   const { deckId } = useParams();
   const navigate = useNavigate();
   const { addToast, settings } = useStore();
+  const { updateUser, user } = useAuthStore();
 
   const [deck, setDeck] = useState(null);
   const [queue, setQueue] = useState([]); // array of {card, note}
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [counts, setCounts] = useState({ new: 0, learning: 0, review: 0 });
-  const [sessionStats, setSessionStats] = useState({ reviewed: 0, correct: 0, startTime: Date.now() });
+  const [sessionStats, setSessionStats] = useState({ reviewed: 0, correct: 0, startTime: Date.now(), coinsEarned: 0 });
   const [undoStack, setUndoStack] = useState([]); // { card, noteFields }
   const [isComplete, setIsComplete] = useState(false);
   const [loading, setLoading] = useState(true);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [coinFloat, setCoinFloat] = useState(null); // { amount, key }
 
   useEffect(() => {
     if (!settings?.showTimer || isComplete) return;
@@ -211,7 +214,15 @@ function Study() {
     // Fire-and-forget: send review to backend
     try {
       const timeTakenMs = Date.now() - startMs;
-      await studyApi.reviewCard(card.id, { rating, timeTakenMs });
+      const result = await studyApi.reviewCard(card.id, { rating, timeTakenMs });
+      // Show coin reward
+      if (result && result.coinsEarned) {
+        setCoinFloat({ amount: result.coinsEarned, key: Date.now() });
+        setSessionStats(prev => ({ ...prev, coinsEarned: prev.coinsEarned + result.coinsEarned }));
+        if (user) updateUser({ ...user, points: result.totalCoins });
+        // Auto-hide after animation
+        setTimeout(() => setCoinFloat(null), 1500);
+      }
     } catch (e) {
       addToast('Error guardando revisión: ' + e.message, 'error');
     }
@@ -281,6 +292,10 @@ function Study() {
               <div className="session-stat-value">{minutes}:{seconds.toString().padStart(2, '0')}</div>
               <div className="session-stat-label">Tiempo</div>
             </div>
+            <div className="session-stat">
+              <div className="session-stat-value" style={{ color: '#ffd700' }}>🪙 {sessionStats.coinsEarned}</div>
+              <div className="session-stat-label">Monedas</div>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="primary-btn" onClick={() => navigate('/')}>← Volver a Mazos</button>
@@ -305,7 +320,13 @@ function Study() {
   }
 
   return (
-    <div className="study-container animate-fade-in">
+    <div className="study-container animate-fade-in" style={{ position: 'relative' }}>
+      {/* Coin float indicator */}
+      {coinFloat && (
+        <div key={coinFloat.key} className="coin-float-indicator">
+          +{coinFloat.amount} 🪙
+        </div>
+      )}
       {/* Header */}
       <div className="study-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

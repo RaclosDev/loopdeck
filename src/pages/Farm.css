@@ -1,0 +1,603 @@
+/* ═══════════════════════════════════════════════════════════════
+   LoopDeck Farm — Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+.farm-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.farm-header {
+  margin-bottom: 24px;
+}
+
+.farm-header__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.farm-header__top h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.farm-header__stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.farm-header__level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.farm-header__level-badge {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.farm-header__xp-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.farm-header__xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #a3e635);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.farm-header__xp-text {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.farm-header__coins {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffd700;
+  background: var(--panel-bg);
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────── */
+.farm-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--panel-bg);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.farm-tab {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.farm-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.farm-tab--active {
+  background: var(--accent-color);
+  color: #fff;
+  font-weight: 600;
+}
+
+.farm-tab__badge {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+/* ── Plot Grid ────────────────────────────────────────────────── */
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+  .farm-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+/* ── Plot Card ────────────────────────────────────────────────── */
+.farm-plot {
+  aspect-ratio: 1;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--border-color);
+  background: var(--panel-bg);
+}
+
+.farm-plot:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.farm-plot__icon {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.farm-plot__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.farm-plot__sublabel {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.farm-plot__price {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ffd700;
+}
+
+.farm-plot__sell {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #4ade80;
+}
+
+.farm-plot__time {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+/* Empty */
+.farm-plot--empty {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(139, 90, 43, 0.08);
+}
+
+.farm-plot--empty:hover {
+  border-color: var(--accent-color);
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.farm-plot__add {
+  font-size: 2.5rem !important;
+  color: var(--text-dim);
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.farm-plot--empty:hover .farm-plot__add {
+  opacity: 1;
+  color: var(--accent-color);
+}
+
+/* Locked */
+.farm-plot--locked {
+  opacity: 0.5;
+  cursor: default;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.farm-plot--locked.farm-plot--buyable {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.farm-plot--locked.farm-plot--buyable:hover {
+  opacity: 1;
+  border-color: #ffd700;
+}
+
+/* Growing */
+.farm-plot--growing {
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.06), rgba(74, 222, 128, 0.02));
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+.farm-plot__progress-bar {
+  width: 80%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.farm-plot__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4ade80, #a3e635);
+  border-radius: 3px;
+  transition: width 1s linear;
+}
+
+.farm-plot__badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 0.8rem;
+}
+
+.farm-plot__badge--gold {
+  left: 6px;
+  right: auto;
+}
+
+/* Ready */
+.farm-plot--ready {
+  border-color: #ffd700;
+  background: linear-gradient(180deg, rgba(255, 215, 0, 0.08), rgba(255, 215, 0, 0.02));
+  animation: readyPulse 2s ease-in-out infinite alternate;
+}
+
+.farm-plot__ready-glow {
+  animation: readyBounce 1s ease-in-out infinite alternate;
+}
+
+@keyframes readyPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+  100% { box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.15); }
+}
+
+@keyframes readyBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+/* Wilting */
+.farm-plot--wilting {
+  border-color: #f97316;
+  background: linear-gradient(180deg, rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.02));
+}
+
+.farm-plot__wilting-icon {
+  filter: saturate(0.4) brightness(0.8);
+}
+
+/* Dead */
+.farm-plot--dead {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+  opacity: 0.7;
+}
+
+/* ── Modals ────────────────────────────────────────────────────── */
+.farm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.farm-modal {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+.farm-modal--sm {
+  max-width: 360px;
+}
+
+.farm-modal h2 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.farm-modal__content {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.farm-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.farm-modal__progress {
+  margin: 16px 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Crop Selector ─────────────────────────────────────────────── */
+.crop-tier-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 0 6px;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 6px;
+}
+
+.crop-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  color: var(--text-color);
+}
+
+.crop-option:hover:not(.crop-option--disabled):not(.crop-option--locked) {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--accent-color);
+}
+
+.crop-option--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.crop-option--locked {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.crop-option__emoji {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.crop-option__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.crop-option__name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.crop-option__meta {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.crop-option__profit {
+  color: #4ade80;
+  font-weight: 600;
+}
+
+/* ── Shop ──────────────────────────────────────────────────────── */
+.farm-shop {
+  margin-top: 24px;
+}
+
+.farm-shop__tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.farm-shop__tab {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: var(--panel-bg);
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border-color);
+}
+
+.farm-shop__tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.farm-shop__tab.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+.farm-shop__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.farm-shop__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.farm-shop__item:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.farm-shop__item--owned {
+  opacity: 0.7;
+}
+
+.farm-shop__item-emoji {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.farm-shop__item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.farm-shop__item-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.farm-shop__item-desc {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.farm-shop__buy-btn {
+  padding: 6px 14px !important;
+  font-size: 0.82rem !important;
+  white-space: nowrap;
+  border-radius: 20px !important;
+}
+
+.farm-shop__owned-badge {
+  font-size: 0.82rem;
+  color: #4ade80;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Inventory ─────────────────────────────────────────────────── */
+.farm-inventory-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+
+.farm-inventory__qty {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── Harvest All Button ────────────────────────────────────────── */
+.farm-harvest-all-btn {
+  display: block;
+  margin: 20px auto 0;
+  padding: 12px 32px !important;
+  font-size: 1rem !important;
+  border-radius: 24px !important;
+  animation: readyPulse 2s ease-in-out infinite alternate;
+}
+. f a r m - e n v i r o n m e n t   { 
+     p o s i t i o n :   r e l a t i v e ; 
+     p a d d i n g :   3 0 p x   1 0 p x ; 
+     b o r d e r - r a d i u s :   2 0 p x ; 
+ } 
+ . f a r m - e n v - - f e n c e d   { 
+     b o r d e r :   4 p x   s o l i d   # 8 B 5 A 2 B ; 
+     b a c k g r o u n d :   r g b a ( 1 3 9 ,   9 0 ,   4 3 ,   0 . 0 5 ) ; 
+ } 
+ . f a r m - e n v _ _ t o p - d e c o s ,   . f a r m - e n v _ _ b o t t o m - d e c o s   { 
+     d i s p l a y :   f l e x ; 
+     j u s t i f y - c o n t e n t :   s p a c e - a r o u n d ; 
+     f o n t - s i z e :   2 . 5 r e m ; 
+     m a r g i n - b o t t o m :   - 1 5 p x ; 
+     z - i n d e x :   2 ; 
+     p o s i t i o n :   r e l a t i v e ; 
+ } 
+ . f a r m - e n v _ _ b o t t o m - d e c o s   { 
+     m a r g i n - t o p :   1 0 p x ; 
+     m a r g i n - b o t t o m :   0 ; 
+ } 
+ . f a r m - d e c o - - p a t h   { 
+     w i d t h :   1 0 0 % ; 
+     h e i g h t :   2 0 p x ; 
+     b a c k g r o u n d :   r e p e a t i n g - l i n e a r - g r a d i e n t ( 9 0 d e g ,   # a a a ,   # a a a   2 0 p x ,   # 8 8 8   2 0 p x ,   # 8 8 8   4 0 p x ) ; 
+     b o r d e r - r a d i u s :   1 0 p x ; 
+ } 
+ . f l o a t i n g - c o i n   { 
+     p o s i t i o n :   f i x e d ; 
+     f o n t - s i z e :   1 . 5 r e m ; 
+     p o i n t e r - e v e n t s :   n o n e ; 
+     z - i n d e x :   9 9 9 9 ; 
+     a n i m a t i o n :   f l o a t U p   1 s   e a s e - o u t   f o r w a r d s ; 
+ } 
+ @ k e y f r a m e s   f l o a t U p   { 
+     0 %   {   t r a n s f o r m :   t r a n s l a t e Y ( 0 )   s c a l e ( 1 ) ;   o p a c i t y :   1 ;   } 
+     1 0 0 %   {   t r a n s f o r m :   t r a n s l a t e Y ( - 1 0 0 p x )   s c a l e ( 1 . 5 ) ;   o p a c i t y :   0 ;   } 
+ } 
+  
+ 

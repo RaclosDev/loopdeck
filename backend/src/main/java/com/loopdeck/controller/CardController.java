@@ -1,7 +1,10 @@
 package com.loopdeck.controller;
 
+import com.loopdeck.config.FarmCropConfig;
 import com.loopdeck.model.Card;
 import com.loopdeck.model.Note;
+import com.loopdeck.model.User;
+import com.loopdeck.repository.UserRepository;
 import com.loopdeck.service.CardService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -11,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -18,6 +22,7 @@ import java.util.List;
 public class CardController {
 
     private final CardService cardService;
+    private final UserRepository userRepository;
 
     public record CreateNoteBody(
         @NotBlank String deckId,
@@ -92,11 +97,34 @@ public class CardController {
     }
 
     @PostMapping("/cards/{cardId}/review")
-    public ResponseEntity<Card> review(Authentication auth,
+    public ResponseEntity<Map<String, Object>> review(Authentication auth,
                                        @PathVariable String cardId,
                                        @RequestBody ReviewBody body) {
         Card card = cardService.reviewCard(auth.getName(), cardId,
                 new CardService.ReviewRequest(body.rating(), body.timeTakenMs()));
-        return ResponseEntity.ok(card);
+
+        // Award coins based on rating
+        String ratingName = switch (body.rating()) {
+            case 1 -> "again";
+            case 2 -> "hard";
+            case 3 -> "good";
+            case 4 -> "easy";
+            default -> "good";
+        };
+        int coinsEarned = FarmCropConfig.coinsForRating(ratingName);
+
+        User user = userRepository.findById(auth.getName()).orElse(null);
+        int totalCoins = 0;
+        if (user != null) {
+            totalCoins = (user.getPoints() != null ? user.getPoints() : 0) + coinsEarned;
+            user.setPoints(totalCoins);
+            userRepository.save(user);
+        }
+
+        return ResponseEntity.ok(Map.of(
+            "card", card,
+            "coinsEarned", coinsEarned,
+            "totalCoins", totalCoins
+        ));
     }
 }
