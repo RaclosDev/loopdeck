@@ -141,12 +141,3 @@ export default {
 export const usersApi = {
   dailyLogin: () => request('/users/daily-login', { method: 'POST' }),
 };
-
-export const farmApi = {
-  getFarm: () => request('/farm'),
-  getAvailableCrops: () => request('/farm/available-crops'),
-  plant: (plotIndex, cropId) => request('/farm/plant', {
-    method: 'POST',
-    body: JSON.stringify({ plotIndex, cropId }),
-  }),
-};
