@@ -83,19 +83,19 @@ export default function Stats() {
       ) : (
         <>
           <div className="kpi-grid" style={{ marginBottom: 24 }}>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalDecks}</div>
               <div className="kpi-label">MAZOS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalNotes}</div>
               <div className="kpi-label">NOTAS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalCards}</div>
               <div className="kpi-label">TARJETAS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{(stats.avgEase * 100).toFixed(0)}%</div>
               <div className="kpi-label">EASE</div>
             </div>
@@ -125,15 +125,15 @@ export default function Stats() {
           </div>
 
           <div className="kpi-grid">
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.mature}</div>
               <div className="kpi-label">MADURAS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalLapses}</div>
               <div className="kpi-label">LAPSOS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'transparent', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
               <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.suspended}</div>
               <div className="kpi-label">SUSPENDIDAS</div>
             </div>
@@ -143,6 +143,7 @@ export default function Stats() {
     </div>
   );
 }
+
 
 
 
