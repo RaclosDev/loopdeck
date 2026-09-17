@@ -42,7 +42,7 @@ export const compressImageFromPaste = (file: File, maxWidth = 800, quality = 0.7
  * Handles paste event on a contenteditable element to compress images.
  */
 export const handleImagePaste = async (e: React.ClipboardEvent<HTMLDivElement> | ClipboardEvent, onImageInsert?: () => void) => {
-  const clipboardData = (e as React.ClipboardEvent<HTMLDivElement>).clipboardData || (e as any).originalEvent?.clipboardData || (e as ClipboardEvent).clipboardData;
+  const clipboardData = (e as React.ClipboardEvent<HTMLDivElement>).clipboardData || ('originalEvent' in e && (e as unknown as { originalEvent: { clipboardData: DataTransfer } }).originalEvent?.clipboardData) || (e as ClipboardEvent).clipboardData;
   if (!clipboardData) return;
   const items = clipboardData.items;
 

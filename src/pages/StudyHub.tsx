@@ -71,8 +71,8 @@ function StudyHub() {
       await decksApi.uploadDocument(deckId!, file);
       setHasDocument(true);
       addToast('Documento vinculado correctamente', 'success');
-    } catch(err: any) {
-      addToast('Error subiendo documento: ' + err.message, 'error');
+    } catch (err: unknown) {
+      addToast(err instanceof Error ? err.message : 'Error cargando datos', 'error');
     } finally {
       setUploadingDoc(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

@@ -4,6 +4,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+export interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export interface ToastMessage {
   id: string;
   message: string;
@@ -32,13 +37,14 @@ export interface StoreState {
 
   // ── Modal State ─────────────────────────────────────────────
   activeModal: string | null;
-  modalData: any;
-  openModal: (name: string, data?: any) => void;
+  // unknown ya que el payload depende del modal específico
+  modalData: unknown;
+  openModal: (name: string, data?: unknown) => void;
   closeModal: () => void;
 
   // ── PWA Install State ───────────────────────────────────────
-  deferredPrompt: any | null;
-  setDeferredPrompt: (prompt: any) => void;
+  deferredPrompt: BeforeInstallPromptEvent | null;
+  setDeferredPrompt: (prompt: BeforeInstallPromptEvent | null) => void;
 
   // ── Settings ────────────────────────────────────────────────
   settings: Settings;
@@ -70,12 +76,12 @@ const useStore = create<StoreState>()(
       // ── Modal State ─────────────────────────────────────────────
       activeModal: null,
       modalData: null,
-      openModal: (name: string, data: any = null) => set({ activeModal: name, modalData: data }),
+      openModal: (name: string, data: unknown = null) => set({ activeModal: name, modalData: data }),
       closeModal: () => set({ activeModal: null, modalData: null }),
 
       // ── PWA Install State ───────────────────────────────────────
       deferredPrompt: null,
-      setDeferredPrompt: (prompt: any) => set({ deferredPrompt: prompt }),
+      setDeferredPrompt: (prompt: BeforeInstallPromptEvent | null) => set({ deferredPrompt: prompt }),
 
       // ── Settings ────────────────────────────────────────────────
       settings: {

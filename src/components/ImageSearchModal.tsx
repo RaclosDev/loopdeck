@@ -7,40 +7,55 @@ interface ImageSearchModalProps {
   initialQuery?: string;
 }
 
+export interface ImageResult {
+  url: string;
+  thumbnail: string;
+  title: string;
+}
+
+interface WikimediaPage {
+  title: string;
+  imageinfo?: { url: string; thumburl?: string; descriptionurl?: string }[];
+}
+
 export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQuery = '' }: ImageSearchModalProps) {
   const [query, setQuery] = useState<string>('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<ImageResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const performSearch = useCallback(async (searchQuery: string) => {
+  const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
 
     setLoading(true);
     setError(null);
     try {
-      const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(searchQuery)}&gsrlimit=30&prop=imageinfo&iiprop=url&iiurlwidth=600&format=json&origin=*`;
-      const response = await fetch(url);
-      const data = await response.json();
+      const url = `https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url|size|mime&generator=search&gsrsearch=filetype:bitmap|drawing ${encodeURIComponent(searchQuery)}&gsrlimit=20&format=json&origin=*`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('API Error');
+      const data = await res.json();
       
-      const pages = data.query?.pages || {};
-      const images = Object.values(pages)
-        .filter((page: any) => page.imageinfo && page.imageinfo.length > 0)
-        .map((page: any) => {
-          const info = page.imageinfo[0];
-          const cleanTitle = page.title.replace(/^File:/, '').replace(/\.\w+$/, '');
-          return {
-            url: info.thumburl,
-            title: cleanTitle,
-            width: info.thumbwidth,
-            height: info.thumbheight,
-          };
-        })
-        .filter(img => img.width >= 100);
+      if (data.query && data.query.pages) {
+        const pages = data.query.pages as Record<string, WikimediaPage>;
+        const images: ImageResult[] = Object.values(pages)
+          .filter((page: WikimediaPage) => page.imageinfo && page.imageinfo.length > 0)
+          .map((page: WikimediaPage) => {
+            const info = page.imageinfo![0];
+            const cleanTitle = page.title.replace(/^File:/, '').replace(/\.\w+$/, '');
+            return {
+              url: info.url,
+              thumbnail: info.thumburl || info.url,
+              title: cleanTitle
+            };
+          });
 
-      setResults(images);
-      if (images.length === 0) {
+        setResults(images);
+        if (images.length === 0) {
+          setError('No se encontraron imágenes para esta búsqueda.');
+        }
+      } else {
+        setResults([]);
         setError('No se encontraron imágenes para esta búsqueda.');
       }
     } catch {
@@ -55,7 +70,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
       document.body.style.overflow = 'hidden';
       if (initialQuery) {
         setQuery(initialQuery);
-        performSearch(initialQuery);
+        handleSearch(initialQuery);
       } else {
         setTimeout(() => inputRef.current?.focus(), 100);
       }
@@ -68,11 +83,11 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen, initialQuery, performSearch]);
+  }, [isOpen, initialQuery, handleSearch]);
 
   const searchImages = (e: React.FormEvent) => {
     e.preventDefault();
-    performSearch(query);
+    handleSearch(query);
   };
 
   if (!isOpen) return null;

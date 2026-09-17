@@ -18,7 +18,7 @@ import Browser from './pages/Browser';
 import Settings from './pages/Settings';
 import Templates from './pages/Templates';
 import useAuthStore from './store/useAuthStore';
-import useStore from './store/useStore';
+import useStore, { BeforeInstallPromptEvent } from './store/useStore';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -56,7 +56,7 @@ function App() {
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as unknown as BeforeInstallPromptEvent);
     };
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);

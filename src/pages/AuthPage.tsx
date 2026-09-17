@@ -3,7 +3,15 @@ import useAuthStore from '../store/useAuthStore';
 
 declare global {
   interface Window {
-    google: any;
+    google: {
+      accounts: {
+        id: {
+          initialize: (config: { client_id: string; callback: (r: { credential: string }) => void }) => void;
+          renderButton: (el: HTMLElement, config: { theme: string; size: string; width?: number; text?: string; shape?: string; logo_alignment?: string }) => void;
+          prompt: () => void;
+        };
+      };
+    };
   }
 }
 
@@ -61,13 +69,13 @@ export default function AuthPage() {
     }
   }, [googleClientId, mode]);
 
-  const handleGoogleResponse = async (response: any) => {
+  const handleGoogleResponse = async (response: { credential: string }) => {
     setError('');
     setLoading(true);
     try {
       await googleLogin(response.credential);
-    } catch (err: any) {
-      setError(err.message || 'Error con Google login');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error');
     } finally {
       setLoading(false);
     }
@@ -83,8 +91,8 @@ export default function AuthPage() {
         if (form.name.trim().length < 2) throw new Error('El nombre debe tener al menos 2 caracteres');
         await register(form.email, form.name, form.password);
       }
-    } catch (err: any) {
-      setError(err.message || 'Error en auth');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error en auth');
     } finally {
       setLoading(false);
     }

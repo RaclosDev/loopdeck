@@ -7,7 +7,7 @@ import { Deck, Note } from '../types';
 interface ParsedFields {
   front?: string;
   back?: string;
-  [key: string]: any;
+  [key: string]: string | undefined;
 }
 
 interface BrowserNote extends Note {

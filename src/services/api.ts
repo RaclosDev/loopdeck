@@ -36,12 +36,12 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T | null> {
   const url = `${API_BASE}${endpoint}`;
   const config: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers || {}),
     },
     ...options,
   };
@@ -68,41 +68,41 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   }
 
   if (!response.ok) {
-    let data: any = {};
+    let data: Record<string, unknown> = {};
     try {
       const text = await response.text();
       if (text) data = JSON.parse(text);
     } catch {}
     throw new ApiError(
-      data.error || data.message || `HTTP ${response.status}`,
+      (data.error as string) || (data.message as string) || `HTTP ${response.status}`,
       response.status,
       data
     );
   }
 
   // Handle 204 No Content
-  if (response.status === 204) return null as any;
+  if (response.status === 204) return null;
 
   // Safely handle empty response bodies (e.g. 200 OK with no body)
   const text = await response.text();
-  if (!text) return null as any;
+  if (!text) return null;
   return JSON.parse(text);
 }
 
 // ── Auth ──────────────────────────────────────────────────────
 
 export const authApi = {
-  me: (): Promise<UserDto> => request<UserDto>('/auth/me'),
-  googleLogin: (credential: string): Promise<AuthResponse> => request<AuthResponse>('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) }),
+  me: (): Promise<UserDto> => request<UserDto>('/auth/me') as Promise<UserDto>,
+  googleLogin: (credential: string): Promise<AuthResponse> => request<AuthResponse>('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) }) as Promise<AuthResponse>,
 };
 
 // ── Decks ─────────────────────────────────────────────────────
 
 export const decksApi = {
-  getAll: (): Promise<Deck[]> => request<Deck[]>('/decks'),
-  create: (data: DeckCreateBody): Promise<Deck> => request<Deck>('/decks', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: string, data: DeckUpdateBody): Promise<Deck> => request<Deck>(`/decks/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: string): Promise<void> => request<void>(`/decks/${id}`, { method: 'DELETE' }),
+  getAll: (): Promise<Deck[]> => request<Deck[]>('/decks') as Promise<Deck[]>,
+  create: (data: DeckCreateBody): Promise<Deck> => request<Deck>('/decks', { method: 'POST', body: JSON.stringify(data) }) as Promise<Deck>,
+  update: (id: string, data: DeckUpdateBody): Promise<Deck> => request<Deck>(`/decks/${id}`, { method: 'PUT', body: JSON.stringify(data) }) as Promise<Deck>,
+  delete: (id: string): Promise<void> => request<void>(`/decks/${id}`, { method: 'DELETE' }) as Promise<void>,
   uploadDocument: async (id: string, file: File): Promise<Response> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -116,44 +116,44 @@ export const decksApi = {
     if (!res.ok) throw new Error('Error al subir el archivo');
     return res;
   },
-  hasDocument: (id: string): Promise<{ hasDocument: boolean }> => request<{ hasDocument: boolean }>(`/decks/${id}/document/info`),
+  hasDocument: (id: string): Promise<{ hasDocument: boolean }> => request<{ hasDocument: boolean }>(`/decks/${id}/document/info`) as Promise<{ hasDocument: boolean }>,
   getDocumentUrl: (id: string): string => `${API_BASE}/decks/${id}/document?token=${localStorage.getItem('loopdeck_token')}`
 };
 
 // ── Notes ─────────────────────────────────────────────────────
 
 export const notesApi = {
-  getByDeck: (deckId: string): Promise<Note[]> => request<Note[]>(`/decks/${deckId}/notes`),
-  create: (data: NoteCreateBody): Promise<Note> => request<Note>('/notes', { method: 'POST', body: JSON.stringify(data) }),
-  update: (id: string, data: NoteUpdateBody): Promise<Note> => request<Note>(`/notes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-  delete: (id: string): Promise<void> => request<void>(`/notes/${id}`, { method: 'DELETE' }),
-  importBulk: (deckId: string, dataList: ImportNoteBody[]): Promise<void> => request<void>(`/decks/${deckId}/import`, { method: 'POST', body: JSON.stringify(dataList) }),
+  getByDeck: (deckId: string): Promise<Note[]> => request<Note[]>(`/decks/${deckId}/notes`) as Promise<Note[]>,
+  create: (data: NoteCreateBody): Promise<Note> => request<Note>('/notes', { method: 'POST', body: JSON.stringify(data) }) as Promise<Note>,
+  update: (id: string, data: NoteUpdateBody): Promise<Note> => request<Note>(`/notes/${id}`, { method: 'PUT', body: JSON.stringify(data) }) as Promise<Note>,
+  delete: (id: string): Promise<void> => request<void>(`/notes/${id}`, { method: 'DELETE' }) as Promise<void>,
+  importBulk: (deckId: string, dataList: ImportNoteBody[]): Promise<void> => request<void>(`/decks/${deckId}/import`, { method: 'POST', body: JSON.stringify(dataList) }) as Promise<void>,
 };
 
 // ── Study ─────────────────────────────────────────────────────
 
 export const studyApi = {
-  getDueCards: (deckId: string, limit: number = 20): Promise<DueCardDto[]> => request<DueCardDto[]>(`/decks/${deckId}/study?limit=${limit}`),
+  getDueCards: (deckId: string, limit: number = 20): Promise<DueCardDto[]> => request<DueCardDto[]>(`/decks/${deckId}/study?limit=${limit}`) as Promise<DueCardDto[]>,
   reviewCard: (cardId: string, data: ReviewBody): Promise<{ card: Card }> => request<{ card: Card }>(`/cards/${cardId}/review`, {
     method: 'POST',
     body: JSON.stringify(data),
-  }),
+  }) as Promise<{ card: Card }>,
 };
 
 // ── Templates ─────────────────────────────────────────────────
 
 export const templatesApi = {
-  getAll: (): Promise<TemplateDeck[]> => request<TemplateDeck[]>('/templates'),
-  import: (type: string): Promise<Deck> => request<Deck>(`/templates/import?type=${type}`, { method: 'POST' }),
+  getAll: (): Promise<TemplateDeck[]> => request<TemplateDeck[]>('/templates') as Promise<TemplateDeck[]>,
+  import: (type: string): Promise<Deck> => request<Deck>(`/templates/import?type=${type}`, { method: 'POST' }) as Promise<Deck>,
 };
 
 export const aiApi = {
-  chat: (prompt: string, context?: string): Promise<AiChatResponse> => request<AiChatResponse>('/ai/chat', { method: 'POST', body: JSON.stringify({ prompt, context } as AiChatPayload) }),
-  massDefine: (words: string): Promise<string> => request<string>('/ai/mass-define', { method: 'POST', body: JSON.stringify({ words } as AiMassDefinePayload) })
+  chat: (prompt: string, context?: string): Promise<AiChatResponse> => request<AiChatResponse>('/ai/chat', { method: 'POST', body: JSON.stringify({ prompt, context } as AiChatPayload) }) as Promise<AiChatResponse>,
+  massDefine: (words: string): Promise<string> => request<string>('/ai/mass-define', { method: 'POST', body: JSON.stringify({ words } as AiMassDefinePayload) }) as Promise<string>
 };
 
 export const usersApi = {
-  dailyLogin: (): Promise<UserDto> => request<UserDto>('/users/daily-login', { method: 'POST' }),
+  dailyLogin: (): Promise<UserDto> => request<UserDto>('/users/daily-login', { method: 'POST' }) as Promise<UserDto>,
 };
 
 export default {
@@ -165,3 +165,5 @@ export default {
   ai: aiApi,
   users: usersApi,
 };
+
+

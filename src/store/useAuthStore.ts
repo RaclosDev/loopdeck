@@ -7,23 +7,25 @@ import { UserDto, AuthResponse } from '../types';
 
 const API_BASE = '/api';
 
-async function authRequest<T>(endpoint: string, body: Record<string, any>): Promise<T> {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
+async function authRequest<T>(endpoint: string, body: Record<string, unknown>): Promise<T> {
+  const url = `${API_BASE}${endpoint}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  
-  const text = await res.text();
-  let data: any;
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch (e) {
-    throw new Error(`Server returned HTTP ${res.status}: ${text.substring(0, 50)}`);
+
+  if (!response.ok) {
+    let data: Record<string, unknown> = {};
+    try {
+      const text = await response.text();
+      if (text) data = JSON.parse(text);
+    } catch {}
+    throw new Error((data.error as string) || (data.message as string) || `HTTP ${response.status}`);
   }
-  
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status} Error`);
-  return data;
+
+  const text = await response.text();
+  return JSON.parse(text);
 }
 
 export interface AuthStoreState {

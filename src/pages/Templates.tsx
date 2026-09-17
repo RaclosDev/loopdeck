@@ -52,7 +52,7 @@ export default function Templates() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-          {templates.map((template: any) => (
+          {templates.map((template) => (
             <div key={template.id} className="card" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{template.icon} {template.name}</h3>

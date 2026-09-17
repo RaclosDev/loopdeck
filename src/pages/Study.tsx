@@ -5,7 +5,6 @@ import { ArrowLeft, Undo2, Eye, Timer, CheckCircle2 } from 'lucide-react';
 import FlashCard from '../components/FlashCard';
 import RatingButtons from '../components/RatingButtons';
 import useStore from '../store/useStore';
-import useAuthStore from '../store/useAuthStore';
 import { studyApi, decksApi } from '../services/api';
 import { Deck, DueCardDto, Card } from '../types';
 
@@ -52,7 +51,6 @@ export default function Study() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast, settings } = useStore();
-  const { updateUser, user } = useAuthStore();
   
   const [deck, setDeck] = useState<Deck | null>(null);
   const [queue, setQueue] = useState<DueCardDto[]>([]);
@@ -63,9 +61,8 @@ export default function Study() {
   const [isComplete, setIsComplete] = useState(false);
   
   const [counts, setCounts] = useState({ new: 0, learning: 0, review: 0 });
-  const [sessionStats, setSessionStats] = useState({ reviewed: 0, correct: 0, startTime: Date.now(), coinsEarned: 0 });
+  const [sessionStats, setSessionStats] = useState({ reviewed: 0, correct: 0, startTime: Date.now() });
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [coinFloat, setCoinFloat] = useState<{ amount: number, key: number } | null>(null);
   const [startMs, setStartMs] = useState(Date.now());
 
   useEffect(() => {
@@ -203,17 +200,7 @@ export default function Study() {
 
     try {
       const timeTakenMs = Date.now() - startMs;
-      const result = await studyApi.reviewCard(card.id, { rating, timeTakenMs });
-      // The backend returns a map that could include coinsEarned and totalCoins if we added gamification,
-      // but reviewCard returns { card: Card }, so result.coinsEarned doesn't exist on it directly.
-      // Assuming it does through 'any' for now since the UI expects it.
-      const resAny = result as any;
-      if (resAny && resAny.coinsEarned) {
-        setCoinFloat({ amount: resAny.coinsEarned, key: Date.now() });
-        setSessionStats(prev => ({ ...prev, coinsEarned: prev.coinsEarned + resAny.coinsEarned }));
-        if (user) updateUser({ ...user, points: resAny.totalCoins });
-        setTimeout(() => setCoinFloat(null), 1500);
-      }
+      await studyApi.reviewCard(card.id, { rating, timeTakenMs });
     } catch (e) {
       addToast('Error guardando revisión', 'error');
     }
@@ -284,11 +271,11 @@ export default function Study() {
                 <div className="text-2xl font-bold">{minutes}:{seconds.toString().padStart(2, '0')}</div>
                 <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TIEMPO</div>
             </div>
-            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
-                <div className="text-2xl font-bold text-yellow-500">+{sessionStats.coinsEarned}</div>
-                <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">MONEDAS</div>
-            </div>
-        </div>
+              <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center col-span-2">
+                  <div className="text-2xl font-bold">{sessionStats.reviewed}</div>
+                  <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TOTAL TARJETAS</div>
+              </div>
+          </div>
 
         <button 
           className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl text-lg font-semibold shadow-lg shadow-primary/20" 
@@ -316,15 +303,9 @@ export default function Study() {
     );
   }
 
-  return (
-    <div className="fade-in flex flex-col h-[100dvh] p-4 overflow-hidden max-w-3xl mx-auto w-full">
-      {coinFloat && (
-        <div key={coinFloat.key} className="absolute top-[20%] left-1/2 -translate-x-1/2 text-yellow-400 text-2xl font-bold pointer-events-none animate-float-up z-50">
-          +{coinFloat.amount} 🪙
-        </div>
-      )}
-
-      {/* Header */}
+    return (
+      <div className="fade-in flex flex-col h-[100dvh] p-4 overflow-hidden max-w-3xl mx-auto w-full">
+        {/* Header */}
       <div className="flex justify-between items-center mb-6 shrink-0 px-2">
         <div className="flex items-center gap-3">
           <button 

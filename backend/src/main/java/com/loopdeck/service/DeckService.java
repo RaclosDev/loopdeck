@@ -4,6 +4,7 @@ import com.loopdeck.model.Deck;
 import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
+import com.loopdeck.repository.DeckDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ public class DeckService {
     private final DeckRepository deckRepository;
     private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
+    private final DeckDocumentRepository deckDocumentRepository;
 
     public record CreateDeckRequest(String name, String description, String parentId) {}
     public record UpdateDeckRequest(String name, String description) {}
@@ -47,6 +49,7 @@ public class DeckService {
     public void deleteDeck(String userId, String deckId) {
         Deck deck = deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+        deckDocumentRepository.deleteById(deckId); // Prevents orphaned documents
         cardRepository.deleteByDeckId(deckId); // Prevents orphaned cards!
         noteRepository.deleteByDeckId(deckId);
         deckRepository.delete(deck);

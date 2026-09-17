@@ -78,7 +78,7 @@ function Layout({ children }: LayoutProps) {
   };
 
   const isStandalone = () => {
-    return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || ('standalone' in window.navigator && (window.navigator as unknown as { standalone: boolean }).standalone === true);
   };
 
   const showIosInstall = isIos() && !isStandalone();
