@@ -1,4 +1,4 @@
-﻿import { StrictMode } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { registerSW } from 'virtual:pwa-register'
@@ -6,16 +6,13 @@ import './index.css'
 import App from './App.jsx'
 
 const updateSW = registerSW({
-  onNeedRefresh() {
-    // Actualizacion automatica silenciosa igual que Ascension
-    updateSW(true)
-  },
+  immediate: true,
   onRegistered(r) {
     if (r) {
-      // Check for updates every 5 minutes while the app is open
+      // Check for updates every 1 minute while the app is open
       setInterval(() => {
         r.update()
-      }, 5 * 60 * 1000)
+      }, 60 * 1000)
     }
   }
 })
