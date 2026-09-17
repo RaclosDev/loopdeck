@@ -58,7 +58,7 @@ function GlobalStudy() {
         </div>
       </header>
 
-      <div className="deck-grid" style={{ marginTop: '2rem' }}>
+      <div className="decks-grid" style={{ marginTop: '2rem' }}>
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, total: 0 };
           const due = counts.learning + counts.review;
@@ -68,10 +68,10 @@ function GlobalStudy() {
             <div key={deck.id} className="deck-card" onClick={() => navigate(`/hub/${deck.id}`)} style={{ cursor: 'pointer', transition: 'all 0.2s', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
               
               <div className="deck-card-header">
-                <h3 className="deck-card-title">{deck.name}</h3>
+                <h3 className="deck-card-name">{deck.name}</h3>
               </div>
               
-              {deck.description && <p className="deck-card-desc" style={{ marginBottom: 'auto' }}>{deck.description}</p>}
+              {deck.description && <p style={{ fontSize: "0.8rem", color: "var(--text-dim)", marginBottom: "auto", padding: "0 2px" }}>{deck.description}</p>}
 
               <div className="deck-card-counts" style={{ marginTop: '16px' }}>
                 <div className="deck-count">
