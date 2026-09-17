@@ -273,21 +273,23 @@ export default function AddCard() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <div className="bg-background/80 border border-white/10 p-1 rounded-full flex items-center mb-6 w-full max-w-sm mx-auto shadow-inner">
-          <button 
-            className={`flex-1 rounded-full py-2 px-4 text-sm font-semibold transition-all ${addMode === 'single' ? 'bg-primary/20 text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
-            onClick={() => setAddMode('single')}
-          >
-            Una a Una
-          </button>
-          <button 
-            className={`flex-1 rounded-full py-2 px-4 text-sm font-semibold transition-all ${addMode === 'mass' ? 'bg-primary/20 text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
-            onClick={() => setAddMode('mass')}
-          >
-            ✨ En Masa (IA)
-          </button>
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl pt-2 pb-4 mb-6 -mx-2 px-2 sm:mx-0 sm:px-0">
+          <div className="bg-card border border-white/10 p-1.5 rounded-full flex items-center w-full max-w-md mx-auto shadow-lg">
+            <button 
+              className={`flex-1 rounded-full py-3 px-4 text-[0.95rem] font-bold transition-all ${addMode === 'single' ? 'bg-white/10 text-white shadow-sm border border-white/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+              onClick={() => setAddMode('single')}
+            >
+              Una a Una
+            </button>
+            <button 
+              className={`flex-1 rounded-full py-3 px-4 text-[0.95rem] font-bold transition-all ${addMode === 'mass' ? 'bg-white/10 text-white shadow-sm border border-white/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+              onClick={() => setAddMode('mass')}
+            >
+              ? En Masa
+            </button>
+          </div>
         </div>
+        <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
 
         <input ref={frontFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('front', e)} />
         <input ref={backFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('back', e)} />
@@ -458,3 +460,5 @@ export default function AddCard() {
     </div>
   );
 }
+
+
