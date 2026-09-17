@@ -221,7 +221,6 @@ public class CardService {
                 card.setDue(Instant.now().plusSeconds((long)(interval * 86400)));
             }
         }
-        card.setState("review");
     }
 
     private void applyRelearning(Card card, int rating) {
