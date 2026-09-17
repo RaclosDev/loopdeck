@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, studyApi } from '../services/api';
 
@@ -83,49 +83,58 @@ export default function Stats() {
       ) : (
         <>
           <div className="kpi-grid" style={{ marginBottom: 24 }}>
-            <div className="kpi-card accent" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value accent">{stats.totalDecks}</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalDecks}</div>
               <div className="kpi-label">MAZOS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value">{stats.totalNotes}</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalNotes}</div>
               <div className="kpi-label">NOTAS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value">{stats.totalCards}</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalCards}</div>
               <div className="kpi-label">TARJETAS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value">{(stats.avgEase * 100).toFixed(0)}%</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{(stats.avgEase * 100).toFixed(0)}%</div>
               <div className="kpi-label">EASE</div>
             </div>
           </div>
 
           <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>DistribuciÃ³n</h3>
+            <h3 className="card-title" style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>Distribución</h3>
             <div style={{ display: 'flex', width: '100%', height: '24px', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
-              <div style={{ width: `${(stats.cardsByState.new / stats.totalCards) * 100}%`, background: 'var(--srs-new)' }} />
-              <div style={{ width: `${(stats.cardsByState.learning / stats.totalCards) * 100}%`, background: 'var(--srs-learning)' }} />
-              <div style={{ width: `${(stats.cardsByState.review / stats.totalCards) * 100}%`, background: 'var(--srs-review)' }} />
+              <div style={{ width: `${(stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary)' }} />
+              <div style={{ width: `${(stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary-light)' }} />
+              <div style={{ width: `${(stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary-dark)' }} />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600 }}>
-              <div style={{ color: 'var(--srs-new)' }}>Nuevas: {stats.cardsByState.new}</div>
-              <div style={{ color: 'var(--srs-learning)' }}>Aprender: {stats.cardsByState.learning}</div>
-              <div style={{ color: 'var(--srs-review)' }}>RevisiÃ³n: {stats.cardsByState.review}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-primary)' }} />
+                <span>Nuevas {((stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-primary-light)' }} />
+                <span>Aprender {((stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-primary-dark)' }} />
+                <span>Revisión {((stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+              </div>
             </div>
           </div>
 
           <div className="kpi-grid">
-            <div className="kpi-card info" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value info" style={{ color: 'var(--srs-review)' }}>{stats.mature}</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.mature}</div>
               <div className="kpi-label">MADURAS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value" style={{ color: '#f97316' }}>{stats.totalLapses}</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalLapses}</div>
               <div className="kpi-label">LAPSOS</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center' }}>
-              <div className="kpi-value" style={{ color: '#ef4444' }}>{stats.suspended}</div>
+            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--accent-glow)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.suspended}</div>
               <div className="kpi-label">SUSPENDIDAS</div>
             </div>
           </div>
