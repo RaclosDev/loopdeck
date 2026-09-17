@@ -1155,6 +1155,7 @@ input[type=number] {
     width: 100%;
     padding: var(--space-xl) var(--space-md);
     padding-top: calc(var(--space-xl) + 44px);
+    padding-bottom: calc(var(--space-xl) + 90px);
   }
   .kpi-grid {
     grid-template-columns: 1fr 1fr;
@@ -5193,10 +5194,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 
 
 
-   DECK CARDS
-   ═══════════════════════════════════════════════════════════════ */
-
-.decks-grid {
+/* DECK CARDS */.decks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
@@ -5208,7 +5206,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 14px 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
@@ -5245,7 +5243,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .deck-card-name {
@@ -5280,7 +5278,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 .deck-card-counts {
   display: flex;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .deck-count {
@@ -5291,7 +5289,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 }
 
 .deck-count-number {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   font-family: 'Outfit', sans-serif;
 }
@@ -5313,7 +5311,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .deck-card-progress-bar {
@@ -5479,7 +5477,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 /* ── Flip Card ─────────────────────────────────────────────── */
 .flashcard-wrapper {
   perspective: 1200px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex: 1;
   min-height: 0;
 }
@@ -5510,7 +5508,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: 30px 24px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -5540,7 +5538,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 }
 
 .flashcard-content {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   line-height: 1.6;
   color: var(--text-main);
   word-break: break-word;
@@ -5687,7 +5685,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 /* ── Show Answer Button ────────────────────────────────────── */
 .show-answer-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
   border: none;
   border-radius: var(--radius-md);
@@ -5711,7 +5709,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 6px;
   flex-shrink: 0;
 }
 
@@ -6399,9 +6397,9 @@ button, a, input, select, textarea, [role=button], [onclick] {
   }
 
   .rating-btn {
-    padding: 14px 8px;
+    padding: 10px 4px;
     min-width: unset;
-    min-height: 70px;
+    min-height: 56px;
   }
 
   .flashcard-face {
@@ -7149,200 +7147,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   DECK CARDS
-   ═══════════════════════════════════════════════════════════════ */
-
-
-.glass-panel {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-}
-
-.glass-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-color);
-  color: var(--text-main);
-  padding: 10px 20px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: var(--transition-base);
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.glass-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--border-hover);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.05);
-  transform: translateY(-1px);
-}
-
-.glass-btn:active {
-  transform: translateY(0px);
-}
-
-.glass-btn.active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(37, 99, 235, 0.4));
-  border: 1px solid rgba(59, 130, 246, 0.5);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.primary-btn {
-  background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
-  border: 1px solid var(--accent-color);
-  color: #ffffff;
-  padding: 10px 24px;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: var(--transition-base);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.primary-btn:hover {
-  background: linear-gradient(135deg, var(--accent-dark), #1d4ed8);
-  border-color: var(--accent-light);
-  box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5);
-  transform: translateY(-2px);
-}
-
-.primary-btn:active {
-  transform: translateY(0);
-}
-
-.primary-btn:disabled {
-  background: #334155;
-  border-color: #334155;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-  opacity: 0.6;
-}
-
-.danger-btn {
-  background: linear-gradient(135deg, var(--danger-color), #dc2626);
-  border: 1px solid var(--danger-color);
-  color: #ffffff;
-  padding: 10px 24px;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  transition: var(--transition-base);
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-  outline: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.danger-btn:hover {
-  box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
-  transform: translateY(-2px);
-}
-
-/* ── Inputs ────────────────────────────────────────────────── */
-.glass-input {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-color);
-  color: white;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  outline: none;
-  transition: var(--transition-base);
-  width: 100%;
-}
-
-.glass-input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.glass-input:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-  background: rgba(15, 23, 42, 0.85);
-}
-
-.glass-select {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid var(--border-color);
-  color: white;
-  padding: 10px 14px;
-  border-radius: var(--radius-md);
-  font-family: 'Inter', sans-serif;
-  font-size: 0.875rem;
-  outline: none;
-  transition: var(--transition-base);
-  width: 100%;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  background-size: 16px;
-  padding-right: 32px;
-  cursor: pointer;
-}
-
-.glass-select:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-}
-
-.glass-select option {
-  background: var(--bg-color);
-  color: var(--text-main);
-}
-
-textarea.glass-input {
-  resize: vertical;
-  min-height: 80px;
-  line-height: 1.5;
-}
-
-/* ── Form Groups ───────────────────────────────────────────── */
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-
-
-.decks-grid {
+/* DECK CARDS */.decks-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 16px;
@@ -7354,7 +7159,7 @@ textarea.glass-input {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 20px;
+  padding: 14px 16px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   position: relative;
@@ -7391,7 +7196,7 @@ textarea.glass-input {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .deck-card-name {
@@ -7426,7 +7231,7 @@ textarea.glass-input {
 .deck-card-counts {
   display: flex;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .deck-count {
@@ -7437,7 +7242,7 @@ textarea.glass-input {
 }
 
 .deck-count-number {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   font-weight: 700;
   font-family: 'Outfit', sans-serif;
 }
@@ -7459,7 +7264,7 @@ textarea.glass-input {
   background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-full);
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .deck-card-progress-bar {
@@ -7625,7 +7430,7 @@ textarea.glass-input {
 /* ── Flip Card ─────────────────────────────────────────────── */
 .flashcard-wrapper {
   perspective: 1200px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   flex: 1;
   min-height: 0;
 }
@@ -7656,7 +7461,7 @@ textarea.glass-input {
   backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-xl);
-  padding: 30px 24px;
+  padding: 20px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7686,7 +7491,7 @@ textarea.glass-input {
 }
 
 .flashcard-content {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   line-height: 1.6;
   color: var(--text-main);
   word-break: break-word;
@@ -7833,7 +7638,7 @@ textarea.glass-input {
 /* ── Show Answer Button ────────────────────────────────────── */
 .show-answer-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   background: linear-gradient(135deg, var(--accent-color), var(--accent-dark));
   border: none;
   border-radius: var(--radius-md);
@@ -7857,7 +7662,7 @@ textarea.glass-input {
   display: flex;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 6px;
   flex-shrink: 0;
 }
 
@@ -8545,9 +8350,9 @@ textarea.glass-input {
   }
 
   .rating-btn {
-    padding: 14px 8px;
+    padding: 10px 4px;
     min-width: unset;
-    min-height: 70px;
+    min-height: 56px;
   }
 
   .flashcard-face {
@@ -9421,5 +9226,17 @@ textarea.glass-input {
   }
   .deck-card {
     min-height: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content.study-mode {
+    padding: 12px;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .study-container {
+    height: 100%;
   }
 }
