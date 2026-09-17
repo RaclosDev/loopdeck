@@ -80,7 +80,7 @@ export default function Stats() {
       </div>
 
       {stats.totalCards === 0 ? (
-        <div className="glass-panel" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+        <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📊</div>
           <h3>Sin datos aún</h3>
           <p style={{ color: 'var(--text-muted)' }}>Añade tarjetas para ver tus estadísticas.</p>
@@ -106,7 +106,7 @@ export default function Stats() {
             </div>
           </div>
 
-          <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+          <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
             <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>Distribución</h3>
             <div style={{ display: 'flex', width: '100%', height: '24px', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
               <div style={{ width: `${(stats.cardsByState.new / stats.totalCards) * 100}%`, background: 'var(--srs-new)' }} />
@@ -139,3 +139,4 @@ export default function Stats() {
     </div>
   );
 }
+

@@ -102,7 +102,7 @@ function StudyTutor() {
     <div className="study-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
       
       <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)', flexShrink: 0 }}>
-        <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
+        <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
           ← Volver
         </button>
         <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>
@@ -163,3 +163,4 @@ function StudyTutor() {
 }
 
 export default StudyTutor;
+

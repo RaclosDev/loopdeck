@@ -109,7 +109,7 @@ export default function Browser() {
         <p>Gestiona y edita tus tarjetas</p>
       </div>
 
-      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
         <select
           className="form-input"
           value={selectedDeckId}
@@ -139,7 +139,7 @@ export default function Browser() {
         />
       </div>
 
-      <div className="glass-panel" style={{ overflow: 'hidden' }}>
+      <div className="card" style={{ overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: '3rem', textAlign: 'center' }}>
             <div className="spinner" />
@@ -163,8 +163,8 @@ export default function Browser() {
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} dangerouslySetInnerHTML={{ __html: note.parsedFields.back || '(Vacío)' }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => handleEditClick(note)}>✏️</button>
-                  <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '6px 12px', color: '#ef4444' }} onClick={() => handleDelete(note.id)}>🗑️</button>
+                  <button className="icon-btn" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => handleEditClick(note)}>✏️</button>
+                  <button className="icon-btn" style={{ fontSize: '0.8rem', padding: '6px 12px', color: '#ef4444' }} onClick={() => handleDelete(note.id)}>🗑️</button>
                 </div>
               </div>
             ))}
@@ -211,3 +211,5 @@ export default function Browser() {
     </div>
   );
 }
+
+

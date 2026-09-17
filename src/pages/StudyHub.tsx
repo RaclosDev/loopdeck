@@ -92,7 +92,7 @@ function StudyHub() {
     <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
       <div className="page-header" style={{ marginBottom: '1.5rem' }}>
         <div>
-          <button className="glass-btn" onClick={() => navigate('/')} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '8px' }}>
+          <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '8px' }}>
             ← Volver
           </button>
           <h1 style={{ margin: 0, fontSize: '1.8rem', color: 'var(--text-main)' }}>{deck.name}</h1>
@@ -102,7 +102,7 @@ function StudyHub() {
           <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
             {hasDocument ? (
               <button 
-                className="glass-btn" 
+                className="icon-btn" 
                 onClick={() => setShowDocModal(true)}
                 style={{ padding: '6px 14px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)' }}
               >
@@ -110,7 +110,7 @@ function StudyHub() {
               </button>
             ) : (
               <button 
-                className="glass-btn" 
+                className="icon-btn" 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingDoc}
                 style={{ padding: '6px 14px' }}
@@ -132,7 +132,7 @@ function StudyHub() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         
         {/* REPASO ESPACIADO (Clásico) */}
-        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/study/${deckId}`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -147,7 +147,7 @@ function StudyHub() {
         </div>
 
         {/* GUÍA DE ESTUDIO */}
-        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/guide`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--purple-accent)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -161,7 +161,7 @@ function StudyHub() {
         </div>
 
         {/* MODO PASEO */}
-        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/explore`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -175,7 +175,7 @@ function StudyHub() {
         </div>
 
         {/* TEST POR BLOQUES */}
-        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/chunked`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -189,7 +189,7 @@ function StudyHub() {
         </div>
 
         {/* TEST DE OPCIONES */}
-        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -203,7 +203,7 @@ function StudyHub() {
         </div>
 
         {/* TUTOR IA */}
-        <div className="glass-panel" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -227,3 +227,5 @@ function StudyHub() {
 }
 
 export default StudyHub;
+
+

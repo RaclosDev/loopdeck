@@ -49,7 +49,7 @@ export default function Templates() {
           <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Cargando plantillas...</p>
         </div>
       ) : templates.length === 0 ? (
-        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+        <div className="card" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📦</div>
           <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay plantillas disponibles</h3>
           <p style={{ color: 'var(--text-muted)', margin: 0 }}>Vuelve más tarde para ver nuevos mazos.</p>
@@ -57,7 +57,7 @@ export default function Templates() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
           {templates.map(t => (
-            <div key={t.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
+            <div key={t.id} className="card" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{t.icon} {t.name}</h3>
                 <span style={{ fontSize: '0.75rem', padding: '2px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}>
@@ -85,3 +85,4 @@ export default function Templates() {
     </div>
   );
 }
+

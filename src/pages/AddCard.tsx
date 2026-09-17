@@ -65,7 +65,7 @@ export default function AddCard() {
         <p>Crea nuevas tarjetas para estudiar</p>
       </div>
 
-      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
             <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>MAZO</label>
@@ -95,7 +95,7 @@ export default function AddCard() {
         </div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '1.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
             FRENTE (PREGUNTA)
@@ -157,3 +157,4 @@ export default function AddCard() {
     </div>
   );
 }
+

@@ -111,13 +111,13 @@ export default function Dashboard() {
           const totalDue = counts.new + counts.learning + counts.review;
           
           return (
-            <div key={deck.id} className="glass-panel" style={{ overflow: 'hidden' }}>
-              <div style={{ padding: '1.25rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div key={deck.id} className="card" style={{ overflow: 'hidden', padding: 0, marginBottom: '1.5rem', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                  <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>{deck.name}</h2>
+                  <h2 className="card-title" style={{ margin: 0, fontSize: '1.25rem' }}>{deck.name}</h2>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="glass-btn" style={{ padding: '6px', borderRadius: '50%' }} onClick={(e) => { e.stopPropagation(); handleEdit(deck.id, deck.name); }}>✏️</button>
-                    <button className="glass-btn" style={{ padding: '6px', borderRadius: '50%', color: 'var(--danger-color)' }} onClick={(e) => { e.stopPropagation(); handleDelete(deck.id, deck.name); }}>🗑️</button>
+                    <button className="icon-btn" style={{ padding: '6px', borderRadius: '50%' }} onClick={(e) => { e.stopPropagation(); handleEdit(deck.id, deck.name); }}>✏️</button>
+                    <button className="icon-btn" style={{ padding: '6px', borderRadius: '50%', color: 'var(--danger-color)' }} onClick={(e) => { e.stopPropagation(); handleDelete(deck.id, deck.name); }}>🗑️</button>
                   </div>
                 </div>
 
@@ -137,7 +137,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', background: 'var(--bg-glass)', padding: '0.75rem 1.25rem', gap: 12 }}>
+              <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', gap: 12 }}>
                 {totalDue > 0 ? (
                   <button className="btn btn-primary" style={{ flex: 1, padding: '0.75rem', borderRadius: 12 }} onClick={() => navigate(`/study/${deck.id}`)}>
                     Responder ({totalDue})
@@ -147,14 +147,14 @@ export default function Dashboard() {
                     Al día ✅
                   </div>
                 )}
-                <button className="glass-btn" style={{ width: 44, height: 44, borderRadius: 12 }} onClick={() => navigate(`/add/${deck.id}`)}>+</button>
-                <button className="glass-btn" style={{ width: 44, height: 44, borderRadius: 12 }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>⚙️</button>
+                <button className="btn btn-primary" style={{ width: 44, height: 44, borderRadius: 12, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }} onClick={() => navigate(`/add/${deck.id}`)}>+</button>
+                <button className="btn btn-secondary" style={{ width: 44, height: 44, borderRadius: 12, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>⚙️</button>
               </div>
             </div>
           );
         })}
 
-        <div className="glass-panel" style={{ border: '2px dashed var(--border-medium)', background: 'transparent' }}>
+        <div className="card" style={{ border: '2px dashed var(--border-medium)', background: 'transparent', padding: 0 }}>
           <button 
             style={{ width: '100%', padding: '2rem', background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, cursor: 'pointer' }}
             onClick={async () => {
@@ -177,3 +177,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
+

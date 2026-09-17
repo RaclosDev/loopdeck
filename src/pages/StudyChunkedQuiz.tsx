@@ -161,7 +161,7 @@ function StudyChunkedQuiz() {
         </p>
         
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button className="glass-btn" onClick={handleRepeatChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
+          <button className="icon-btn" onClick={handleRepeatChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
             🔄 Repetir estas {currentChunkLength}
           </button>
           
@@ -185,7 +185,7 @@ function StudyChunkedQuiz() {
   return (
     <div className="study-container">
       <div className="study-header">
-        <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)}>
+        <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           ✕ Salir
         </button>
         
@@ -216,7 +216,7 @@ function StudyChunkedQuiz() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '800px', margin: '0 auto', padding: '0 20px', paddingTop: '20px' }}>
         
         {/* Question Card */}
-        <div className="glass-panel" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
+        <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
           <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
         </div>
@@ -277,3 +277,5 @@ function StudyChunkedQuiz() {
 }
 
 export default StudyChunkedQuiz;
+
+

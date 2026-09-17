@@ -98,7 +98,7 @@ function StudyExplore() {
   return (
     <div className="study-container">
       <div className="study-header">
-        <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)}>
+        <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           ✕ Salir
         </button>
         <div className="study-progress">
@@ -114,7 +114,7 @@ function StudyExplore() {
         <div style={{ width: '100%', maxWidth: '600px', padding: '0 20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
           
           <button 
-            className="glass-btn" 
+            className="icon-btn" 
             style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
             onClick={handlePrev}
           >
@@ -132,7 +132,7 @@ function StudyExplore() {
           </div>
 
           <button 
-            className="glass-btn" 
+            className="icon-btn" 
             style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
             onClick={handleNext}
           >
@@ -151,3 +151,4 @@ function StudyExplore() {
 }
 
 export default StudyExplore;
+

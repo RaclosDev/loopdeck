@@ -55,7 +55,7 @@ export default function Settings() {
       </div>
 
       {activeTab === 'study' && (
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card" style={{ padding: '1.5rem' }}>
           <h3 style={{ margin: '0 0 1.5rem 0' }}>Opciones de Estudio</h3>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -76,7 +76,7 @@ export default function Settings() {
       )}
 
       {activeTab === 'appearance' && (
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card" style={{ padding: '1.5rem' }}>
           <h3 style={{ margin: '0 0 1.5rem 0' }}>Apariencia</h3>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -97,7 +97,7 @@ export default function Settings() {
       )}
 
       {activeTab === 'account' && (
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+        <div className="card" style={{ padding: '1.5rem' }}>
           <h3 style={{ margin: '0 0 1.5rem 0' }}>Tu Cuenta</h3>
           
           {user && (
@@ -113,7 +113,7 @@ export default function Settings() {
           )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <button className="glass-btn" onClick={handleClearLocalData}>
+            <button className="icon-btn" onClick={handleClearLocalData}>
               Limpiar Caché Local
             </button>
             <button 
@@ -134,3 +134,5 @@ export default function Settings() {
     </div>
   );
 }
+
+

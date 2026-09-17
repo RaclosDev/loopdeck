@@ -62,20 +62,20 @@ export default function GlobalStudy() {
           const progress = counts.total === 0 ? 100 : Math.max(5, ((counts.total - (counts.new + counts.learning + counts.review)) / counts.total) * 100);
 
           return (
-            <div key={deck.id} className="glass-panel" onClick={() => navigate(`/hub/${deck.id}`)} style={{ cursor: 'pointer', overflow: 'hidden' }}>
+            <div key={deck.id} className="card" onClick={() => navigate(`/hub/${deck.id}`)} style={{ cursor: 'pointer', overflow: 'hidden', padding: 0, marginBottom: '1rem', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>{deck.name}</h3>
+                <h3 className="card-title" style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>{deck.name}</h3>
                 
-                <div style={{ display: 'flex', gap: 12 }}>
-                  <div style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '10px', borderRadius: 12, textAlign: 'center' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <div style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '10px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: '#3b82f6', fontWeight: 700, fontSize: '1.2rem' }}>{counts.new}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>NUEVAS</div>
                   </div>
-                  <div style={{ flex: 1, background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '10px', borderRadius: 12, textAlign: 'center' }}>
+                  <div style={{ flex: 1, background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '10px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: '#f59e0b', fontWeight: 700, fontSize: '1.2rem' }}>{counts.learning}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>APRENDER</div>
                   </div>
-                  <div style={{ flex: 1, background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '10px', borderRadius: 12, textAlign: 'center' }}>
+                  <div style={{ flex: 1, background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '10px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: '#10b981', fontWeight: 700, fontSize: '1.2rem' }}>{counts.review}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>REVISIÓN</div>
                   </div>
@@ -83,16 +83,18 @@ export default function GlobalStudy() {
               </div>
               
               <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', justifyContent: 'center' }}>
-                <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>➔ Entrar al Hub</span>
+                <button className="btn btn-primary" style={{ width: '100%', borderRadius: '12px', padding: '0.875rem' }}>
+                   ➔ Entrar al Hub
+                </button>
               </div>
             </div>
           );
         })}
 
         {decks.length === 0 && (
-          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+          <div className="card" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📭</div>
-            <h3 style={{ margin: '0 0 0.5rem 0' }}>¡No tienes mazos aún!</h3>
+            <h3 className="card-title" style={{ margin: '0 0 0.5rem 0' }}>¡No tienes mazos aún!</h3>
             <p style={{ color: 'var(--text-muted)', margin: '0 0 1.5rem 0' }}>Ve a Mis Mazos para crear tu primer mazo de tarjetas.</p>
             <button className="btn btn-primary" onClick={() => navigate('/')}>Ir a Mis Mazos</button>
           </div>

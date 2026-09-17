@@ -53,7 +53,7 @@ function StudyGuide() {
       
       <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--panel-bg)', padding: '15px 20px', borderBottom: '1px solid var(--border-color)', margin: '-20px -20px 20px -20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button className="glass-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
+          <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
             ← Volver
           </button>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
@@ -124,3 +124,4 @@ function StudyGuide() {
 }
 
 export default StudyGuide;
+

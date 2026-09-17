@@ -20,7 +20,7 @@ function RatingButtons({ intervals, onRate }) {
       {[1, 2, 3, 4].map(rating => (
         <button
           key={rating}
-          className="glass-btn"
+          className="icon-btn"
           style={{
             flex: 1,
             display: 'flex',
@@ -178,3 +178,4 @@ export default function Study() {
     </div>
   );
 }
+
