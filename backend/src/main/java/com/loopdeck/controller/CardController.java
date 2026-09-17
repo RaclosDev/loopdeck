@@ -90,7 +90,7 @@ public class CardController {
     // ── Study ──────────────────────────────────────────────────────────────
 
     @GetMapping("/decks/{deckId}/study")
-    public ResponseEntity<List<Card>> dueCards(Authentication auth,
+    public ResponseEntity<List<CardService.DueCardDto>> dueCards(Authentication auth,
                                                @PathVariable String deckId,
                                                @RequestParam(defaultValue = "20") int limit) {
         return ResponseEntity.ok(cardService.getDueCards(auth.getName(), deckId, limit));

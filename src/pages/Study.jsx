@@ -84,15 +84,9 @@ function Study() {
       if (!d) { addToast('Mazo no encontrado', 'error'); navigate('/'); return; }
       setDeck(d);
 
-      // Load due cards
-      const cards = await studyApi.getDueCards(deckId, 1000);
-      if (cards.length === 0) { setIsComplete(true); setLoading(false); return; }
-
-      // Load notes for all cards
-      const notes = await notesApi.getByDeck(deckId);
-      const notesMap = Object.fromEntries(notes.map(n => [n.id, n]));
-
-      const pairs = cards.map(card => ({ card, note: notesMap[card.noteId] })).filter(p => p.note);
+      // Load due cards (now returns an array of {card, note})
+      const pairs = await studyApi.getDueCards(deckId, 1000);
+      if (pairs.length === 0) { setIsComplete(true); setLoading(false); return; }
 
       // Sort according to settings
       const order = settings?.studyOrder || 'new_first';

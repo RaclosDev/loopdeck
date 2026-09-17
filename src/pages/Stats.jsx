@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { decksApi, notesApi, studyApi } from '../services/api';
 import useStore from '../store/useStore';
 
@@ -27,15 +27,15 @@ function Stats() {
         const allCards = cardResults.flatMap(r => r.status === 'fulfilled' ? r.value : []);
 
         const byState = {
-          new: allCards.filter(c => c.state === 'new').length,
-          learning: allCards.filter(c => c.state === 'learning').length,
-          review: allCards.filter(c => c.state === 'review').length,
-          relearning: allCards.filter(c => c.state === 'relearning').length,
+          new: allCards.filter(c => c.card.state === 'new').length,
+          learning: allCards.filter(c => c.card.state === 'learning').length,
+          review: allCards.filter(c => c.card.state === 'review').length,
+          relearning: allCards.filter(c => c.card.state === 'relearning').length,
         };
 
-        const reviewCards = allCards.filter(c => c.state === 'review');
+        const reviewCards = allCards.filter(c => c.card.state === 'review');
         const avgEase = reviewCards.length > 0
-          ? reviewCards.reduce((s, c) => s + (c.easeFactor || 2.5), 0) / reviewCards.length
+          ? reviewCards.reduce((s, c) => s + (c.card.easeFactor || 2.5), 0) / reviewCards.length
           : 2.5;
 
         setStats({
@@ -44,13 +44,13 @@ function Stats() {
           totalDecks: decks.length,
           byState,
           avgEase,
-          totalLapses: allCards.reduce((s, c) => s + (c.lapses || 0), 0),
-          mature: allCards.filter(c => c.state === 'review' && (c.intervalDays || 0) >= 21).length,
-          young: allCards.filter(c => c.state === 'review' && (c.intervalDays || 0) < 21).length,
-          suspended: allCards.filter(c => c.suspended).length,
+          totalLapses: allCards.reduce((s, c) => s + (c.card.lapses || 0), 0),
+          mature: allCards.filter(c => c.card.state === 'review' && (c.card.intervalDays || 0) >= 21).length,
+          young: allCards.filter(c => c.card.state === 'review' && (c.card.intervalDays || 0) < 21).length,
+          suspended: allCards.filter(c => c.card.suspended).length,
         });
       } catch {
-        addToast('Error cargando estadísticas', 'error');
+        addToast('Error cargando estadÃ­sticas', 'error');
       } finally {
         setLoading(false);
       }
@@ -65,7 +65,7 @@ function Stats() {
       <div className="animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
         <div style={{ textAlign: 'center' }}>
           <div className="spinner-sm" style={{ width: 40, height: 40, margin: '0 auto 16px', borderWidth: 3 }} />
-          <p style={{ color: 'var(--text-muted)' }}>Cargando estadísticas...</p>
+          <p style={{ color: 'var(--text-muted)' }}>Cargando estadÃ­sticas...</p>
         </div>
       </div>
     );
@@ -74,8 +74,8 @@ function Stats() {
   return (
     <div className="animate-fade-in">
       <div className="page-header">
-        <h1>Estadísticas</h1>
-        <p>Resumen de tu colección y progreso de estudio</p>
+        <h1>EstadÃ­sticas</h1>
+        <p>Resumen de tu colecciÃ³n y progreso de estudio</p>
       </div>
 
       {/* Overview Stats */}
@@ -101,7 +101,7 @@ function Stats() {
       {/* Card States Distribution */}
       <div className="glass-panel" style={{ padding: 24, marginBottom: 20 }}>
         <h3 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 700, marginBottom: 16 }}>
-          Distribución de Tarjetas
+          DistribuciÃ³n de Tarjetas
         </h3>
 
         <div style={{ display: 'flex', height: 28, borderRadius: 'var(--radius-full)', overflow: 'hidden', marginBottom: 20, background: 'rgba(255,255,255,0.04)' }}>
@@ -115,8 +115,8 @@ function Stats() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
           <LegendItem color="var(--srs-new)" label="Nuevas" count={stats.byState.new} />
           <LegendItem color="var(--srs-learning)" label="Aprendiendo" count={stats.byState.learning + stats.byState.relearning} />
-          <LegendItem color="var(--srs-review)" label="Jóvenes (< 21d)" count={stats.young} />
-          <LegendItem color="var(--accent-color)" label="Maduras (≥ 21d)" count={stats.mature} />
+          <LegendItem color="var(--srs-review)" label="JÃ³venes (< 21d)" count={stats.young} />
+          <LegendItem color="var(--accent-color)" label="Maduras (â‰¥ 21d)" count={stats.mature} />
           <LegendItem color="var(--text-dim)" label="Suspendidas" count={stats.suspended} />
         </div>
       </div>
@@ -139,9 +139,9 @@ function Stats() {
 
       {stats.totalCards === 0 && (
         <div className="empty-state" style={{ marginTop: 20 }}>
-          <div className="empty-state-icon">📊</div>
-          <h3>Sin datos aún</h3>
-          <p>Añade tarjetas y empieza a estudiar para ver tus estadísticas aquí.</p>
+          <div className="empty-state-icon">ðŸ“Š</div>
+          <h3>Sin datos aÃºn</h3>
+          <p>AÃ±ade tarjetas y empieza a estudiar para ver tus estadÃ­sticas aquÃ­.</p>
         </div>
       )}
     </div>
@@ -160,3 +160,4 @@ function LegendItem({ color, label, count }) {
 }
 
 export default Stats;
+

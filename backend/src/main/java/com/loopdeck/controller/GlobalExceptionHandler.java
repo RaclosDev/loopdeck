@@ -11,8 +11,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.time.Instant;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ResponseEntity<Map<String, Object>> handleBadRequest(Exception ex, HttpServletRequest request) {
@@ -36,6 +41,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex, HttpServletRequest request) {
+        log.error("Unhandled exception caught: ", ex);
         return ResponseEntity.internalServerError().body(Map.of(
                 "timestamp", Instant.now().toString(),
                 "status", 500,

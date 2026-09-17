@@ -24,9 +24,9 @@ function GlobalStudy() {
           const { id, cards } = r.value;
           const now = new Date();
           counts[id] = {
-            new: cards.filter(c => c.state === 'new').length,
-            learning: cards.filter(c => (c.state === 'learning' || c.state === 'relearning') && new Date(c.due) <= now).length,
-            review: cards.filter(c => c.state === 'review' && new Date(c.due) <= now).length,
+            new: cards.filter(c => c.card.state === 'new').length,
+            learning: cards.filter(c => (c.card.state === 'learning' || c.card.state === 'relearning') && new Date(c.card.due) <= now).length,
+            review: cards.filter(c => c.card.state === 'review' && new Date(c.card.due) <= now).length,
             total: cards.length,
           };
         }

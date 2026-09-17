@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -105,10 +106,23 @@ public class CardService {
 
     // ── Study session ──────────────────────────────────────────────────────
 
-    public List<Card> getDueCards(String userId, String deckId, int limit) {
+    public record DueCardDto(Card card, Note note) {}
+
+    public List<DueCardDto> getDueCards(String userId, String deckId, int limit) {
         deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
-        return cardRepository.findDueCardsByDeckId(deckId, Instant.now(), limit);
+        
+        List<Card> dueCards = cardRepository.findDueCardsByDeckId(deckId, Instant.now(), limit);
+        
+        // Fetch all related notes in a single batch query
+        List<String> noteIds = dueCards.stream().map(Card::getNoteId).toList();
+        Map<String, Note> notesMap = noteRepository.findAllById(noteIds)
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(Note::getId, n -> n));
+                
+        return dueCards.stream()
+                .map(c -> new DueCardDto(c, notesMap.get(c.getNoteId())))
+                .toList();
     }
 
     @Transactional
