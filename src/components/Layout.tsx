@@ -26,7 +26,10 @@ function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isStudyPage = location.pathname.startsWith('/study');
+  const isStudyPage = location.pathname.startsWith('/study') || 
+                      location.pathname.includes('/quiz') || 
+                      location.pathname.includes('/chunked') || 
+                      location.pathname.includes('/tutor');
 
   useEffect(() => {
     setSidebarOpen(false);

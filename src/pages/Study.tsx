@@ -56,25 +56,29 @@ function formatMinutes(m) {
 function RatingButtons({ intervals, onRate }) {
   if (!intervals) return null;
   return (
-    <div style={{ display: 'flex', gap: '0.5rem', width: '100%', marginTop: '1rem' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', width: '100%', marginTop: '1rem' }}>
       {[1, 2, 3, 4].map(rating => (
         <button
           key={rating}
-          className="icon-btn"
+          className="card"
           style={{
-            flex: 1,
+            padding: '12px 4px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: '12px 4px',
+            justifyContent: 'center',
+            cursor: 'pointer',
             border: `1px solid ${RATING_COLORS[rating].bg}`,
+            background: 'var(--bg-card)',
             color: RATING_COLORS[rating].color,
-            borderRadius: '16px'
+            transition: 'all 0.2s ease'
           }}
           onClick={(e) => {
             e.stopPropagation();
             onRate(rating);
           }}
+          onMouseOver={(e) => e.currentTarget.style.background = RATING_COLORS[rating].bg}
+          onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
         >
           <span style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: 4 }}>{intervals[rating]}</span>
           <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{RATING_LABELS[rating]}</span>
@@ -340,8 +344,9 @@ export default function Study() {
     <div className="fade-in" style={{ 
         display: 'flex', 
         flexDirection: 'column', 
-        height: 'calc(100vh - 100px)', // Fixed height fitting viewport leaving space for navbar
-        overflow: 'hidden' // No unexpected scrolling!
+        height: '100dvh',
+        padding: '1rem',
+        overflow: 'hidden' // Prevent any unexpected scrolling
     }}>
       {coinFloat && (
         <div key={coinFloat.key} style={{
