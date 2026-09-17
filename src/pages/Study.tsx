@@ -1,19 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
+import { ArrowLeft, Undo2, Eye, Timer, CheckCircle2 } from 'lucide-react';
 import FlashCard from '../components/FlashCard';
+import RatingButtons from '../components/RatingButtons';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
 import { studyApi, decksApi } from '../services/api';
-
-const RATING_COLORS = {
-  1: { color: '#ef4444', bg: 'rgba(239, 68, 68, 0.1)' },
-  2: { color: '#f97316', bg: 'rgba(249, 115, 22, 0.1)' },
-  3: { color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },
-  4: { color: '#3b82f6', bg: 'rgba(59, 130, 246, 0.1)' }
-};
-const RATING_LABELS = { 1: 'Otra vez', 2: 'Difícil', 3: 'Bien', 4: 'Fácil' };
-
 function getIntervalLabel(card, rating) {
   if (!card) return '';
   const ease = card.easeFactor || 2.5;
@@ -51,41 +44,6 @@ function getIntervalLabel(card, rating) {
 function formatMinutes(m) {
   if (m < 60) return `${m}m`;
   return `${Math.round(m / 60)}h`;
-}
-
-function RatingButtons({ intervals, onRate }) {
-  if (!intervals) return null;
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.5rem', width: '100%', marginTop: '1rem' }}>
-      {[1, 2, 3, 4].map(rating => (
-        <button
-          key={rating}
-          className="card"
-          style={{
-            padding: '12px 4px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            border: `1px solid ${RATING_COLORS[rating].bg}`,
-            background: 'var(--bg-card)',
-            color: RATING_COLORS[rating].color,
-            transition: 'all 0.2s ease'
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onRate(rating);
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = RATING_COLORS[rating].bg}
-          onMouseOut={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
-        >
-          <span style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: 4 }}>{intervals[rating]}</span>
-          <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{RATING_LABELS[rating]}</span>
-        </button>
-      ))}
-    </div>
-  );
 }
 
 export default function Study() {
@@ -300,87 +258,95 @@ export default function Study() {
     const accuracy = sessionStats.reviewed > 0 ? Math.round((sessionStats.correct / sessionStats.reviewed) * 100) : 0;
 
     return (
-      <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>¡Sesión Completada!</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Has terminado todas las tarjetas de <strong>{deck?.name}</strong>.</p>
+      <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
+        <div className="text-6xl mb-6">🎉</div>
+        <h2 className="text-2xl font-bold mb-2">¡Sesión Completada!</h2>
+        <p className="text-muted-foreground mb-8">Has terminado todas las tarjetas de <strong className="text-foreground">{deck?.name}</strong>.</p>
         
-        <div className="card" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '2rem', width: '100%', maxWidth: '400px' }}>
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{sessionStats.reviewed}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>TARJETAS</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 w-full max-w-2xl">
+            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+                <CheckCircle2 className="text-primary mb-2" size={24} />
+                <div className="text-2xl font-bold">{sessionStats.reviewed}</div>
+                <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TARJETAS</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{accuracy}%</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>PRECISIÓN</div>
+            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+                <div className="text-2xl font-bold text-emerald-500">{accuracy}%</div>
+                <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">PRECISIÓN</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{minutes}:{seconds.toString().padStart(2, '0')}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>TIEMPO</div>
+            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+                <Timer className="text-muted-foreground mb-2" size={24} />
+                <div className="text-2xl font-bold">{minutes}:{seconds.toString().padStart(2, '0')}</div>
+                <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TIEMPO</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ffd700' }}>+{sessionStats.coinsEarned} 🪙</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>MONEDAS</div>
+            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+                <div className="text-2xl font-bold text-yellow-500">+{sessionStats.coinsEarned}</div>
+                <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">MONEDAS</div>
             </div>
         </div>
 
-        <button className="btn btn-primary" onClick={() => navigate('/')}>Volver a Mazos</button>
+        <button 
+          className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl text-lg font-semibold shadow-lg shadow-primary/20" 
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft size={20} /> Volver a Mazos
+        </button>
       </div>
     );
   }
 
   if (queue.length === 0) {
     return (
-      <div className="fade-in" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📭</div>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>¡Al día!</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>No hay más tarjetas pendientes en este mazo.</p>
-        <button className="btn btn-primary" onClick={() => navigate('/')}>Volver a Mazos</button>
+      <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
+        <div className="text-6xl mb-6">📭</div>
+        <h2 className="text-2xl font-bold mb-2">¡Al día!</h2>
+        <p className="text-muted-foreground mb-8">No hay más tarjetas pendientes en este mazo.</p>
+        <button 
+          className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl font-semibold" 
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft size={20} /> Volver a Mazos
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="fade-in" style={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        height: '100dvh',
-        padding: '1rem',
-        overflow: 'hidden' // Prevent any unexpected scrolling
-    }}>
+    <div className="fade-in flex flex-col h-[100dvh] p-4 overflow-hidden max-w-3xl mx-auto w-full">
       {coinFloat && (
-        <div key={coinFloat.key} style={{
-            position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)',
-            color: '#ffd700', fontSize: '1.5rem', fontWeight: 'bold', pointerEvents: 'none',
-            animation: 'floatUp 1.5s ease-out forwards', zIndex: 100
-        }}>
+        <div key={coinFloat.key} className="absolute top-[20%] left-1/2 -translate-x-1/2 text-yellow-400 text-2xl font-bold pointer-events-none animate-float-up z-50">
           +{coinFloat.amount} 🪙
         </div>
       )}
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0, padding: '0 0.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={() => navigate('/')} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '1.25rem', cursor: 'pointer', padding: '4px' }}>←</button>
+      <div className="flex justify-between items-center mb-6 shrink-0 px-2">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/')} 
+            className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full transition-colors"
+          >
+            <ArrowLeft size={24} />
+          </button>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{deck?.name}</h2>
+            <h2 className="m-0 text-lg font-bold">{deck?.name}</h2>
             {settings?.showTimer && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                ⏱️ {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
+              <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono">
+                <Timer size={12} />
+                {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
               </div>
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '6px', fontSize: '0.8rem', fontWeight: 700 }}>
-          <div style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: '12px' }}>{counts.new}</div>
-          <div style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: '12px', opacity: 0.9 }}>{counts.learning}</div>
-          <div style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: '12px', opacity: 0.8 }}>{counts.review}</div>
+        <div className="flex gap-2 text-xs font-bold">
+          <div className="bg-blue-500/10 text-blue-500 px-2.5 py-1 rounded-full">{counts.new}</div>
+          <div className="bg-orange-500/10 text-orange-500 px-2.5 py-1 rounded-full">{counts.learning}</div>
+          <div className="bg-emerald-500/10 text-emerald-500 px-2.5 py-1 rounded-full">{counts.review}</div>
         </div>
       </div>
 
-      {/* Card area (expands to fill available space) */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative' }}>
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+      {/* Card area */}
+      <div className="flex-1 flex flex-col min-h-0 relative">
+        <div className="flex-1 overflow-y-auto flex flex-col items-center justify-center py-4">
             <FlashCard 
               front={getFront()} 
               back={getBack()} 
@@ -390,38 +356,31 @@ export default function Study() {
             />
         </div>
         
-        {/* Controls fixed at bottom of card area */}
-        <div style={{ marginTop: '1rem', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
+        {/* Controls */}
+        <div className="mt-4 shrink-0 flex flex-col gap-4 pb-4">
           {!isFlipped ? (
             <button 
-              className="btn btn-primary" 
-              style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', borderRadius: '16px' }}
+              className="btn btn-primary w-full py-4 text-lg rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
               onClick={handleFlip}
             >
-              Mostrar Respuesta
+              <Eye size={20} /> Mostrar Respuesta
             </button>
           ) : (
             <RatingButtons intervals={intervals} onRate={handleRate} />
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div className="flex justify-center mt-2">
             <button 
               onClick={handleUndo} 
               disabled={undoStack.length === 0}
-              style={{ 
-                background: 'transparent', 
-                border: 'none', 
-                color: 'var(--text-muted)', 
-                opacity: undoStack.length === 0 ? 0.3 : 1, 
-                fontSize: '0.9rem', 
-                padding: '8px 16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: undoStack.length === 0 ? 'default' : 'pointer'
-              }}
+              className={`
+                flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                ${undoStack.length === 0 
+                  ? 'text-muted-foreground/30 cursor-not-allowed' 
+                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground cursor-pointer'}
+              `}
             >
-              ↩️ Deshacer
+              <Undo2 size={16} /> Deshacer
             </button>
           </div>
         </div>
