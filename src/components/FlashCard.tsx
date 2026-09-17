@@ -11,10 +11,9 @@ function FlashCard({ front, back, isFlipped, onFlip, animationsEnabled = true })
         {/* Front */}
         <div className="flashcard-face flashcard-front">
           <span className="flashcard-face-label">Pregunta</span>
-          <div
-            className="flashcard-content"
-            dangerouslySetInnerHTML={{ __html: front }}
-          />
+          <div className="flashcard-content">
+            <div className="flashcard-inner" dangerouslySetInnerHTML={{ __html: front }} />
+          </div>
           {!isFlipped && (
             <div className="flashcard-tap-hint">
               <span>👆</span> Toca para ver la respuesta <span className="keyboard-hint">· <kbd>Space</kbd></span>
@@ -25,10 +24,9 @@ function FlashCard({ front, back, isFlipped, onFlip, animationsEnabled = true })
         {/* Back */}
         <div className="flashcard-face flashcard-back">
           <span className="flashcard-face-label">Respuesta</span>
-          <div
-            className="flashcard-content"
-            dangerouslySetInnerHTML={{ __html: back }}
-          />
+          <div className="flashcard-content">
+            <div className="flashcard-inner" dangerouslySetInnerHTML={{ __html: back }} />
+          </div>
         </div>
       </div>
     </div>

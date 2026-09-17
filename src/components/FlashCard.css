@@ -3,6 +3,7 @@
   display: flex !important;
   flex-direction: column !important;
   justify-content: flex-start !important;
+  overflow: hidden !important; /* Prevent the entire card from scrolling */
 }
 
 .flashcard-face-label {
@@ -16,48 +17,54 @@
   flex: 1 !important;
   margin: 0 !important;
   padding: 16px 20px !important;
-  overflow-y: auto !important;
+  overflow-y: auto !important; /* Only this container scrolls */
   display: flex !important;
   flex-direction: column !important;
-  justify-content: center !important;
+  justify-content: flex-start !important; /* NOT center, otherwise top overflows are inaccessible */
   text-align: left !important;
 }
 
-.flashcard-content p {
+/* Safe centering: auto margins push it to center when small, and top when large */
+.flashcard-inner {
+  margin: auto 0;
+  width: 100%;
+}
+
+.flashcard-inner p {
   margin-bottom: 1rem;
 }
 
-.flashcard-content p:last-child {
+.flashcard-inner p:last-child {
   margin-bottom: 0;
 }
 
-.flashcard-content ul, .flashcard-content ol {
+.flashcard-inner ul, .flashcard-inner ol {
   margin-bottom: 1rem;
   padding-left: 1.5rem;
 }
 
-.flashcard-content ul {
+.flashcard-inner ul {
   list-style-type: disc;
 }
 
-.flashcard-content ol {
+.flashcard-inner ol {
   list-style-type: decimal;
 }
 
-.flashcard-content li {
+.flashcard-inner li {
   margin-bottom: 0.25rem;
 }
 
-.flashcard-content h1, .flashcard-content h2, .flashcard-content h3, .flashcard-content h4 {
+.flashcard-inner h1, .flashcard-inner h2, .flashcard-inner h3, .flashcard-inner h4 {
   margin-top: 1.25rem;
   margin-bottom: 0.75rem;
   font-weight: 700;
   line-height: 1.3;
 }
 
-.flashcard-content h1 { font-size: 1.5rem; }
-.flashcard-content h2 { font-size: 1.25rem; }
-.flashcard-content h3 { font-size: 1.1rem; }
+.flashcard-inner h1 { font-size: 1.5rem; }
+.flashcard-inner h2 { font-size: 1.25rem; }
+.flashcard-inner h3 { font-size: 1.1rem; }
 
 .flashcard-tap-hint {
   position: static !important;
