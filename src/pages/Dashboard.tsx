@@ -111,19 +111,19 @@ export default function Dashboard() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.new}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>NUEVAS</div>
                   </div>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.learning}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>APRENDIENDO</div>
                   </div>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.review}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>REVISIÓN</div>
                   </div>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{totalDue}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>TOTAL</div>
                   </div>
@@ -147,7 +147,7 @@ export default function Dashboard() {
           );
         })}
 
-        <div className="card" style={{ border: '2px dashed var(--border-medium)', background: 'transparent', padding: 0 }}>
+        <div className="card" style={{ border: '2px dashed var(--border-medium)', background: 'var(--bg-card)', padding: 0 }}>
           <button 
             style={{ width: '100%', padding: '2rem', background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, cursor: 'pointer' }}
             onClick={async () => {
@@ -170,6 +170,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

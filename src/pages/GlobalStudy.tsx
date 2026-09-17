@@ -62,19 +62,19 @@ export default function GlobalStudy() {
                 <h3 className="card-title" style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>{deck.name}</h3>
                 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.new}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>NUEVAS</div>
                   </div>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.learning}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>APRENDIENDO</div>
                   </div>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.review}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>REVISIÓN</div>
                   </div>
-                  <div style={{ background: 'transparent', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '12px', borderRadius: '12px', textAlign: 'center' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.total}</div>
                     <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>TOTAL</div>
                   </div>
@@ -102,6 +102,7 @@ export default function GlobalStudy() {
     </div>
   );
 }
+
 
 
 
