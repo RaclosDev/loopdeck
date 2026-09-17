@@ -33,17 +33,8 @@ public class AuthController {
     ) {}
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthService.RegisterRequest req) {
-        try {
-            return ResponseEntity.ok(authService.register(req));
-        } catch (Exception e) {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            e.printStackTrace(new java.io.PrintWriter(sw));
-            return ResponseEntity.status(500).body(java.util.Map.of(
-                "error", e.getMessage() == null ? "null" : e.getMessage(),
-                "stack", sw.toString()
-            ));
-        }
+    public ResponseEntity<AuthService.AuthResponse> register(@RequestBody AuthService.RegisterRequest req) {
+        return ResponseEntity.ok(authService.register(req));
     }
 
     @PostMapping("/login")

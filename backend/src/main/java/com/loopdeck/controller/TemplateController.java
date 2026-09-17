@@ -38,12 +38,7 @@ public class TemplateController {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        try {
-            Deck importedDeck = templateService.importTemplate(user, type);
-            return ResponseEntity.ok(importedDeck);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().build();
-        }
+        Deck importedDeck = templateService.importTemplate(user, type);
+        return ResponseEntity.ok(importedDeck);
     }
 }

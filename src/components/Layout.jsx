@@ -1,19 +1,68 @@
-import { useEffect } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
 
+const navItems = [
+  { path: '/', icon: '📚', label: 'Mis Mazos', shortLabel: 'Mazos' },
+  { path: '/hub', icon: '✏️', label: 'Centro de Estudio', shortLabel: 'Estudiar' },
+  { path: '/add', icon: '➕', label: 'Añadir Tarjeta', shortLabel: 'Añadir' },
+  { path: '/stats', icon: '📊', label: 'Estadísticas', shortLabel: 'Stats' },
+  { path: '/templates', icon: '📥', label: 'Plantillas', shortLabel: 'Plantillas' },
+  { path: '/browser', icon: '🔍', label: 'Explorar Tarjetas', shortLabel: 'Explorar' },
+  { path: '/settings', icon: '⚙️', label: 'Configuración', shortLabel: 'Ajustes' },
+];
+
+const bottomNavPaths = ['/', '/hub', '/add', '/stats'];
+const moreMenuPaths = ['/templates', '/browser', '/settings'];
+
 function Layout({ children }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef(null);
+  
   const { toasts, deferredPrompt, setDeferredPrompt } = useStore();
   const { user, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // any general user init here
-  }, [user]);
-
   const isStudyPage = location.pathname.startsWith('/study');
+
+  useEffect(() => {
+    setSidebarOpen(false);
+    setMoreMenuOpen(false);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!moreMenuOpen) return;
+    const handleClick = (e) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target)) {
+        setMoreMenuOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleClick);
+    return () => document.removeEventListener('pointerdown', handleClick);
+  }, [moreMenuOpen]);
+
+  // Interceptar PWA
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      const anchor = e.target.closest('a');
+      if (!anchor) return;
+      const href = anchor.getAttribute('href');
+      if (href && href.startsWith('/') && !href.startsWith('//') && anchor.target !== '_blank') {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate(href);
+      }
+    };
+    document.addEventListener('click', handleGlobalClick, { capture: true });
+    return () => document.removeEventListener('click', handleGlobalClick, { capture: true });
+  }, [navigate]);
+
+  const closeSidebar = () => setSidebarOpen(false);
+  const isMoreActive = moreMenuPaths.some(p => location.pathname.startsWith(p));
 
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -28,7 +77,7 @@ function Layout({ children }) {
 
   const handleInstallClick = async () => {
     if (showIosInstall) {
-      alert('🍏 Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari (el cuadrado con la flecha hacia arriba).\n2. Selecciona "Añadir a la pantalla de inicio".\n\nAsí tendrás el icono y la app a pantalla completa.');
+      alert('🍏 Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari.\n2. Selecciona "Añadir a la pantalla de inicio".');
       return;
     }
     
@@ -41,179 +90,179 @@ function Layout({ children }) {
     }
   };
 
-  // Bottom nav items for mobile
-  const bottomNavItems = [
-    { to: '/', icon: '📚', label: 'Mazos', end: true },
-    { to: '/hub', icon: '✏️', label: 'Estudiar', end: true },
-    { to: '/add', icon: '➕', label: 'Añadir', end: false },
-    { to: '/stats', icon: '📊', label: 'Stats', end: false },
-  ];
-
   return (
-    <>
-      {/* Mobile Header */}
-      <div className="mobile-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '26px', height: '26px', borderRadius: '7px' }} />
-          <span className="mobile-header-title">LoopDeck</span>
-        </div>
-        {user ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-            <span style={{ color: '#ff7b00' }}>🔥 {user.streak || 0}</span>
+    <div className="app-root">
+      {!isStudyPage && (
+        <header className="mobile-top-bar">
+          <div style={{ width: '48px' }}>
+            {user && (
+              <span style={{ color: '#ff7b00', fontSize: '0.85rem', fontWeight: 'bold' }}>🔥 {user.streak || 0}</span>
+            )}
           </div>
-        ) : (
-          <div style={{ width: 28 }} />
-        )}
-      </div>
+          <div className="mobile-top-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/loopdeck-icon-192.png" alt="LoopDeck" className="mobile-header-title-img" style={{ width: 26, height: 26, borderRadius: 6 }} />
+            <span style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.2rem', color: 'white' }}>LoopDeck</span>
+          </div>
+          <div style={{ width: '48px' }} />
+        </header>
+      )}
 
-      <div className="app-layout">
-        {/* Sidebar (desktop only — hidden on mobile via CSS) */}
-        <aside className="sidebar">
-            <div className="sidebar-header" style={{ flexDirection: 'column', alignItems: 'center', paddingTop: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: user ? '20px' : '0' }}>
-                <div className="sidebar-logo-icon" style={{ background: 'transparent' }}>
-                  <img src="/loopdeck-icon-192.png" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '8px' }} />
-                </div>
-                <span className="sidebar-logo">LoopDeck</span>
-              </div>
-              
-              {user && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
-                  <div style={{ display: 'flex', gap: '16px', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                    <span style={{ color: '#ff7b00', display: 'flex', alignItems: 'center', gap: '4px' }}>🔥 {user.streak || 0}</span>
-                  </div>
-                </div>
-              )}
+      <div className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`} onClick={closeSidebar} />
+
+      <div className="app-container">
+        <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-header">
+            <div className="sidebar-brand-container" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <img src="/loopdeck-icon-192.png" alt="LoopDeck" className="sidebar-title-img" style={{ width: 32, height: 32, borderRadius: 8 }} />
+              <div style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.4rem', color: 'white' }}>LoopDeck</div>
             </div>
-
-            <nav className="sidebar-nav">
-              <div className="sidebar-section-title">Principal</div>
-
-              <NavLink to="/" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">📚</span>
-                Mis Mazos
-              </NavLink>
-
-              <NavLink to="/hub" end className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">✏️</span>
-                Centro de Estudio
-              </NavLink>
-
-              <NavLink to="/add" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">➕</span>
-                Añadir Tarjeta
-              </NavLink>
-
-              <NavLink to="/stats" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">📊</span>
-                Estadísticas
-              </NavLink>
-
-              <div className="sidebar-section-title" style={{ marginTop: 16 }}>
-                Herramientas
-              </div>
-
-              <NavLink to="/templates" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">📥</span>
-                Plantillas
-              </NavLink>
-
-              <NavLink to="/browser" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">🔍</span>
-                Explorar Tarjetas
-              </NavLink>
-
-              <NavLink to="/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={() => {}}>
-                <span className="link-icon">⚙️</span>
-                Configuración
-              </NavLink>
-
-              {(deferredPrompt || showIosInstall) && (
+            {user && (
+              <div style={{ color: '#ff7b00', fontWeight: 'bold', marginTop: 12 }}>🔥 {user.streak || 0}</div>
+            )}
+          </div>
+          <nav className="sidebar-nav">
+            {navItems.map(item => {
+              const isActive = item.path === '/' 
+                  ? location.pathname === '/' 
+                  : location.pathname.startsWith(item.path);
+              return (
                 <button
-                  className="sidebar-link"
-                  onClick={handleInstallClick}
-                  style={{ width: '100%', textAlign: 'left' }}
+                  key={item.path}
+                  type="button"
+                  className={`nav-item ${isActive ? 'active' : ''}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidebar();
+                    if (location.pathname !== item.path) navigate(item.path);
+                  }}
                 >
-                  <span className="link-icon">📱</span>
-                  Instalar App
+                  <span className="nav-icon">{item.icon}</span>
+                  {item.label}
                 </button>
-              )}
-            </nav>
-
-            <div className="sidebar-footer">
-              {user && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, var(--accent-color), var(--purple-accent))',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '0.875rem', fontWeight: 700, flexShrink: 0
-                  }}>
-                    {user.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-main)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</div>
-                    <div style={{ fontSize: '0.6875rem', color: 'var(--text-dim)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
-                  </div>
-                </div>
-              )}
+              );
+            })}
+            
+            {(deferredPrompt || showIosInstall) && (
               <button
-                id="logout-btn"
-                className="sidebar-link"
-                onClick={logout}
-                style={{ color: 'var(--danger-color)', width: '100%' }}
+                type="button"
+                className="nav-item"
+                onClick={handleInstallClick}
               >
-                <span className="link-icon">🚪</span>
-                Cerrar sesión
+                <span className="nav-icon">📱</span>
+                Instalar App
               </button>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)', marginTop: 8 }}>
-                LoopDeck v0.1.0
-              </div>
-            </div>
-          </aside>
+            )}
+            
+            <button
+              type="button"
+              className="nav-item"
+              onClick={logout}
+              style={{ color: 'var(--color-danger)' }}
+            >
+              <span className="nav-icon">🚪</span>
+              Cerrar sesión
+            </button>
+          </nav>
+        </aside>
 
-        {/* Main Content */}
-        <main
-          className={`main-content ${isStudyPage ? 'study-mode' : ''}`}
-        >
-          {children}
+        <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}>
+          <div className="main-content-inner">
+            {children}
+          </div>
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation */}
       {!isStudyPage && (
-        <nav className="bottom-nav" aria-label="Navegación principal">
-          {bottomNavItems.map(item => {
-            const isActive = item.end
-              ? location.pathname === item.to
-              : location.pathname.startsWith(item.to);
+        <nav className="mobile-bottom-nav" aria-label="Navegación inferior">
+          {navItems.filter(i => bottomNavPaths.includes(i.path)).map(item => {
+            const isActive = item.path === '/' 
+                ? location.pathname === '/' 
+                : location.pathname.startsWith(item.path);
             return (
               <button
-                key={item.to}
-                className={`bottom-nav-item ${isActive ? 'active' : ''}`}
-                onClick={() => navigate(item.to)}
+                key={item.path}
+                type="button"
+                className={`mobile-bottom-item ${isActive ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMoreMenuOpen(false);
+                  if (location.pathname !== item.path) navigate(item.path);
+                }}
                 aria-label={item.label}
               >
-                <span className="bottom-nav-icon">{item.icon}</span>
-                <span className="bottom-nav-label">{item.label}</span>
+                <span className="mobile-bottom-icon">{item.icon}</span>
+                <span className="mobile-bottom-label">{item.shortLabel}</span>
+                {isActive && <span className="mobile-bottom-indicator" />}
               </button>
             );
           })}
+          <button
+            type="button"
+            className={`mobile-bottom-item ${isMoreActive ? 'active' : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMoreMenuOpen(!moreMenuOpen);
+            }}
+            aria-label="Más opciones"
+          >
+            <span className="mobile-bottom-icon">☰</span>
+            <span className="mobile-bottom-label">Más</span>
+            {isMoreActive && <span className="mobile-bottom-indicator" />}
+          </button>
         </nav>
       )}
 
-      {/* Toast Notifications */}
+      {moreMenuOpen && (
+        <div 
+          className="bottom-sheet-overlay"
+          onClick={() => setMoreMenuOpen(false)}
+        >
+          <div 
+            className="bottom-sheet-content"
+            onClick={(e) => e.stopPropagation()}
+            ref={moreMenuRef}
+          >
+            <div className="bottom-sheet-drag-handle" />
+            <h3 className="bottom-sheet-title">Más opciones</h3>
+            <div className="bottom-sheet-grid">
+              {navItems.filter(i => moreMenuPaths.includes(i.path)).map(item => {
+                const isActive = location.pathname.startsWith(item.path);
+                return (
+                  <button
+                    key={item.path}
+                    type="button"
+                    className={`bottom-sheet-item ${isActive ? 'active' : ''}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setMoreMenuOpen(false);
+                      if (location.pathname !== item.path) navigate(item.path);
+                    }}
+                  >
+                    <div className="bottom-sheet-item-icon">{item.icon}</div>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {toasts.length > 0 && (
-        <div className="toast-container">
+        <div className="toast-container" style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
           {toasts.map(toast => (
-            <div key={toast.id} className={`toast ${toast.type}`}>
+            <div key={toast.id} style={{ background: 'var(--bg-glass-strong)', backdropFilter: 'blur(10px)', border: '1px solid var(--border-medium)', color: 'white', padding: '12px 16px', borderRadius: '8px', display: 'flex', gap: 8 }}>
               <span>{toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️'}</span>
               <span>{toast.message}</span>
             </div>
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

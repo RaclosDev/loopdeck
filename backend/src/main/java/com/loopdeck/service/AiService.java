@@ -9,8 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class AiService {
+
+    private static final Logger log = LoggerFactory.getLogger(AiService.class);
 
     @Value("${gemini.api.key}")
     private String geminiApiKey;
@@ -68,8 +73,8 @@ public class AiService {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error llamando a Gemini: " + e.getMessage());
+        } catch (org.springframework.web.client.RestClientException e) {
+            log.error("Error llamando a Gemini: {}", e.getMessage(), e);
         }
         
         return "No se pudo obtener la definición.";
@@ -119,8 +124,8 @@ public class AiService {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error llamando a Gemini Chat: " + e.getMessage());
+        } catch (org.springframework.web.client.RestClientException e) {
+            log.error("Error llamando a Gemini Chat: {}", e.getMessage(), e);
         }
         
         return "Hubo un error al procesar tu solicitud con la IA.";
@@ -190,8 +195,8 @@ public class AiService {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error llamando a Gemini Mass Define: " + e.getMessage());
+        } catch (org.springframework.web.client.RestClientException e) {
+            log.error("Error llamando a Gemini Mass Define: {}", e.getMessage(), e);
         }
         
         return "[]";
@@ -232,8 +237,8 @@ public class AiService {
                     }
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Error buscando imagen en Wikipedia: " + e.getMessage());
+        } catch (org.springframework.web.client.RestClientException e) {
+            log.error("Error buscando imagen en Wikipedia: {}", e.getMessage(), e);
         }
         return null;
     }

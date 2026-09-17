@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 
+@lombok.extern.slf4j.Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -111,7 +112,8 @@ public class AuthService {
         } catch (IllegalArgumentException e) {
             throw e;
         } catch (Exception e) {
-            throw new IllegalArgumentException("Error al verificar con Google: " + e.getMessage());
+            log.error("Error al verificar con Google", e);
+            throw new IllegalArgumentException("Error al verificar credenciales de Google");
         }
     }
 

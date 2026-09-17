@@ -2,6 +2,16 @@ import { useState } from 'react';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
+import { applyThemeColor } from '../utils/colorHelper';
+
+const SKINS = [
+  { id: 'default', name: 'Ascension Blue', color: '#0085FF' },
+  { id: 'ruby', name: 'Ruby', color: '#EF4444' },
+  { id: 'emerald', name: 'Emerald', color: '#10B981' },
+  { id: 'amethyst', name: 'Amethyst', color: '#8B5CF6' },
+  { id: 'amber', name: 'Amber', color: '#F59E0B' },
+  { id: 'cyan', name: 'Cyan', color: '#06B6D4' }
+];
 
 function Settings() {
   const { settings, updateSettings, addToast } = useStore();
@@ -179,12 +189,47 @@ Reglas:
 
         {activeTab === 'appearance' && (
           <div className="glass-panel" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <h3 style={{ margin: 0, color: 'var(--text-main)' }}>Apariencia y Accesibilidad</h3>
+            <h3 style={{ margin: 0, color: 'var(--text-main)' }}>Apariencia</h3>
             
-            <div className="setting-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 600, marginBottom: '1rem' }}>Skin / Tema de Color</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '1rem' }}>
+                {SKINS.map(skin => {
+                  const currentThemeColor = localStorage.getItem('loopdeck_custom_color') || '#0085FF';
+                  const isSelected = currentThemeColor.toLowerCase() === skin.color.toLowerCase();
+                  
+                  return (
+                    <button
+                      key={skin.id}
+                      onClick={() => applyThemeColor(skin.color)}
+                      style={{
+                        background: 'var(--bg-card)',
+                        border: `2px solid ${isSelected ? skin.color : 'var(--border-subtle)'}`,
+                        borderRadius: 'var(--radius-md)',
+                        padding: '1rem 0.5rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                        transition: 'var(--transition-fast)',
+                        boxShadow: isSelected ? `0 0 15px ${skin.color}40` : 'none'
+                      }}
+                    >
+                      <div style={{ width: 24, height: 24, borderRadius: '50%', background: skin.color, boxShadow: `0 0 10px ${skin.color}` }} />
+                      <div style={{ fontSize: '0.8rem', fontWeight: isSelected ? 600 : 400, color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                        {skin.name}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="setting-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
               <div>
                 <div style={{ fontWeight: 600 }}>Animaciones 3D</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>Activa o desactiva la animación de giro al voltear tarjetas. (Recomendado desactivar en dispositivos lentos).</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Giro al voltear tarjetas.</div>
               </div>
               <label className="toggle-switch">
                 <input 
@@ -194,10 +239,6 @@ Reglas:
                 />
                 <span className="slider"></span>
               </label>
-            </div>
-
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', padding: '1rem', background: 'rgba(6,182,212,0.08)', borderRadius: 'var(--radius-md)' }}>
-              ℹ️ LoopDeck actualmente utiliza un diseño Dark Glassmorphism de alto contraste por defecto para reducir la fatiga visual. Pronto añadiremos más temas.
             </div>
           </div>
         )}

@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { applyThemeColor } from './utils/colorHelper';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import GlobalStudy from './pages/GlobalStudy';
@@ -33,6 +34,15 @@ function App() {
   useEffect(() => {
     document.body.className = isDarkMode ? 'dark-mode' : 'light-mode';
   }, [isDarkMode]);
+
+  useEffect(() => {
+    const savedColor = localStorage.getItem('loopdeck_custom_color');
+    if (savedColor) {
+      applyThemeColor(savedColor);
+    } else {
+      applyThemeColor('#0085FF'); // Default
+    }
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {

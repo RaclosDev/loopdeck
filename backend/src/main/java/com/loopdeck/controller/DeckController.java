@@ -75,8 +75,8 @@ public class DeckController {
             doc.setContentType(file.getContentType());
             docRepo.save(doc);
             return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Error reading document file", e);
         }
     }
 

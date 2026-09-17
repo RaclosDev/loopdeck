@@ -24,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:4173}")
+    @Value("${cors.allowed-origins}")
     private String corsAllowedOrigins;
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -59,7 +59,8 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*")); // Permitir cualquier origen
+        List<String> allowedOrigins = Arrays.asList(corsAllowedOrigins.split(","));
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

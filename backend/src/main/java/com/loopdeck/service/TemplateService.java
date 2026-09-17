@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
+@lombok.extern.slf4j.Slf4j
 @Service
 public class TemplateService {
 
@@ -82,8 +83,8 @@ public class TemplateService {
 
                 return deck;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (java.io.IOException e) {
+            log.error("Failed to import template", e);
             throw new RuntimeException("Failed to import template", e);
         }
     }
@@ -97,8 +98,8 @@ public class TemplateService {
             try (InputStream is = resource.getInputStream()) {
                 return objectMapper.readValue(is, new TypeReference<List<Map<String, Object>>>() {});
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (java.io.IOException e) {
+            log.error("Failed to load available templates", e);
             return List.of();
         }
     }
