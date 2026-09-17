@@ -359,11 +359,11 @@ export default function Study() {
       )}
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0, padding: '0 0.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '8px' }}>←</button>
+          <button onClick={() => navigate('/')} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '1.25rem', cursor: 'pointer', padding: '4px' }}>←</button>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.1rem' }}>{deck?.name}</h2>
+            <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>{deck?.name}</h2>
             {settings?.showTimer && (
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 ⏱️ {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
@@ -371,10 +371,10 @@ export default function Study() {
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
-          <span style={{ color: 'var(--accent-primary)', opacity: 0.8 }}>{counts.new}</span>
-          <span style={{ color: 'var(--accent-primary)', opacity: 0.9 }}>{counts.learning}</span>
-          <span style={{ color: 'var(--accent-primary)' }}>{counts.review}</span>
+        <div style={{ display: 'flex', gap: '6px', fontSize: '0.8rem', fontWeight: 700 }}>
+          <div style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: '12px' }}>{counts.new}</div>
+          <div style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: '12px', opacity: 0.9 }}>{counts.learning}</div>
+          <div style={{ background: 'var(--accent-glow)', color: 'var(--accent-primary)', padding: '2px 8px', borderRadius: '12px', opacity: 0.8 }}>{counts.review}</div>
         </div>
       </div>
 
@@ -391,7 +391,7 @@ export default function Study() {
         </div>
         
         {/* Controls fixed at bottom of card area */}
-        <div style={{ marginTop: '1rem', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div style={{ marginTop: '1rem', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: '1rem', paddingBottom: '1rem' }}>
           {!isFlipped ? (
             <button 
               className="btn btn-primary" 
@@ -404,12 +404,22 @@ export default function Study() {
             <RatingButtons intervals={intervals} onRate={handleRate} />
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
             <button 
-              className="icon-btn" 
               onClick={handleUndo} 
               disabled={undoStack.length === 0}
-              style={{ opacity: undoStack.length === 0 ? 0.3 : 1, fontSize: '0.85rem', padding: '8px 12px' }}
+              style={{ 
+                background: 'transparent', 
+                border: 'none', 
+                color: 'var(--text-muted)', 
+                opacity: undoStack.length === 0 ? 0.3 : 1, 
+                fontSize: '0.9rem', 
+                padding: '8px 16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: undoStack.length === 0 ? 'default' : 'pointer'
+              }}
             >
               ↩️ Deshacer
             </button>
