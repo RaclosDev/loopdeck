@@ -1,7 +1,5 @@
-﻿import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
-
-
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -97,7 +95,7 @@ export default function AuthPage() {
       <div className="auth-card glass">
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-icon">Ã¢Å¡Â¡</div>
+          <div className="auth-logo-icon">⚡</div>
           <h1 className="auth-logo-text">LoopDeck</h1>
           <p className="auth-logo-sub">Spaced repetition, reimagined</p>
         </div>
@@ -108,7 +106,7 @@ export default function AuthPage() {
             className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
             onClick={() => { setMode('login'); setError(''); }}
           >
-            Iniciar sesiÃƒÂ³n
+            Iniciar sesión
           </button>
           <button
             className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
@@ -160,12 +158,12 @@ export default function AuthPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="auth-password">ContraseÃƒÂ±a</label>
+            <label htmlFor="auth-password">Contraseña</label>
             <input
               id="auth-password"
               type="password"
               name="password"
-              placeholder={mode === 'register' ? 'MÃƒÂ­nimo 6 caracteres' : 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢'}
+              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
               value={form.password}
               onChange={handleChange}
               required
@@ -176,7 +174,7 @@ export default function AuthPage() {
 
           {error && (
             <div className="auth-error">
-              <span>Ã¢Å¡Â Ã¯Â¸Â</span> {error}
+              <span>⚠️</span> {error}
             </div>
           )}
 
@@ -197,18 +195,16 @@ export default function AuthPage() {
 
         <p className="auth-footer">
           {mode === 'login'
-            ? 'Ã‚Â¿Â¿No tienes cuenta? '
-            : 'Ã‚Â¿Â¿Ya tienes cuenta? '}
+            ? '¿No tienes cuenta? '
+            : '¿Ya tienes cuenta? '}
           <button
             className="link-btn"
             onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}
           >
-            {mode === 'login' ? 'RegÃƒÂ­strate' : 'Inicia sesiÃƒÂ³n'}
+            {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
           </button>
         </p>
       </div>
     </div>
   );
 }
-
-
