@@ -9276,3 +9276,58 @@ textarea.glass-input {
   background: rgba(255, 255, 255, 0.15);
 }
 
+
+/* =========================================================================
+   MOBILE STUDY VIEW FIXES (Legibility & Spacing)
+   ========================================================================= */
+@media (max-width: 768px) {
+  /* Enlarge Rating Buttons & space them out */
+  .rating-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+    padding: 0 8px !important;
+  }
+  
+  .rating-btn {
+    padding: 16px 8px !important;
+    min-height: 85px !important;
+    border-radius: 16px !important;
+  }
+  
+  .rating-btn .rating-label {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.5px !important;
+  }
+  
+  .rating-btn .rating-interval {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    margin-top: 6px !important;
+    opacity: 0.9 !important;
+  }
+  
+  .rating-btn .rating-key {
+    display: none !important; /* No physical keyboard on mobile */
+  }
+
+  /* Improve flashcard display size on mobile */
+  .flashcard-face {
+    padding: 24px 20px !important;
+    min-height: 280px !important;
+  }
+  
+  .flashcard-content {
+    font-size: 1.25rem !important;
+    line-height: 1.6 !important;
+  }
+
+  /* Bigger show answer button */
+  .show-answer-btn {
+    padding: 20px !important;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    border-radius: 16px !important;
+  }
+}
