@@ -99,9 +99,11 @@ function Layout({ children }) {
               <span style={{ color: '#ff7b00', fontSize: '0.85rem', fontWeight: 'bold' }}>🔥 {user.streak || 0}</span>
             )}
           </div>
-          <div className="mobile-top-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <img src="/loopdeck-icon-192.png" alt="LoopDeck" className="mobile-header-title-img" style={{ width: 26, height: 26, borderRadius: 6 }} />
-            <span style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.2rem', color: 'white' }}>LoopDeck</span>
+          <div className="mobile-top-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="brand-logo-text" style={{ fontSize: '1.5rem' }}>
+              <span className="brand-logo-loop">Loop</span>
+              <span className="brand-logo-deck">Deck</span>
+            </div>
           </div>
           <div style={{ width: '48px' }} />
         </header>
@@ -112,9 +114,11 @@ function Layout({ children }) {
       <div className="app-container">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
-            <div className="sidebar-brand-container" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <img src="/loopdeck-icon-192.png" alt="LoopDeck" className="sidebar-title-img" style={{ width: 32, height: 32, borderRadius: 8 }} />
-              <div style={{ fontFamily: 'Outfit', fontWeight: 800, fontSize: '1.4rem', color: 'white' }}>LoopDeck</div>
+            <div className="sidebar-brand-container" style={{ display: 'flex', alignItems: 'center' }}>
+              <div className="brand-logo-text" style={{ fontSize: '1.75rem' }}>
+                <span className="brand-logo-loop">Loop</span>
+                <span className="brand-logo-deck">Deck</span>
+              </div>
             </div>
             {user && (
               <div style={{ color: '#ff7b00', fontWeight: 'bold', marginTop: 12 }}>🔥 {user.streak || 0}</div>

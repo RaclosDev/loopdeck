@@ -261,6 +261,26 @@ body {
   font-size: 0.9rem;
 }
 
+/* Typography Logo (Option A) */
+.brand-logo-text {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+.brand-logo-loop {
+  font-weight: 300;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
+}
+.brand-logo-deck {
+  font-weight: 900;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .quick-add-bar {
   display: flex;
   align-items: center;
