@@ -3,8 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
+import { Note } from '../types';
 
-function shuffleArray(array) {
+function shuffleArray<T>(array: T[]): T[] {
   const newArr = [...array];
   for (let i = newArr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -13,18 +14,22 @@ function shuffleArray(array) {
   return newArr;
 }
 
+interface QuizOption {
+  text: string;
+  isCorrect: boolean;
+}
+
 function StudyQuiz() {
-  const { deckId } = useParams();
+  const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast } = useStore();
   
-  const [deck, setDeck] = useState(null);
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [options, setOptions] = useState([]);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [options, setOptions] = useState<QuizOption[]>([]);
+  const [selectedOption, setSelectedOption] = useState<QuizOption | null>(null);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
@@ -39,9 +44,8 @@ function StudyQuiz() {
           navigate('/');
           return;
         }
-        setDeck(d);
 
-        const allNotes = await notesApi.getByDeck(deckId);
+        const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
            addToast('Necesitas al menos 2 tarjetas para el modo Quiz', 'warning');
            navigate(`/hub/${deckId}`);
@@ -62,7 +66,7 @@ function StudyQuiz() {
     loadData();
   }, [deckId, navigate, addToast]);
 
-  const generateOptions = (allNotes, targetIndex) => {
+  const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
     const targetFields = JSON.parse(targetNote.fieldsJson || '{}');
     const correctBack = targetFields.back || '';
@@ -84,7 +88,7 @@ function StudyQuiz() {
     setSelectedOption(null);
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option: QuizOption) => {
     if (selectedOption !== null) return; // already answered
     setSelectedOption(option);
     

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Clock } from 'lucide-react';
 
 const RATING_STYLES = {
@@ -8,7 +7,13 @@ const RATING_STYLES = {
   easy: { color: 'text-blue-500', bgHover: 'hover:bg-blue-500/10', border: 'border-blue-500/20' },
 };
 
-function RatingButtons({ intervals, onRate, disabled }) {
+interface RatingButtonsProps {
+  intervals: Record<number, string> | null;
+  onRate: (rating: number) => void;
+  disabled?: boolean;
+}
+
+function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
   if (!intervals) return null;
 
   const buttons = [
@@ -21,7 +26,7 @@ function RatingButtons({ intervals, onRate, disabled }) {
   return (
     <div className="grid grid-cols-4 gap-2 w-full mt-4">
       {buttons.map((btn) => {
-        const style = RATING_STYLES[btn.key];
+        const style = RATING_STYLES[btn.key as keyof typeof RATING_STYLES];
         return (
           <button
             key={btn.key}

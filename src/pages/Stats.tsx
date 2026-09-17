@@ -47,7 +47,7 @@ export default function Stats() {
             easeCount++;
           }
           totalLapses += (c.lapses || 0);
-          if (c.interval >= 21) mature++;
+          if (c.intervalDays >= 21) mature++;
           if (c.suspended) suspended++;
         });
 

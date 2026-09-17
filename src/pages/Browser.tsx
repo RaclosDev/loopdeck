@@ -2,17 +2,29 @@ import { useState, useEffect } from 'react';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, studyApi } from '../services/api';
 import Modal from '../components/Modal';
+import { Deck, Note } from '../types';
+
+interface ParsedFields {
+  front?: string;
+  back?: string;
+  [key: string]: any;
+}
+
+interface BrowserNote extends Note {
+  parsedFields: ParsedFields;
+  state: string;
+}
 
 export default function Browser() {
-  const [decks, setDecks] = useState([]);
-  const [notes, setNotes] = useState([]);
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [notes, setNotes] = useState<BrowserNote[]>([]);
   const [selectedDeckId, setSelectedDeckId] = useState('');
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [tags, setTags] = useState([]);
+  const [tags, setTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState('');
   
-  const [editingNote, setEditingNote] = useState(null);
+  const [editingNote, setEditingNote] = useState<BrowserNote | null>(null);
   const [editFront, setEditFront] = useState('');
   const [editBack, setEditBack] = useState('');
   const [saving, setSaving] = useState(false);
@@ -30,19 +42,19 @@ export default function Browser() {
     if (!selectedDeckId) return;
     setLoading(true);
     notesApi.getByDeck(selectedDeckId).then(async (data) => {
-      const allTags = new Set();
+      const allTags = new Set<string>();
       data.forEach(n => {
         if (n.tags) n.tags.split(',').forEach(t => allTags.add(t.trim()));
       });
       setTags(Array.from(allTags).filter(t => t));
 
       const cards = await studyApi.getDueCards(selectedDeckId, 10000);
-      const cardStateMap = {};
+      const cardStateMap: Record<string, string> = {};
       cards.forEach(c => {
         cardStateMap[c.card.noteId] = c.card.state;
       });
 
-      const processed = data.map(n => ({
+      const processed: BrowserNote[] = data.map(n => ({
         ...n,
         parsedFields: JSON.parse(n.fieldsJson || '{}'),
         state: cardStateMap[n.id] || 'new'
@@ -62,7 +74,7 @@ export default function Browser() {
     return matchSearch && matchTag;
   });
 
-  const handleEditClick = (note) => {
+  const handleEditClick = (note: BrowserNote) => {
     setEditingNote(note);
     setEditFront(note.parsedFields.front || '');
     setEditBack(note.parsedFields.back || '');
@@ -84,7 +96,7 @@ export default function Browser() {
     }
   };
 
-  const handleDelete = async (noteId) => {
+  const handleDelete = async (noteId: string) => {
     if (!window.confirm('¿Seguro que quieres eliminar esta nota y sus tarjetas?')) return;
     try {
       await notesApi.delete(noteId);
@@ -95,7 +107,7 @@ export default function Browser() {
     }
   };
 
-  const getStateColor = (state) => {
+  const getStateColor = (state: string) => {
     if (state === 'new') return 'var(--srs-new)';
     if (state === 'learning' || state === 'relearning') return 'var(--srs-learning)';
     if (state === 'review') return 'var(--srs-review)';

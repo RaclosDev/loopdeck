@@ -1,24 +1,30 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, aiApi } from '../services/api';
 import { marked } from 'marked';
+import { Deck } from '../types';
+
+interface Message {
+  role: 'user' | 'ai';
+  text: string;
+}
 
 function StudyTutor() {
-  const { deckId } = useParams();
+  const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast } = useStore();
   
-  const [deck, setDeck] = useState(null);
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [contextString, setContextString] = useState('');
   const [loading, setLoading] = useState(true);
   
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     { role: 'ai', text: '¡Hola! Soy tu Tutor IA. He leído las tarjetas de este mazo. ¿En qué concepto quieres que te ayude o profundice?' }
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -33,7 +39,7 @@ function StudyTutor() {
         }
         setDeck(d);
 
-        const allNotes = await notesApi.getByDeck(deckId);
+        const allNotes = await notesApi.getByDeck(deckId!);
         
         // Build the context string
         let context = `Mazo: ${d.name}\n\n`;
@@ -70,7 +76,7 @@ function StudyTutor() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSend = async (e) => {
+  const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isTyping) return;
 

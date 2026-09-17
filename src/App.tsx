@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { applyThemeColor } from './utils/colorHelper';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -20,7 +20,7 @@ import Templates from './pages/Templates';
 import useAuthStore from './store/useAuthStore';
 import useStore from './store/useStore';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   return isAuthenticated ? children : <Navigate to="/auth" replace />;
 }
@@ -29,11 +29,10 @@ function App() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
   const updateUser = useAuthStore(s => s.updateUser);
   const setDeferredPrompt = useStore(s => s.setDeferredPrompt);
-  const { isDarkMode } = useStore();
 
   useEffect(() => {
-    document.body.className = isDarkMode ? 'dark-mode' : 'light-mode';
-  }, [isDarkMode]);
+    document.body.className = 'dark-mode';
+  }, []);
 
   useEffect(() => {
     const savedColor = localStorage.getItem('loopdeck_custom_color');
@@ -55,7 +54,7 @@ function App() {
   }, [isAuthenticated, updateUser]);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e) => {
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
     };

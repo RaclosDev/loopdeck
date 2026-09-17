@@ -8,7 +8,7 @@ const PRESETS = ['#0085FF', '#E11D48', '#FFFFFF', '#FF5E00', '#8B5CF6', '#10B981
 
 export default function Settings() {
   const { user, logout } = useAuthStore();
-  const { settings, updateSettings, addToast } = useStore();
+  const { settings, updateSettings } = useStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('study');
   const [customColor, setCustomColor] = useState(localStorage.getItem('loopdeck_custom_color') || '#0085FF');
@@ -24,10 +24,6 @@ export default function Settings() {
       useAuthStore.getState().logout();
       window.location.href = '/auth';
     }
-  };
-
-  const handleClearCache = () => {
-    addToast('Caché limpiada', 'success');
   };
 
   const tabs = [

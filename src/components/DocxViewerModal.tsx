@@ -2,10 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import * as docx from 'docx-preview';
 import { decksApi } from '../services/api';
 
-function DocxViewerModal({ isOpen, onClose, deckId }) {
-  const containerRef = useRef(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+interface DocxViewerModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  deckId: string | null;
+}
+
+function DocxViewerModal({ isOpen, onClose, deckId }: DocxViewerModalProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !deckId) return;
@@ -27,7 +33,7 @@ function DocxViewerModal({ isOpen, onClose, deckId }) {
         
         if (isMounted && containerRef.current) {
           // Render docx
-          await docx.renderAsync(blob, containerRef.current, null, {
+          await docx.renderAsync(blob, containerRef.current, undefined, {
             className: 'docx-viewer',
             inWrapper: false,
             ignoreWidth: true,

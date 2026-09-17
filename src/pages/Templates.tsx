@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { templatesApi } from '../services/api';
+import { TemplateDeck } from '../types';
 
 export default function Templates() {
-  const [templates, setTemplates] = useState([]);
+  const [templates, setTemplates] = useState<TemplateDeck[]>([]);
   const [loading, setLoading] = useState(true);
-  const [importingId, setImportingId] = useState(null);
+  const [importingId, setImportingId] = useState<string | null>(null);
   const { addToast } = useStore();
   const navigate = useNavigate();
 
@@ -22,7 +23,7 @@ export default function Templates() {
       });
   }, [addToast]);
 
-  const handleImportTemplate = async (templateId) => {
+  const handleImportTemplate = async (templateId: string) => {
     if (importingId) return;
     setImportingId(templateId);
     try {
@@ -51,28 +52,30 @@ export default function Templates() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-          {templates.map(t => (
-            <div key={t.id} className="card" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
+          {templates.map((template: any) => (
+            <div key={template.id} className="card" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{t.icon} {t.name}</h3>
+                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{template.icon} {template.name}</h3>
                 <span style={{ fontSize: '0.75rem', padding: '2px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}>
-                  {t.category}
+                  {template.category}
                 </span>
               </div>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', flex: 1, marginBottom: '1rem', lineHeight: 1.5 }}>
-                {t.description}
+                {template.description}
               </p>
-              <div style={{ background: 'var(--bg-glass)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, width: 'fit-content', marginBottom: '1.5rem' }}>
-                {t.cardCount} tarjetas
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                  {template.cardCount} tarjetas
+                </span>
+                <button 
+                  className="btn btn-primary" 
+                  onClick={() => handleImportTemplate(template.id)}
+                  disabled={importingId === template.id}
+                  style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                >
+                  {importingId === template.id ? 'Importando...' : 'Descargar'}
+                </button>
               </div>
-              <button 
-                className="btn btn-primary"
-                style={{ width: '100%', padding: '0.875rem', borderRadius: '12px' }}
-                onClick={() => handleImportTemplate(t.id)}
-                disabled={!!importingId}
-              >
-                {importingId === t.id ? 'Descargando...' : '📥 Descargar Mazo'}
-              </button>
             </div>
           ))}
         </div>

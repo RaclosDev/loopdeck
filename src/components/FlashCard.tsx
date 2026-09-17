@@ -1,7 +1,14 @@
-import React from 'react';
 import { RotateCcw } from 'lucide-react';
 
-export default function FlashCard({ front, back, isFlipped, onFlip, cardState }) {
+interface FlashCardProps {
+  front: string;
+  back: string;
+  isFlipped: boolean;
+  onFlip: () => void;
+  cardState: string;
+}
+
+export default function FlashCard({ front, back, isFlipped, onFlip, cardState }: FlashCardProps) {
   const getStateColor = () => {
     if (cardState === 'new') return 'var(--srs-new, #3b82f6)';
     if (cardState === 'learning' || cardState === 'relearning') return 'var(--srs-learning, #f97316)';

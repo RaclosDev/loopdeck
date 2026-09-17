@@ -4,7 +4,9 @@ import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
 
-function shuffleArray(array) {
+import { Note } from '../types';
+
+function shuffleArray<T>(array: T[]): T[] {
   const newArr = [...array];
   for (let i = newArr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -13,20 +15,24 @@ function shuffleArray(array) {
   return newArr;
 }
 
+interface QuizOption {
+  text: string;
+  isCorrect: boolean;
+}
+
 function StudyChunkedQuiz() {
-  const { deckId } = useParams();
+  const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast } = useStore();
   
-  const [deck, setDeck] = useState(null);
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [chunkSize, setChunkSize] = useState(10);
   const [currentChunkStart, setCurrentChunkStart] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [options, setOptions] = useState([]);
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [options, setOptions] = useState<QuizOption[]>([]);
+  const [selectedOption, setSelectedOption] = useState<QuizOption | null>(null);
   
   // Track scores for the current chunk
   const [chunkScore, setChunkScore] = useState(0);
@@ -45,9 +51,8 @@ function StudyChunkedQuiz() {
           navigate('/');
           return;
         }
-        setDeck(d);
 
-        const allNotes = await notesApi.getByDeck(deckId);
+        const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
            addToast('Necesitas al menos 2 tarjetas para el modo Test', 'warning');
            navigate(`/hub/${deckId}`);
@@ -68,7 +73,7 @@ function StudyChunkedQuiz() {
     loadData();
   }, [deckId, navigate, addToast]);
 
-  const generateOptions = (allNotes, targetIndex) => {
+  const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
     if (!targetNote) return;
 
@@ -92,7 +97,7 @@ function StudyChunkedQuiz() {
     setSelectedOption(null);
   };
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option: QuizOption) => {
     if (selectedOption !== null) return; // already answered
     setSelectedOption(option);
     
@@ -132,7 +137,7 @@ function StudyChunkedQuiz() {
     generateOptions(notes, nextStart);
   };
 
-  const handleChunkSizeChange = (e) => {
+  const handleChunkSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newSize = parseInt(e.target.value, 10);
     setChunkSize(newSize);
   };

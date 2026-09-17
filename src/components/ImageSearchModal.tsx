@@ -1,13 +1,20 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQuery = '' }) {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const inputRef = useRef(null);
+interface ImageSearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (url: string) => void;
+  initialQuery?: string;
+}
 
-  const performSearch = useCallback(async (searchQuery) => {
+export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQuery = '' }: ImageSearchModalProps) {
+  const [query, setQuery] = useState<string>('');
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const performSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
 
     setLoading(true);
@@ -19,8 +26,8 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
       
       const pages = data.query?.pages || {};
       const images = Object.values(pages)
-        .filter(page => page.imageinfo && page.imageinfo.length > 0)
-        .map(page => {
+        .filter((page: any) => page.imageinfo && page.imageinfo.length > 0)
+        .map((page: any) => {
           const info = page.imageinfo[0];
           const cleanTitle = page.title.replace(/^File:/, '').replace(/\.\w+$/, '');
           return {
@@ -63,7 +70,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
     };
   }, [isOpen, initialQuery, performSearch]);
 
-  const searchImages = (e) => {
+  const searchImages = (e: React.FormEvent) => {
     e.preventDefault();
     performSearch(query);
   };

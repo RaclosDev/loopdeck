@@ -2,16 +2,16 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
-import { marked } from 'marked';
+import { Deck, Note } from '../types';
 import FlashCard from '../components/FlashCard';
 
 function StudyExplore() {
-  const { deckId } = useParams();
+  const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast, settings } = useStore();
   
-  const [deck, setDeck] = useState(null);
-  const [notes, setNotes] = useState([]);
+  const [deck, setDeck] = useState<Deck | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,7 +31,7 @@ function StudyExplore() {
         setDeck(d);
 
         // For explore mode, we just load all notes and display them.
-        const allNotes = await notesApi.getByDeck(deckId);
+        const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
 
       } catch (e) {
@@ -59,7 +59,7 @@ function StudyExplore() {
   };
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         setIsFlipped(prev => !prev);
@@ -127,7 +127,7 @@ function StudyExplore() {
               back={fields.back || ''}
               isFlipped={isFlipped}
               onFlip={() => setIsFlipped(!isFlipped)}
-              animationsEnabled={settings?.animationsEnabled}
+              cardState="new"
             />
           </div>
 

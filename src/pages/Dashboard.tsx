@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, studyApi } from '../services/api';
+import { Deck } from '../types';
 
 export default function Dashboard() {
-  const [decks, setDecks] = useState([]);
-  const [deckCounts, setDeckCounts] = useState({});
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [deckCounts, setDeckCounts] = useState<Record<string, { new: number, learning: number, review: number, total: number }>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { addToast } = useStore();
@@ -17,7 +18,7 @@ export default function Dashboard() {
       const ds = await decksApi.getAll();
       setDecks(ds);
 
-      const counts = {};
+      const counts: Record<string, { new: number, learning: number, review: number, total: number }> = {};
       for (const deck of ds) {
         const cards = await studyApi.getDueCards(deck.id, 10000);
         let n = 0, l = 0, r = 0;
@@ -43,7 +44,7 @@ export default function Dashboard() {
   const totalLearning = Object.values(deckCounts).reduce((s, c) => s + c.learning, 0);
   const totalReview = Object.values(deckCounts).reduce((s, c) => s + c.review, 0);
 
-  const handleDelete = async (id, name) => {
+  const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`¿Seguro que quieres eliminar el mazo "${name}" y todas sus tarjetas?`)) return;
     try {
       await decksApi.delete(id);
@@ -54,7 +55,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleEdit = async (id, currentName) => {
+  const handleEdit = async (id: string, currentName: string) => {
     const newName = window.prompt('Nuevo nombre del mazo:', currentName);
     if (!newName || newName.trim() === currentName) return;
     try {

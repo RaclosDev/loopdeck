@@ -16,10 +16,14 @@ const navItems = [
 const bottomNavPaths = ['/', '/hub', '/add', '/stats'];
 const moreMenuPaths = ['/templates', '/browser', '/settings'];
 
-function Layout({ children }) {
+interface LayoutProps {
+  children: React.ReactNode;
+}
+
+function Layout({ children }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const moreMenuRef = useRef(null);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
   
   const { toasts, deferredPrompt, setDeferredPrompt } = useStore();
   const { user, logout } = useAuthStore();
@@ -39,8 +43,8 @@ function Layout({ children }) {
 
   useEffect(() => {
     if (!moreMenuOpen) return;
-    const handleClick = (e) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target)) {
+    const handleClick = (e: Event) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
         setMoreMenuOpen(false);
       }
     };
@@ -50,8 +54,9 @@ function Layout({ children }) {
 
   // Interceptar PWA
   useEffect(() => {
-    const handleGlobalClick = (e) => {
-      const anchor = e.target.closest('a');
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const anchor = target.closest('a');
       if (!anchor) return;
       const href = anchor.getAttribute('href');
       if (href && href.startsWith('/') && !href.startsWith('//') && anchor.target !== '_blank') {
@@ -73,7 +78,7 @@ function Layout({ children }) {
   };
 
   const isStandalone = () => {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    return window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
   };
 
   const showIosInstall = isIos() && !isStandalone();

@@ -1,6 +1,14 @@
 import { useEffect } from 'react';
 
-function Modal({ isOpen, onClose, title, children, footer }) {
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: React.ReactNode;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}
+
+function Modal({ isOpen, onClose, title, children, footer }: ModalProps) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';

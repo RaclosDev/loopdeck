@@ -1,20 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, studyApi, notesApi } from '../services/api';
 import DocxViewerModal from '../components/DocxViewerModal';
+import { Deck } from '../types';
 
 function StudyHub() {
-  const { deckId } = useParams();
+  const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast } = useStore();
-  const [deck, setDeck] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [deck, setDeck] = useState<Deck | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [stats, setStats] = useState({ due: 0, total: 0 });
-  const [hasDocument, setHasDocument] = useState(false);
-  const [showDocModal, setShowDocModal] = useState(false);
-  const [uploadingDoc, setUploadingDoc] = useState(false);
-  const fileInputRef = useRef(null);
+  const [hasDocument, setHasDocument] = useState<boolean>(false);
+  const [showDocModal, setShowDocModal] = useState<boolean>(false);
+  const [uploadingDoc, setUploadingDoc] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const loadDeckInfo = async () => {
@@ -30,8 +31,8 @@ function StudyHub() {
         setDeck(d);
 
         // Fetch counts (we just need a rough idea to show recommendations)
-        const dueCards = await studyApi.getDueCards(deckId, 1000);
-        const allNotes = await notesApi.getByDeck(deckId);
+        const dueCards = await studyApi.getDueCards(deckId!, 1000);
+        const allNotes = await notesApi.getByDeck(deckId!);
         
         setStats({
           due: dueCards.length,
@@ -39,7 +40,7 @@ function StudyHub() {
         });
 
         try {
-          const docInfo = await decksApi.hasDocument(deckId);
+          const docInfo = await decksApi.hasDocument(deckId!);
           setHasDocument(docInfo?.hasDocument || false);
         } catch (err) {
           console.warn("No se pudo obtener info del documento", err);
@@ -55,7 +56,7 @@ function StudyHub() {
     loadDeckInfo();
   }, [deckId, navigate, addToast]);
 
-  const handleUploadDocument = async (e) => {
+  const handleUploadDocument = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
@@ -67,10 +68,10 @@ function StudyHub() {
     setUploadingDoc(true);
     try {
       addToast('Subiendo documento...', 'info');
-      await decksApi.uploadDocument(deckId, file);
+      await decksApi.uploadDocument(deckId!, file);
       setHasDocument(true);
       addToast('Documento vinculado correctamente', 'success');
-    } catch(err) {
+    } catch(err: any) {
       addToast('Error subiendo documento: ' + err.message, 'error');
     } finally {
       setUploadingDoc(false);
@@ -220,7 +221,7 @@ function StudyHub() {
       <DocxViewerModal 
         isOpen={showDocModal} 
         onClose={() => setShowDocModal(false)} 
-        deckId={deckId} 
+        deckId={deckId || null} 
       />
     </div>
   );

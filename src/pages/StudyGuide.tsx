@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
+import { Deck, Note } from '../types';
 
 function StudyGuide() {
-  const { deckId } = useParams();
+  const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const { addToast } = useStore();
-  const [deck, setDeck] = useState(null);
-  const [notes, setNotes] = useState([]);
+  const [deck, setDeck] = useState<Deck | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,7 +26,7 @@ function StudyGuide() {
         }
         setDeck(d);
 
-        const allNotes = await notesApi.getByDeck(deckId);
+        const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
 
       } catch (e) {

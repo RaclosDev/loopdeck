@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, studyApi } from '../services/api';
+import { Deck, DueCardDto } from '../types';
 
 export default function GlobalStudy() {
-  const [decks, setDecks] = useState([]);
-  const [deckCounts, setDeckCounts] = useState({});
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [deckCounts, setDeckCounts] = useState<Record<string, { new: number, learning: number, review: number, total: number }>>({});
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { addToast } = useStore();
@@ -18,10 +19,10 @@ export default function GlobalStudy() {
         data.map(d => studyApi.getDueCards(d.id, 1000).then(cards => ({ id: d.id, cards })))
       );
 
-      const counts = {};
+      const counts: Record<string, { new: number, learning: number, review: number, total: number }> = {};
       countResults.forEach(res => {
         if (res.status === 'fulfilled') {
-          const { id, cards } = res.value;
+          const { id, cards } = res.value as { id: string, cards: DueCardDto[] };
           let n = 0, l = 0, r = 0;
           cards.forEach(c => {
             if (c.card.state === 'new') n++;
@@ -54,7 +55,6 @@ export default function GlobalStudy() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, total: 0 };
-          const progress = counts.total === 0 ? 100 : Math.max(5, ((counts.total - (counts.new + counts.learning + counts.review)) / counts.total) * 100);
 
           return (
             <div key={deck.id} className="card" onClick={() => navigate(`/hub/${deck.id}`)} style={{ cursor: 'pointer', overflow: 'hidden', padding: 0, marginBottom: '1rem', display: 'flex', flexDirection: 'column' }}>

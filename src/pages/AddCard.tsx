@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { decksApi, notesApi } from '../services/api';
+import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../store/useStore';
+import { decksApi, notesApi } from '../services/api';
+import { Deck } from '../types';
 
 export default function AddCard() {
-  const { deckId } = useParams();
-  const navigate = useNavigate();
-  const { addToast } = useStore();
-  
-  const [decks, setDecks] = useState([]);
-  const [selectedDeck, setSelectedDeck] = useState(deckId || '');
+  const { deckId: urlDeckId } = useParams<{ deckId: string }>();
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [selectedDeck, setSelectedDeck] = useState<string>(urlDeckId || '');
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [noteType, setNoteType] = useState('basic');
+
+  const navigate = useNavigate();
+  const { addToast } = useStore();
 
   useEffect(() => {
     decksApi.getAll().then(data => {
@@ -49,8 +50,8 @@ export default function AddCard() {
       addToast('Tarjeta añadida', 'success');
       setFront('');
       setBack('');
-    } catch (e) {
-      addToast('Error al guardar: ' + e.message, 'error');
+    } catch (e: any) {
+      addToast(e.message || 'Error al guardar', 'error');
     } finally {
       setSaving(false);
     }

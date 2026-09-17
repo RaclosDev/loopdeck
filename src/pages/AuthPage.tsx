@@ -1,16 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
 
+declare global {
+  interface Window {
+    google: any;
+  }
+}
+
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [form, setForm] = useState({ email: '', name: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, register, googleLogin } = useAuthStore();
-  const googleBtnRef = useRef(null);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
   const [googleClientId, setGoogleClientId] = useState(null);
 
-  const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   useEffect(() => {
     fetch('/api/auth/config')
@@ -55,19 +61,19 @@ export default function AuthPage() {
     }
   }, [googleClientId, mode]);
 
-  const handleGoogleResponse = async (response) => {
+  const handleGoogleResponse = async (response: any) => {
     setError('');
     setLoading(true);
     try {
       await googleLogin(response.credential);
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      setError(err.message || 'Error con Google login');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -77,8 +83,8 @@ export default function AuthPage() {
         if (form.name.trim().length < 2) throw new Error('El nombre debe tener al menos 2 caracteres');
         await register(form.email, form.name, form.password);
       }
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      setError(err.message || 'Error en auth');
     } finally {
       setLoading(false);
     }
