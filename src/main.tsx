@@ -10,6 +10,14 @@ if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || wi
     navigator.serviceWorker.register('/sw.js').catch(err => {
       console.warn('Service worker registration failed', err);
     });
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
   });
 }
 
