@@ -1,6 +1,7 @@
 package com.loopdeck.service;
 
 import com.loopdeck.model.Deck;
+import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class DeckService {
 
     private final DeckRepository deckRepository;
     private final NoteRepository noteRepository;
+    private final CardRepository cardRepository;
 
     public record CreateDeckRequest(String name, String description, String parentId) {}
     public record UpdateDeckRequest(String name, String description) {}
@@ -45,6 +47,7 @@ public class DeckService {
     public void deleteDeck(String userId, String deckId) {
         Deck deck = deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+        cardRepository.deleteByDeckId(deckId); // Prevents orphaned cards!
         noteRepository.deleteByDeckId(deckId);
         deckRepository.delete(deck);
     }

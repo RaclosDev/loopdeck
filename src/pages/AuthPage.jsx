@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
 
-const GOOGLE_CLIENT_ID = '498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com';
+
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -10,15 +10,29 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const { login, register, googleLogin } = useAuthStore();
   const googleBtnRef = useRef(null);
+  const [googleClientId, setGoogleClientId] = useState(null);
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
+  useEffect(() => {
+    fetch('/api/auth/config')
+      .then(res => res.json())
+      .then(data => {
+        if (data.googleClientId && data.googleClientId !== 'TU_CLIENT_ID_AQUI') {
+          setGoogleClientId(data.googleClientId);
+        }
+      })
+      .catch(err => console.error('Error fetching auth config', err));
+  }, []);
+
   // Initialize Google Sign-In
   useEffect(() => {
+    if (!googleClientId) return;
+
     const initGoogle = () => {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
+          client_id: googleClientId,
           callback: handleGoogleResponse,
         });
         if (googleBtnRef.current) {
@@ -46,7 +60,7 @@ export default function AuthPage() {
       }, 100);
       return () => clearInterval(interval);
     }
-  }, []);
+  }, [googleClientId]);
 
   const handleGoogleResponse = async (response) => {
     setError('');
@@ -83,7 +97,7 @@ export default function AuthPage() {
       <div className="auth-card glass">
         {/* Logo */}
         <div className="auth-logo">
-          <div className="auth-logo-icon">⚡</div>
+          <div className="auth-logo-icon">Ã¢Å¡Â¡</div>
           <h1 className="auth-logo-text">LoopDeck</h1>
           <p className="auth-logo-sub">Spaced repetition, reimagined</p>
         </div>
@@ -94,7 +108,7 @@ export default function AuthPage() {
             className={`auth-tab ${mode === 'login' ? 'active' : ''}`}
             onClick={() => { setMode('login'); setError(''); }}
           >
-            Iniciar sesión
+            Iniciar sesiÃƒÂ³n
           </button>
           <button
             className={`auth-tab ${mode === 'register' ? 'active' : ''}`}
@@ -146,12 +160,12 @@ export default function AuthPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="auth-password">Contraseña</label>
+            <label htmlFor="auth-password">ContraseÃƒÂ±a</label>
             <input
               id="auth-password"
               type="password"
               name="password"
-              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
+              placeholder={mode === 'register' ? 'MÃƒÂ­nimo 6 caracteres' : 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢'}
               value={form.password}
               onChange={handleChange}
               required
@@ -162,7 +176,7 @@ export default function AuthPage() {
 
           {error && (
             <div className="auth-error">
-              <span>⚠️</span> {error}
+              <span>Ã¢Å¡Â Ã¯Â¸Â</span> {error}
             </div>
           )}
 
@@ -183,17 +197,18 @@ export default function AuthPage() {
 
         <p className="auth-footer">
           {mode === 'login'
-            ? '¿No tienes cuenta? '
-            : '¿Ya tienes cuenta? '}
+            ? 'Ã‚Â¿Â¿No tienes cuenta? '
+            : 'Ã‚Â¿Â¿Ya tienes cuenta? '}
           <button
             className="link-btn"
             onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}
           >
-            {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
+            {mode === 'login' ? 'RegÃƒÂ­strate' : 'Inicia sesiÃƒÂ³n'}
           </button>
         </p>
       </div>
     </div>
   );
 }
+
 

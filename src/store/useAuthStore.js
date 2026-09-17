@@ -35,19 +35,19 @@ const useAuthStore = create(
       login: async (email, password) => {
         const data = await authRequest('/auth/login', { email, password });
         set({ user: data.user, token: data.token, isAuthenticated: true });
-        localStorage.setItem('ff_token', data.token);
+        localStorage.setItem('loopdeck_token', data.token);
       },
 
       register: async (email, name, password) => {
         const data = await authRequest('/auth/register', { email, name, password });
         set({ user: data.user, token: data.token, isAuthenticated: true });
-        localStorage.setItem('ff_token', data.token);
+        localStorage.setItem('loopdeck_token', data.token);
       },
 
       googleLogin: async (credential) => {
         const data = await authRequest('/auth/google', { credential });
         set({ user: data.user, token: data.token, isAuthenticated: true });
-        localStorage.setItem('ff_token', data.token);
+        localStorage.setItem('loopdeck_token', data.token);
       },
 
       updateUser: (userData) => {
@@ -56,15 +56,15 @@ const useAuthStore = create(
 
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false });
-        localStorage.removeItem('ff_token');
+        localStorage.removeItem('loopdeck_token');
       },
     }),
     {
-      name: 'ff-auth',
+      name: 'loopdeck_auth',
       partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
       onRehydrateStorage: () => (state) => {
         if (state?.token) {
-          localStorage.setItem('ff_token', state.token);
+          localStorage.setItem('loopdeck_token', state.token);
         }
       },
     }

@@ -20,7 +20,14 @@ public class AiService {
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public AiService() {
+        org.springframework.http.client.SimpleClientHttpRequestFactory factory = new org.springframework.http.client.SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5 seconds
+        factory.setReadTimeout(15000);   // 15 seconds
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     public String getDefinition(String word) {
         if (word == null || word.trim().isEmpty()) {
@@ -125,7 +132,7 @@ public class AiService {
                 }
             }
         } catch (org.springframework.web.client.RestClientException e) {
-            log.error("Error llamando a Gemini Chat: {}", e.getMessage(), e);
+            log.error("Error llamando a Gemini Chat: {}", e.getMessage().replaceAll("key=[^&]+", "key=HIDDEN"));
         }
         
         return "Hubo un error al procesar tu solicitud con la IA.";
@@ -196,7 +203,7 @@ public class AiService {
                 }
             }
         } catch (org.springframework.web.client.RestClientException e) {
-            log.error("Error llamando a Gemini Mass Define: {}", e.getMessage(), e);
+            log.error("Error llamando a Gemini Mass Define: {}", e.getMessage().replaceAll("key=[^&]+", "key=HIDDEN"));
         }
         
         return "[]";

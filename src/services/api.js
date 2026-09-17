@@ -26,7 +26,7 @@ async function request(endpoint, options = {}) {
   };
 
   // Add auth token if available
-  const token = localStorage.getItem('ff_token');
+  const token = localStorage.getItem('loopdeck_token');
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
@@ -37,9 +37,11 @@ async function request(endpoint, options = {}) {
   if (response.status === 401 || response.status === 403) {
     // Only auto-logout if we had a token (i.e. we were "logged in")
     if (token) {
-      localStorage.removeItem('ff_token');
-      localStorage.removeItem('ff-auth');
-      window.location.reload();
+      // Use Zustand store dynamically to avoid circular dependencies
+      import('../store/useAuthStore').then(({ default: useAuthStore }) => {
+        useAuthStore.getState().logout();
+        window.location.href = '/auth';
+      });
     }
     throw new ApiError('Sesión expirada', response.status, {});
   }
@@ -86,7 +88,7 @@ export const decksApi = {
     const res = await fetch(`${API_BASE}/decks/${id}/document`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${localStorage.getItem('ff_token')}`
+        'Authorization': `Bearer ${localStorage.getItem('loopdeck_token')}`
       },
       body: formData
     });
@@ -94,7 +96,7 @@ export const decksApi = {
     return res;
   },
   hasDocument: (id) => request(`/decks/${id}/document/info`),
-  getDocumentUrl: (id) => `${API_BASE}/decks/${id}/document?token=${localStorage.getItem('ff_token')}`
+  getDocumentUrl: (id) => `${API_BASE}/decks/${id}/document?token=${localStorage.getItem('loopdeck_token')}`
 };
 
 // ── Notes ─────────────────────────────────────────────────────

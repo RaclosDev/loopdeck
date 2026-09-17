@@ -32,8 +32,12 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
 
-    @Value("${google.client.id:}")
+    @Value("${google.client.id}")
     private String googleClientId;
+
+    public String getGoogleClientId() {
+        return googleClientId;
+    }
 
     public record RegisterRequest(String email, String name, String password) {}
     public record LoginRequest(String email, String password) {}

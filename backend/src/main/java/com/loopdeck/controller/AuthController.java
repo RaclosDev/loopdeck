@@ -50,6 +50,11 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/config")
+    public ResponseEntity<java.util.Map<String, String>> getConfig() {
+        return ResponseEntity.ok(java.util.Map.of("googleClientId", authService.getGoogleClientId()));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<AuthService.UserDto> me(Authentication auth) {
         return ResponseEntity.ok(authService.me(auth.getName()));
