@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, studyApi } from '../services/api';
 
@@ -62,7 +62,7 @@ export default function Stats() {
           suspended
         });
       } catch (e) {
-        addToast('Error al cargar estadísticas', 'error');
+        addToast('Error al cargar estadÃ­sticas', 'error');
       } finally {
         setLoading(false);
       }
@@ -74,16 +74,11 @@ export default function Stats() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1>📊 Estadísticas</h1>
-        <p>Resumen de tu colección y progreso</p>
-      </div>
-
       {stats.totalCards === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📊</div>
-          <h3>Sin datos aún</h3>
-          <p style={{ color: 'var(--text-muted)' }}>Añade tarjetas para ver tus estadísticas.</p>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>ðŸ“Š</div>
+          <h3>Sin datos aÃºn</h3>
+          <p style={{ color: 'var(--text-muted)' }}>AÃ±ade tarjetas para ver tus estadÃ­sticas.</p>
         </div>
       ) : (
         <>
@@ -107,7 +102,7 @@ export default function Stats() {
           </div>
 
           <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>Distribución</h3>
+            <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>DistribuciÃ³n</h3>
             <div style={{ display: 'flex', width: '100%', height: '24px', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
               <div style={{ width: `${(stats.cardsByState.new / stats.totalCards) * 100}%`, background: 'var(--srs-new)' }} />
               <div style={{ width: `${(stats.cardsByState.learning / stats.totalCards) * 100}%`, background: 'var(--srs-learning)' }} />
@@ -116,7 +111,7 @@ export default function Stats() {
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', fontWeight: 600 }}>
               <div style={{ color: 'var(--srs-new)' }}>Nuevas: {stats.cardsByState.new}</div>
               <div style={{ color: 'var(--srs-learning)' }}>Aprender: {stats.cardsByState.learning}</div>
-              <div style={{ color: 'var(--srs-review)' }}>Revisión: {stats.cardsByState.review}</div>
+              <div style={{ color: 'var(--srs-review)' }}>RevisiÃ³n: {stats.cardsByState.review}</div>
             </div>
           </div>
 
@@ -139,4 +134,6 @@ export default function Stats() {
     </div>
   );
 }
+
+
 

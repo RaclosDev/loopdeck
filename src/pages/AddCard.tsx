@@ -60,11 +60,6 @@ export default function AddCard() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1>Añadir Tarjeta</h1>
-        <p>Crea nuevas tarjetas para estudiar</p>
-      </div>
-
       <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
@@ -157,4 +152,5 @@ export default function AddCard() {
     </div>
   );
 }
+
 

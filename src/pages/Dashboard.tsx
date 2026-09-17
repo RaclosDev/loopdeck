@@ -70,18 +70,6 @@ export default function Dashboard() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: '1.2em' }}>📚</span> Mis Mazos
-        </h1>
-        <p style={{ color: 'var(--text-muted)' }}>
-          {decks.length === 0
-            ? 'Crea tu primer mazo para empezar a estudiar'
-            : `${decks.length} mazo${decks.length !== 1 ? 's' : ''} · ${totalNew + totalLearning + totalReview} pendientes hoy`
-          }
-        </p>
-      </div>
-
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (
         <div className="kpi-grid" style={{ marginBottom: 28 }}>
           <div className="kpi-card accent" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -177,5 +165,6 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 

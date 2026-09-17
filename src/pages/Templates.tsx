@@ -38,11 +38,6 @@ export default function Templates() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1>📦 Plantillas</h1>
-        <p>Descarga mazos prediseñados para empezar a estudiar</p>
-      </div>
-
       {loading ? (
         <div style={{ padding: '3rem', textAlign: 'center' }}>
           <div className="spinner" />
@@ -85,4 +80,5 @@ export default function Templates() {
     </div>
   );
 }
+
 

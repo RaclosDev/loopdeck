@@ -228,4 +228,3 @@ function StudyHub() {
 
 export default StudyHub;
 
-

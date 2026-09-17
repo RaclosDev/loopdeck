@@ -104,11 +104,6 @@ export default function Browser() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1>🔍 Explorador</h1>
-        <p>Gestiona y edita tus tarjetas</p>
-      </div>
-
       <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
         <select
           className="form-input"
@@ -211,5 +206,6 @@ export default function Browser() {
     </div>
   );
 }
+
 
 

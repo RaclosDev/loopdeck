@@ -1,21 +1,30 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
+import { applyThemeColor } from '../utils/colorHelper';
+
+const PRESETS = ['#0085FF', '#E11D48', '#FFFFFF', '#FF5E00', '#8B5CF6', '#10B981'];
 
 export default function Settings() {
   const { user, logout } = useAuthStore();
   const { settings, updateSettings, addToast } = useStore();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('study');
+  const [customColor, setCustomColor] = useState(localStorage.getItem('loopdeck_custom_color') || '#0085FF');
+
+  const handleColorChange = (color: string) => {
+    setCustomColor(color);
+    applyThemeColor(color);
+  };
 
   const handleClearLocalData = () => {
-    if (window.confirm('¿Seguro que quieres limpiar los datos guardados localmente? Tendrás que volver a iniciar sesión.')) {
+    if (window.confirm('Â¿Seguro que quieres limpiar los datos guardados localmente? TendrÃ¡s que volver a iniciar sesiÃ³n.')) {
       localStorage.clear();
       sessionStorage.clear();
       logout();
       navigate('/auth');
-      addToast('Caché limpiada', 'success');
+      addToast('CachÃ© limpiada', 'success');
     }
   };
 
@@ -27,11 +36,6 @@ export default function Settings() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1>Configuración</h1>
-        <p>Personaliza tu experiencia de estudio</p>
-      </div>
-
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', background: 'rgba(0,0,0,0.2)', padding: '0.5rem', borderRadius: '1rem' }}>
         {tabs.map(tab => (
           <button
@@ -56,11 +60,11 @@ export default function Settings() {
 
       {activeTab === 'study' && (
         <div className="card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1.5rem 0' }}>Opciones de Estudio</h3>
+          <h3 className="card-title" style={{ margin: '0 0 1.5rem 0' }}>Opciones de Estudio</h3>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 600 }}>Cronómetro de Sesión</div>
+              <div style={{ fontWeight: 600 }}>CronÃ³metro de SesiÃ³n</div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Mostrar el tiempo durante el estudio</div>
             </div>
             <label className="toggle-switch">
@@ -77,9 +81,47 @@ export default function Settings() {
 
       {activeTab === 'appearance' && (
         <div className="card" style={{ padding: '1.5rem' }}>
-          <h3 style={{ margin: '0 0 1.5rem 0' }}>Apariencia</h3>
+          <h3 className="card-title" style={{ margin: '0 0 1.5rem 0' }}>Apariencia</h3>
+
+          <div style={{ marginBottom: '2rem' }}>
+            <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block', fontWeight: 600 }}>Color Principal</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0.5rem' }}>
+              <input 
+                type="color" 
+                value={customColor}
+                onChange={(e) => handleColorChange(e.target.value)}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  padding: '0',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  background: 'none'
+                }}
+              />
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                {PRESETS.map(color => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => handleColorChange(color)}
+                    style={{
+                      width: '32px', height: '32px', borderRadius: '50%',
+                      background: color, border: customColor === color ? '2px solid white' : '2px solid transparent',
+                      cursor: 'pointer', padding: 0, transition: 'transform 0.1s'
+                    }}
+                    title={color}
+                  />
+                ))}
+              </div>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              El color se aplicarÃ¡ instantÃ¡neamente a toda la interfaz.
+            </p>
+          </div>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.5rem' }}>
             <div>
               <div style={{ fontWeight: 600 }}>Animaciones 3D</div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Efecto de giro al voltear tarjetas</div>
@@ -114,19 +156,19 @@ export default function Settings() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <button className="icon-btn" onClick={handleClearLocalData}>
-              Limpiar Caché Local
+              Limpiar CachÃ© Local
             </button>
             <button 
               className="btn btn-danger" 
               style={{ width: '100%', padding: '0.875rem', borderRadius: '12px' }}
               onClick={() => {
-                if(window.confirm('¿Quieres cerrar sesión?')) {
+                if(window.confirm('Â¿Quieres cerrar sesiÃ³n?')) {
                   logout();
                   navigate('/auth');
                 }
               }}
             >
-              Cerrar sesión
+              Cerrar sesiÃ³n
             </button>
           </div>
         </div>
@@ -134,5 +176,7 @@ export default function Settings() {
     </div>
   );
 }
+
+
 
 

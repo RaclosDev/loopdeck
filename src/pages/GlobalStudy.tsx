@@ -51,11 +51,6 @@ export default function GlobalStudy() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="page-header" style={{ marginBottom: 20 }}>
-        <h1>Centro de Estudio</h1>
-        <p>Selecciona un mazo para ver los modos de estudio disponibles.</p>
-      </div>
-
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, total: 0 };
@@ -103,3 +98,4 @@ export default function GlobalStudy() {
     </div>
   );
 }
+
