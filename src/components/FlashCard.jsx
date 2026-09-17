@@ -16,7 +16,7 @@ function FlashCard({ front, back, isFlipped, onFlip, animationsEnabled = true })
           />
           {!isFlipped && (
             <div className="flashcard-tap-hint">
-              <span>👆</span> Toca para ver la respuesta · <kbd>Space</kbd>
+              <span>👆</span> Toca para ver la respuesta <span className="keyboard-hint">· <kbd>Space</kbd></span>
             </div>
           )}
         </div>

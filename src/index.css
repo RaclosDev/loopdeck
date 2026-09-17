@@ -9331,3 +9331,95 @@ textarea.glass-input {
     border-radius: 16px !important;
   }
 }
+
+/* =========================================================================
+   FURTHER MOBILE UX/UI REFINEMENTS (Dashboards, Headers, Flashcard UI)
+   ========================================================================= */
+@media (max-width: 768px) {
+  /* Dashboard Stats Grid (Top row in Mis Mazos) */
+  .stats-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    gap: 12px !important;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: none; /* Hide scrollbar for a cleaner look */
+  }
+  .stats-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .stat-card {
+    flex: 0 0 calc(35% - 6px) !important; /* allow scrolling horizontally, showing ~2.5 cards */
+    padding: 16px 12px !important;
+    border-radius: 20px !important;
+  }
+  .stat-card-value {
+    font-size: 1.6rem !important;
+    margin-bottom: 4px !important;
+  }
+  .stat-card-label {
+    font-size: 0.75rem !important;
+  }
+  
+  /* Deck cards simplification */
+  .deck-card {
+    padding: 16px !important;
+  }
+  
+  .deck-card-header {
+    margin-bottom: 12px !important;
+  }
+  
+  /* Study Header Header Cleanup */
+  .study-header .glass-btn {
+    border: none !important;
+    background: transparent !important;
+    padding: 8px !important;
+    font-size: 1.2rem !important;
+    box-shadow: none !important;
+  }
+  
+  .study-header .study-deck-name {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+  }
+  
+  /* Flashcard Content */
+  .flashcard-face {
+    justify-content: center !important; 
+    align-items: center !important;
+  }
+  
+  .flashcard-content {
+    font-size: 1.3rem !important;
+    font-weight: 500 !important;
+  }
+
+  /* Hide Keyboard specific text like 'Space' in mobile */
+  .show-answer-btn span,
+  .flashcard-tap-hint kbd {
+    display: none !important;
+  }
+  
+  .flashcard-tap-hint {
+    font-size: 0.8rem !important;
+    opacity: 0.7 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .keyboard-hint {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .deck-card-new {
+    min-height: 120px !important;
+  }
+  .deck-card {
+    min-height: auto !important;
+  }
+}
