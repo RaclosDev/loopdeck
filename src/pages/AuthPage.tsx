@@ -138,7 +138,10 @@ export default function AuthPage() {
           />
         </div>
         
-        <h1 style={{ margin: '0 0 0.5rem', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.5px' }}>LoopDeck</h1>
+        <div className="brand-logo-text" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
+          <span className="brand-logo-loop">Loop</span>
+          <span className="brand-logo-deck">Deck</span>
+        </div>
 
         <p style={{ 
           color: 'var(--text-secondary, #94a3b8)', 

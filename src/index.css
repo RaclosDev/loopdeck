@@ -5218,3 +5218,28 @@ button, a, input, select, textarea, [role=button], [onclick] {
   }
 }
 
+
+/* LoopDeck Custom Logo Styles */
+.brand-logo-text {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+}
+.brand-logo-loop {
+  font-weight: 300;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.75);
+}
+.brand-logo-deck {
+  font-weight: 900;
+  background: linear-gradient(135deg, #0085FF, #0066CC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+:root {
+  --gradient-primary: linear-gradient(135deg, #0085FF, #0066CC);
+  --gradient-success: linear-gradient(135deg, #10B981, #059669);
+  --gradient-danger: linear-gradient(135deg, #EF4444, #DC2626);
+}
