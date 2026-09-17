@@ -18,51 +18,56 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
 
   return (
     <div 
-      className={`relative w-full flex flex-col perspective-1000 min-h-[300px] ${!isFlipped ? 'cursor-pointer group' : ''}`}
+      className={`relative w-full h-full flex flex-col ${!isFlipped ? 'cursor-pointer group' : ''}`}
       onClick={() => !isFlipped && onFlip()}
-      style={{ perspective: '1000px' }}
+      style={{ perspective: '1200px' }}
     >
       {/* Front */}
       <div 
-        className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-card rounded-2xl shadow-lg border border-white/5"
+        className="absolute inset-0 flex flex-col p-6 sm:p-10 bg-card shadow-2xl border border-white/10"
         style={{
-          borderTop: `4px solid ${getStateColor()}`,
+          borderRadius: '28px',
+          borderTop: `5px solid ${getStateColor()}`,
           backfaceVisibility: 'hidden',
-          transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)',
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
           zIndex: isFlipped ? 0 : 1,
         }}
       >
-        <div 
-          className="text-xl leading-relaxed text-foreground/90 w-full overflow-y-auto max-h-full" 
-          dangerouslySetInnerHTML={{ __html: front || '' }} 
-        />
+        <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto min-h-0 w-full text-center" style={{ scrollbarWidth: 'none' }}>
+            <div 
+              className="text-2xl sm:text-3xl leading-relaxed text-foreground/90 font-medium" 
+              dangerouslySetInnerHTML={{ __html: front || '' }} 
+            />
+        </div>
         
         {!isFlipped && (
-          <div className="absolute bottom-4 flex items-center gap-2 text-sm text-muted-foreground opacity-50 group-hover:opacity-100 transition-opacity">
-            <RotateCcw size={16} />
-            <span>Toca para voltear</span>
+          <div className="mt-4 pt-4 shrink-0 flex justify-center items-center gap-2 text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity border-t border-white/5">
+            <RotateCcw size={18} />
+            <span className="font-medium tracking-wide">Toca para voltear</span>
           </div>
         )}
       </div>
 
       {/* Back */}
       <div 
-        className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-card rounded-2xl shadow-xl border border-white/5 overflow-hidden"
+        className="absolute inset-0 flex flex-col p-6 sm:p-10 bg-card shadow-2xl border border-white/10"
         style={{
-          borderTop: `4px solid ${getStateColor()}`,
+          borderRadius: '28px',
+          borderTop: `5px solid ${getStateColor()}`,
           backfaceVisibility: 'hidden',
-          transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          transition: 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)',
           transform: isFlipped ? 'rotateY(0deg)' : 'rotateY(-180deg)',
           zIndex: isFlipped ? 1 : 0,
         }}
       >
-        <div 
-          className="text-xl leading-relaxed text-foreground/90 w-full overflow-y-auto max-h-full" 
-          dangerouslySetInnerHTML={{ __html: back || '' }} 
-        />
+        <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto min-h-0 w-full text-center" style={{ scrollbarWidth: 'none' }}>
+            <div 
+              className="text-xl sm:text-2xl leading-relaxed text-foreground/90" 
+              dangerouslySetInnerHTML={{ __html: back || '' }} 
+            />
+        </div>
       </div>
     </div>
   );
 }
-
