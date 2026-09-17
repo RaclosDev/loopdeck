@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 import Modal from '../components/Modal';
 import useStore from '../store/useStore';
 import { decksApi, studyApi, templatesApi, notesApi } from '../services/api';
 
 function Dashboard() {
   const [decks, setDecks] = useState([]);
-  const [deckCounts, setDeckCounts] = useState({}); // { deckId: { new, learning, review, total } }
+  const [deckCounts, setDeckCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [showNewDeck, setShowNewDeck] = useState(false);
   const [newDeckName, setNewDeckName] = useState('');
@@ -28,7 +31,7 @@ function Dashboard() {
       ]);
       setDecks(data);
       setTemplates(templatesData);
-      // Load due counts for each deck in parallel
+      
       const countResults = await Promise.allSettled(
         data.map(d => studyApi.getDueCards(d.id, 1000).then(cards => ({ id: d.id, cards })))
       );
@@ -59,38 +62,42 @@ function Dashboard() {
     if (!newDeckName.trim()) return;
     setSaving(true);
     try {
-      const deck = await decksApi.create({ name: newDeckName.trim(), description: newDeckDesc.trim() });
-      setDecks(prev => [...prev, deck]);
-      setDeckCounts(prev => ({ ...prev, [deck.id]: { new: 0, learning: 0, review: 0, total: 0 } }));
-      setNewDeckName(''); setNewDeckDesc('');
+      await decksApi.create({ name: newDeckName.trim(), description: newDeckDesc.trim() });
       setShowNewDeck(false);
-      addToast(`Mazo "${deck.name}" creado`, 'success');
+      setNewDeckName('');
+      setNewDeckDesc('');
+      loadDecks();
     } catch (e) {
-      addToast('Error creando mazo: ' + e.message, 'error');
-    } finally { setSaving(false); }
+      addToast('Error al crear mazo', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleUpdateDeck = async () => {
-    if (!editingDeck || !newDeckName.trim()) return;
+    if (!newDeckName.trim() || !editingDeck) return;
     setSaving(true);
     try {
-      const updated = await decksApi.update(editingDeck.id, { name: newDeckName.trim(), description: newDeckDesc.trim() });
-      setDecks(prev => prev.map(d => d.id === updated.id ? updated : d));
-      setEditingDeck(null); setNewDeckName(''); setNewDeckDesc('');
-      addToast('Mazo actualizado', 'success');
+      await decksApi.update(editingDeck.id, { name: newDeckName.trim(), description: newDeckDesc.trim() });
+      setEditingDeck(null);
+      setNewDeckName('');
+      setNewDeckDesc('');
+      loadDecks();
     } catch (e) {
-      addToast('Error: ' + e.message, 'error');
-    } finally { setSaving(false); }
+      addToast('Error al editar mazo', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDeleteDeck = async (deck) => {
-    if (!confirm(`¿Eliminar "${deck.name}" y todas sus tarjetas?`)) return;
-    try {
-      await decksApi.delete(deck.id);
-      setDecks(prev => prev.filter(d => d.id !== deck.id));
-      addToast(`"${deck.name}" eliminado`, 'info');
-    } catch (e) {
-      addToast('Error: ' + e.message, 'error');
+    if (window.confirm(`¿Seguro que quieres eliminar el mazo "${deck.name}" y todas sus tarjetas?`)) {
+      try {
+        await decksApi.delete(deck.id);
+        loadDecks();
+      } catch (e) {
+        addToast('Error al eliminar mazo', 'error');
+      }
     }
   };
 
@@ -99,7 +106,7 @@ function Dashboard() {
     try {
       await templatesApi.import(templateId);
       addToast('Plantilla importada con éxito', 'success');
-      await loadDecks();
+      loadDecks();
     } catch (e) {
       addToast('Error importando plantilla: ' + e.message, 'error');
     } finally {
@@ -110,7 +117,10 @@ function Dashboard() {
   const handleExportDeck = async (deck) => {
     try {
       const notes = await notesApi.getByDeck(deck.id);
-      // Clean up notes to match import format
+      if (notes.length === 0) {
+        addToast('El mazo está vacío', 'error');
+        return;
+      }
       const exportData = notes.map(n => ({
         noteType: n.noteType,
         fieldsJson: n.fieldsJson,
@@ -132,30 +142,35 @@ function Dashboard() {
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file || !importTargetDeck) return;
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      try {
-        const json = JSON.parse(event.target.result);
-        if (!Array.isArray(json)) throw new Error('El archivo no contiene una lista de tarjetas.');
-        
-        setSaving(true);
-        await notesApi.importBulk(importTargetDeck.id, json);
-        addToast(`Tarjetas importadas a "${importTargetDeck.name}"`, 'success');
-        await loadDecks();
-      } catch (err) {
-        addToast('Error al importar: ' + err.message, 'error');
-      } finally {
-        setSaving(false);
-        setImportTargetDeck(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+    
+    try {
+      const text = await file.text();
+      const items = JSON.parse(text);
+      if (!Array.isArray(items)) throw new Error("Formato inválido");
+      
+      let successCount = 0;
+      for (const item of items) {
+        if (!item.noteType || !item.fieldsJson) continue;
+        await notesApi.create({
+          deckId: importTargetDeck.id,
+          noteType: item.noteType,
+          fieldsJson: item.fieldsJson,
+          tags: item.tags || ''
+        });
+        successCount++;
       }
-    };
-    reader.readAsText(file);
+      addToast(`${successCount} notas importadas a "${importTargetDeck.name}"`, 'success');
+      loadDecks();
+    } catch (err) {
+      addToast('Error importando: ' + err.message, 'error');
+    } finally {
+      e.target.value = '';
+      setImportTargetDeck(null);
+    }
   };
 
-  const getCounts = (deckId) => deckCounts[deckId] || { new: 0, learning: 0, review: 0, total: 0 };
-  const getTotalDue = (c) => c.new + c.learning + c.review;
+  const getCounts = (id) => deckCounts[id] || { new: 0, learning: 0, review: 0, total: 0 };
+  const getTotalDue = (c) => c.learning + c.review;
 
   const totalNew = Object.values(deckCounts).reduce((s, c) => s + c.new, 0);
   const totalLearning = Object.values(deckCounts).reduce((s, c) => s + c.learning, 0);
@@ -164,242 +179,242 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="spinner-sm" style={{ width: 40, height: 40, margin: '0 auto 16px', borderWidth: 3 }} />
-          <p style={{ color: 'var(--text-muted)' }}>Cargando mazos...</p>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-t-transparent border-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Cargando mazos...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1>Mis Mazos</h1>
-        <p>
+    <div className="animate-in fade-in pb-10">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight mb-1">Mis Mazos</h1>
+        <p className="text-muted-foreground text-sm">
           {decks.length === 0
             ? 'Crea tu primer mazo para empezar a estudiar'
-            : `${decks.length} mazo${decks.length !== 1 ? 's' : ''} · ${totalNew + totalLearning + totalReview} pendientes hoy`
+            : `${decks.length} mazo${decks.length !== 1 ? 's' : ''} • ${totalNew + totalLearning + totalReview} pendientes hoy`
           }
         </p>
       </div>
 
+      <input 
+        type="file" 
+        accept=".json" 
+        className="hidden" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+      />
+
       {/* Today's Summary */}
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (
-        <div className="stats-grid" style={{ marginBottom: 28 }}>
-          <div className="stat-card">
-            <div className="stat-card-value" style={{ color: 'var(--srs-new)' }}>{totalNew}</div>
-            <div className="stat-card-label">Nuevas</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-card-value" style={{ color: 'var(--srs-learning)' }}>{totalLearning}</div>
-            <div className="stat-card-label">Aprendiendo</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-card-value" style={{ color: 'var(--srs-review)' }}>{totalReview}</div>
-            <div className="stat-card-label">Revisión</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-card-value">{totalCards}</div>
-            <div className="stat-card-label">Total</div>
-          </div>
+        <div className="grid grid-cols-4 gap-3 mb-8">
+          <Card className="bg-card">
+            <CardContent className="p-4 flex flex-col items-center">
+              <div className="text-2xl font-bold text-blue-500">{totalNew}</div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mt-1">Nuevas</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card">
+            <CardContent className="p-4 flex flex-col items-center">
+              <div className="text-2xl font-bold text-amber-500">{totalLearning}</div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mt-1">Aprendiendo</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card">
+            <CardContent className="p-4 flex flex-col items-center">
+              <div className="text-2xl font-bold text-emerald-500">{totalReview}</div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mt-1">Revisión</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-card">
+            <CardContent className="p-4 flex flex-col items-center">
+              <div className="text-2xl font-bold text-foreground">{totalCards}</div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mt-1">Total</div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
       {/* Decks Grid */}
-      <div className="decks-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {decks.map(deck => {
           const counts = getCounts(deck.id);
           const due = getTotalDue(counts);
           const progress = counts.total > 0 ? ((counts.total - counts.new) / counts.total) * 100 : 0;
 
           return (
-            <div key={deck.id} className="deck-card">
-              <div className="deck-card-header">
-                <span className="deck-card-name">{deck.name}</span>
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <button
-                    className="deck-card-menu"
-                    onClick={e => { e.stopPropagation(); handleExportDeck(deck); }}
-                    title="Exportar a JSON"
-                  >📤</button>
-                  <button
-                    className="deck-card-menu"
-                    onClick={e => { e.stopPropagation(); setImportTargetDeck(deck); fileInputRef.current?.click(); }}
-                    title="Importar desde JSON"
-                  >📥</button>
-                  <button
-                    className="deck-card-menu"
-                    onClick={e => { e.stopPropagation(); setEditingDeck(deck); setNewDeckName(deck.name); setNewDeckDesc(deck.description || ''); }}
-                    title="Editar"
-                  >✏️</button>
-                  <button
-                    className="deck-card-menu"
-                    onClick={e => { e.stopPropagation(); handleDeleteDeck(deck); }}
-                    title="Eliminar"
-                  >🗑️</button>
+            <Card key={deck.id} className="flex flex-col bg-card overflow-hidden">
+              <CardHeader className="p-5 pb-3">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg leading-tight">{deck.name}</CardTitle>
+                  <div className="flex gap-1 ml-2">
+                    <Button variant="ghost" size="icon-sm" className="h-7 w-7" onClick={() => setEditingDeck(deck)} title="Editar">✏️</Button>
+                    <Button variant="ghost" size="icon-sm" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteDeck(deck)} title="Eliminar">🗑️</Button>
+                  </div>
                 </div>
-              </div>
+                {deck.description && <CardDescription className="line-clamp-2">{deck.description}</CardDescription>}
+              </CardHeader>
+              
+              <CardContent className="p-5 py-2 flex-1">
+                <div className="flex justify-between text-center gap-2 mb-4">
+                  <div className="flex flex-col flex-1 bg-blue-500/10 rounded-lg py-2">
+                    <span className="text-blue-500 font-bold text-lg">{counts.new}</span>
+                    <span className="text-[10px] uppercase text-muted-foreground">Nuevas</span>
+                  </div>
+                  <div className="flex flex-col flex-1 bg-amber-500/10 rounded-lg py-2">
+                    <span className="text-amber-500 font-bold text-lg">{counts.learning}</span>
+                    <span className="text-[10px] uppercase text-muted-foreground">Aprender</span>
+                  </div>
+                  <div className="flex flex-col flex-1 bg-emerald-500/10 rounded-lg py-2">
+                    <span className="text-emerald-500 font-bold text-lg">{counts.review}</span>
+                    <span className="text-[10px] uppercase text-muted-foreground">Revisión</span>
+                  </div>
+                </div>
+                
+                <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                  <div className="h-full bg-primary transition-all duration-500" style={{ width: `${progress}%` }} />
+                </div>
+              </CardContent>
 
-              {deck.description && (
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 10, padding: '0 2px' }}>
-                  {deck.description}
-                </div>
-              )}
-
-              <div className="deck-card-counts">
-                <div className="deck-count">
-                  <span className="deck-count-number new">{counts.new}</span>
-                  <span className="deck-count-label">Nuevas</span>
-                </div>
-                <div className="deck-count">
-                  <span className="deck-count-number learning">{counts.learning}</span>
-                  <span className="deck-count-label">Aprendiendo</span>
-                </div>
-                <div className="deck-count">
-                  <span className="deck-count-number review">{counts.review}</span>
-                  <span className="deck-count-label">Revisión</span>
-                </div>
-              </div>
-
-              <div className="deck-card-progress">
-                <div className="deck-card-progress-bar" style={{ width: `${progress}%` }} />
-              </div>
-
-              <div className="deck-card-actions">
-                <button
-                  className="deck-study-btn"
+              <CardFooter className="p-5 pt-3 flex gap-2">
+                <Button 
+                  className="flex-1" 
                   onClick={() => navigate(`/study/${deck.id}`)}
                   disabled={due === 0 && counts.new === 0}
+                  variant={due > 0 || counts.new > 0 ? 'default' : 'secondary'}
                 >
-                  {due > 0 || counts.new > 0 ? `Responder (${due})` : 'Al día ✓'}
-                </button>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button
-                    className="deck-action-btn"
-                    onClick={() => navigate(`/hub/${deck.id}`)}
-                    title="Modos de Estudio (Guía, IA, Test...)"
-                  >🎓</button>
-                  <button
-                    className="deck-action-btn"
-                    onClick={() => navigate(`/add/${deck.id}`)}
-                    title="Añadir tarjetas"
-                  >➕</button>
-                </div>
-              </div>
-            </div>
+                  {due > 0 || counts.new > 0 ? `Responder (${due})` : 'Al día ✅'}
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => navigate(`/add/${deck.id}`)} title="Añadir tarjetas">
+                  ➕
+                </Button>
+                <Button variant="outline" size="icon" onClick={() => navigate(`/hub/${deck.id}`)} title="Opciones">
+                  ⚙️
+                </Button>
+              </CardFooter>
+            </Card>
           );
         })}
 
         {/* Add Deck Card */}
-        <div className="deck-card-new" onClick={() => setShowNewDeck(true)}>
-          <span className="deck-card-new-icon">➕</span>
-          <span className="deck-card-new-text">Nuevo Mazo</span>
-        </div>
+        <Card 
+          className="flex flex-col items-center justify-center p-6 border-dashed border-2 cursor-pointer hover:bg-secondary/50 transition-colors min-h-[200px]"
+          onClick={() => setShowNewDeck(true)}
+        >
+          <div className="text-4xl mb-3 opacity-80">➕</div>
+          <div className="font-semibold text-lg">Nuevo Mazo</div>
+          <p className="text-sm text-muted-foreground text-center mt-1">Crea una nueva colección de tarjetas</p>
+        </Card>
       </div>
-
-      {/* Empty State */}
-      {decks.length === 0 && (
-        <div className="empty-state" style={{ marginTop: -20 }}>
-          <div className="empty-state-icon">🧠</div>
-          <h3>¡Bienvenido a LoopDeck!</h3>
-          <p>Crea tu primer mazo de tarjetas y empieza a memorizar con repetición espaciada.</p>
-          <button className="primary-btn" onClick={() => setShowNewDeck(true)}>
-            ➕ Crear mi primer mazo
-          </button>
-        </div>
-      )}
 
       {/* Templates Section */}
       {templates.length > 0 && decks.length < 3 && (
-        <>
-          <div className="page-header" style={{ marginTop: 40 }}>
-            <h2>Plantillas Disponibles</h2>
-            <p>Descarga mazos prediseñados para empezar a estudiar al instante.</p>
+        <div className="mb-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold tracking-tight">Plantillas Disponibles</h2>
+            <p className="text-sm text-muted-foreground">Descarga mazos prediseñados para empezar al instante.</p>
           </div>
           
-          <div className="decks-grid" style={{ marginBottom: 40 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {templates.map(t => (
-              <div key={t.id} className="deck-card" style={{ border: '1px dashed var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-                <div className="deck-card-header" style={{ alignItems: 'flex-start' }}>
-                  <span className="deck-card-name" style={{ lineHeight: 1.2 }}>{t.icon} {t.name}</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', padding: '2px 8px', background: 'rgba(255,255,255,0.08)', borderRadius: 12, whiteSpace: 'nowrap', border: '1px solid var(--border-color)' }}>{t.category}</span>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 16, minHeight: 40 }}>
-                  {t.description} ({t.cardCount} tarjetas)
-                </div>
-                <button 
-                  className="primary-btn" 
-                  style={{ width: '100%' }}
-                  onClick={() => handleImportTemplate(t.id)}
-                  disabled={importingId === t.id}
-                >
-                  {importingId === t.id ? <span className="spinner-sm" /> : '⬇️ Descargar Mazo'}
-                </button>
-              </div>
+              <Card key={t.id} className="bg-secondary/30 border-dashed">
+                <CardHeader className="p-4 pb-2 flex flex-row items-start justify-between">
+                  <div>
+                    <CardTitle className="text-base">{t.icon} {t.name}</CardTitle>
+                    <Badge variant="outline" className="mt-1">{t.category}</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <p className="text-sm text-muted-foreground mb-4">{t.description} ({t.cardCount} tarjetas)</p>
+                  <Button 
+                    className="w-full" 
+                    variant="secondary"
+                    onClick={() => handleImportTemplate(t.id)}
+                    disabled={importingId === t.id}
+                  >
+                    {importingId === t.id ? 'Importando...' : 'Descargar Plantilla'}
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </>
+        </div>
       )}
 
-      {/* Hidden file input for import */}
-      <input 
-        type="file" 
-        accept=".json" 
-        style={{ display: 'none' }} 
-        ref={fileInputRef} 
-        onChange={handleFileChange} 
-      />
-
-      {/* New Deck Modal */}
+      {/* Modals */}
       <Modal
         isOpen={showNewDeck}
         onClose={() => { setShowNewDeck(false); setNewDeckName(''); setNewDeckDesc(''); }}
         title="Nuevo Mazo"
         footer={
-          <>
-            <button className="glass-btn" onClick={() => { setShowNewDeck(false); setNewDeckName(''); setNewDeckDesc(''); }}>Cancelar</button>
-            <button className="primary-btn" onClick={handleCreateDeck} disabled={!newDeckName.trim() || saving}>
-              {saving ? <span className="spinner-sm" /> : 'Crear Mazo'}
-            </button>
-          </>
+          <div className="flex gap-2 justify-end w-full">
+            <Button variant="ghost" onClick={() => setShowNewDeck(false)}>Cancelar</Button>
+            <Button onClick={handleCreateDeck} disabled={!newDeckName.trim() || saving}>
+              {saving ? 'Creando...' : 'Crear Mazo'}
+            </Button>
+          </div>
         }
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="form-group">
-            <label htmlFor="deck-name">Nombre del mazo</label>
-            <input id="deck-name" type="text" className="glass-input" placeholder="Ej: Inglés, Anatomía, React..." value={newDeckName} onChange={e => setNewDeckName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleCreateDeck()} autoFocus />
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Nombre</label>
+            <input
+              type="text"
+              className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              value={newDeckName}
+              onChange={e => setNewDeckName(e.target.value)}
+              placeholder="Ej: Inglés B2, Historia, etc."
+              autoFocus
+            />
           </div>
-          <div className="form-group">
-            <label htmlFor="deck-desc">Descripción (opcional)</label>
-            <input id="deck-desc" type="text" className="glass-input" placeholder="Describe el contenido del mazo..." value={newDeckDesc} onChange={e => setNewDeckDesc(e.target.value)} />
+          <div>
+            <label className="text-sm font-medium mb-1 block">Descripción (Opcional)</label>
+            <input
+              type="text"
+              className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              value={newDeckDesc}
+              onChange={e => setNewDeckDesc(e.target.value)}
+              placeholder="Breve descripción del mazo"
+            />
           </div>
         </div>
       </Modal>
 
-      {/* Edit Deck Modal */}
       <Modal
         isOpen={!!editingDeck}
         onClose={() => { setEditingDeck(null); setNewDeckName(''); setNewDeckDesc(''); }}
         title="Editar Mazo"
         footer={
-          <>
-            <button className="glass-btn" onClick={() => { setEditingDeck(null); setNewDeckName(''); setNewDeckDesc(''); }}>Cancelar</button>
-            <button className="primary-btn" onClick={handleUpdateDeck} disabled={!newDeckName.trim() || saving}>
-              {saving ? <span className="spinner-sm" /> : 'Guardar'}
-            </button>
-          </>
+          <div className="flex gap-2 justify-end w-full">
+            <Button variant="ghost" onClick={() => setEditingDeck(null)}>Cancelar</Button>
+            <Button onClick={handleUpdateDeck} disabled={!newDeckName.trim() || saving}>
+              {saving ? 'Guardando...' : 'Guardar Cambios'}
+            </Button>
+          </div>
         }
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div className="form-group">
-            <label htmlFor="edit-deck-name">Nombre</label>
-            <input id="edit-deck-name" type="text" className="glass-input" value={newDeckName} onChange={e => setNewDeckName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleUpdateDeck()} autoFocus />
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Nombre</label>
+            <input
+              type="text"
+              className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              value={newDeckName}
+              onChange={e => setNewDeckName(e.target.value)}
+              autoFocus
+            />
           </div>
-          <div className="form-group">
-            <label htmlFor="edit-deck-desc">Descripción</label>
-            <input id="edit-deck-desc" type="text" className="glass-input" value={newDeckDesc} onChange={e => setNewDeckDesc(e.target.value)} />
+          <div>
+            <label className="text-sm font-medium mb-1 block">Descripción</label>
+            <input
+              type="text"
+              className="flex h-11 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              value={newDeckDesc}
+              onChange={e => setNewDeckDesc(e.target.value)}
+            />
           </div>
         </div>
       </Modal>

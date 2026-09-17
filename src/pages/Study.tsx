@@ -1,191 +1,136 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { marked } from 'marked';
 import FlashCard from '../components/FlashCard';
-import RatingButtons from '../components/RatingButtons';
-import { Button } from '../components/ui/button';
 import useStore from '../store/useStore';
-import useAuthStore from '../store/useAuthStore';
-import { decksApi, studyApi, notesApi } from '../services/api';
+import { studyApi, decksApi } from '../services/api';
+import { Button } from '../components/ui/button';
 
-// Helper: compute SM-2 interval labels for buttons (client-side preview only)
-function getIntervalLabel(card, rating) {
-  if (!card) return '';
-  const ease = card.easeFactor || 2.5;
-  const interval = card.intervalDays || 0;
-  const step = card.learningStep || 0;
-  const learningSteps = [1, 10]; // default steps in minutes
+const RATING_COLORS = {
+  1: 'text-destructive border-destructive hover:bg-destructive/10',     // Again
+  2: 'text-orange-500 border-orange-500 hover:bg-orange-500/10', // Hard
+  3: 'text-green-500 border-green-500 hover:bg-green-500/10',   // Good
+  4: 'text-blue-500 border-blue-500 hover:bg-blue-500/10'       // Easy
+};
 
-  if (card.state === 'new' || card.state === 'learning') {
-    if (rating === 1) return formatMinutes(learningSteps[0]); // back to first step
-    if (rating === 2) {
-      // HARD: average of current step and next, or 1.5x current
-      const curr = learningSteps[step] || learningSteps[0] || 1;
-      const next = learningSteps[step + 1] || curr * 2;
-      return formatMinutes(Math.round((curr + next) / 2));
-    }
-    if (rating === 3) {
-      // GOOD: advance to next step
-      const nextStep = step + 1;
-      if (nextStep >= learningSteps.length) return '1d'; // graduate
-      return formatMinutes(learningSteps[nextStep]);
-    }
-    return '4d'; // EASY: graduate immediately
-  }
-  if (card.state === 'relearning') {
-    if (rating === 1) return '10m';
-    if (rating === 2) return '10m';
-    if (rating === 3) return `${Math.max(1, Math.round(interval * 0.7))}d`;
-    return `${Math.max(1, Math.round(interval))}d`;
-  }
-  // Review state
-  if (rating === 1) return '10m';
-  if (rating === 2) return `${Math.max(1, Math.round(interval * 1.2))}d`;
-  if (rating === 3) return `${Math.max(1, Math.round(interval * ease))}d`;
-  return `${Math.max(1, Math.round(interval * ease * 1.3))}d`;
-}
+const RATING_LABELS = { 1: 'Otra vez', 2: 'Difícil', 3: 'Bien', 4: 'Fácil' };
 
-function formatMinutes(m) {
-  if (m < 60) return `${m}m`;
-  return `${Math.round(m / 60)}h`;
+function RatingButtons({ intervals, onRate }) {
+  if (!intervals) return null;
+  return (
+    <div className="grid grid-cols-4 gap-2 w-full mt-4">
+      {[1, 2, 3, 4].map(rating => (
+        <Button
+          key={rating}
+          variant="outline"
+          className={`flex flex-col gap-1 h-auto py-3 ${RATING_COLORS[rating]}`}
+          onClick={() => onRate(rating)}
+        >
+          <span className="text-xs opacity-80">{intervals[rating]}</span>
+          <span className="font-bold">{RATING_LABELS[rating]}</span>
+          <span className="hidden sm:inline text-[10px] opacity-50 mt-1">{rating}</span>
+        </Button>
+      ))}
+    </div>
+  );
 }
 
 function Study() {
   const { deckId } = useParams();
   const navigate = useNavigate();
-  const { addToast, settings } = useStore();
-  const { updateUser, user } = useAuthStore();
-
+  const { user, updateUser, settings, addToast } = useStore();
+  
   const [deck, setDeck] = useState(null);
-  const [queue, setQueue] = useState([]); // array of {card, note}
+  const [queue, setQueue] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
   const [counts, setCounts] = useState({ new: 0, learning: 0, review: 0 });
-  const [sessionStats, setSessionStats] = useState({ reviewed: 0, correct: 0, startTime: Date.now(), coinsEarned: 0 });
-  const [undoStack, setUndoStack] = useState([]); // { card, noteFields }
-  const [isComplete, setIsComplete] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isComplete, setIsComplete] = useState(false);
+  const [intervals, setIntervals] = useState(null);
+  const [undoStack, setUndoStack] = useState([]);
+  
+  // Metrics
+  const [startMs, setStartMs] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [coinFloat, setCoinFloat] = useState(null); // { amount, key }
+  const [sessionStats, setSessionStats] = useState({ startTime: Date.now(), reviewed: 0, correct: 0, coinsEarned: 0 });
+  const [coinFloat, setCoinFloat] = useState(null);
 
-  useEffect(() => {
-    if (!settings?.showTimer || isComplete) return;
-    const interval = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - sessionStats.startTime) / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [settings?.showTimer, isComplete, sessionStats.startTime]);
-
-  const loadSession = useCallback(async () => {
-    setLoading(true);
+  const loadDeckAndCards = useCallback(async () => {
     try {
-      // Load deck info
-      const decks = await decksApi.getAll();
-      const d = decks.find(d => d.id === deckId);
-      if (!d) { addToast('Mazo no encontrado', 'error'); navigate('/'); return; }
+      const d = await decksApi.get(deckId);
       setDeck(d);
-
-      // Load due cards (now returns an array of {card, note})
-      const pairs = await studyApi.getDueCards(deckId, 1000);
-      if (pairs.length === 0) { setIsComplete(true); setLoading(false); return; }
-
-      // Sort according to settings
-      const order = settings?.studyOrder || 'new_first';
-      if (order === 'new_first') {
-        pairs.sort((a, b) => {
-          if (a.card.state === 'new' && b.card.state !== 'new') return -1;
-          if (a.card.state !== 'new' && b.card.state === 'new') return 1;
-          return 0;
+      const cards = await studyApi.getDueCards(deckId, 100); // chunk size
+      if (cards.length === 0) {
+        setIsComplete(true);
+      } else {
+        setQueue(cards);
+        
+        const c = { new: 0, learning: 0, review: 0 };
+        const now = new Date();
+        cards.forEach(card => {
+          if (card.card.state === 'new') c.new++;
+          else if ((card.card.state === 'learning' || card.card.state === 'relearning') && new Date(card.card.due) <= now) c.learning++;
+          else if (card.card.state === 'review' && new Date(card.card.due) <= now) c.review++;
         });
-      } else if (order === 'review_first') {
-        pairs.sort((a, b) => {
-          if (a.card.state === 'review' && b.card.state !== 'review') return -1;
-          if (a.card.state !== 'review' && b.card.state === 'review') return 1;
-          return 0;
-        });
-      } else if (order === 'mixed') {
-        pairs.sort(() => Math.random() - 0.5);
+        setCounts(c);
       }
-
-      const now = new Date();
-      setCounts({
-        new: pairs.filter(p => p.card.state === 'new').length,
-        learning: pairs.filter(p => (p.card.state === 'learning' || p.card.state === 'relearning') && new Date(p.card.due) <= now).length,
-        review: pairs.filter(p => p.card.state === 'review' && new Date(p.card.due) <= now).length,
-      });
-
-      setQueue(pairs);
-      setCurrentIndex(0);
-      setIsFlipped(false);
     } catch (e) {
-      addToast('Error cargando sesión: ' + e.message, 'error');
+      addToast('Error cargando tarjetas: ' + e.message, 'error');
     } finally {
       setLoading(false);
+      setStartMs(Date.now());
     }
-  }, [deckId, addToast, navigate, settings?.studyOrder]);
+  }, [deckId, addToast]);
 
-  useEffect(() => { loadSession(); }, [loadSession]);
+  useEffect(() => { loadDeckAndCards(); }, [loadDeckAndCards]);
 
-  const current = queue[currentIndex];
-  const card = current?.card;
-  const note = current?.note;
+  useEffect(() => {
+    if (!loading && !isComplete && settings?.showTimer) {
+      const timer = setInterval(() => setElapsedTime(Math.floor((Date.now() - sessionStats.startTime) / 1000)), 1000);
+      return () => clearInterval(timer);
+    }
+  }, [loading, isComplete, settings?.showTimer, sessionStats.startTime]);
 
-  const getFields = () => {
-    if (!note) return { front: '', back: '' };
-    try {
-      const f = JSON.parse(note.fieldsJson);
-      return f;
-    } catch { return { front: note.fieldsJson || '', back: '' }; }
-  };
+  const pair = queue[currentIndex];
+  const card = pair?.card;
+  const note = pair?.note;
 
   const getFront = () => {
-    const f = getFields();
-    if (card?.cardOrdinal === 1) return marked.parse(f.back || '');
-    if (note?.noteType === 'cloze') {
-      return (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--srs-new);border-bottom:2px dashed var(--srs-new);padding:0 4px">[...]</span>');
-    }
-    return marked.parse(f.front || f.text || '');
+    if (!note || !card) return '';
+    const fields = JSON.parse(note.fieldsJson || '{}');
+    if (note.noteType === 'reverse' && card.templateId === 1) return fields.back;
+    return fields.front;
   };
 
   const getBack = () => {
-    const f = getFields();
-    if (card?.cardOrdinal === 1) return marked.parse(f.front || '');
-    if (note?.noteType === 'cloze') {
-      const text = (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--srs-new);border-bottom:2px dashed var(--srs-new);padding:0 4px">$1</span>');
-      return marked.parse(text) + (f.extra ? `<div style="width: 60%; height: 1px; background: var(--border-color); margin: 16px auto;"></div><div style="font-size: 0.95rem; color: var(--text-dim);">${marked.parse(f.extra)}</div>` : '');
+    if (!note || !card) return '';
+    const fields = JSON.parse(note.fieldsJson || '{}');
+    if (note.noteType === 'reverse' && card.templateId === 1) return fields.front;
+    return fields.back;
+  };
+
+  const handleFlip = async () => {
+    if (isFlipped) return;
+    setIsFlipped(true);
+    try {
+      const ints = await studyApi.getNextIntervals(card.id);
+      setIntervals(ints);
+    } catch (e) {
+      console.error(e);
+      setIntervals({ 1: '<1m', 2: '6m', 3: '10m', 4: '4d' });
     }
-    return marked.parse(f.back || f.extra || '');
   };
-
-  const intervals = {
-    1: getIntervalLabel(card, 1),
-    2: getIntervalLabel(card, 2),
-    3: getIntervalLabel(card, 3),
-    4: getIntervalLabel(card, 4),
-  };
-
-  const handleFlip = () => { if (!isFlipped) setIsFlipped(true); };
-
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleRate = async (rating) => {
-    if (!card || isTransitioning) return;
-    const startMs = Date.now();
-
-    // Save undo state
-    setUndoStack(prev => [...prev, { pair: current, index: currentIndex }]);
-
-    // Start transition: flip card back first, THEN change content
-    setIsTransitioning(true);
-    setIsFlipped(false);
-
+    if (!isFlipped) return;
+    
+    setUndoStack([...undoStack, { pair, counts: { ...counts } }]);
     setSessionStats(prev => ({
       ...prev,
       reviewed: prev.reviewed + 1,
-      correct: rating >= 3 ? prev.correct + 1 : prev.correct,
+      correct: prev.correct + (rating >= 3 ? 1 : 0)
     }));
 
-    // Update counts
     setCounts(prev => {
       const n = { ...prev };
       if (card.state === 'new') n.new = Math.max(0, n.new - 1);
@@ -194,7 +139,6 @@ function Study() {
       return n;
     });
 
-    // Wait for flip-back animation to complete before showing next card
     setTimeout(() => {
       const remaining = queue.filter((_, i) => i !== currentIndex);
       if (remaining.length === 0) {
@@ -203,19 +147,17 @@ function Study() {
         setQueue(remaining);
         setCurrentIndex(0);
       }
-      setIsTransitioning(false);
-    }, 350); // slightly shorter than 0.6s flip animation
+      setIsFlipped(false);
+      setStartMs(Date.now());
+    }, 100);
 
-    // Fire-and-forget: send review to backend
     try {
       const timeTakenMs = Date.now() - startMs;
       const result = await studyApi.reviewCard(card.id, { rating, timeTakenMs });
-      // Show coin reward
       if (result && result.coinsEarned) {
         setCoinFloat({ amount: result.coinsEarned, key: Date.now() });
         setSessionStats(prev => ({ ...prev, coinsEarned: prev.coinsEarned + result.coinsEarned }));
         if (user) updateUser({ ...user, points: result.totalCoins });
-        // Auto-hide after animation
         setTimeout(() => setCoinFloat(null), 1500);
       }
     } catch (e) {
@@ -236,7 +178,6 @@ function Study() {
     addToast('Deshecho', 'info');
   };
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -247,21 +188,19 @@ function Study() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFlipped, card, queue, currentIndex, undoStack]);
 
   if (loading) {
     return (
-      <div className="study-container animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="spinner-sm" style={{ width: 40, height: 40, margin: '0 auto 16px', borderWidth: 3 }} />
-          <p style={{ color: 'var(--text-muted)' }}>Preparando sesión...</p>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-t-transparent border-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Preparando sesión...</p>
         </div>
       </div>
     );
   }
 
-  // Session complete screen
   if (isComplete) {
     const elapsed = Math.round((Date.now() - sessionStats.startTime) / 1000);
     const minutes = Math.floor(elapsed / 60);
@@ -269,33 +208,33 @@ function Study() {
     const accuracy = sessionStats.reviewed > 0 ? Math.round((sessionStats.correct / sessionStats.reviewed) * 100) : 0;
 
     return (
-      <div className="study-container animate-fade-in">
-        <div className="session-complete">
-          <div className="session-complete-icon">🎉</div>
-          <h2>¡Sesión Completada!</h2>
-          <p>Has terminado todas las tarjetas pendientes de <strong>{deck?.name}</strong>.</p>
-          <div className="session-stats">
-            <div className="session-stat">
-              <div className="session-stat-value">{sessionStats.reviewed}</div>
-              <div className="session-stat-label">Tarjetas</div>
-            </div>
-            <div className="session-stat">
-              <div className="session-stat-value">{accuracy}%</div>
-              <div className="session-stat-label">Precisión</div>
-            </div>
-            <div className="session-stat">
-              <div className="session-stat-value">{minutes}:{seconds.toString().padStart(2, '0')}</div>
-              <div className="session-stat-label">Tiempo</div>
-            </div>
-            <div className="session-stat">
-              <div className="session-stat-value" style={{ color: '#ffd700' }}>🪙 {sessionStats.coinsEarned}</div>
-              <div className="session-stat-label">Monedas</div>
-            </div>
+      <div className="animate-in fade-in zoom-in-95 flex flex-col items-center justify-center min-h-[60vh] max-w-md mx-auto text-center px-4">
+        <div className="text-6xl mb-6">🎉</div>
+        <h2 className="text-2xl font-bold mb-2">¡Sesión Completada!</h2>
+        <p className="text-muted-foreground mb-8">Has terminado todas las tarjetas pendientes de <strong>{deck?.name}</strong>.</p>
+        
+        <div className="grid grid-cols-2 gap-4 w-full mb-8">
+          <div className="bg-secondary/50 p-4 rounded-2xl flex flex-col items-center">
+            <span className="text-3xl font-bold text-foreground">{sessionStats.reviewed}</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Tarjetas</span>
           </div>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="primary-btn" onClick={() => navigate('/')}>← Volver a Mazos</button>
-            <button className="glass-btn" onClick={() => navigate(`/add/${deckId}`)}>➕ Añadir más tarjetas</button>
+          <div className="bg-secondary/50 p-4 rounded-2xl flex flex-col items-center">
+            <span className="text-3xl font-bold text-emerald-500">{accuracy}%</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Precisión</span>
           </div>
+          <div className="bg-secondary/50 p-4 rounded-2xl flex flex-col items-center">
+            <span className="text-3xl font-bold text-foreground">{minutes}:{seconds.toString().padStart(2, '0')}</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Tiempo</span>
+          </div>
+          <div className="bg-secondary/50 p-4 rounded-2xl flex flex-col items-center">
+            <span className="text-3xl font-bold text-amber-400">+{sessionStats.coinsEarned}</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground mt-1">Monedas</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col w-full gap-3">
+          <Button size="lg" onClick={() => navigate('/')}>Volver a Mazos</Button>
+          <Button size="lg" variant="secondary" onClick={() => navigate(`/add/${deckId}`)}>Añadir más tarjetas</Button>
         </div>
       </div>
     );
@@ -303,70 +242,75 @@ function Study() {
 
   if (!card || !note) {
     return (
-      <div className="study-container animate-fade-in">
-        <div className="empty-state">
-          <div className="empty-state-icon">📭</div>
-          <h3>No hay tarjetas pendientes</h3>
-          <p>Añade tarjetas a este mazo o espera a que haya revisiones pendientes.</p>
-          <button className="primary-btn" onClick={() => navigate(`/add/${deckId}`)}>➕ Añadir Tarjetas</button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] max-w-md mx-auto text-center px-4">
+        <div className="text-6xl mb-6 opacity-50">📭</div>
+        <h3 className="text-xl font-bold mb-2">No hay tarjetas pendientes</h3>
+        <p className="text-muted-foreground mb-8">Añade tarjetas a este mazo o espera a que haya revisiones pendientes.</p>
+        <Button size="lg" onClick={() => navigate(`/add/${deckId}`)}>Añadir Tarjetas</Button>
       </div>
     );
   }
 
   return (
-    <div className="study-container animate-fade-in" style={{ position: 'relative' }}>
-      {/* Coin float indicator */}
+    <div className="flex flex-col max-w-2xl mx-auto min-h-[calc(100vh-100px)] relative">
       {coinFloat && (
-        <div key={coinFloat.key} className="coin-float-indicator">
+        <div 
+          key={coinFloat.key} 
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-amber-400 animate-out fade-out slide-out-to-top-8 duration-1000 z-50 pointer-events-none"
+        >
           +{coinFloat.amount} 🪙
         </div>
       )}
+
       {/* Header */}
-      <div className="study-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button className="glass-btn" onClick={() => navigate('/')} style={{ padding: '8px 12px' }}>←</button>
-          <span className="study-deck-name">{deck?.name}</span>
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-border/50">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon-sm" onClick={() => navigate('/')} className="h-8 w-8">🔙</Button>
+          <span className="font-semibold text-lg">{deck?.name}</span>
           {settings?.showTimer && (
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginLeft: '8px', fontVariantNumeric: 'tabular-nums' }}>
+            <span className="text-xs text-muted-foreground ml-2 font-mono bg-secondary/50 px-2 py-1 rounded-md">
               ⏱️ {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
             </span>
           )}
         </div>
-        <div className="study-progress">
-          <span className="study-count new">{counts.new}</span>
-          <span className="study-count learning">{counts.learning}</span>
-          <span className="study-count review">{counts.review}</span>
+        <div className="flex gap-2">
+          <span className="text-sm font-bold text-blue-500 border-b-2 border-blue-500 pb-1 px-1">{counts.new}</span>
+          <span className="text-sm font-bold text-amber-500 border-b-2 border-amber-500 pb-1 px-1">{counts.learning}</span>
+          <span className="text-sm font-bold text-emerald-500 border-b-2 border-emerald-500 pb-1 px-1">{counts.review}</span>
         </div>
       </div>
 
-      {/* Card */}
-      <FlashCard
-        front={getFront()}
-        back={getBack()}
-        isFlipped={isFlipped}
-        onFlip={handleFlip}
-        animationsEnabled={settings?.animationsEnabled ?? true}
-      />
+      {/* Card Area */}
+      <div className="flex-1 flex flex-col justify-center mb-8 min-h-[300px]">
+        <FlashCard
+          front={getFront()}
+          back={getBack()}
+          isFlipped={isFlipped}
+          onFlip={handleFlip}
+          animationsEnabled={settings?.animationsEnabled ?? true}
+        />
+      </div>
 
       {/* Actions */}
-      {!isFlipped ? (
-        <Button size="lg" className="w-full text-lg h-14" onClick={handleFlip}>
-          Mostrar Respuesta
-          <span className="opacity-60 ml-2 text-sm hidden sm:inline">Space</span>
-        </Button>
-      ) : (
-        <RatingButtons intervals={intervals} onRate={handleRate} />
-      )}
+      <div className="mt-auto flex flex-col">
+        {!isFlipped ? (
+          <Button size="lg" className="w-full text-lg h-14" onClick={handleFlip}>
+            Mostrar Respuesta
+            <span className="opacity-60 ml-2 text-xs hidden sm:inline font-mono">Espacio</span>
+          </Button>
+        ) : (
+          <RatingButtons intervals={intervals} onRate={handleRate} />
+        )}
 
-      {/* Bottom Actions */}
-      <div className="flex items-center justify-center gap-4 mt-6">
-        <Button variant="outline" onClick={handleUndo} disabled={undoStack.length === 0}>
-          ↩️ Deshacer
-        </Button>
-        <Button variant="outline" onClick={() => navigate('/')}>
-          🏠 Salir
-        </Button>
+        {/* Bottom Actions */}
+        <div className="flex items-center justify-center gap-4 mt-8 pt-4">
+          <Button variant="ghost" size="sm" onClick={handleUndo} disabled={undoStack.length === 0} className="text-muted-foreground hover:text-foreground">
+            ↩️ Deshacer
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')} className="text-muted-foreground hover:text-foreground">
+            🏠 Salir
+          </Button>
+        </div>
       </div>
     </div>
   );
