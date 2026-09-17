@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
@@ -19,13 +19,15 @@ export default function Settings() {
   };
 
   const handleClearLocalData = () => {
-    if (window.confirm('Â¿Seguro que quieres limpiar los datos guardados localmente? TendrÃ¡s que volver a iniciar sesiÃ³n.')) {
+    if (window.confirm('¿Seguro que quieres limpiar los datos guardados localmente? Tendrás que volver a iniciar sesión.')) {
       localStorage.clear();
-      sessionStorage.clear();
-      logout();
-      navigate('/auth');
-      addToast('CachÃ© limpiada', 'success');
+      useAuthStore.getState().logout();
+      window.location.href = '/auth';
     }
+  };
+
+  const handleClearCache = () => {
+    addToast('Caché limpiada', 'success');
   };
 
   const tabs = [
@@ -64,7 +66,7 @@ export default function Settings() {
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: 600 }}>CronÃ³metro de SesiÃ³n</div>
+              <div style={{ fontWeight: 600 }}>Cronómetro de Sesión</div>
               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Mostrar el tiempo durante el estudio</div>
             </div>
             <label className="toggle-switch">
@@ -117,7 +119,7 @@ export default function Settings() {
               </div>
             </div>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-              El color se aplicarÃ¡ instantÃ¡neamente a toda la interfaz.
+              El color se aplicará instantáneamente a toda la interfaz.
             </p>
           </div>
           
@@ -156,19 +158,19 @@ export default function Settings() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <button className="icon-btn" onClick={handleClearLocalData}>
-              Limpiar CachÃ© Local
+              Limpiar Caché Local
             </button>
             <button 
               className="btn btn-danger" 
               style={{ width: '100%', padding: '0.875rem', borderRadius: '12px' }}
               onClick={() => {
-                if(window.confirm('Â¿Quieres cerrar sesiÃ³n?')) {
+                if(window.confirm('¿Quieres cerrar sesión?')) {
                   logout();
                   navigate('/auth');
                 }
               }}
             >
-              Cerrar sesiÃ³n
+              Cerrar sesión
             </button>
           </div>
         </div>

@@ -62,7 +62,7 @@ export default function Stats() {
           suspended
         });
       } catch (e) {
-        addToast('Error al cargar estadÃ­sticas', 'error');
+        addToast('Error al cargar estadísticas', 'error');
       } finally {
         setLoading(false);
       }
@@ -77,8 +77,8 @@ export default function Stats() {
       {stats.totalCards === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>ðŸ“Š</div>
-          <h3>Sin datos aÃºn</h3>
-          <p style={{ color: 'var(--text-muted)' }}>AÃ±ade tarjetas para ver tus estadÃ­sticas.</p>
+          <h3>Sin datos aún</h3>
+          <p style={{ color: 'var(--text-muted)' }}>Añade tarjetas para ver tus estadísticas.</p>
         </div>
       ) : (
         <>
