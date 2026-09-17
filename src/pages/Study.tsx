@@ -347,7 +347,7 @@ export default function Study() {
         <div className="mt-4 shrink-0 flex flex-col gap-4 pb-4">
           {!isFlipped ? (
             <button 
-              className="btn btn-primary w-full py-4 text-lg rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+              className="btn btn-primary w-full py-5 text-xl font-bold rounded-[20px] flex items-center justify-center gap-2 shadow-xl shadow-primary/25"
               onClick={handleFlip}
             >
               <Eye size={20} /> Mostrar Respuesta
@@ -375,4 +375,5 @@ export default function Study() {
     </div>
   );
 }
+
 

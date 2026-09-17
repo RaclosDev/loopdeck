@@ -18,7 +18,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
 
   return (
     <div 
-      className={`relative w-full h-full flex flex-col ${!isFlipped ? 'cursor-pointer group' : ''}`}
+      className={`relative w-full max-w-lg mx-auto flex-1 min-h-[400px] max-h-[65vh] flex flex-col ${!isFlipped ? 'cursor-pointer group' : ''}`}
       onClick={() => !isFlipped && onFlip()}
       style={{ perspective: '1200px' }}
     >
@@ -71,3 +71,4 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
     </div>
   );
 }
+

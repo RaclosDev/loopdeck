@@ -132,7 +132,7 @@ html {
   overscroll-behavior-x: none;
   overscroll-behavior-y: none;
 }
-body {
+body { overflow-x: hidden;
   font-family: var(--font-main);
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -353,7 +353,7 @@ body {
 
 
 
-.kpi-card { padding: var(--space-xl); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.kpi-card { min-width: 0; word-break: break-word; padding: var(--space-xl); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
 
 
 
@@ -1192,7 +1192,7 @@ input[type=number] {
 
 
 
-.kpi-card { padding: var(--space-xl); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.kpi-card { min-width: 0; word-break: break-word; padding: var(--space-xl); display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-card); backdrop-filter: blur(12px); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
   .kpi-value {
     font-size: 1.2rem !important;
   }
@@ -1632,7 +1632,7 @@ input[type=number]::-webkit-outer-spin-button {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) var(--bg-primary);
 }
-html, body {
+html, body { overflow-x: hidden;
   overscroll-behavior-x: none;
 }
 
@@ -2521,7 +2521,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   padding: 2px 8px;
   border-radius: 6px;
 }
-.quick-add-body {
+.quick-add-body { overflow-x: hidden;
   display: flex;
   gap: var(--space-md);
 }
@@ -4285,7 +4285,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   color: var(--text-primary);
 }
 
-.workout-sheet-body {
+.workout-sheet-body { overflow-x: hidden;
   flex: 1;
   overflow-y: auto;
   padding: 0 1.25rem 1.25rem;
@@ -5158,7 +5158,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.food-search-body {
+.food-search-body { overflow-x: hidden;
   flex: 1;
   overflow-y: auto;
   padding: 1.25rem;
@@ -5243,5 +5243,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   overflow: hidden;
   height: 100%;
 }
+
+
 
 

@@ -24,7 +24,7 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2 w-full mt-4">
+    <div className="grid grid-cols-4 gap-3 sm:gap-4 w-full mt-4">
       {buttons.map((btn) => {
         const style = RATING_STYLES[btn.key as keyof typeof RATING_STYLES];
         return (
@@ -36,7 +36,7 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
               onRate(btn.rating);
             }}
             className={`
-              relative flex flex-col items-center justify-center py-3 px-2 rounded-xl
+              relative flex flex-col items-center justify-center py-4 sm:py-5 px-2 rounded-[20px] shadow-sm
               bg-card border ${style.border} ${style.bgHover}
               transition-all duration-200 cursor-pointer
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -44,13 +44,13 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
             `}
           >
             {/* Interval */}
-            <div className={`flex items-center gap-1 text-xs opacity-70 mb-1 ${style.color}`}>
+            <div className={`flex items-center gap-1 text-xs opacity-80 mb-1.5 font-medium ${style.color}`}>
               <Clock size={12} />
               <span>{btn.interval || '...'}</span>
             </div>
             
             {/* Label */}
-            <span className={`font-bold text-sm sm:text-base ${style.color}`}>
+            <span className={`font-bold text-base sm:text-lg ${style.color}`}>
               {btn.label}
             </span>
 
@@ -66,3 +66,4 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
 }
 
 export default RatingButtons;
+

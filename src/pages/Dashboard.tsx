@@ -111,21 +111,21 @@ export default function Dashboard() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center', minWidth: 0, overflow: 'hidden' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.new}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>NUEVAS</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>NUEVAS</div>
                   </div>
-                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center', minWidth: 0, overflow: 'hidden' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.learning}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>APRENDIENDO</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>APRENDIENDO</div>
                   </div>
-                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center', minWidth: 0, overflow: 'hidden' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{counts.review}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>REVISIÓN</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>REVISIÓN</div>
                   </div>
-                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center' }}>
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid rgba(255, 255, 255, 0.05)', padding: '8px', borderRadius: '12px', textAlign: 'center', minWidth: 0, overflow: 'hidden' }}>
                     <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.25rem' }}>{totalDue}</div>
-                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px' }}>TOTAL</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700, letterSpacing: '0.5px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}>TOTAL</div>
                   </div>
                 </div>
               </div>
@@ -170,6 +170,7 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
 
 

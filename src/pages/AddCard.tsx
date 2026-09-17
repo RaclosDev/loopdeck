@@ -273,16 +273,16 @@ export default function AddCard() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl pt-2 pb-4 mb-6 -mx-2 px-2 sm:mx-0 sm:px-0">
-          <div className="bg-card border border-white/10 p-1.5 rounded-full flex items-center w-full max-w-md mx-auto shadow-lg">
+      <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-xl pt-4 pb-2 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="bg-secondary/40 p-1 rounded-xl flex items-center w-full max-w-sm mx-auto">
             <button 
-              className={`flex-1 rounded-full py-3 px-4 text-[0.95rem] font-bold transition-all ${addMode === 'single' ? 'bg-white/10 text-white shadow-sm border border-white/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+              className={`flex-1 rounded-lg py-2.5 px-4 text-[0.9rem] font-semibold transition-all ${addMode === 'single' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => setAddMode('single')}
             >
-              Una a Una
+              Una a una
             </button>
             <button 
-              className={`flex-1 rounded-full py-3 px-4 text-[0.95rem] font-bold transition-all ${addMode === 'mass' ? 'bg-white/10 text-white shadow-sm border border-white/10' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+              className={`flex-1 rounded-lg py-2.5 px-4 text-[0.9rem] font-semibold transition-all ${addMode === 'mass' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => setAddMode('mass')}
             >
               ? En Masa
@@ -460,5 +460,7 @@ export default function AddCard() {
     </div>
   );
 }
+
+
 
 
