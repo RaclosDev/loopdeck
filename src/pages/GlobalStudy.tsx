@@ -1,9 +1,9 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, studyApi } from '../services/api';
 
-function GlobalStudy() {
+export default function GlobalStudy() {
   const [decks, setDecks] = useState([]);
   const [deckCounts, setDeckCounts] = useState({});
   const [loading, setLoading] = useState(true);
@@ -14,26 +14,26 @@ function GlobalStudy() {
     try {
       const data = await decksApi.getAll();
       setDecks(data);
-      // Load due counts for each deck in parallel
       const countResults = await Promise.allSettled(
         data.map(d => studyApi.getDueCards(d.id, 1000).then(cards => ({ id: d.id, cards })))
       );
+
       const counts = {};
-      countResults.forEach(r => {
-        if (r.status === 'fulfilled') {
-          const { id, cards } = r.value;
-          const now = new Date();
-          counts[id] = {
-            new: cards.filter(c => c.card.state === 'new').length,
-            learning: cards.filter(c => (c.card.state === 'learning' || c.card.state === 'relearning') && new Date(c.card.due) <= now).length,
-            review: cards.filter(c => c.card.state === 'review' && new Date(c.card.due) <= now).length,
-            total: cards.length,
-          };
+      countResults.forEach(res => {
+        if (res.status === 'fulfilled') {
+          const { id, cards } = res.value;
+          let n = 0, l = 0, r = 0;
+          cards.forEach(c => {
+            if (c.card.state === 'new') n++;
+            else if (c.card.state === 'review') r++;
+            else l++;
+          });
+          counts[id] = { new: n, learning: l, review: r, total: cards.length };
         }
       });
       setDeckCounts(counts);
     } catch (e) {
-      addToast('Error cargando mazos: ' + e.message, 'error');
+      addToast('Error al cargar mazos', 'error');
     } finally {
       setLoading(false);
     }
@@ -43,75 +43,61 @@ function GlobalStudy() {
 
   if (loading) {
     return (
-      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh' }}>
         <div className="spinner" />
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto', paddingBottom: '100px' }}>
-      <header className="dashboard-header">
-        <div>
-          <h1 className="dashboard-title">Centro de Estudio</h1>
-          <p className="dashboard-subtitle">Selecciona un mazo para ver los modos de estudio disponibles.</p>
-        </div>
-      </header>
+    <div className="fade-in pb-10">
+      <div className="page-header" style={{ marginBottom: 20 }}>
+        <h1>Centro de Estudio</h1>
+        <p>Selecciona un mazo para ver los modos de estudio disponibles.</p>
+      </div>
 
-      <div className="decks-grid" style={{ marginTop: '2rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, total: 0 };
-          const due = counts.learning + counts.review;
-          const progress = counts.total > 0 ? ((counts.total - (due + counts.new)) / counts.total) * 100 : 0;
+          const progress = counts.total === 0 ? 100 : Math.max(5, ((counts.total - (counts.new + counts.learning + counts.review)) / counts.total) * 100);
 
           return (
-            <div key={deck.id} className="deck-card" onClick={() => navigate(`/hub/${deck.id}`)} style={{ cursor: 'pointer', transition: 'all 0.2s', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column' }}>
+            <div key={deck.id} className="glass-panel" onClick={() => navigate(`/hub/${deck.id}`)} style={{ cursor: 'pointer', overflow: 'hidden' }}>
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem' }}>{deck.name}</h3>
+                
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <div style={{ flex: 1, background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', padding: '10px', borderRadius: 12, textAlign: 'center' }}>
+                    <div style={{ color: '#3b82f6', fontWeight: 700, fontSize: '1.2rem' }}>{counts.new}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>NUEVAS</div>
+                  </div>
+                  <div style={{ flex: 1, background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '10px', borderRadius: 12, textAlign: 'center' }}>
+                    <div style={{ color: '#f59e0b', fontWeight: 700, fontSize: '1.2rem' }}>{counts.learning}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>APRENDER</div>
+                  </div>
+                  <div style={{ flex: 1, background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '10px', borderRadius: 12, textAlign: 'center' }}>
+                    <div style={{ color: '#10b981', fontWeight: 700, fontSize: '1.2rem' }}>{counts.review}</div>
+                    <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 700 }}>REVISIÓN</div>
+                  </div>
+                </div>
+              </div>
               
-              <div className="deck-card-header">
-                <h3 className="deck-card-name">{deck.name}</h3>
+              <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', justifyContent: 'center' }}>
+                <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>➔ Entrar al Hub</span>
               </div>
-              
-              {deck.description && <p style={{ fontSize: "0.8rem", color: "var(--text-dim)", marginBottom: "auto", padding: "0 2px" }}>{deck.description}</p>}
-
-              <div className="deck-card-counts" style={{ marginTop: '16px' }}>
-                <div className="deck-count">
-                  <span className="deck-count-number new">{counts.new}</span>
-                  <span className="deck-count-label">Nuevas</span>
-                </div>
-                <div className="deck-count">
-                  <span className="deck-count-number learning">{counts.learning}</span>
-                  <span className="deck-count-label">Aprendiendo</span>
-                </div>
-                <div className="deck-count">
-                  <span className="deck-count-number review">{counts.review}</span>
-                  <span className="deck-count-label">Revisión</span>
-                </div>
-              </div>
-
-              <div className="deck-card-progress" style={{ margin: '16px 0' }}>
-                <div className="deck-card-progress-bar" style={{ width: `${progress}%` }} />
-              </div>
-
-              <button className="primary-btn" style={{ width: '100%' }}>
-                🎯 Seleccionar Mazo
-              </button>
             </div>
           );
         })}
 
         {decks.length === 0 && (
-          <div className="empty-state" style={{ gridColumn: '1 / -1' }}>
-            <div className="empty-state-icon">🧠</div>
-            <h3>¡No tienes mazos aún!</h3>
-            <p>Ve a Mis Mazos para crear tu primer mazo de tarjetas.</p>
-            <button className="primary-btn" onClick={() => navigate('/')}>
-              Ir a Mis Mazos
-            </button>
+          <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📭</div>
+            <h3 style={{ margin: '0 0 0.5rem 0' }}>¡No tienes mazos aún!</h3>
+            <p style={{ color: 'var(--text-muted)', margin: '0 0 1.5rem 0' }}>Ve a Mis Mazos para crear tu primer mazo de tarjetas.</p>
+            <button className="btn btn-primary" onClick={() => navigate('/')}>Ir a Mis Mazos</button>
           </div>
         )}
       </div>
     </div>
   );
 }
-
-export default GlobalStudy;

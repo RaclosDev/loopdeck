@@ -1,83 +1,70 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
 
-function FlashCard({ front, back, isFlipped, onFlip, animationsEnabled }) {
-  const [showBack, setShowBack] = useState(isFlipped);
-
-  useEffect(() => {
-    if (!animationsEnabled) {
-      setShowBack(isFlipped);
-      return;
-    }
-
-    if (isFlipped) {
-      const timer = setTimeout(() => setShowBack(true), 150);
-      return () => clearTimeout(timer);
-    } else {
-      setShowBack(false);
-    }
-  }, [isFlipped, animationsEnabled]);
-
-  const transitionStyle = animationsEnabled ? 'transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1)' : 'none';
+export default function FlashCard({ front, back, isFlipped, onFlip, cardState }) {
+  const getStateColor = () => {
+    if (cardState === 'new') return 'var(--srs-new)';
+    if (cardState === 'learning' || cardState === 'relearning') return 'var(--srs-learning)';
+    if (cardState === 'review') return 'var(--srs-review)';
+    return 'transparent';
+  };
 
   return (
     <div 
-      className="w-full max-w-2xl mx-auto cursor-pointer relative perspective-[1500px]"
-      style={{ minHeight: '350px' }}
-      onClick={onFlip}
+      style={{ 
+        perspective: '1000px', 
+        width: '100%', 
+        minHeight: '300px',
+        display: 'flex',
+        flexDirection: 'column',
+        cursor: !isFlipped ? 'pointer' : 'default',
+        position: 'relative'
+      }}
+      onClick={() => !isFlipped && onFlip()}
     >
+      {/* Front */}
       <div 
-        className="w-full h-full absolute inset-0 preserve-3d"
-        style={{ 
-          transition: transitionStyle,
-          transform: isFlipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
-          transformStyle: 'preserve-3d'
+        className="glass-panel"
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          borderTop: `4px solid ${getStateColor()}`,
+          backfaceVisibility: 'hidden',
+          transition: 'transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          zIndex: isFlipped ? 0 : 1,
         }}
       >
-        {/* Front Face */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-card border border-border rounded-2xl p-8 flex flex-col shadow-lg backface-hidden"
-          style={{ backfaceVisibility: 'hidden' }}
-        >
-          <div className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase mb-6 flex-shrink-0">
-            Pregunta
-          </div>
-          
-          <div className="flex-1 flex items-center justify-center overflow-y-auto">
-            <div 
-              className="prose prose-invert max-w-none text-center text-xl md:text-2xl leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: front }}
-            />
-          </div>
+        <div style={{ fontSize: '1.25rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: front || '' }} />
+      </div>
 
-          <div className="text-center mt-6 text-sm text-muted-foreground animate-pulse flex-shrink-0">
-            👆 Toca para ver la respuesta <span className="hidden sm:inline">· Espacio</span>
-          </div>
-        </div>
-
-        {/* Back Face */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-card border border-border rounded-2xl p-8 flex flex-col shadow-lg backface-hidden"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            transform: 'rotateX(180deg)' 
-          }}
-        >
-          <div className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase mb-6 flex-shrink-0">
-            Respuesta
-          </div>
-          
-          <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto">
-            {showBack && (
-              <div 
-                className="prose prose-invert max-w-none text-center text-lg md:text-xl leading-relaxed animate-in fade-in duration-300"
-                dangerouslySetInnerHTML={{ __html: back }}
-              />
-            )}
-          </div>
-        </div>
+      {/* Back */}
+      <div 
+        className="glass-panel"
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          padding: '2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          borderTop: `4px solid ${getStateColor()}`,
+          backfaceVisibility: 'hidden',
+          transition: 'transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)',
+          transform: isFlipped ? 'rotateY(0deg)' : 'rotateY(-180deg)',
+          zIndex: isFlipped ? 1 : 0,
+          overflowY: 'auto'
+        }}
+      >
+        <div style={{ fontSize: '1.25rem', lineHeight: 1.6 }} dangerouslySetInnerHTML={{ __html: back || '' }} />
       </div>
     </div>
   );
 }
-
-export default FlashCard;

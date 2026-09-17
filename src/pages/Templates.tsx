@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
-import { templatesApi, decksApi } from '../services/api';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
+import { templatesApi } from '../services/api';
 
 export default function Templates() {
   const [templates, setTemplates] = useState([]);
@@ -40,47 +37,48 @@ export default function Templates() {
   };
 
   return (
-    <div className="animate-in fade-in pb-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Plantillas</h1>
-        <p className="text-muted-foreground text-sm">Descarga mazos prediseñados para empezar a estudiar</p>
+    <div className="fade-in pb-10">
+      <div className="page-header" style={{ marginBottom: 20 }}>
+        <h1>📦 Plantillas</h1>
+        <p>Descarga mazos prediseñados para empezar a estudiar</p>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-12">
-          <div className="w-8 h-8 border-4 border-t-transparent border-primary rounded-full animate-spin mb-4" />
-          <p className="text-muted-foreground text-sm">Cargando plantillas...</p>
+        <div style={{ padding: '3rem', textAlign: 'center' }}>
+          <div className="spinner" />
+          <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Cargando plantillas...</p>
         </div>
       ) : templates.length === 0 ? (
-        <Card className="bg-card flex flex-col items-center justify-center p-12 text-center border-dashed">
-          <div className="text-4xl mb-3 opacity-70">📦</div>
-          <h3 className="text-xl font-bold mb-2">No hay plantillas disponibles</h3>
-          <p className="text-muted-foreground text-sm">Vuelve más tarde para ver nuevos mazos.</p>
-        </Card>
+        <div className="glass-panel" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📦</div>
+          <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay plantillas disponibles</h3>
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>Vuelve más tarde para ver nuevos mazos.</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
           {templates.map(t => (
-            <Card key={t.id} className="bg-card border-dashed flex flex-col">
-              <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0 gap-4">
-                <CardTitle className="text-lg leading-tight">{t.icon} {t.name}</CardTitle>
-                <Badge variant="outline" className="whitespace-nowrap">{t.category}</Badge>
-              </CardHeader>
-              <CardContent className="flex-1">
-                <p className="text-sm text-muted-foreground">{t.description}</p>
-                <div className="mt-3 text-xs font-semibold bg-secondary inline-flex px-2 py-1 rounded">
-                  {t.cardCount} tarjetas
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  onClick={() => handleImportTemplate(t.id)}
-                  disabled={!!importingId}
-                >
-                  {importingId === t.id ? 'Descargando...' : '📥 Descargar Mazo'}
-                </Button>
-              </CardFooter>
-            </Card>
+            <div key={t.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{t.icon} {t.name}</h3>
+                <span style={{ fontSize: '0.75rem', padding: '2px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}>
+                  {t.category}
+                </span>
+              </div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', flex: 1, marginBottom: '1rem', lineHeight: 1.5 }}>
+                {t.description}
+              </p>
+              <div style={{ background: 'var(--bg-glass)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 600, width: 'fit-content', marginBottom: '1.5rem' }}>
+                {t.cardCount} tarjetas
+              </div>
+              <button 
+                className="btn btn-primary"
+                style={{ width: '100%', padding: '0.875rem', borderRadius: '12px' }}
+                onClick={() => handleImportTemplate(t.id)}
+                disabled={!!importingId}
+              >
+                {importingId === t.id ? 'Descargando...' : '📥 Descargar Mazo'}
+              </button>
+            </div>
           ))}
         </div>
       )}

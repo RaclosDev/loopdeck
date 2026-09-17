@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 
 export default function AuthPage() {
   const [mode, setMode] = useState('login'); // 'login' | 'register'
@@ -28,7 +25,6 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (!googleClientId) return;
-
     const initGoogle = () => {
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
@@ -37,7 +33,7 @@ export default function AuthPage() {
         });
         if (googleBtnRef.current) {
           window.google.accounts.id.renderButton(googleBtnRef.current, {
-            theme: 'outline',
+            theme: 'filled_black',
             size: 'large',
             width: googleBtnRef.current.offsetWidth,
             text: 'continue_with',
@@ -47,10 +43,8 @@ export default function AuthPage() {
         }
       }
     };
-
-    if (window.google?.accounts?.id) {
-      initGoogle();
-    } else {
+    if (window.google?.accounts?.id) initGoogle();
+    else {
       const interval = setInterval(() => {
         if (window.google?.accounts?.id) {
           clearInterval(interval);
@@ -78,9 +72,8 @@ export default function AuthPage() {
     setError('');
     setLoading(true);
     try {
-      if (mode === 'login') {
-        await login(form.email, form.password);
-      } else {
+      if (mode === 'login') await login(form.email, form.password);
+      else {
         if (form.name.trim().length < 2) throw new Error('El nombre debe tener al menos 2 caracteres');
         await register(form.email, form.name, form.password);
       }
@@ -92,117 +85,171 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md bg-card border-border shadow-xl">
-        <CardHeader className="text-center pb-2">
-          <div className="flex justify-center mb-4 text-4xl">⚡</div>
-          <CardTitle className="text-3xl font-bold tracking-tight">LoopDeck</CardTitle>
-          <CardDescription className="text-muted-foreground mt-2 text-base">
-            Spaced repetition, reimagined
-          </CardDescription>
-        </CardHeader>
+    <div style={{
+      minHeight: '100dvh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(rgba(8, 8, 12, 0.82), rgba(5, 5, 8, 0.90)), url(/login-bg.jpg) center/cover no-repeat fixed',
+      color: 'var(--text-primary, #fff)',
+      padding: '1.5rem',
+      position: 'relative'
+    }}>
+      <div style={{
+        background: 'rgba(28, 28, 30, 0.65)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        padding: '2.5rem 2rem',
+        borderRadius: '28px',
+        border: '1px solid rgba(0, 133, 255, 0.3)',
+        boxShadow: '0 24px 64px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 133, 255, 0.15)',
+        maxWidth: '400px',
+        width: '100%',
+        position: 'relative',
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}>
+        
+        {/* Logo Icon */}
+        <div style={{
+          width: '92px',
+          height: '92px',
+          borderRadius: '22px',
+          overflow: 'hidden',
+          marginBottom: '1rem',
+          border: '1.5px solid rgba(0, 133, 255, 0.65)',
+          boxShadow: '0 0 25px rgba(0, 133, 255, 0.45), 0 8px 24px rgba(0, 0, 0, 0.7)',
+          background: '#000',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <img 
+            src="/loopdeck-icon-192.png" 
+            alt="LoopDeck Logo" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover' 
+            }} 
+          />
+        </div>
+        
+        <h1 style={{ margin: '0 0 0.5rem', fontSize: '2rem', fontWeight: 800, letterSpacing: '-0.5px' }}>LoopDeck</h1>
 
-        <CardContent className="pt-6">
-          <div className="flex bg-secondary p-1 rounded-xl mb-6">
-            <Button
-              type="button"
-              variant="ghost"
-              className={`flex-1 rounded-lg h-9 ${mode === 'login' ? 'bg-background text-foreground shadow-sm hover:bg-background hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-              onClick={() => { setMode('login'); setError(''); }}
-            >
-              Iniciar sesión
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className={`flex-1 rounded-lg h-9 ${mode === 'register' ? 'bg-background text-foreground shadow-sm hover:bg-background hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-              onClick={() => { setMode('register'); setError(''); }}
-            >
-              Crear cuenta
-            </Button>
-          </div>
+        <p style={{ 
+          color: 'var(--text-secondary, #94a3b8)', 
+          fontSize: '0.95rem',
+          marginBottom: '2rem',
+          textAlign: 'center'
+        }}>
+          Spaced repetition, reimagined.
+        </p>
 
-          <div ref={googleBtnRef} className="w-full mb-6 flex justify-center"></div>
+        {/* Tab Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          background: 'rgba(0,0,0,0.5)', 
+          padding: '4px', 
+          borderRadius: '16px', 
+          marginBottom: '1.5rem',
+          width: '100%',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <button 
+            type="button"
+            onClick={() => { setMode('login'); setError(''); }}
+            style={{ 
+              flex: 1, padding: '0.65rem', borderRadius: '12px', border: 'none', 
+              background: mode === 'login' ? 'rgba(255,255,255,0.15)' : 'transparent', 
+              color: mode === 'login' ? '#fff' : 'var(--text-secondary)',
+              fontWeight: mode === 'login' ? 600 : 400,
+              transition: 'all 0.2s'
+            }}
+          >
+            Iniciar sesión
+          </button>
+          <button 
+            type="button"
+            onClick={() => { setMode('register'); setError(''); }}
+            style={{ 
+              flex: 1, padding: '0.65rem', borderRadius: '12px', border: 'none', 
+              background: mode === 'register' ? 'rgba(255,255,255,0.15)' : 'transparent', 
+              color: mode === 'register' ? '#fff' : 'var(--text-secondary)',
+              fontWeight: mode === 'register' ? 600 : 400,
+              transition: 'all 0.2s'
+            }}
+          >
+            Crear cuenta
+          </button>
+        </div>
 
-          <div className="relative mb-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
+        <div ref={googleBtnRef} style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}></div>
+
+        <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '1.5rem', opacity: 0.5 }}>
+          <div style={{ flex: 1, height: '1px', background: '#fff' }}></div>
+          <span style={{ padding: '0 10px', fontSize: '0.75rem', letterSpacing: '1px' }}>O CON EMAIL</span>
+          <div style={{ flex: 1, height: '1px', background: '#fff' }}></div>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          {mode === 'register' && (
+            <input
+              type="text"
+              name="name"
+              placeholder="Tu nombre"
+              value={form.name}
+              onChange={handleChange}
+              required
+              minLength={2}
+              className="form-input"
+              style={{ width: '100%', background: 'rgba(0,0,0,0.5)' }}
+            />
+          )}
+
+          <input
+            type="email"
+            name="email"
+            placeholder="tu@email.com"
+            value={form.email}
+            onChange={handleChange}
+            required
+            className="form-input"
+            style={{ width: '100%', background: 'rgba(0,0,0,0.5)' }}
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : 'Contraseña'}
+            value={form.password}
+            onChange={handleChange}
+            required
+            minLength={mode === 'register' ? 6 : 1}
+            className="form-input"
+            style={{ width: '100%', background: 'rgba(0,0,0,0.5)' }}
+          />
+
+          {error && (
+            <div style={{ color: '#ef4444', fontSize: '0.85rem', background: 'rgba(239,68,68,0.1)', padding: '0.75rem', borderRadius: '12px' }}>
+              ⚠️ {error}
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">o con email</span>
-            </div>
-          </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === 'register' && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none" htmlFor="auth-name">Nombre</label>
-                <Input
-                  id="auth-name"
-                  type="text"
-                  name="name"
-                  placeholder="Tu nombre"
-                  value={form.name}
-                  onChange={handleChange}
-                  required
-                  minLength={2}
-                />
-              </div>
-            )}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+            style={{ width: '100%', padding: '0.875rem', marginTop: '0.5rem', borderRadius: '16px', fontWeight: 700 }}
+          >
+            {loading ? 'Cargando...' : (mode === 'login' ? 'Entrar' : 'Crear cuenta')}
+          </button>
+        </form>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="auth-email">Email</label>
-              <Input
-                id="auth-email"
-                type="email"
-                name="email"
-                placeholder="tu@email.com"
-                value={form.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium leading-none" htmlFor="auth-password">Contraseña</label>
-              <Input
-                id="auth-password"
-                type="password"
-                name="password"
-                placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : '••••••••'}
-                value={form.password}
-                onChange={handleChange}
-                required
-                minLength={mode === 'register' ? 6 : 1}
-              />
-            </div>
-
-            {error && (
-              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md border border-destructive/20 flex items-start gap-2">
-                <span className="mt-0.5">⚠️</span> 
-                <p className="flex-1">{error}</p>
-              </div>
-            )}
-
-            <Button type="submit" className="w-full h-11 text-base mt-2" disabled={loading}>
-              {loading ? 'Cargando...' : (mode === 'login' ? 'Entrar' : 'Crear cuenta')}
-            </Button>
-          </form>
-        </CardContent>
-
-        <CardFooter className="flex justify-center border-t border-border/50 pt-6">
-          <p className="text-sm text-muted-foreground">
-            {mode === 'login' ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
-            <button
-              type="button"
-              className="text-primary hover:underline font-medium"
-              onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError(''); }}
-            >
-              {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
-            </button>
-          </p>
-        </CardFooter>
-      </Card>
+      </div>
     </div>
   );
 }

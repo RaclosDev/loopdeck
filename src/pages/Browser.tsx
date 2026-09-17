@@ -1,9 +1,5 @@
 import { useState, useEffect } from 'react';
 import useStore from '../store/useStore';
-import { Card, CardContent } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
 import { decksApi, notesApi, studyApi } from '../services/api';
 import Modal from '../components/Modal';
 
@@ -40,7 +36,7 @@ export default function Browser() {
       });
       setTags(Array.from(allTags).filter(t => t));
 
-      const cards = await studyApi.getDueCards(selectedDeckId, 10000); // get all to map states
+      const cards = await studyApi.getDueCards(selectedDeckId, 10000);
       const cardStateMap = {};
       cards.forEach(c => {
         cardStateMap[c.card.noteId] = c.card.state;
@@ -100,121 +96,111 @@ export default function Browser() {
   };
 
   const getStateColor = (state) => {
-    if (state === 'new') return 'bg-blue-500/20 text-blue-500';
-    if (state === 'learning' || state === 'relearning') return 'bg-amber-500/20 text-amber-500';
-    if (state === 'review') return 'bg-emerald-500/20 text-emerald-500';
-    return 'bg-secondary text-muted-foreground';
+    if (state === 'new') return 'var(--srs-new)';
+    if (state === 'learning' || state === 'relearning') return 'var(--srs-learning)';
+    if (state === 'review') return 'var(--srs-review)';
+    return 'var(--text-muted)';
   };
 
   return (
-    <div className="animate-in fade-in pb-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Explorador de Tarjetas</h1>
-        <p className="text-muted-foreground text-sm">Gestiona y edita tus tarjetas</p>
+    <div className="fade-in pb-10">
+      <div className="page-header" style={{ marginBottom: 20 }}>
+        <h1>🔍 Explorador</h1>
+        <p>Gestiona y edita tus tarjetas</p>
       </div>
 
-      <Card className="bg-card mb-6">
-        <CardContent className="p-4 flex flex-wrap gap-3 items-center">
-          <select
-            className="flex h-10 w-full sm:w-[200px] rounded-md border border-input bg-secondary px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            value={selectedDeckId}
-            onChange={(e) => setSelectedDeckId(e.target.value)}
-          >
-            {decks.length === 0 && <option value="">Sin mazos</option>}
-            {decks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </select>
-          
-          <select
-            className="flex h-10 w-full sm:w-[150px] rounded-md border border-input bg-secondary px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            value={selectedTag}
-            onChange={(e) => setSelectedTag(e.target.value)}
-          >
-            <option value="">Todas las etiquetas</option>
-            {tags.map(t => <option key={t} value={t}>{t}</option>)}
-          </select>
+      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <select
+          className="form-input"
+          value={selectedDeckId}
+          onChange={(e) => setSelectedDeckId(e.target.value)}
+          style={{ flex: '1 1 200px', height: '42px' }}
+        >
+          {decks.length === 0 && <option value="">Sin mazos</option>}
+          {decks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+        </select>
+        
+        <select
+          className="form-input"
+          value={selectedTag}
+          onChange={(e) => setSelectedTag(e.target.value)}
+          style={{ flex: '1 1 150px', height: '42px' }}
+        >
+          <option value="">Todas las etiquetas</option>
+          {tags.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
 
-          <Input
-            className="flex-1 min-w-[200px] h-10 bg-secondary"
-            placeholder="Buscar pregunta o respuesta..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </CardContent>
-      </Card>
+        <input
+          className="form-input"
+          placeholder="Buscar..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ flex: '2 1 200px', height: '42px' }}
+        />
+      </div>
 
-      <Card className="bg-card overflow-hidden">
+      <div className="glass-panel" style={{ overflow: 'hidden' }}>
         {loading ? (
-          <div className="flex flex-col items-center justify-center p-12">
-            <div className="w-8 h-8 border-4 border-t-transparent border-primary rounded-full animate-spin mb-4" />
-            <p className="text-muted-foreground text-sm">Cargando...</p>
+          <div style={{ padding: '3rem', textAlign: 'center' }}>
+            <div className="spinner" />
           </div>
         ) : filteredNotes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center p-12 text-center opacity-70">
-            <div className="text-4xl mb-3">🔍</div>
-            <p className="text-muted-foreground">No se encontraron tarjetas</p>
+          <div style={{ padding: '3rem', textAlign: 'center', opacity: 0.5 }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔍</div>
+            <p>No se encontraron tarjetas</p>
           </div>
         ) : (
-          <div className="divide-y divide-border/50">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {filteredNotes.map(note => (
-              <div key={note.id} className="p-4 hover:bg-secondary/20 transition-colors flex flex-col sm:flex-row gap-4 group">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className={getStateColor(note.state)}>
-                      {note.state === 'new' ? 'Nueva' : note.state.includes('learn') ? 'Aprender' : 'Revisión'}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">{new Date(note.createdAt).toLocaleDateString()}</span>
+              <div key={note.id} style={{ padding: '1rem', borderBottom: '1px solid var(--border-subtle)', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: getStateColor(note.state) }}>
+                      {note.state === 'new' ? 'NUEVA' : note.state.includes('learn') ? 'APRENDER' : 'REVISIÓN'}
+                    </span>
                   </div>
-                  <div 
-                    className="text-sm line-clamp-2 font-medium mb-1" 
-                    dangerouslySetInnerHTML={{ __html: note.parsedFields.front || '(Vacío)' }} 
-                  />
-                  <div 
-                    className="text-sm line-clamp-2 text-muted-foreground" 
-                    dangerouslySetInnerHTML={{ __html: note.parsedFields.back || '(Vacío)' }} 
-                  />
-                  {note.tags && (
-                    <div className="flex gap-1 mt-2">
-                      {note.tags.split(',').map(t => <Badge key={t} variant="outline" className="text-[10px]">{t.trim()}</Badge>)}
-                    </div>
-                  )}
+                  <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} dangerouslySetInnerHTML={{ __html: note.parsedFields.front || '(Vacío)' }} />
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} dangerouslySetInnerHTML={{ __html: note.parsedFields.back || '(Vacío)' }} />
                 </div>
-                <div className="flex sm:flex-col gap-2 items-end justify-center sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button variant="secondary" size="sm" onClick={() => handleEditClick(note)}>✏️ Editar</Button>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(note.id)}>🗑️ Borrar</Button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '6px 12px' }} onClick={() => handleEditClick(note)}>✏️</button>
+                  <button className="glass-btn" style={{ fontSize: '0.8rem', padding: '6px 12px', color: '#ef4444' }} onClick={() => handleDelete(note.id)}>🗑️</button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </Card>
+      </div>
 
       <Modal
         isOpen={!!editingNote}
         onClose={() => setEditingNote(null)}
         title="Editar Tarjeta"
         footer={
-          <div className="flex gap-2 justify-end w-full">
-            <Button variant="ghost" onClick={() => setEditingNote(null)}>Cancelar</Button>
-            <Button onClick={handleSaveEdit} disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar Cambios'}
-            </Button>
+          <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingNote(null)}>Cancelar</button>
+            <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSaveEdit} disabled={saving}>
+              {saving ? 'Guardando...' : 'Guardar'}
+            </button>
           </div>
         }
       >
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold">Frente (Pregunta)</label>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Frente</label>
             <div 
-              className="min-h-[100px] rounded-md border border-input bg-secondary p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring prose prose-invert max-w-none" 
+              className="form-input" 
+              style={{ minHeight: '80px', padding: '0.75rem' }} 
               contentEditable 
               dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
               onInput={e => setEditFront(e.currentTarget.innerHTML)} 
             />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-semibold">Dorso (Respuesta)</label>
+          <div>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>Dorso</label>
             <div 
-              className="min-h-[100px] rounded-md border border-input bg-secondary p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring prose prose-invert max-w-none" 
+              className="form-input" 
+              style={{ minHeight: '80px', padding: '0.75rem' }} 
               contentEditable 
               dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
               onInput={e => setEditBack(e.currentTarget.innerHTML)} 

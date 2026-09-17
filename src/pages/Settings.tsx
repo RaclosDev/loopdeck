@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
 
 export default function Settings() {
   const { user, logout } = useAuthStore();
@@ -28,97 +26,110 @@ export default function Settings() {
   ];
 
   return (
-    <div className="animate-in fade-in pb-10">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Configuración</h1>
-        <p className="text-muted-foreground text-sm">Personaliza tu experiencia de estudio</p>
+    <div className="fade-in pb-10">
+      <div className="page-header" style={{ marginBottom: 20 }}>
+        <h1>Configuración</h1>
+        <p>Personaliza tu experiencia de estudio</p>
       </div>
 
-      <div className="flex bg-secondary p-1 rounded-xl mb-6 overflow-x-auto">
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', background: 'rgba(0,0,0,0.2)', padding: '0.5rem', borderRadius: '1rem' }}>
         {tabs.map(tab => (
-          <Button
+          <button
             key={tab.id}
-            variant="ghost"
-            className={`flex-1 rounded-lg h-9 whitespace-nowrap px-4 ${activeTab === tab.id ? 'bg-background text-foreground shadow-sm hover:bg-background hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             onClick={() => setActiveTab(tab.id)}
+            style={{
+              flex: 1,
+              padding: '0.75rem 1rem',
+              borderRadius: '0.75rem',
+              border: 'none',
+              background: activeTab === tab.id ? 'rgba(255,255,255,0.1)' : 'transparent',
+              color: activeTab === tab.id ? '#fff' : 'var(--text-muted)',
+              fontWeight: activeTab === tab.id ? 600 : 400,
+              whiteSpace: 'nowrap',
+              transition: 'all 0.2s'
+            }}
           >
             {tab.label}
-          </Button>
+          </button>
         ))}
       </div>
 
       {activeTab === 'study' && (
-        <Card className="bg-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Opciones de Estudio</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold">Cronómetro de Sesión</div>
-                <div className="text-sm text-muted-foreground">Mostrar el tiempo durante el estudio</div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" checked={settings.showTimer} onChange={(e) => updateSettings({ showTimer: e.target.checked })} />
-                <div className="w-11 h-6 bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
+        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem 0' }}>Opciones de Estudio</h3>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 600 }}>Cronómetro de Sesión</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Mostrar el tiempo durante el estudio</div>
             </div>
-          </CardContent>
-        </Card>
+            <label className="toggle-switch">
+              <input 
+                type="checkbox" 
+                checked={settings.showTimer} 
+                onChange={(e) => updateSettings({ showTimer: e.target.checked })} 
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+        </div>
       )}
 
       {activeTab === 'appearance' && (
-        <Card className="bg-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Apariencia</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="font-semibold">Animaciones 3D</div>
-                <div className="text-sm text-muted-foreground">Efecto de giro al voltear tarjetas</div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" checked={settings.animationsEnabled ?? true} onChange={(e) => updateSettings({ animationsEnabled: e.target.checked })} />
-                <div className="w-11 h-6 bg-secondary peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
+        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem 0' }}>Apariencia</h3>
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontWeight: 600 }}>Animaciones 3D</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Efecto de giro al voltear tarjetas</div>
             </div>
-          </CardContent>
-        </Card>
+            <label className="toggle-switch">
+              <input 
+                type="checkbox" 
+                checked={settings.animationsEnabled ?? true} 
+                onChange={(e) => updateSettings({ animationsEnabled: e.target.checked })} 
+              />
+              <span className="slider"></span>
+            </label>
+          </div>
+        </div>
       )}
 
       {activeTab === 'account' && (
-        <Card className="bg-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Tu Cuenta</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {user && (
-              <div className="flex items-center gap-4 p-4 bg-secondary/50 rounded-lg border border-border">
-                <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-                  {user.name?.charAt(0).toUpperCase() || '?'}
-                </div>
-                <div>
-                  <div className="font-bold">{user.name}</div>
-                  <div className="text-sm text-muted-foreground">{user.email}</div>
-                </div>
+        <div className="glass-panel" style={{ padding: '1.5rem' }}>
+          <h3 style={{ margin: '0 0 1.5rem 0' }}>Tu Cuenta</h3>
+          
+          {user && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 'bold' }}>
+                {user.name?.charAt(0).toUpperCase() || '?'}
               </div>
-            )}
-            <div className="flex flex-col gap-3">
-              <Button variant="outline" onClick={handleClearLocalData}>
-                Limpiar Caché Local
-              </Button>
-              <Button variant="destructive" onClick={() => {
+              <div>
+                <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{user.name}</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{user.email}</div>
+              </div>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <button className="glass-btn" onClick={handleClearLocalData}>
+              Limpiar Caché Local
+            </button>
+            <button 
+              className="btn btn-danger" 
+              style={{ width: '100%', padding: '0.875rem', borderRadius: '12px' }}
+              onClick={() => {
                 if(window.confirm('¿Quieres cerrar sesión?')) {
                   logout();
                   navigate('/auth');
                 }
-              }}>
-                Cerrar sesión
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              }}
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
