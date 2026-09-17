@@ -11,6 +11,7 @@
   --bg-glass: rgba(255, 255, 255, 0.05);
   --bg-glass-strong: rgba(255, 255, 255, 0.1);
   --bg-input: #2C2C2E;
+  --bottom-nav-height: 64px;
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(255, 255, 255, 0.15);
@@ -6360,7 +6361,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
     width: 100%;
     padding: 16px;
     /* Leave space for bottom nav + iOS home indicator */
-    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 32px) !important;
   }
 
   /* Toast above bottom nav */
@@ -8313,7 +8314,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
     width: 100%;
     padding: 16px;
     /* Leave space for bottom nav + iOS home indicator */
-    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
+    padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + 32px) !important;
   }
 
   /* Toast above bottom nav */
