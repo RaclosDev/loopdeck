@@ -106,16 +106,16 @@ export default function AuthPage() {
           <div className="flex bg-secondary p-1 rounded-xl mb-6">
             <Button
               type="button"
-              variant={mode === 'login' ? 'default' : 'ghost'}
-              className="flex-1 rounded-lg h-9"
+              variant="ghost"
+              className={`flex-1 rounded-lg h-9 ${mode === 'login' ? 'bg-background text-foreground shadow-sm hover:bg-background hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => { setMode('login'); setError(''); }}
             >
               Iniciar sesión
             </Button>
             <Button
               type="button"
-              variant={mode === 'register' ? 'default' : 'ghost'}
-              className="flex-1 rounded-lg h-9"
+              variant="ghost"
+              className={`flex-1 rounded-lg h-9 ${mode === 'register' ? 'bg-background text-foreground shadow-sm hover:bg-background hover:text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
               onClick={() => { setMode('register'); setError(''); }}
             >
               Crear cuenta

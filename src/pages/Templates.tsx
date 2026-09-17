@@ -1,73 +1,86 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
-import { templatesApi } from '../services/api';
+import { templatesApi, decksApi } from '../services/api';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
 
 export default function Templates() {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [importingId, setImportingId] = useState(null);
-  const navigate = useNavigate();
   const { addToast } = useStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     templatesApi.getAll()
-      .then(data => setTemplates(data))
-      .catch(() => addToast('Error cargando plantillas', 'error'))
-      .finally(() => setLoading(false));
+      .then(data => {
+        setTemplates(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        addToast('Error al cargar plantillas', 'error');
+        setLoading(false);
+      });
   }, [addToast]);
 
   const handleImportTemplate = async (templateId) => {
+    if (importingId) return;
     setImportingId(templateId);
     try {
-      await templatesApi.import(templateId);
-      addToast('Plantilla importada con éxito', 'success');
+      const newDeck = await templatesApi.import(templateId);
+      addToast(`¡Mazo "${newDeck.name}" importado con éxito!`, 'success');
       navigate('/');
     } catch (e) {
-      addToast('Error importando plantilla: ' + e.message, 'error');
+      addToast('Error al importar la plantilla', 'error');
     } finally {
       setImportingId(null);
     }
   };
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header" style={{ marginBottom: 28 }}>
-        <h1>Plantillas Disponibles</h1>
-        <p>Descarga mazos prediseñados para empezar a estudiar al instante.</p>
+    <div className="animate-in fade-in pb-10">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-tight mb-1">Plantillas</h1>
+        <p className="text-muted-foreground text-sm">Descarga mazos prediseñados para empezar a estudiar</p>
       </div>
 
       {loading ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '60px 20px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div className="spinner-sm" style={{ width: 40, height: 40, margin: '0 auto 16px', borderWidth: 3 }} />
-            <p style={{ color: 'var(--text-muted)' }}>Cargando plantillas...</p>
-          </div>
+        <div className="flex flex-col items-center justify-center p-12">
+          <div className="w-8 h-8 border-4 border-t-transparent border-primary rounded-full animate-spin mb-4" />
+          <p className="text-muted-foreground text-sm">Cargando plantillas...</p>
         </div>
       ) : templates.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-          No hay plantillas disponibles en este momento.
-        </div>
+        <Card className="bg-card flex flex-col items-center justify-center p-12 text-center border-dashed">
+          <div className="text-4xl mb-3 opacity-70">📦</div>
+          <h3 className="text-xl font-bold mb-2">No hay plantillas disponibles</h3>
+          <p className="text-muted-foreground text-sm">Vuelve más tarde para ver nuevos mazos.</p>
+        </Card>
       ) : (
-        <div className="decks-grid" style={{ marginBottom: 40 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {templates.map(t => (
-            <div key={t.id} className="deck-card" style={{ border: '1px dashed var(--border-color)', background: 'rgba(255,255,255,0.02)' }}>
-              <div className="deck-card-header" style={{ alignItems: 'flex-start' }}>
-                <span className="deck-card-name" style={{ lineHeight: 1.2 }}>{t.icon} {t.name}</span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', padding: '2px 8px', background: 'rgba(255,255,255,0.08)', borderRadius: 12, whiteSpace: 'nowrap', border: '1px solid var(--border-color)' }}>{t.category}</span>
-              </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', marginBottom: 16, minHeight: 40 }}>
-                {t.description} ({t.cardCount} tarjetas)
-              </div>
-              <button 
-                className="primary-btn" 
-                style={{ width: '100%' }}
-                onClick={() => handleImportTemplate(t.id)}
-                disabled={importingId === t.id}
-              >
-                {importingId === t.id ? <span className="spinner-sm" /> : '📥 Descargar Mazo'}
-              </button>
-            </div>
+            <Card key={t.id} className="bg-card border-dashed flex flex-col">
+              <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0 gap-4">
+                <CardTitle className="text-lg leading-tight">{t.icon} {t.name}</CardTitle>
+                <Badge variant="outline" className="whitespace-nowrap">{t.category}</Badge>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <p className="text-sm text-muted-foreground">{t.description}</p>
+                <div className="mt-3 text-xs font-semibold bg-secondary inline-flex px-2 py-1 rounded">
+                  {t.cardCount} tarjetas
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handleImportTemplate(t.id)}
+                  disabled={!!importingId}
+                >
+                  {importingId === t.id ? 'Descargando...' : '📥 Descargar Mazo'}
+                </Button>
+              </CardFooter>
+            </Card>
           ))}
         </div>
       )}

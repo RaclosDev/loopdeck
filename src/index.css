@@ -1,9 +1,52 @@
 @import "tailwindcss";
 @import "tailwindcss/theme" theme(reference);
-@theme { --color-background: var(--bg-main); --color-foreground: var(--text-main); --color-card: var(--bg-card); --color-muted: var(--bg-card-hover); --color-muted-foreground: var(--text-muted); --color-primary: var(--accent-red); --color-primary-foreground: #fff; --color-border: var(--border-color); --color-success: #10b981; }
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius: var(--radius);
+}
 
 :root {
-  /* Background */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1c1c1e;
+  --card-foreground: #ffffff;
+  --popover: #1c1c1e;
+  --popover-foreground: #ffffff;
+  --primary: #0085ff;
+  --primary-foreground: #ffffff;
+  --secondary: #2c2c2e;
+  --secondary-foreground: #ffffff;
+  --muted: #2c2c2e;
+  --muted-foreground: #999999;
+  --accent: #2c2c2e;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #333333;
+  --input: #2c2c2e;
+  --ring: #0085ff;
+  --radius: 0.75rem;
+
+  /* Legacy */
   --bg-primary: #000000;
   --bg-secondary: #121212;
   --bg-card: #1C1C1E;
@@ -11,21 +54,17 @@
   --bg-glass: rgba(255, 255, 255, 0.05);
   --bg-glass-strong: rgba(255, 255, 255, 0.1);
   --bg-input: #2C2C2E;
-  /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-medium: rgba(255, 255, 255, 0.15);
   --border-accent: rgba(0, 133, 255, 0.3);
-  /* Text */
   --text-primary: #FFFFFF;
   --text-secondary: #999999;
   --text-muted: #666666;
   --text-accent: #0085FF;
-  /* Accent Colors */
   --accent-primary: #0085FF;
   --accent-primary-light: #339CFF;
   --accent-primary-dark: #0066CC;
   --accent-glow: rgba(0, 133, 255, 0.15);
-  /* Semantic */
   --color-success: var(--accent-primary);
   --color-success-bg: var(--accent-glow);
   --color-danger: var(--text-primary);
@@ -5178,3 +5217,4 @@ button, a, input, select, textarea, [role=button], [onclick] {
     --srs-relearning: #ef4444;
   }
 }
+
