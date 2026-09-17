@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import './FlashCard.css';
 
 function FlashCard({ front, back, isFlipped, onFlip, animationsEnabled = true }) {
   return (
