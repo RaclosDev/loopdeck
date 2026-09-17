@@ -1,21 +1,17 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { registerSW } from 'virtual:pwa-register'
+
 import './index.css'
 import App from './App.jsx'
 
-const updateSW = registerSW({
-  immediate: true,
-  onRegistered(r) {
-    if (r) {
-      // Check for updates every 1 minute while the app is open
-      setInterval(() => {
-        r.update()
-      }, 60 * 1000)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+    for(let registration of registrations) {
+      registration.unregister();
     }
-  }
-})
+  });
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
