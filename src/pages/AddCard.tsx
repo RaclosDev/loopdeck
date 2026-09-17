@@ -5,6 +5,7 @@ import { decksApi, notesApi, aiApi } from '../services/api';
 import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
 import { lookupDefinition, lookupImage } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
+import { Button } from '../components/ui/button';
 
 const NOTE_TYPES = [
   { id: 'basic', name: 'Básica', description: 'Frente y dorso simple', fields: ['front', 'back'], cardsGenerated: 1 },
@@ -375,23 +376,25 @@ function AddCard() {
 
   return (
     <div className="animate-fade-in">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Añadir Tarjetas</h1>
-        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: 'var(--radius-lg)', gap: '4px' }}>
-          <button 
-            className={`glass-btn ${addMode === 'single' ? 'active' : ''}`}
+      <div className="page-header flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Añadir Tarjetas</h1>
+        <div className="flex bg-black/20 p-1 rounded-xl gap-1">
+          <Button 
+            variant={addMode === 'single' ? 'default' : 'ghost'}
+            size="sm"
+            className="rounded-lg"
             onClick={() => setAddMode('single')}
-            style={{ border: 'none', background: addMode === 'single' ? 'var(--accent-color)' : 'transparent', color: addMode === 'single' ? '#fff' : 'var(--text-dim)' }}
           >
             Una a Una
-          </button>
-          <button 
-            className={`glass-btn ${addMode === 'mass' ? 'active' : ''}`}
+          </Button>
+          <Button 
+            variant={addMode === 'mass' ? 'default' : 'ghost'}
+            size="sm"
+            className="rounded-lg"
             onClick={() => setAddMode('mass')}
-            style={{ border: 'none', background: addMode === 'mass' ? 'var(--accent-color)' : 'transparent', color: addMode === 'mass' ? '#fff' : 'var(--text-dim)' }}
           >
             ✨ En Masa (IA)
-          </button>
+          </Button>
         </div>
       </div>
 

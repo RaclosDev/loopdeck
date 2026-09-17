@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
 import FlashCard from '../components/FlashCard';
 import RatingButtons from '../components/RatingButtons';
+import { Button } from '../components/ui/button';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
 import { decksApi, studyApi, notesApi } from '../services/api';
@@ -350,22 +351,22 @@ function Study() {
 
       {/* Actions */}
       {!isFlipped ? (
-        <button className="show-answer-btn" onClick={handleFlip}>
+        <Button size="lg" className="w-full text-lg h-14" onClick={handleFlip}>
           Mostrar Respuesta
-          <span style={{ opacity: 0.6, marginLeft: 8, fontSize: '0.85rem' }}>Space</span>
-        </button>
+          <span className="opacity-60 ml-2 text-sm hidden sm:inline">Space</span>
+        </Button>
       ) : (
         <RatingButtons intervals={intervals} onRate={handleRate} />
       )}
 
       {/* Bottom Actions */}
-      <div className="study-actions">
-        <button className="study-action-btn" onClick={handleUndo} disabled={undoStack.length === 0}>
+      <div className="flex items-center justify-center gap-4 mt-6">
+        <Button variant="outline" onClick={handleUndo} disabled={undoStack.length === 0}>
           ↩️ Deshacer
-        </button>
-        <button className="study-action-btn" onClick={() => navigate('/')}>
+        </Button>
+        <Button variant="outline" onClick={() => navigate('/')}>
           🏠 Salir
-        </button>
+        </Button>
       </div>
     </div>
   );
