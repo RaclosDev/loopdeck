@@ -274,24 +274,19 @@ export default function AddCard() {
   return (
     <div className="fade-in pb-10">
       <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Añadir Tarjetas</h1>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button 
-              className={addMode === 'single' ? 'primary-btn' : 'icon-btn'}
-              onClick={() => setAddMode('single')}
-              style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-            >
-              Una a Una
-            </button>
-            <button 
-              className={addMode === 'mass' ? 'primary-btn' : 'icon-btn'}
-              onClick={() => setAddMode('mass')}
-              style={{ padding: '8px 12px', fontSize: '0.85rem' }}
-            >
-              ✨ En Masa (IA)
-            </button>
-          </div>
+        <div className="bg-background/80 border border-white/10 p-1 rounded-full flex items-center mb-6 w-full max-w-sm mx-auto shadow-inner">
+          <button 
+            className={`flex-1 rounded-full py-2 px-4 text-sm font-semibold transition-all ${addMode === 'single' ? 'bg-primary/20 text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+            onClick={() => setAddMode('single')}
+          >
+            Una a Una
+          </button>
+          <button 
+            className={`flex-1 rounded-full py-2 px-4 text-sm font-semibold transition-all ${addMode === 'mass' ? 'bg-primary/20 text-primary shadow-sm border border-primary/20' : 'text-muted-foreground hover:text-foreground hover:bg-white/5'}`}
+            onClick={() => setAddMode('mass')}
+          >
+            ✨ En Masa (IA)
+          </button>
         </div>
 
         <input ref={frontFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('front', e)} />
@@ -364,16 +359,16 @@ export default function AddCard() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>FRENTE (PREGUNTA)</label>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <button className="icon-btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={handleDefinition} disabled={lookingUpDef}>
-                    {lookingUpDef ? '...' : '✨ Def. IA'}
-                  </button>
-                  <button className="icon-btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={handleAutoImage} disabled={lookingUpImage}>
-                    {lookingUpImage ? '...' : '✨ Foto Auto'}
-                  </button>
-                  <button className="icon-btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
-                  <button className="icon-btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
-                </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={handleDefinition} disabled={lookingUpDef}>
+                      {lookingUpDef ? '...' : '✨ Def. IA'}
+                    </button>
+                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={handleAutoImage} disabled={lookingUpImage}>
+                      {lookingUpImage ? '...' : '📸 Foto Auto'}
+                    </button>
+                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
+                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
+                  </div>
               </div>
               <div 
                 className="form-input" 
@@ -389,10 +384,10 @@ export default function AddCard() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>DORSO (RESPUESTA)</label>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <button className="icon-btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
-                  <button className="icon-btn" style={{ padding: '4px 8px', fontSize: '0.75rem' }} onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
-                </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
+                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
+                  </div>
               </div>
               <div 
                 className="form-input" 
