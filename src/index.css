@@ -234,6 +234,10 @@ body {
   flex: 1;
   padding: var(--space-2xl);
   width: 100%;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  position: relative;
+  scroll-behavior: smooth;
 }
 .main-content-inner {
   max-width: 1400px;
