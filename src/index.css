@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tailwindcss/theme" theme(reference);
 @theme { --color-background: var(--bg-main); --color-foreground: var(--text-main); --color-card: var(--bg-card); --color-muted: var(--bg-card-hover); --color-muted-foreground: var(--text-muted); --color-primary: var(--accent-red); --color-primary-foreground: #fff; --color-border: var(--border-color); --color-success: #10b981; }
 
@@ -1423,16 +1423,15 @@ input[type=number]::-webkit-outer-spin-button {
 .mobile-bottom-nav {
   display: none;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding-bottom: env(safe-area-inset-bottom);
-  height: calc(64px + env(safe-area-inset-bottom));
+  bottom: env(safe-area-inset-bottom);
+  left: 1rem;
+  right: 1rem;
+  height: 64px;
   background: rgba(28, 28, 30, 0.45);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px 24px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 32px;
   
   z-index: 100;
 }
