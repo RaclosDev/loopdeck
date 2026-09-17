@@ -273,19 +273,19 @@ export default function AddCard() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-xl pt-4 pb-2 mb-6 -mx-4 px-4 sm:mx-0 sm:px-0">
-          <div className="bg-secondary/40 p-1 rounded-xl flex items-center w-full max-w-sm mx-auto">
+      <div className="mb-6 w-full max-w-sm mx-auto">
+          <div className="flex items-center p-1 bg-[#121212] border border-white/5 rounded-2xl w-full">
             <button 
-              className={`flex-1 rounded-lg py-2.5 px-4 text-[0.9rem] font-semibold transition-all ${addMode === 'single' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`flex-1 rounded-xl py-2.5 px-4 text-[0.95rem] font-medium transition-all ${addMode === 'single' ? 'bg-[#252525] text-white border border-white/10 shadow-sm' : 'text-white/50 hover:text-white/80'}`}
               onClick={() => setAddMode('single')}
             >
               Una a una
             </button>
             <button 
-              className={`flex-1 rounded-lg py-2.5 px-4 text-[0.9rem] font-semibold transition-all ${addMode === 'mass' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`flex-1 rounded-xl py-2.5 px-4 text-[0.95rem] font-medium transition-all ${addMode === 'mass' ? 'bg-[#252525] text-white border border-white/10 shadow-sm' : 'text-white/50 hover:text-white/80'}`}
               onClick={() => setAddMode('mass')}
             >
-              ? En Masa
+              En Masa
             </button>
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function AddCard() {
         <input ref={frontFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('front', e)} />
         <input ref={backFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('back', e)} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', marginBottom: '1rem' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>MAZO</label>
             <select 
@@ -460,6 +460,8 @@ export default function AddCard() {
     </div>
   );
 }
+
+
 
 
 

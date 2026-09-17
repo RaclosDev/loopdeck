@@ -216,7 +216,7 @@ body { overflow-x: hidden;
   font-size: 0.9rem;
   font-weight: 500;
   transition: all var(--transition-fast);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   border: none;
   background: none;
   width: 100%;
@@ -257,7 +257,7 @@ body { overflow-x: hidden;
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-size: 0.8rem;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   font-family: var(--font-main);
 }
@@ -567,7 +567,7 @@ body { overflow-x: hidden;
   font-weight: 600;
   font-size: 0.875rem;
   font-family: var(--font-main);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   border: none;
   text-decoration: none;
@@ -792,7 +792,7 @@ select.form-input {
   background-repeat: no-repeat;
   background-position: right 1rem top 50%;
   background-size: 0.65rem auto;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
 }
 select.form-input option {
   background: var(--bg-secondary);
@@ -963,7 +963,7 @@ input[type=number] {
   background: transparent;
   border: none;
   color: var(--text-secondary);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
@@ -1100,7 +1100,7 @@ input[type=number] {
   background: var(--bg-secondary);
   color: var(--text-primary);
   font-size: 1.2rem;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   align-items: center;
   justify-content: center;
 }
@@ -1319,7 +1319,7 @@ input[type=number]::-webkit-outer-spin-button {
   font-size: 0.95rem;
   font-weight: 500;
   text-align: left;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   width: 100%;
 }
 @media (hover: hover) {
@@ -1348,7 +1348,7 @@ input[type=number]::-webkit-outer-spin-button {
   border: 1px solid var(--border-subtle);
   padding: 0.75rem;
   border-radius: var(--radius-md);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   display: flex;
   align-items: center;
@@ -1438,7 +1438,7 @@ input[type=number]::-webkit-outer-spin-button {
   color: var(--text-muted);
   gap: 4px;
   position: relative;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   height: 64px;
   padding: 0;
   margin: 0;
@@ -2090,7 +2090,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border-radius: 20px;
   font-size: 0.82rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   background: var(--bg-primary);
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
@@ -2308,7 +2308,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   gap: 0.45rem;
   font-size: 0.88rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.2s ease;
   touch-action: manipulation;
 }
@@ -2359,7 +2359,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   color: var(--text-muted);
   font-size: 0.88rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: var(--font-main);
   white-space: nowrap;
@@ -2566,7 +2566,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-family: var(--font-main);
   font-size: 0.95rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2592,7 +2592,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-family: var(--font-main);
   font-size: 0.9rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2780,7 +2780,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   color: var(--text-secondary);
   font-size: 0.82rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   font-family: var(--font-main);
   display: inline-flex;
@@ -2940,7 +2940,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: var(--bg-glass);
   border: 1px solid var(--border-subtle);
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
 }
 .active-workout-metrics-strip .rest-timer-strip-selector .timer-preset-btn.active {
@@ -3023,7 +3023,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: transparent;
   border: 1px solid transparent;
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3174,7 +3174,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   margin: 0 auto;
 }
@@ -3273,7 +3273,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border: 1px solid var(--border-medium);
   background: var(--bg-glass-strong);
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3312,7 +3312,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   font-size: 0.95rem;
   display: inline-flex;
@@ -3346,7 +3346,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border-radius: 12px;
   color: var(--text-secondary);
   font-size: 0.88rem;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   font-family: var(--font-main);
   font-weight: 600;
@@ -3372,7 +3372,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   color: var(--accent-primary-light);
   font-size: 1.05rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-base);
   font-family: var(--font-main);
   display: flex;
@@ -3418,7 +3418,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-family: var(--font-main);
   font-size: 1.05rem;
   font-weight: 800;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3440,7 +3440,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-family: var(--font-main);
   font-size: 0.92rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3460,7 +3460,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-family: var(--font-main);
   font-size: 0.92rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3567,7 +3567,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   color: var(--text-secondary);
   font-size: 0.95rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3587,7 +3587,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border-radius: var(--radius-full);
   color: var(--text-muted);
   font-size: 0.9rem;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   font-family: var(--font-main);
   font-weight: 600;
   transition: all var(--transition-fast);
@@ -3667,7 +3667,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   color: var(--text-muted);
   font-size: 0.78rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   white-space: nowrap;
   font-family: var(--font-main);
@@ -3700,7 +3700,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   gap: 1rem;
   padding: 0.85rem 1rem;
   border-radius: 12px;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
 }
@@ -3788,7 +3788,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border-radius: 10px;
   color: var(--text-muted);
   font-size: 0.85rem;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   font-family: var(--font-main);
   font-weight: 600;
   transition: all var(--transition-fast);
@@ -3823,7 +3823,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl);
   padding: 1.5rem;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
@@ -4154,7 +4154,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: background 0.2s ease, color 0.2s ease;
 }
 .icon-btn:hover {
@@ -4276,7 +4276,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.15s ease;
 }
 
@@ -4336,7 +4336,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: var(--bg-secondary);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   text-align: left;
   width: 100%;
   transition: all 0.15s ease;
@@ -4405,7 +4405,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-secondary);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.15s ease;
   white-space: nowrap;
   touch-action: manipulation;
@@ -4452,7 +4452,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-size: 0.8rem;
   font-weight: 500;
   font-family: var(--font-main);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.15s ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -4485,7 +4485,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   text-align: left;
   background: transparent;
   border: none;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: background 0.12s ease;
   font-family: var(--font-main);
   touch-action: manipulation;
@@ -4649,7 +4649,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-size: 0.85rem;
   font-weight: 600;
   font-family: var(--font-main);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.15s ease;
 }
 .picker-create-btn:hover {
@@ -4765,7 +4765,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-weight: 600;
   color: var(--text-primary);
   outline: none;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   padding: 0;
   font-family: var(--font-main);
 }
@@ -4781,7 +4781,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: none;
   border: none;
   color: var(--text-secondary);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   padding: 0.3rem;
   border-radius: 6px;
   transition: all 0.12s ease;
@@ -4841,7 +4841,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-size: 0.75rem;
   font-weight: 600;
   border: none;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   color: var(--text-primary);
   font-family: var(--font-main);
   transition: all 0.12s ease;
@@ -4883,7 +4883,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   justify-content: center;
   border-radius: 10px;
   border: none;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.15s ease;
   background: transparent;
   color: var(--text-muted);
@@ -4909,7 +4909,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   border: 1px dashed var(--border-subtle);
   border-radius: 10px;
   color: var(--text-secondary);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   font-size: 0.82rem;
   font-weight: 600;
   font-family: var(--font-main);
@@ -4936,7 +4936,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-weight: 700;
   border-radius: 14px;
   border: none;
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   background: var(--accent-primary);
   color: white;
   font-family: var(--font-main);
@@ -4957,7 +4957,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-weight: 600;
   border-radius: 12px;
   border: 1px solid var(--border-subtle);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-main);
@@ -4997,7 +4997,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   font-size: 0.9rem;
   font-weight: 600;
   font-family: var(--font-main);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   transition: all 0.15s ease;
 }
 .add-exercise-btn:hover {
@@ -5086,7 +5086,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid transparent;
   color: var(--text-primary);
-  cursor: pointer;
+  cursor: pointer; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding-right: 2rem;
   border-radius: 20px;
   font-size: 1.05rem;
   font-weight: 500;
@@ -5243,6 +5243,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   overflow: hidden;
   height: 100%;
 }
+
 
 
 
