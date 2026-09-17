@@ -342,7 +342,7 @@ body {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-lg);
   margin-bottom: var(--space-xl);
 }
@@ -1139,28 +1139,7 @@ input[type=number] {
   }
 }
 
-@media (max-width: 768px) {
-  .mobile-toggle {
-    display: flex;
-  }
-  .sidebar {
-    transform: translateX(-100%);
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
-  .app-container {
-    padding-left: 0;
-  }
-  .main-content {
-    margin-left: 0;
-    width: 100%;
-    padding: var(--space-xl) var(--space-md);
-    padding-top: calc(var(--space-xl) + 44px);
-  }
-  .kpi-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+@media (max-width: 768px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: var(--space-md); }
   .charts-grid {
     grid-template-columns: 1fr;
   }
@@ -1186,11 +1165,7 @@ input[type=number] {
     display: block;
   }
 }
-@media (max-width: 480px) {
-  .kpi-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-md);
-  }
+@media (max-width: 480px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
   
 
 
@@ -5228,6 +5203,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
   --gradient-success: linear-gradient(135deg, #10B981, #059669);
   --gradient-danger: linear-gradient(135deg, #EF4444, #DC2626);
 }
+
 
 
 
