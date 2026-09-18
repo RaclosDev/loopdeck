@@ -143,79 +143,58 @@ export default function Dashboard() {
 
       {error && <div className="kpi-badge negative" style={{ marginBottom: 20 }}>{error}</div>}
 
-      <div className="flex flex-col gap-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, totalCount: 0 };
           const totalDue = counts.new + counts.learning + counts.review;
           const totalCards = counts.totalCount || 0;
           
           return (
-            <div key={deck.id} className="card overflow-hidden p-0 flex flex-col">
-              <div className="p-6 border-b border-[var(--border-subtle)]">
-                <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-xl font-bold m-0 cursor-pointer hover:text-[var(--accent-primary)] transition-colors" onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h2>
-                  <Button variant="ghost" size="icon" onClick={() => setActiveMoreMenu(deck.id)} className="-mt-1 -mr-2">
-                    <MoreVertical className="w-5 h-5 opacity-70" />
-                  </Button>
-                </div>
+            <div key={deck.id} className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '12px', padding: '1.5rem' }}
+                 onClick={() => navigate(`/study/${deck.id}`)}
+                 onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-primary)'}
+                 onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <h2 style={{ margin: '0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+                   {deck.name}
+                  {totalDue > 0 && <span style={{ background: 'var(--accent-primary)', color: 'var(--accent-text, white)', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{totalDue} DUE</span>}
+                </h2>
                 
-                <BottomSheet
-                  isOpen={activeMoreMenu === deck.id}
-                  onClose={() => setActiveMoreMenu(null)}
-                  title="Opciones de Mazo"
-                >
-                  <div className="bottom-sheet-grid">
-                    <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
-                      <Edit3 className="bottom-sheet-item-icon" />
-                      <span>Editar nombre</span>
-                    </button>
-                    <button className="bottom-sheet-item text-destructive" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
-                      <Trash2 className="bottom-sheet-item-icon bg-destructive/10 text-destructive" />
-                      <span>Eliminar mazo</span>
-                    </button>
-                  </div>
-                </BottomSheet>
-
-                <div className="flex bg-black/20 border border-white/5 rounded-xl p-3 mt-2">
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="text-[var(--accent-primary)] font-bold text-lg">{counts.new}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Nuevas</span>
-                  </div>
-                  <div className="w-[1px] bg-white/10 mx-2" />
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="text-[#F59E0B] font-bold text-lg">{counts.learning}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Aprend.</span>
-                  </div>
-                  <div className="w-[1px] bg-white/10 mx-2" />
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="text-[#10B981] font-bold text-lg">{counts.review}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Revisión</span>
-                  </div>
-                  <div className="w-[1px] bg-white/10 mx-2" />
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="text-foreground font-bold text-lg">{totalCards}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Total</span>
-                  </div>
+                <div style={{ display: 'flex', gap: '0.2rem' }}>
+                  <Button variant="ghost" size="icon" style={{ width: '32px', height: '32px', margin: '-4px' }} onClick={(e) => { e.stopPropagation(); navigate(`/add/${deck.id}`); }}>
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" style={{ width: '32px', height: '32px', margin: '-4px' }} onClick={(e) => { e.stopPropagation(); navigate(`/browser?deck=${deck.id}`); }}>
+                    <Search className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" style={{ width: '32px', height: '32px', margin: '-4px' }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(deck.id); }}>
+                    <MoreVertical className="w-4 h-4 opacity-70" />
+                  </Button>
                 </div>
               </div>
 
-              <div className="bg-[var(--bg-glass)] p-4 flex gap-3">
-                {totalDue > 0 ? (
-                  <Button className="flex-1 py-6 text-base font-bold rounded-xl" onClick={() => navigate(`/study/${deck.id}`)}>
-                    <Play className="w-5 h-5 mr-2" fill="currentColor" /> Responder ({totalDue})
-                  </Button>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center text-[var(--accent-primary)] font-bold">
-                    Al día ✨
-                  </div>
-                )}
-                <Button className="w-12 h-12 rounded-xl p-0" onClick={() => navigate(`/add/${deck.id}`)}>
-                  <Plus className="w-6 h-6" />
-                </Button>
-                <Button variant="secondary" className="w-12 h-12 rounded-xl p-0" onClick={() => navigate(`/browser?deck=${deck.id}`)}>
-                  <Search className="w-5 h-5" />
-                </Button>
-              </div>
+              <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+                {counts.new} Nuevas • {counts.learning} Aprendiendo • {counts.review} Repaso<br/>
+                Total: {totalCards} tarjetas
+              </p>
+              
+              <BottomSheet
+                isOpen={activeMoreMenu === deck.id}
+                onClose={() => setActiveMoreMenu(null)}
+                title="Opciones de Mazo"
+              >
+                <div className="bottom-sheet-grid">
+                  <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
+                    <Edit3 className="bottom-sheet-item-icon" />
+                    <span>Editar nombre</span>
+                  </button>
+                  <button className="bottom-sheet-item text-destructive" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
+                    <Trash2 className="bottom-sheet-item-icon bg-destructive/10 text-destructive" />
+                    <span>Eliminar mazo</span>
+                  </button>
+                </div>
+              </BottomSheet>
             </div>
           );
         })}

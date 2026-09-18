@@ -120,16 +120,9 @@ export default function Browser() {
         <div>
           <label className="form-label mb-2 block uppercase tracking-wide text-xs">Mazo</label>
           <div className="flex flex-wrap gap-2">
-            {decks.length === 0 && <Badge variant="outline">Sin mazos</Badge>}
+            {decks.length === 0 && <div style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>Sin mazos</div>}
             {decks.map(d => (
-              <Badge
-                key={d.id}
-                variant={selectedDeckId === d.id ? "default" : "outline"}
-                className="cursor-pointer text-[12px] px-3 py-1"
-                onClick={() => setSelectedDeckId(d.id)}
-              >
-                {d.name}
-              </Badge>
+              <button key={d.id} onClick={() => setSelectedDeckId(d.id)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedDeckId === d.id ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedDeckId === d.id ? 'var(--accent-text, white)' : 'var(--text-secondary)', fontWeight: selectedDeckId === d.id ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{d.name}</button>
             ))}
           </div>
         </div>
@@ -138,22 +131,9 @@ export default function Browser() {
           <div>
             <label className="form-label mb-2 block uppercase tracking-wide text-xs">Etiqueta</label>
             <div className="flex flex-wrap gap-2">
-              <Badge
-                variant={selectedTag === '' ? "default" : "outline"}
-                className="cursor-pointer text-[12px] px-3 py-1"
-                onClick={() => setSelectedTag('')}
-              >
-                Todas
-              </Badge>
+              <button onClick={() => setSelectedTag('')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === '' ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === '' ? 'var(--accent-text, white)' : 'var(--text-secondary)', fontWeight: selectedTag === '' ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>Todas</button>
               {tags.map(t => (
-                <Badge
-                  key={t}
-                  variant={selectedTag === t ? "default" : "outline"}
-                  className="cursor-pointer text-[12px] px-3 py-1"
-                  onClick={() => setSelectedTag(t)}
-                >
-                  {t}
-                </Badge>
+                <button key={t} onClick={() => setSelectedTag(t)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === t ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === t ? 'var(--accent-text, white)' : 'var(--text-secondary)', fontWeight: selectedTag === t ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{t}</button>
               ))}
             </div>
           </div>
