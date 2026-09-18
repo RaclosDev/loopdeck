@@ -11,7 +11,8 @@ export default function AddCard() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   
-  const [deck, setDeck] = useState<Deck | null>(null);
+  const [decks, setDecks] = useState<Deck[]>([]);
+  const [selectedDeckId, setSelectedDeckId] = useState(deckId || '');
   const [noteType, setNoteType] = useState('basic');
   const [front, setFront] = useState('');
   const [back, setBack] = useState('');
@@ -24,16 +25,17 @@ export default function AddCard() {
   useEffect(() => {
     async function load() {
       try {
-        const decks = await decksApi.getAll();
-        const d = decks.find(x => x.id === deckId);
-        if (!d) {
-          toast.error('Mazo no encontrado');
-          navigate('/');
-          return;
+        const data = await decksApi.getAll();
+        setDecks(data);
+        if (data.length > 0) {
+           const initialDeck = data.find(x => x.id === deckId) || data[0];
+           setSelectedDeckId(initialDeck.id);
+        } else {
+           toast.error('No tienes mazos creados');
+           navigate('/');
         }
-        setDeck(d);
       } catch (e) {
-        toast.error('Error al cargar');
+        toast.error('Error al cargar mazos');
       } finally {
         setLoading(false);
       }
@@ -42,7 +44,7 @@ export default function AddCard() {
   }, [deckId, navigate]);
 
   const handleSave = async (addAnother: boolean) => {
-    if (!deckId) return;
+    if (!selectedDeckId) return;
     
     const isCloze = noteType === 'cloze';
     if (isCloze && !text.trim()) {
@@ -57,7 +59,7 @@ export default function AddCard() {
     setSaving(true);
     try {
       const dto = {
-        deckId,
+        deckId: selectedDeckId,
         noteType,
         fieldsJson: JSON.stringify(isCloze ? { text } : { front, back }),
         tags
@@ -100,10 +102,18 @@ export default function AddCard() {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="-ml-2">
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
-          <h2 className="text-xl font-bold m-0">Añadir Tarjeta</h2>
-          <div className="text-sm text-muted-foreground">{deck?.name}</div>
-        </div>
+          <div>
+            <h2 className="text-xl font-bold m-0">Añadir Tarjeta</h2>
+            <select 
+              className="mt-1 bg-transparent text-sm text-muted-foreground border-none p-0 cursor-pointer focus:ring-0 outline-none"
+              value={selectedDeckId}
+              onChange={(e) => setSelectedDeckId(e.target.value)}
+            >
+              {decks.map(d => (
+                <option key={d.id} value={d.id} className="bg-[var(--bg-card)] text-foreground">{d.name}</option>
+              ))}
+            </select>
+          </div>
       </div>
 
       <div className="card mb-6">

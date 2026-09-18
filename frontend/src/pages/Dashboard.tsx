@@ -151,16 +151,11 @@ export default function Dashboard() {
           
           return (
             <div key={deck.id} className="card overflow-hidden p-0 flex flex-col">
-              <div className="p-5">
+              <div className="p-6 border-b border-[var(--border-subtle)]">
                 <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h2 className="text-xl font-bold m-0 cursor-pointer hover:text-[var(--accent-primary)] transition-colors" onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h2>
-                    <div className="text-sm text-muted-foreground font-medium mt-1">
-                      {totalDue} tarjetas pendientes hoy
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => setActiveMoreMenu(deck.id)}>
-                    <MoreVertical className="w-5 h-5" />
+                  <h2 className="text-xl font-bold m-0 cursor-pointer hover:text-[var(--accent-primary)] transition-colors" onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h2>
+                  <Button variant="ghost" size="icon" onClick={() => setActiveMoreMenu(deck.id)} className="-mt-1 -mr-2">
+                    <MoreVertical className="w-5 h-5 opacity-70" />
                   </Button>
                 </div>
                 
