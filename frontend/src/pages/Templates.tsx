@@ -1,14 +1,17 @@
-import toast from 'react-hot-toast';
+﻿import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { templatesApi } from '../services/api';
 import { TemplateDeck } from '../types';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Loader2, Library, Download } from 'lucide-react';
 
 export default function Templates() {
   const [templates, setTemplates] = useState<TemplateDeck[]>([]);
   const [loading, setLoading] = useState(true);
   const [importingId, setImportingId] = useState<string | null>(null);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     templatesApi.getAll()
@@ -27,7 +30,7 @@ export default function Templates() {
     setImportingId(templateId);
     try {
       const newDeck = await templatesApi.import(templateId);
-      toast.success(`¡Mazo "${newDeck.name}" importado con éxito!`);
+      toast.success(`�Mazo "${newDeck.name}" importado con �xito!`);
       navigate('/');
     } catch (e) {
       toast.error('Error al importar la plantilla');
@@ -39,41 +42,41 @@ export default function Templates() {
   return (
     <div className="fade-in pb-10">
       {loading ? (
-        <div style={{ padding: '3rem', textAlign: 'center' }}>
-          <div className="spinner" />
-          <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Cargando plantillas...</p>
+        <div className="flex flex-col items-center justify-center p-12">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          <p className="mt-4 text-muted-foreground">Cargando plantillas...</p>
         </div>
       ) : templates.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', borderStyle: 'dashed' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📦</div>
-          <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay plantillas disponibles</h3>
-          <p style={{ color: 'var(--text-muted)', margin: 0 }}>Vuelve más tarde para ver nuevos mazos.</p>
+        <div className="card border-dashed flex flex-col items-center justify-center text-center p-12">
+          <Library className="w-12 h-12 mb-4 opacity-50" />
+          <h3 className="m-0 mb-2 text-xl font-bold">No hay plantillas disponibles</h3>
+          <p className="text-muted-foreground m-0">Vuelve m�s tarde para ver nuevos mazos.</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
-            <div key={template.id} className="card" style={{ display: 'flex', flexDirection: 'column', borderStyle: 'dashed', padding: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{template.icon} {template.name}</h3>
-                <span style={{ fontSize: '0.75rem', padding: '2px 8px', background: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}>
+            <div key={template.id} className="card flex flex-col border-dashed p-6 hover:border-[var(--accent-primary)] transition-colors">
+              <div className="flex justify-between items-start mb-4 gap-3">
+                <h3 className="m-0 text-xl font-bold break-words">{template.icon} {template.name}</h3>
+                <Badge variant="outline" className="shrink-0">
                   {template.category}
-                </span>
+                </Badge>
               </div>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', flex: 1, marginBottom: '1rem', lineHeight: 1.5 }}>
+              <p className="text-muted-foreground text-sm flex-1 mb-6 leading-relaxed">
                 {template.description}
               </p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+              <div className="flex justify-between items-center mt-auto">
+                <span className="text-sm font-semibold text-muted-foreground">
                   {template.cardCount} tarjetas
                 </span>
-                <button 
-                  className="btn btn-primary" 
+                <Button 
                   onClick={() => handleImportTemplate(template.id)}
                   disabled={importingId === template.id}
-                  style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                  size="sm"
                 >
+                  {importingId === template.id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
                   {importingId === template.id ? 'Importando...' : 'Descargar'}
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -81,6 +84,4 @@ export default function Templates() {
       )}
     </div>
   );
-}
-
-
+}

@@ -51,14 +51,14 @@ function StudyGuide() {
   return (
     <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
       
-      <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--panel-bg)', padding: '15px 20px', borderBottom: '1px solid var(--border-subtle)', margin: '-20px -20px 20px -20px' }}>
+      <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10,  padding: '15px 20px',  margin: '-20px -20px 20px -20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
             ← Volver
           </button>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
             <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>
-              📖 {deck.name} (Guía)
+               {deck.name} (Guía)
             </div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
               {notes.length} conceptos
@@ -79,7 +79,7 @@ function StudyGuide() {
             return (
               <div key={note.id} style={{ 
                 background: 'rgba(255, 255, 255, 0.03)', 
-                border: '1px solid var(--border-subtle)', 
+                 
                 borderRadius: 'var(--radius-lg)',
                 overflow: 'hidden'
               }}>
@@ -115,7 +115,7 @@ function StudyGuide() {
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
         <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>¿Ya te suenan los conceptos?</p>
         <button className="btn btn-primary" onClick={() => navigate(`/study/${deckId}`)}>
-          🧠 Empezar a Memorizar
+           Empezar a Memorizar
         </button>
       </div>
 

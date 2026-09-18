@@ -1,23 +1,36 @@
 import useStore from '../store/useStore';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BottomSheet from './BottomSheet';
+import { 
+  Folder, 
+  GraduationCap, 
+  PlusCircle, 
+  BarChart2, 
+  LayoutTemplate, 
+  Search, 
+  Settings, 
+  Download, 
+  LogOut, 
+  Flame, 
+  Menu 
+} from 'lucide-react';
 
 const navItems = [
-  { path: '/', icon: '📚', label: 'Mis Mazos', shortLabel: 'Mazos' },
-  { path: '/hub', icon: '✏️', label: 'Centro de Estudio', shortLabel: 'Estudiar' },
-  { path: '/add', icon: '➕', label: 'Añadir Tarjeta', shortLabel: 'Añadir' },
-  { path: '/stats', icon: '📊', label: 'Estadísticas', shortLabel: 'Stats' },
-  { path: '/templates', icon: '📥', label: 'Plantillas', shortLabel: 'Plantillas' },
-  { path: '/browser', icon: '🔍', label: 'Explorar Tarjetas', shortLabel: 'Explorar' },
-  { path: '/settings', icon: '⚙️', label: 'Configuración', shortLabel: 'Ajustes' },
+  { path: '/', icon: <Folder className="w-5 h-5" />, label: 'Mis Mazos', shortLabel: 'Mazos' },
+  { path: '/hub', icon: <GraduationCap className="w-5 h-5" />, label: 'Centro de Estudio', shortLabel: 'Estudiar' },
+  { path: '/add', icon: <PlusCircle className="w-5 h-5" />, label: 'Añadir Tarjeta', shortLabel: 'Añadir' },
+  { path: '/stats', icon: <BarChart2 className="w-5 h-5" />, label: 'Estadísticas', shortLabel: 'Stats' },
+  { path: '/templates', icon: <LayoutTemplate className="w-5 h-5" />, label: 'Plantillas', shortLabel: 'Plantillas' },
+  { path: '/browser', icon: <Search className="w-5 h-5" />, label: 'Explorar Tarjetas', shortLabel: 'Explorar' },
+  { path: '/settings', icon: <Settings className="w-5 h-5" />, label: 'Configuración', shortLabel: 'Ajustes' },
 ];
 
 const bottomNavPaths = ['/', '/hub', '/add', '/stats'];
 const moreMenuPaths = ['/templates', '/browser', '/settings'];
 
-function Layout() {
+export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -71,7 +84,7 @@ function Layout() {
 
   const handleInstallClick = async () => {
     if (showIosInstall) {
-      alert('🍏 Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari.\n2. Selecciona "Añadir a la pantalla de inicio".');
+      alert('📲 Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari.\n2. Selecciona "Añadir a la pantalla de inicio".');
       return;
     }
     
@@ -88,14 +101,17 @@ function Layout() {
     <div className="app-root">
       {!isStudyPage && (
         <header className="mobile-top-bar">
-          <div style={{ width: '48px' }}>
+          <div style={{ width: '48px' }} className="flex items-center justify-center">
             {user && (
-              <span style={{ color: '#ff7b00', fontSize: '0.85rem', fontWeight: 'bold' }}>🔥 {user.currentStreak || 0}</span>
+              <span className="text-[#ff7b00] text-sm font-bold flex items-center gap-1">
+                <Flame className="w-4 h-4 fill-current" />
+                {user.currentStreak || 0}
+              </span>
             )}
           </div>
-          <div className="mobile-top-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, letterSpacing: '-0.05em' }}>
-              <span style={{ color: 'var(--accent-primary)' }}>Loop</span><span style={{ color: 'var(--text-primary)' }}>Deck</span>
+          <div className="mobile-top-logo flex items-center justify-center">
+            <h1 className="text-2xl font-black m-0 tracking-tight">
+              <span className="text-[var(--accent-primary)]">Loop</span><span className="text-foreground">Deck</span>
             </h1>
           </div>
           <div style={{ width: '48px' }} />
@@ -107,13 +123,16 @@ function Layout() {
       <div className="app-container">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
-            <div className="sidebar-brand-container" style={{ display: 'flex', alignItems: 'center' }}>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: 0, letterSpacing: '-0.05em' }}>
-                <span style={{ color: 'var(--accent-primary)' }}>Loop</span><span style={{ color: 'var(--text-primary)' }}>Deck</span>
+            <div className="sidebar-brand-container flex items-center">
+              <h1 className="text-3xl font-black m-0 tracking-tight">
+                <span className="text-[var(--accent-primary)]">Loop</span><span className="text-foreground">Deck</span>
               </h1>
             </div>
             {user && (
-              <div style={{ color: '#ff7b00', fontWeight: 'bold', marginTop: 12 }}>🔥 {user.currentStreak || 0}</div>
+              <div className="text-[#ff7b00] font-bold mt-3 flex items-center gap-1">
+                <Flame className="w-5 h-5 fill-current" />
+                {user.currentStreak || 0} racha
+              </div>
             )}
           </div>
           <nav className="sidebar-nav">
@@ -145,18 +164,17 @@ function Layout() {
                 className="nav-item"
                 onClick={handleInstallClick}
               >
-                <span className="nav-icon">📱</span>
+                <span className="nav-icon"><Download className="w-5 h-5" /></span>
                 Instalar App
               </button>
             )}
             
             <button
               type="button"
-              className="nav-item"
+              className="nav-item text-destructive hover:bg-destructive/10"
               onClick={logout}
-              style={{ color: 'var(--color-danger)' }}
             >
-              <span className="nav-icon">🚪</span>
+              <span className="nav-icon"><LogOut className="w-5 h-5" /></span>
               Cerrar sesión
             </button>
           </nav>
@@ -204,42 +222,63 @@ function Layout() {
             }}
             aria-label="Más opciones"
           >
-            <span className="mobile-bottom-icon">☰</span>
+            <span className="mobile-bottom-icon"><Menu className="w-5 h-5" /></span>
             <span className="mobile-bottom-label">Más</span>
             {isMoreActive && <span className="mobile-bottom-indicator" />}
           </button>
         </nav>
       )}
 
-      <BottomSheet
-        isOpen={moreMenuOpen}
-        onClose={() => setMoreMenuOpen(false)}
-        title="Más opciones"
-      >
-        <div className="bottom-sheet-grid">
-          {navItems.filter(i => moreMenuPaths.includes(i.path)).map(item => {
-            const isActive = location.pathname.startsWith(item.path);
-            return (
+      {moreMenuOpen && !isStudyPage && (
+        <BottomSheet
+          isOpen={moreMenuOpen}
+          onClose={() => setMoreMenuOpen(false)}
+          title="Menú"
+        >
+          <div className="bottom-sheet-grid">
+            {navItems.filter(i => moreMenuPaths.includes(i.path)).map(item => (
               <button
                 key={item.path}
                 type="button"
-                className={`bottom-sheet-item ${isActive ? 'active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
+                className={`bottom-sheet-item ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
+                onClick={() => {
                   setMoreMenuOpen(false);
-                  if (location.pathname !== item.path) navigate(item.path);
+                  navigate(item.path);
                 }}
               >
-                <div className="bottom-sheet-item-icon">{item.icon}</div>
+                <span className="bottom-sheet-item-icon">{item.icon}</span>
                 <span>{item.label}</span>
               </button>
-            );
-          })}
-        </div>
-      </BottomSheet>
+            ))}
+            
+            {(deferredPrompt || showIosInstall) && (
+              <button
+                type="button"
+                className="bottom-sheet-item"
+                onClick={() => {
+                  setMoreMenuOpen(false);
+                  handleInstallClick();
+                }}
+              >
+                <span className="bottom-sheet-item-icon"><Download className="w-5 h-5" /></span>
+                <span>Instalar App</span>
+              </button>
+            )}
+            
+            <button
+              type="button"
+              className="bottom-sheet-item text-destructive"
+              onClick={() => {
+                setMoreMenuOpen(false);
+                logout();
+              }}
+            >
+              <span className="bottom-sheet-item-icon"><LogOut className="w-5 h-5" /></span>
+              <span>Cerrar sesión</span>
+            </button>
+          </div>
+        </BottomSheet>
+      )}
     </div>
   );
 }
-
-export default Layout;

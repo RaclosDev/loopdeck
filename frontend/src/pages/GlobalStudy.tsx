@@ -85,7 +85,7 @@ export default function GlobalStudy() {
               
               <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', justifyContent: 'center' }}>
                 <button className="btn btn-primary" style={{ width: '100%', borderRadius: '12px', padding: '0.875rem' }}>
-                   ➔ Entrar al Hub
+                    Entrar al Hub
                 </button>
               </div>
             </div>
@@ -94,7 +94,7 @@ export default function GlobalStudy() {
 
         {decks.length === 0 && (
           <div className="card" style={{ textAlign: 'center', borderStyle: 'dashed' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📭</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}></div>
             <h3 className="card-title" style={{ margin: '0 0 0.5rem 0' }}>¡No tienes mazos aún!</h3>
             <p style={{ color: 'var(--text-muted)', margin: '0 0 1.5rem 0' }}>Ve a Mis Mazos para crear tu primer mazo de tarjetas.</p>
             <button className="btn btn-primary" onClick={() => navigate('/')}>Ir a Mis Mazos</button>

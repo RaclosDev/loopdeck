@@ -106,12 +106,12 @@ function StudyTutor() {
   return (
     <div className="study-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
       
-      <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-subtle)', background: 'var(--panel-bg)', flexShrink: 0 }}>
+      <div className="study-header" style={{ padding: '15px 20px',   flexShrink: 0 }}>
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
           ← Volver
         </button>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-          🤖 Tutor IA - {deck?.name}
+           Tutor IA - {deck?.name}
         </div>
       </div>
 
@@ -146,12 +146,12 @@ function StudyTutor() {
         <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ padding: '15px 20px', borderTop: '1px solid var(--border-subtle)', background: 'var(--panel-bg)', flexShrink: 0 }}>
+      <div style={{ padding: '15px 20px',   flexShrink: 0 }}>
         <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px' }}>
           <input
             type="text"
             className="input-field"
-            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', outline: 'none' }}
+            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.05)',  color: 'var(--text-primary)', outline: 'none' }}
             placeholder="Pregunta a la IA sobre este mazo..."
             value={input}
             onChange={(e) => setInput(e.target.value)}

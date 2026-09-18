@@ -46,7 +46,7 @@ function StudyQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Quiz', { icon: '⚠️' });
+           toast('Necesitas al menos 2 tarjetas para el modo Quiz', { icon: '️' });
            navigate(`/hub/${deckId}`);
            return;
         }
@@ -117,7 +117,7 @@ function StudyQuiz() {
   if (isFinished) {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}></div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>¡Quiz Terminado!</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem' }}>
           Has acertado <strong>{score}</strong> de {notes.length}
@@ -136,7 +136,7 @@ function StudyQuiz() {
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-          ✕ Salir
+           Salir
         </button>
         <div className="study-progress">
           <span>Test de Opciones</span>

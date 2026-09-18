@@ -3,8 +3,18 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { decksApi, notesApi, studyApi } from '../services/api';
 import { Deck, Note } from '../types';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { Pencil, Trash2, Search, Loader2 } from 'lucide-react';
 
 type BrowserNote = Note & { parsedFields: any, state: string };
+
+const getStateColor = (state: string) => {
+  if (state === 'new') return 'var(--accent-primary)';
+  if (state.includes('learn')) return '#F59E0B';
+  return '#10B981'; // review
+};
 
 export default function Browser() {
   const [searchParams] = useSearchParams();
@@ -23,7 +33,6 @@ export default function Browser() {
   const [editBack, setEditBack] = useState('');
   const [saving, setSaving] = useState(false);
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
-  
   
   useEffect(() => {
     decksApi.getAll().then(data => {
@@ -99,158 +108,152 @@ export default function Browser() {
       setNotes(notes.filter(n => n.id !== deletingNoteId));
       toast.success('Nota eliminada');
     } catch (e) {
-      toast.error('Error al eliminar');
+      toast.error('Error al eliminar nota');
     } finally {
       setDeletingNoteId(null);
     }
   };
 
-  const getStateColor = (state: string) => {
-    if (state === 'new') return 'var(--accent-primary)';
-    if (state === 'learning' || state === 'relearning') return '#F59E0B';
-    if (state === 'review') return '#10B981';
-    return 'var(--text-muted)';
-  };
-
   return (
     <div className="fade-in pb-12">
-      <div className="card" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-        
+      <div className="card mb-6 p-5 flex flex-col gap-5">
         <div>
-          <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Mazo</label>
-          <div className="pills-row">
-            {decks.length === 0 && <span className="pill">Sin mazos</span>}
+          <label className="form-label mb-2 block uppercase tracking-wide text-xs">Mazo</label>
+          <div className="flex flex-wrap gap-2">
+            {decks.length === 0 && <Badge variant="outline">Sin mazos</Badge>}
             {decks.map(d => (
-              <button
+              <Badge
                 key={d.id}
-                className={`pill ${selectedDeckId === d.id ? 'active' : ''}`}
+                variant={selectedDeckId === d.id ? "default" : "outline"}
+                className="cursor-pointer text-[12px] px-3 py-1"
                 onClick={() => setSelectedDeckId(d.id)}
               >
                 {d.name}
-              </button>
+              </Badge>
             ))}
           </div>
         </div>
 
         {tags.length > 0 && (
           <div>
-            <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Etiqueta</label>
-            <div className="pills-row">
-              <button
-                className={`pill ${selectedTag === '' ? 'active' : ''}`}
+            <label className="form-label mb-2 block uppercase tracking-wide text-xs">Etiqueta</label>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant={selectedTag === '' ? "default" : "outline"}
+                className="cursor-pointer text-[12px] px-3 py-1"
                 onClick={() => setSelectedTag('')}
               >
                 Todas
-              </button>
+              </Badge>
               {tags.map(t => (
-                <button
+                <Badge
                   key={t}
-                  className={`pill ${selectedTag === t ? 'active' : ''}`}
+                  variant={selectedTag === t ? "default" : "outline"}
+                  className="cursor-pointer text-[12px] px-3 py-1"
                   onClick={() => setSelectedTag(t)}
                 >
                   {t}
-                </button>
+                </Badge>
               ))}
             </div>
           </div>
         )}
 
-        <div>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
-            className="form-input"
-            placeholder="🔍 Buscar en tarjetas..."
+            className="form-input w-full pl-9 h-11"
+            placeholder="Buscar en tarjetas..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ width: '100%' }}
           />
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div className="flex flex-col gap-4">
         {loading ? (
-          <div style={{ padding: '3rem', textAlign: 'center' }}>
-            <div className="spinner" />
+          <div className="flex justify-center p-12">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
           </div>
         ) : filteredNotes.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', borderStyle: 'dashed' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>🔍</div>
-            <p style={{ color: 'var(--text-muted)' }}>No se encontraron tarjetas</p>
+          <div className="card border-dashed flex flex-col items-center justify-center p-12 text-muted-foreground gap-3">
+            <Search className="w-12 h-12 opacity-50" />
+            <p>No se encontraron tarjetas</p>
           </div>
         ) : (
           filteredNotes.map(note => (
-            <div key={note.id} style={{ background: 'var(--bg-primary)', borderRadius: '12px', padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', border: '1px solid var(--border-subtle)' }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', alignItems: 'center' }}>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 800, padding: '3px 8px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)', color: getStateColor(note.state), letterSpacing: '0.5px' }}>
+            <div key={note.id} className="card p-4 flex gap-4 items-center flex-row">
+              <div className="flex-1 min-w-0">
+                <div className="flex gap-2 mb-3 items-center flex-wrap">
+                  <Badge variant="outline" style={{ color: getStateColor(note.state), borderColor: getStateColor(note.state), backgroundColor: `${getStateColor(note.state)}15` }}>
                     {note.state === 'new' ? 'NUEVA' : note.state.includes('learn') ? 'APRENDIENDO' : 'REVISIÓN'}
-                  </span>
+                  </Badge>
                   {note.tags && note.tags.split(',').map(t => (
-                    <span key={t} style={{ fontSize: '0.65rem', color: 'var(--text-muted)', background: 'rgba(255,255,255,0.02)', padding: '3px 8px', borderRadius: '12px', border: '1px solid var(--border-subtle)' }}>
-                      {t.trim()}
-                    </span>
+                    <Badge key={t} variant="outline">{t.trim()}</Badge>
                   ))}
                 </div>
-                <div style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '0.4rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text-primary)' }} dangerouslySetInnerHTML={{ __html: note.parsedFields.front || '(Vacío)' }} />
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} dangerouslySetInnerHTML={{ __html: note.parsedFields.back || '(Vacío)' }} />
+                <div className="text-[0.95rem] font-semibold mb-1 truncate text-foreground" dangerouslySetInnerHTML={{ __html: note.parsedFields.front || '(Vacío)' }} />
+                <div className="text-[0.85rem] text-muted-foreground truncate" dangerouslySetInnerHTML={{ __html: note.parsedFields.back || '(Vacío)' }} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <button className="icon-btn" style={{ fontSize: '0.9rem', width: '36px', height: '36px', background: 'rgba(255,255,255,0.05)' }} onClick={() => handleEditClick(note)}>✏️</button>
-                <button className="icon-btn" style={{ fontSize: '0.9rem', width: '36px', height: '36px', background: 'rgba(239,68,68,0.1)', color: '#EF4444' }} onClick={() => setDeletingNoteId(note.id)}>🗑️</button>
+              <div className="flex flex-col gap-2">
+                <Button variant="secondary" size="icon" onClick={() => handleEditClick(note)}>
+                  <Pencil className="w-4 h-4" />
+                </Button>
+                <Button variant="destructive" size="icon" onClick={() => setDeletingNoteId(note.id)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
             </div>
           ))
         )}
       </div>
 
-      {editingNote && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '500px', padding: '1.5rem', borderRadius: '16px' }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Editar Tarjeta</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.5rem' }}>
-              <div>
-                <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Frente</label>
-                <div 
-                  className="form-input" 
-                  style={{ minHeight: '80px', padding: '0.75rem' }} 
-                  contentEditable 
-                  dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
-                  onInput={e => setEditFront(e.currentTarget.innerHTML)} 
-                />
-              </div>
-              <div>
-                <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Dorso</label>
-                <div 
-                  className="form-input" 
-                  style={{ minHeight: '80px', padding: '0.75rem' }} 
-                  contentEditable 
-                  dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
-                  onInput={e => setEditBack(e.currentTarget.innerHTML)} 
-                />
-              </div>
+      <Dialog open={!!editingNote} onOpenChange={(open) => !open && setEditingNote(null)}>
+        <DialogContent className="max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Editar Tarjeta</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 my-4">
+            <div>
+              <label className="form-label mb-2 block uppercase tracking-wide text-xs">Frente</label>
+              <div 
+                className="form-input min-h-[80px] p-3" 
+                contentEditable 
+                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
+                onInput={e => setEditFront(e.currentTarget.innerHTML)} 
+              />
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingNote(null)}>Cancelar</button>
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSaveEdit} disabled={saving}>
-                {saving ? '...' : 'Guardar'}
-              </button>
+            <div>
+              <label className="form-label mb-2 block uppercase tracking-wide text-xs">Dorso</label>
+              <div 
+                className="form-input min-h-[80px] p-3" 
+                contentEditable 
+                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
+                onInput={e => setEditBack(e.currentTarget.innerHTML)} 
+              />
             </div>
           </div>
-        </div>
-      )}
+          <DialogFooter className="flex gap-3 mt-4">
+            <Button variant="secondary" className="flex-1" onClick={() => setEditingNote(null)}>Cancelar</Button>
+            <Button className="flex-1" onClick={handleSaveEdit} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Delete Modal */}
-      {deletingNoteId && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Eliminar Tarjeta</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>¿Seguro que quieres eliminar esta tarjeta? Se perderá todo su historial de repasos.</p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setDeletingNoteId(null)}>Cancelar</button>
-              <button className="btn btn-danger" style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none' }} onClick={confirmDelete}>Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={!!deletingNoteId} onOpenChange={(open) => !open && setDeletingNoteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar Tarjeta</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm my-2">¿Seguro que quieres eliminar esta tarjeta? Se perderá todo su historial de repasos.</p>
+          <DialogFooter className="mt-4 flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={() => setDeletingNoteId(null)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={confirmDelete}>Eliminar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

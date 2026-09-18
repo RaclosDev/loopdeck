@@ -54,7 +54,7 @@ function StudyChunkedQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Test', { icon: '⚠️' });
+           toast('Necesitas al menos 2 tarjetas para el modo Test', { icon: '️' });
            navigate(`/hub/${deckId}`);
            return;
         }
@@ -156,7 +156,7 @@ function StudyChunkedQuiz() {
   if (isChunkFinished) {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{isFinished ? '🎉' : '🧱'}</div>
+        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{isFinished ? '' : ''}</div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', textAlign: 'center' }}>
           {isFinished ? '¡Mazo Completado!' : '¡Bloque Completado!'}
         </h2>
@@ -167,7 +167,7 @@ function StudyChunkedQuiz() {
         
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button className="icon-btn" onClick={handleRepeatChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
-            🔄 Repetir estas {currentChunkLength}
+             Repetir estas {currentChunkLength}
           </button>
           
           {isFinished ? (
@@ -191,7 +191,7 @@ function StudyChunkedQuiz() {
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-          ✕ Salir
+           Salir
         </button>
         
         <div className="study-progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>

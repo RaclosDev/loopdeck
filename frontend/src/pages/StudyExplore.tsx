@@ -100,7 +100,7 @@ function StudyExplore() {
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-          ✕ Salir
+           Salir
         </button>
         <div className="study-progress">
           <span>Paseo Libre</span>

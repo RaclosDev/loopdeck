@@ -96,7 +96,7 @@ function StudyHub() {
   return (
     <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
       <div className="card" style={{ marginBottom: '2rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.03, pointerEvents: 'none' }}>📚</div>
+        
         
         <div>
           <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '6px 14px', fontSize: '0.85rem', marginBottom: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', width: 'fit-content' }}>
@@ -110,10 +110,10 @@ function StudyHub() {
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
             <span style={{ background: 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, border: '1px solid var(--border-medium)' }}>
-              📝 {stats.total} notas totales
+               {stats.total} notas totales
             </span>
             <span style={{ background: stats.due > 0 ? 'rgba(0, 133, 255, 0.15)' : 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: stats.due > 0 ? 'var(--accent-primary)' : 'var(--text-secondary)', fontWeight: 600, border: stats.due > 0 ? '1px solid rgba(0, 133, 255, 0.3)' : '1px solid var(--border-medium)' }}>
-              🎯 {stats.due} tarjetas pendientes
+               {stats.due} tarjetas pendientes
             </span>
           </div>
 
@@ -124,7 +124,7 @@ function StudyHub() {
                 onClick={() => setShowDocModal(true)}
                 style={{ padding: '8px 16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
-                📄 Ver Documento Original
+                 Ver Documento Original
               </button>
             ) : (
               <button 
@@ -133,7 +133,7 @@ function StudyHub() {
                 disabled={uploadingDoc}
                 style={{ padding: '8px 16px', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
-                {uploadingDoc ? 'Subiendo...' : '📎 Vincular Apuntes (DOCX)'}
+                {uploadingDoc ? 'Subiendo...' : ' Vincular Apuntes (DOCX)'}
               </button>
             )}
             <input 
@@ -154,9 +154,9 @@ function StudyHub() {
              onClick={() => navigate(`/study/${deckId}`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🧠</div>
+          
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-            🧠 Repaso Espaciado
+             Repaso Espaciado
             {stats.due > 0 && <span style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{stats.due} DUE</span>}
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
@@ -169,9 +169,9 @@ function StudyHub() {
              onClick={() => navigate(`/hub/${deckId}/guide`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--purple-accent)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>📖</div>
+          
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-            📖 Guía de Estudio
+             Guía de Estudio
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Lee todas las preguntas y respuestas del tirón. Ideal para el primer contacto.
@@ -183,9 +183,9 @@ function StudyHub() {
              onClick={() => navigate(`/hub/${deckId}/explore`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🎡</div>
+          
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-            🎡 Modo Paseo
+             Modo Paseo
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Navega por las tarjetas libremente, sin la presión de acertar y sin afectar a las estadísticas.
@@ -197,9 +197,9 @@ function StudyHub() {
              onClick={() => navigate(`/hub/${deckId}/chunked`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🧱</div>
+          
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-            🧱 Test por Bloques
+             Test por Bloques
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Estudia en orden configurando bloques (10, 20...). Perfecto para asentar conocimiento paso a paso.
@@ -211,9 +211,9 @@ function StudyHub() {
              onClick={() => navigate(`/hub/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🎯</div>
+          
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-            🎯 Test de Opciones
+             Test de Opciones
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Adivina la respuesta correcta entre 4 opciones aleatorias. Un escalón intermedio perfecto.
@@ -225,9 +225,9 @@ function StudyHub() {
              onClick={() => navigate(`/hub/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
-          <div style={{ position: 'absolute', right: '-15px', top: '-15px', fontSize: '6rem', opacity: 0.05, pointerEvents: 'none' }}>🤖</div>
+          
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-            🤖 Tutor IA
+             Tutor IA
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Chatea con la IA sobre el temario. Resuelve tus dudas o ponte a prueba.

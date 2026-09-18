@@ -1,6 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
-import { decksApi, notesApi, studyApi } from '../services/api';
+import { decksApi, notesApi } from '../services/api';
+import { Loader2, BarChart2 } from 'lucide-react';
 
 export default function Stats() {
   const [stats, setStats] = useState({
@@ -33,14 +34,12 @@ export default function Stats() {
           cardsByState.review += stat.reviewCount || 0;
         });
 
-        // Some stats are omitted since downloading 10k cards is very slow
-        // (as requested by user to optimize load times)
         setStats({
           totalDecks: decks.length,
           totalNotes,
           totalCards: cardsByState.new + cardsByState.learning + cardsByState.review,
           cardsByState,
-          avgEase: 2.5, // Default/Placeholder
+          avgEase: 2.5,
           totalLapses: 0,
           mature: 0,
           suspended: 0
@@ -54,72 +53,63 @@ export default function Stats() {
     loadStats();
   }, []);
 
-  if (loading) return <div className="loading-screen"><div className="spinner" /></div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="fade-in pb-10">
       {stats.totalCards === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>ðŸ“Š</div>
-          <h3>Sin datos aún</h3>
-          <p style={{ color: 'var(--text-muted)' }}>Añade tarjetas para ver tus estadísticas.</p>
+        <div className="card flex flex-col items-center justify-center border-dashed text-center p-12 gap-3">
+          <BarChart2 className="w-12 h-12 opacity-50 text-muted-foreground" />
+          <h3 className="m-0 text-xl font-bold">Sin datos aún</h3>
+          <p className="text-muted-foreground m-0">Añade tarjetas para ver tus estadísticas.</p>
         </div>
       ) : (
         <>
-          <div className="kpi-grid" style={{ marginBottom: 24 }}>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalDecks}</div>
+          <div className="kpi-grid mb-6">
+            <div className="kpi-card accent">
               <div className="kpi-label">MAZOS</div>
+              <div className="kpi-value accent">{stats.totalDecks}</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalNotes}</div>
+            <div className="kpi-card">
               <div className="kpi-label">NOTAS</div>
+              <div className="kpi-value">{stats.totalNotes}</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalCards}</div>
+            <div className="kpi-card">
               <div className="kpi-label">TARJETAS</div>
+              <div className="kpi-value">{stats.totalCards}</div>
             </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{(stats.avgEase * 100).toFixed(0)}%</div>
-              <div className="kpi-label">EASE</div>
+            <div className="kpi-card info">
+              <div className="kpi-label">EASE AVG</div>
+              <div className="kpi-value info">{(stats.avgEase * 100).toFixed(0)}%</div>
             </div>
           </div>
 
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <h3 className="card-title" style={{ margin: '0 0 1rem', fontSize: '1.1rem' }}>Distribución</h3>
-            <div style={{ display: 'flex', width: '100%', height: '24px', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem' }}>
+          <div className="card mb-6">
+            <h3 className="text-xl font-bold m-0 mb-4">Distribución</h3>
+            <div className="flex w-full h-6 rounded-full overflow-hidden mb-4">
               <div style={{ width: `${(stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary)' }} />
-              <div style={{ width: `${(stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary-light)' }} />
-              <div style={{ width: `${(stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary-dark)' }} />
+              <div style={{ width: `${(stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100}%`, background: '#F59E0B' }} />
+              <div style={{ width: `${(stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100}%`, background: '#10B981' }} />
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-primary)' }} />
+            <div className="flex justify-between text-sm font-medium">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[var(--accent-primary)]" />
                 <span>Nuevas {((stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-primary-light)' }} />
-                <span>Aprender {((stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#F59E0B]" />
+                <span>Aprendizaje {((stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--accent-primary-dark)' }} />
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#10B981]" />
                 <span>Revisión {((stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
               </div>
-            </div>
-          </div>
-
-          <div className="kpi-grid">
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.mature}</div>
-              <div className="kpi-label">MADURAS</div>
-            </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.totalLapses}</div>
-              <div className="kpi-label">LAPSOS</div>
-            </div>
-            <div className="kpi-card" style={{ padding: '1rem', textAlign: 'center', background: 'var(--bg-card)', borderColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <div className="kpi-value" style={{ color: 'var(--accent-primary)' }}>{stats.suspended}</div>
-              <div className="kpi-label">SUSPENDIDAS</div>
             </div>
           </div>
         </>
@@ -127,9 +117,3 @@ export default function Stats() {
     </div>
   );
 }
-
-
-
-
-
-

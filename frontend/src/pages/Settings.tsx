@@ -3,6 +3,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { applyThemeColor } from '../utils/colorHelper';
+import { SegmentedControl } from '../components/ui/segmented-control';
+import { Button } from '../components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 
 const PRESETS = ['#0085FF', '#E11D48', '#FFFFFF', '#FF5E00', '#8B5CF6', '#10B981'];
 
@@ -32,171 +35,140 @@ export default function Settings() {
   };
 
   const tabs = [
-    { id: 'study', label: 'Estudio' },
-    { id: 'appearance', label: 'Apariencia' },
-    { id: 'account', label: 'Cuenta' }
+    { value: 'study', label: 'Estudio' },
+    { value: 'appearance', label: 'Apariencia' },
+    { value: 'account', label: 'Cuenta' }
   ];
 
   return (
     <div className="fade-in pb-12">
-      <div style={{ display: 'flex', background: 'rgba(255, 255, 255, 0.05)', padding: '0.35rem', borderRadius: '20px', marginBottom: '1.5rem', overflowX: 'auto' }}>
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              flex: 1,
-              padding: '0.65rem 1rem',
-              borderRadius: '16px',
-              border: 'none',
-              background: activeTab === tab.id ? 'var(--bg-card)' : 'transparent',
-              color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
-              fontWeight: activeTab === tab.id ? 600 : 500,
-              boxShadow: activeTab === tab.id ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
-              transition: 'all 0.25s ease',
-              whiteSpace: 'nowrap',
-              cursor: 'pointer'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        options={tabs}
+        value={activeTab}
+        onChange={setActiveTab}
+        className="mb-6 overflow-x-auto"
+      />
 
       {activeTab === 'study' && (
-        <div className="card" style={{ background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="card-title" style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Opciones de Estudio</h3>
+        <div className="card">
+          <h3 className="text-xl font-bold mb-6">Opciones de Estudio</h3>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="flex justify-between items-center bg-black/10 p-4 rounded-xl">
             <div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Cronómetro de Sesión</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Mostrar el tiempo durante el estudio</div>
+              <div className="font-semibold text-foreground">Cronómetro de Sesión</div>
+              <div className="text-sm text-muted-foreground mt-1">Mostrar el tiempo durante el estudio</div>
             </div>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={settings.showTimer} 
-                onChange={(e) => updateSettings({ showTimer: e.target.checked })} 
-              />
-              <span className="slider"></span>
-            </label>
+            <input 
+              type="checkbox" 
+              className="w-6 h-6 accent-[var(--accent-primary)]"
+              checked={settings.showTimer} 
+              onChange={(e) => updateSettings({ showTimer: e.target.checked })} 
+            />
           </div>
         </div>
       )}
 
       {activeTab === 'appearance' && (
-        <div className="card" style={{ background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="card-title" style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Apariencia</h3>
+        <div className="card">
+          <h3 className="text-xl font-bold mb-6">Apariencia</h3>
 
-          <div style={{ marginBottom: '2rem' }}>
-            <label className="form-label" style={{ marginBottom: '0.75rem', display: 'block' }}>Color Principal</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
+          <div className="mb-8">
+            <label className="form-label mb-3 block uppercase tracking-wide text-xs">Color Principal</label>
+            <div className="flex items-center gap-4 mb-3">
               <input 
                 type="color" 
                 value={customColor}
                 onChange={(e) => handleColorChange(e.target.value)}
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  padding: '0',
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  background: 'none'
-                }}
+                className="w-12 h-12 p-0 border-0 rounded-xl cursor-pointer bg-transparent"
               />
-              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div className="flex gap-3 flex-wrap items-center">
                 {PRESETS.map(color => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => handleColorChange(color)}
+                    className="w-10 h-10 rounded-full cursor-pointer p-0 transition-transform hover:scale-110"
                     style={{
-                      width: '36px', height: '36px', borderRadius: '50%',
-                      background: color, border: customColor === color ? '2px solid white' : '2px solid transparent',
-                      cursor: 'pointer', padding: 0, transition: 'transform 0.1s'
+                      background: color, 
+                      border: customColor === color ? '2px solid white' : '2px solid transparent',
                     }}
                     title={color}
                   />
                 ))}
               </div>
             </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            <p className="text-sm text-muted-foreground">
               El color se aplicará instantáneamente a toda la interfaz.
             </p>
           </div>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '1.5rem' }}>
+          <div className="flex justify-between items-center border-t border-white/10 pt-6">
             <div>
-              <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Animaciones 3D</div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>Efecto de giro al voltear tarjetas</div>
+              <div className="font-semibold text-foreground">Animaciones 3D</div>
+              <div className="text-sm text-muted-foreground mt-1">Efecto de giro al voltear tarjetas</div>
             </div>
-            <label className="toggle-switch">
-              <input 
-                type="checkbox" 
-                checked={settings.animationsEnabled ?? true} 
-                onChange={(e) => updateSettings({ animationsEnabled: e.target.checked })} 
-              />
-              <span className="slider"></span>
-            </label>
+            <input 
+              type="checkbox" 
+              className="w-6 h-6 accent-[var(--accent-primary)]"
+              checked={settings.animationsEnabled ?? true} 
+              onChange={(e) => updateSettings({ animationsEnabled: e.target.checked })} 
+            />
           </div>
         </div>
       )}
 
       {activeTab === 'account' && (
-        <div className="card" style={{ background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-          <h3 className="card-title" style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Tu Cuenta</h3>
+        <div className="card">
+          <h3 className="text-xl font-bold mb-6">Tu Cuenta</h3>
           
           {user && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', background: 'var(--bg-card)', borderRadius: '16px', marginBottom: '1.5rem', border: '1px solid var(--border-subtle)' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', fontWeight: 800 }}>
+            <div className="flex items-center gap-4 p-5 bg-black/20 rounded-xl mb-6 border border-white/5">
+              <div className="w-14 h-14 rounded-full bg-[var(--accent-primary)] flex items-center justify-center text-2xl font-black text-white">
                 {user.name?.charAt(0).toUpperCase() || '?'}
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: '1.2rem', color: 'var(--text-primary)' }}>{user.name}</div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.2rem' }}>{user.email}</div>
+                <div className="font-bold text-lg text-foreground">{user.name}</div>
+                <div className="text-sm text-muted-foreground mt-1">{user.email}</div>
               </div>
             </div>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <button className="btn btn-secondary" onClick={() => setShowClearModal(true)} style={{ width: '100%' }}>
+          <div className="flex flex-col gap-3">
+            <Button variant="secondary" onClick={() => setShowClearModal(true)} className="w-full">
               Limpiar Caché Local
-            </button>
-            <button className="btn btn-danger" onClick={() => setShowLogoutModal(true)} style={{ width: '100%' }}>
+            </Button>
+            <Button variant="destructive" onClick={() => setShowLogoutModal(true)} className="w-full">
               Cerrar sesión
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Clear Cache Modal */}
-      {showClearModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Limpiar Caché</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>¿Seguro que quieres limpiar los datos locales? Tendrás que volver a iniciar sesión.</p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowClearModal(false)}>Cancelar</button>
-              <button className="btn btn-danger" style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none' }} onClick={handleClearLocalData}>Limpiar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showClearModal} onOpenChange={setShowClearModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Limpiar Caché</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm my-2">¿Seguro que quieres limpiar los datos locales? Tendrás que volver a iniciar sesión.</p>
+          <DialogFooter className="mt-4 flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={() => setShowClearModal(false)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={handleClearLocalData}>Limpiar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {/* Logout Modal */}
-      {showLogoutModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Cerrar Sesión</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>¿Estás seguro de que quieres cerrar tu sesión actual?</p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowLogoutModal(false)}>Cancelar</button>
-              <button className="btn btn-danger" style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none' }} onClick={handleLogout}>Cerrar Sesión</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={showLogoutModal} onOpenChange={setShowLogoutModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cerrar Sesión</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm my-2">¿Estás seguro de que quieres cerrar tu sesión actual?</p>
+          <DialogFooter className="mt-4 flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={() => setShowLogoutModal(false)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={handleLogout}>Cerrar Sesión</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

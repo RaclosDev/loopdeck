@@ -1,9 +1,9 @@
-import useStore from '../store/useStore';
+﻿import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
-import { ArrowLeft, Undo2, Eye, Timer, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Undo2, Eye, Timer, CheckCircle2, Trophy } from 'lucide-react';
 import FlashCard from '../components/FlashCard';
 import RatingButtons from '../components/RatingButtons';
 import { studyApi, decksApi } from '../services/api';
@@ -14,10 +14,10 @@ function getIntervalLabel(card: Card, rating: number) {
   const ease = card.easeFactor || 2.5;
   const interval = card.intervalDays || 0;
   const step = card.learningStep || 0;
-  const learningSteps = [1, 10]; // default steps in minutes
+  const learningSteps = [1, 10]; 
 
   if (card.state === 'new' || card.state === 'learning') {
-    if (rating === 1) return formatMinutes(learningSteps[0]); // back to first step
+    if (rating === 1) return formatMinutes(learningSteps[0]); 
     if (rating === 2) {
       const curr = learningSteps[step] || learningSteps[0] || 1;
       const next = learningSteps[step + 1] || curr * 2;
@@ -25,10 +25,10 @@ function getIntervalLabel(card: Card, rating: number) {
     }
     if (rating === 3) {
       const nextStep = step + 1;
-      if (nextStep >= learningSteps.length) return '1d'; // graduate
+      if (nextStep >= learningSteps.length) return '1d'; 
       return formatMinutes(learningSteps[nextStep]);
     }
-    return '4d'; // EASY: graduate immediately
+    return '4d'; 
   }
   if (card.state === 'relearning') {
     if (rating === 1) return '10m';
@@ -36,7 +36,6 @@ function getIntervalLabel(card: Card, rating: number) {
     if (rating === 3) return `${Math.max(1, Math.round(interval * 0.7))}d`;
     return `${Math.max(1, Math.round(interval))}d`;
   }
-  // Review state
   if (rating === 1) return '10m';
   if (rating === 2) return `${Math.max(1, Math.round(interval * 1.2))}d`;
   if (rating === 3) return `${Math.max(1, Math.round(interval * ease))}d`;
@@ -82,10 +81,9 @@ export default function Study() {
       if (!d) { toast.error('Mazo no encontrado'); navigate('/'); return; }
       setDeck(d);
       
-      const pairs = await studyApi.getDueCards(deckId!, 1000); // get pairs {card, note}
+      const pairs = await studyApi.getDueCards(deckId!, 1000); 
       if (pairs.length === 0) { setIsComplete(true); setLoading(false); return; }
 
-      // Sort
       const order = settings?.studyOrder || 'new_first';
       if (order === 'new_first') {
         pairs.sort((a, b) => {
@@ -103,19 +101,20 @@ export default function Study() {
         pairs.sort(() => Math.random() - 0.5);
       }
 
-      const now = new Date();
-      setCounts({
-        new: pairs.filter(p => p.card.state === 'new').length,
-        learning: pairs.filter(p => (p.card.state === 'learning' || p.card.state === 'relearning') && new Date(p.card.due) <= now).length,
-        review: pairs.filter(p => p.card.state === 'review' && new Date(p.card.due) <= now).length,
-      });
-
       setQueue(pairs);
-      setCurrentIndex(0);
-      setIsFlipped(false);
+      
+      const c = { new: 0, learning: 0, review: 0 };
+      pairs.forEach(p => {
+        if (p.card.state === 'new') c.new++;
+        else if (p.card.state === 'learning' || p.card.state === 'relearning') c.learning++;
+        else if (p.card.state === 'review') c.review++;
+      });
+      setCounts(c);
       setStartMs(Date.now());
+      setSessionStats({ reviewed: 0, correct: 0, startTime: Date.now() });
+      setUndoStack([]);
     } catch (e) {
-      toast.error('Error al cargar sesión');
+      toast.error('Error al cargar la sesión');
     } finally {
       setLoading(false);
     }
@@ -123,59 +122,58 @@ export default function Study() {
 
   useEffect(() => { loadSession(); }, [loadSession]);
 
-  const current = queue[currentIndex];
-  const card = current?.card;
-  const note = current?.note;
-
-  const getFields = () => {
-    if (!note) return { front: '', back: '' };
-    try {
-      return JSON.parse(note.fieldsJson);
-    } catch { return { front: note.fieldsJson || '', back: '' }; }
-  };
-
-  const getFront = () => {
-    const f = getFields();
-    if (card?.cardOrdinal === 1) return marked.parse(f.back || '') as string;
-    if (note?.noteType === 'cloze') {
-      return (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--accent-primary);border-bottom:2px dashed var(--accent-primary);padding:0 4px">[...]</span>');
-    }
-    return marked.parse(f.front || f.text || '') as string;
-  };
-
-  const getBack = () => {
-    const f = getFields();
-    if (card?.cardOrdinal === 1) return marked.parse(f.front || '') as string;
-    if (note?.noteType === 'cloze') {
-      const text = (f.text || '').replace(/\{\{c\d+::(.*?)\}\}/g, '<span style="color:var(--accent-primary);border-bottom:2px dashed var(--accent-primary);padding:0 4px">$1</span>');
-      return marked.parse(text) + (f.extra ? `<div style="width: 60%; height: 1px; background: var(--border-subtle); margin: 16px auto;"></div><div style="font-size: 0.95rem; color: var(--text-muted);">${marked.parse(f.extra)}</div>` : '');
-    }
-    return marked.parse(f.back || f.extra || '') as string;
-  };
+  const currentPair = queue[currentIndex];
+  const note = currentPair?.note;
+  const card = currentPair?.card;
+  const fields = useMemo(() => note ? JSON.parse(note.fieldsJson || '{}') : {}, [note]);
 
   const intervals = useMemo(() => {
-    if (!isFlipped || !card) return null;
-    return {
-      1: getIntervalLabel(card, 1),
-      2: getIntervalLabel(card, 2),
-      3: getIntervalLabel(card, 3),
-      4: getIntervalLabel(card, 4),
-    };
-  }, [isFlipped, card]);
+    if (!card) return ['<10m', '<10m', '1d', '4d'];
+    return [
+      getIntervalLabel(card, 1),
+      getIntervalLabel(card, 2),
+      getIntervalLabel(card, 3),
+      getIntervalLabel(card, 4)
+    ];
+  }, [card]);
 
-  const handleFlip = () => {
-    if (isFlipped || !card) return;
-    setIsFlipped(true);
-  };
+  const getFront = useCallback(() => {
+    if (!note || !card) return '';
+    if (note.noteType === 'cloze') {
+      const idx = card.cardOrdinal;
+      const html = marked.parse(fields.text || '') as string;
+      return html.replace(/{{c(\d+)::(.*?)}}/g, (match, n, content) => {
+        if (parseInt(n) === idx) return '<span class="cloze">[...]</span>';
+        return content;
+      });
+    } else {
+      if (card.cardOrdinal === 1) return marked.parse(fields.back || '') as string;
+      return marked.parse(fields.front || '') as string;
+    }
+  }, [note, card, fields]);
+
+  const getBack = useCallback(() => {
+    if (!note || !card) return '';
+    if (note.noteType === 'cloze') {
+      const idx = card.cardOrdinal;
+      const html = marked.parse(fields.text || '') as string;
+      return html.replace(/{{c(\d+)::(.*?)}}/g, (match, n, content) => {
+        if (parseInt(n) === idx) return `<span class="cloze-revealed">${content}</span>`;
+        return content;
+      });
+    } else {
+      if (card.cardOrdinal === 1) return marked.parse(fields.front || '') as string;
+      return marked.parse(fields.back || '') as string;
+    }
+  }, [note, card, fields]);
+
+  const handleFlip = () => setIsFlipped(true);
 
   const handleRate = async (rating: number) => {
     if (!card) return;
     
-    // Save undo state
-    setUndoStack(prev => [...prev, { pair: current, index: currentIndex }]);
-    
+    setUndoStack(prev => [...prev, { pair: currentPair, index: currentIndex }]);
     setIsFlipped(false);
-    
     setSessionStats(prev => ({
       ...prev,
       reviewed: prev.reviewed + 1,
@@ -237,7 +235,6 @@ export default function Study() {
     }
   };
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return;
@@ -262,7 +259,7 @@ export default function Study() {
 
     return (
       <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-        <div className="text-6xl mb-6">🎉</div>
+        <Trophy className="w-16 h-16 text-[var(--accent-primary)] mb-6" />
         <h2 className="text-3xl font-bold mb-3">¡Sesión Completada!</h2>
         <p className="text-muted-foreground text-lg mb-8 max-w-md">
           Has terminado todas las tarjetas de <strong className="text-primary">{deck?.name}</strong>.
@@ -283,10 +280,6 @@ export default function Study() {
                 <div className="text-2xl font-bold">{minutes}:{seconds.toString().padStart(2, '0')}</div>
                 <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TIEMPO</div>
             </div>
-              <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
-                  <div className="text-2xl font-bold">{sessionStats.reviewed}</div>
-                  <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TOTAL TARJETAS</div>
-              </div>
           </div>
 
         <button 
@@ -302,7 +295,7 @@ export default function Study() {
   if (queue.length === 0) {
     return (
       <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-        <div className="text-6xl mb-6">📭</div>
+        <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-6" />
         <h2 className="text-2xl font-bold mb-2">¡Al día!</h2>
         <p className="text-muted-foreground text-lg mb-8 max-w-md">No hay más tarjetas pendientes en este mazo.</p>
         <button 
@@ -315,9 +308,9 @@ export default function Study() {
     );
   }
 
-    return (
-      <div className="fade-in flex flex-col p-4 overflow-hidden max-w-3xl mx-auto w-full" style={{ height: "100dvh", paddingTop: "max(1rem, env(safe-area-inset-top))", paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
-        {/* Header */}
+  return (
+    <div className="fade-in flex flex-col p-4 overflow-hidden max-w-3xl mx-auto w-full" style={{ height: "100dvh", paddingTop: "max(1rem, env(safe-area-inset-top))", paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
+      {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", padding: "0 0.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <button 
@@ -337,9 +330,9 @@ export default function Study() {
           </div>
         </div>
         <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.8rem", fontWeight: 700 }}>
-          <div className="pill" style={{ color: "var(--accent-primary-light)", borderColor: "var(--accent-primary)" }}>{counts.new}</div>
-          <div className="pill" style={{ color: "var(--color-warning)", borderColor: "var(--color-warning)" }}>{counts.learning}</div>
-          <div className="pill" style={{ color: "var(--color-success)", borderColor: "var(--color-success)" }}>{counts.review}</div>
+          <div className="px-2 py-0.5 rounded-full border" style={{ color: "var(--accent-primary-light)", borderColor: "var(--accent-primary)", background: "rgba(var(--accent-primary-rgb), 0.1)" }}>{counts.new}</div>
+          <div className="px-2 py-0.5 rounded-full border" style={{ color: "#F59E0B", borderColor: "#F59E0B", background: "rgba(245,158,11,0.1)" }}>{counts.learning}</div>
+          <div className="px-2 py-0.5 rounded-full border" style={{ color: "#10B981", borderColor: "#10B981", background: "rgba(16,185,129,0.1)" }}>{counts.review}</div>
         </div>
       </div>
 
@@ -387,5 +380,3 @@ export default function Study() {
     </div>
   );
 }
-
-

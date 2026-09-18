@@ -4,10 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { decksApi, studyApi } from '../services/api';
 import { Deck } from '../types';
 import BottomSheet from '../components/BottomSheet';
+import { Button } from '../components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { Play, Plus, Search, MoreVertical, Trash2, Edit3, FolderPlus } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-    const [decks, setDecks] = useState<Deck[]>([]);
+  const [decks, setDecks] = useState<Deck[]>([]);
   const [deckCounts, setDeckCounts] = useState<Record<string, {new: number, learning: number, review: number, totalCount: number}>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,149 +122,164 @@ export default function Dashboard() {
     <div className="fade-in pb-12">
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (
         <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ color: 'var(--accent-primary)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalNew}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nuevas</div>
+          <div className="kpi-card accent">
+            <div className="kpi-label">NUEVAS</div>
+            <div className="kpi-value accent">{totalNew}</div>
           </div>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ color: '#F59E0B', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalLearning}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Aprend.</div>
+          <div className="kpi-card warning" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
+            <div className="kpi-label" style={{ color: '#F59E0B' }}>APRENDIENDO</div>
+            <div className="kpi-value" style={{ color: '#F59E0B' }}>{totalLearning}</div>
           </div>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ color: '#10B981', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalReview}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Revisión</div>
+          <div className="kpi-card success">
+            <div className="kpi-label">REVISIÓN</div>
+            <div className="kpi-value success">{totalReview}</div>
           </div>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ color: 'var(--text-primary)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalNew + totalLearning + totalReview}</div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</div>
+          <div className="kpi-card">
+            <div className="kpi-label">TOTAL</div>
+            <div className="kpi-value">{totalNew + totalLearning + totalReview}</div>
           </div>
         </div>
       )}
 
-      {error && <div style={{ color: 'var(--color-danger)', padding: 12, background: 'var(--danger-bg)', borderRadius: 12, marginBottom: 20 }}>{error}</div>}
+      {error && <div className="kpi-badge negative" style={{ marginBottom: 20 }}>{error}</div>}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+      <div className="flex flex-col gap-6">
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, totalCount: 0 };
           const totalDue = counts.new + counts.learning + counts.review;
           const totalCards = counts.totalCount || 0;
           
           return (
-            <div key={deck.id} className="card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                    <h2 className="card-title" style={{ margin: 0, fontSize: '1.25rem' }}>{deck.name}</h2>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button className="icon-btn" style={{ opacity: 0.7 }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(deck.id); }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-                      </button>
+            <div key={deck.id} className="card overflow-hidden p-0 flex flex-col">
+              <div className="p-5">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h2 className="text-xl font-bold m-0 cursor-pointer hover:text-[var(--accent-primary)] transition-colors" onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h2>
+                    <div className="text-sm text-muted-foreground font-medium mt-1">
+                      {totalDue} tarjetas pendientes hoy
                     </div>
                   </div>
-                  
-                  <BottomSheet
-                    isOpen={activeMoreMenu === deck.id}
-                    onClose={() => setActiveMoreMenu(null)}
-                    title="Opciones de Mazo"
-                  >
-                    <div className="bottom-sheet-grid">
-                      <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
-                        <span>Editar nombre</span>
-                      </button>
-                      <button className="bottom-sheet-item" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
-                        <span>Eliminar mazo</span>
-                      </button>
-                    </div>
-                  </BottomSheet>
+                  <Button variant="ghost" size="icon" onClick={() => setActiveMoreMenu(deck.id)}>
+                    <MoreVertical className="w-5 h-5" />
+                  </Button>
+                </div>
+                
+                <BottomSheet
+                  isOpen={activeMoreMenu === deck.id}
+                  onClose={() => setActiveMoreMenu(null)}
+                  title="Opciones de Mazo"
+                >
+                  <div className="bottom-sheet-grid">
+                    <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
+                      <Edit3 className="bottom-sheet-item-icon" />
+                      <span>Editar nombre</span>
+                    </button>
+                    <button className="bottom-sheet-item text-destructive" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
+                      <Trash2 className="bottom-sheet-item-icon bg-destructive/10 text-destructive" />
+                      <span>Eliminar mazo</span>
+                    </button>
+                  </div>
+                </BottomSheet>
 
-                <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{counts.new}</span>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Nuevas</span>
+                <div className="flex bg-black/20 border border-white/5 rounded-xl p-3 mt-2">
+                  <div className="flex-1 flex flex-col items-center">
+                    <span className="text-[var(--accent-primary)] font-bold text-lg">{counts.new}</span>
+                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Nuevas</span>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ color: '#F59E0B', fontWeight: 700, fontSize: '1.1rem' }}>{counts.learning}</span>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Aprend.</span>
+                  <div className="w-[1px] bg-white/10 mx-2" />
+                  <div className="flex-1 flex flex-col items-center">
+                    <span className="text-[#F59E0B] font-bold text-lg">{counts.learning}</span>
+                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Aprend.</span>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ color: '#10B981', fontWeight: 700, fontSize: '1.1rem' }}>{counts.review}</span>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Revisión</span>
+                  <div className="w-[1px] bg-white/10 mx-2" />
+                  <div className="flex-1 flex flex-col items-center">
+                    <span className="text-[#10B981] font-bold text-lg">{counts.review}</span>
+                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Revisión</span>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{totalCards}</span>
-                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Total</span>
+                  <div className="w-[1px] bg-white/10 mx-2" />
+                  <div className="flex-1 flex flex-col items-center">
+                    <span className="text-foreground font-bold text-lg">{totalCards}</span>
+                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Total</span>
                   </div>
                 </div>
               </div>
 
-              <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
+              <div className="bg-[var(--bg-glass)] p-4 flex gap-3">
                 {totalDue > 0 ? (
-                  <button className="btn btn-primary" style={{ flex: 1, padding: '0.75rem', borderRadius: '12px' }} onClick={() => navigate(`/study/${deck.id}`)}>
-                    Responder ({totalDue})
-                  </button>
+                  <Button className="flex-1 py-6 text-base font-bold rounded-xl" onClick={() => navigate(`/study/${deck.id}`)}>
+                    <Play className="w-5 h-5 mr-2" fill="currentColor" /> Responder ({totalDue})
+                  </Button>
                 ) : (
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', fontWeight: 600 }}>
+                  <div className="flex-1 flex items-center justify-center text-[var(--accent-primary)] font-bold">
                     Al día ✨
                   </div>
                 )}
-                <button className="btn btn-primary" style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }} onClick={() => navigate(`/add/${deck.id}`)}>+</button>
-                <button className="btn btn-secondary" style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>🔍</button>
+                <Button className="w-12 h-12 rounded-xl p-0" onClick={() => navigate(`/add/${deck.id}`)}>
+                  <Plus className="w-6 h-6" />
+                </Button>
+                <Button variant="secondary" className="w-12 h-12 rounded-xl p-0" onClick={() => navigate(`/browser?deck=${deck.id}`)}>
+                  <Search className="w-5 h-5" />
+                </Button>
               </div>
             </div>
           );
         })}
 
-        <div className="card" style={{ border: '2px dashed var(--border-medium)', background: 'var(--bg-card)', padding: 0 }}>
+        <div className="card border-2 border-dashed border-[var(--border-medium)] bg-[var(--bg-card)] p-0 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
           <button 
-            style={{ width: '100%', padding: '2rem', background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}
+            className="w-full p-8 bg-transparent border-none flex flex-col items-center gap-3 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
             onClick={() => { setModalInputValue(''); setCreateModalOpen(true); }}
           >
-            <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', color: 'var(--text-secondary)' }}>+</div>
-            <div style={{ fontWeight: 600 }}>Nuevo Mazo</div>
+            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-foreground">
+              <FolderPlus className="w-6 h-6" />
+            </div>
+            <div className="font-semibold text-lg">Nuevo Mazo</div>
           </button>
         </div>
       </div>
 
-      {deleteModalDeck && (
-        <div className="ds-overlay">
-          <div className="ds-modal-content" style={{ width: "100%", maxWidth: "340px", padding: "1.5rem", borderRadius: "var(--radius-xl)" }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Eliminar Mazo</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>¿Seguro que quieres eliminar el mazo "{deleteModalDeck.name}" y todas sus tarjetas?</p>
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setDeleteModalDeck(null)}>Cancelar</button>
-              <button className="btn btn-danger" style={{ flex: 1, background: '#EF4444', color: 'white', border: 'none' }} onClick={confirmDelete}>Eliminar</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Dialog open={!!deleteModalDeck} onOpenChange={(open) => !open && setDeleteModalDeck(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Eliminar Mazo</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm my-2">¿Seguro que quieres eliminar el mazo "{deleteModalDeck?.name}" y todas sus tarjetas?</p>
+          <DialogFooter className="mt-4 flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={() => setDeleteModalDeck(null)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={confirmDelete}>Eliminar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {editModalDeck && (
-        <div className="ds-overlay">
-          <div className="ds-modal-content" style={{ width: "100%", maxWidth: "340px", padding: "1.5rem", borderRadius: "var(--radius-xl)" }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Renombrar Mazo</h3>
-            <input className="form-input" style={{ width: '100%', marginBottom: '1.5rem' }} autoFocus value={modalInputValue} onChange={e => setModalInputValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && confirmEdit()} />
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditModalDeck(null)}>Cancelar</button>
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirmEdit}>Guardar</button>
-            </div>
+      <Dialog open={!!editModalDeck} onOpenChange={(open) => !open && setEditModalDeck(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Renombrar Mazo</DialogTitle>
+          </DialogHeader>
+          <div className="my-4">
+            <input className="form-input w-full" autoFocus value={modalInputValue} onChange={e => setModalInputValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && confirmEdit()} />
           </div>
-        </div>
-      )}
+          <DialogFooter className="flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={() => setEditModalDeck(null)}>Cancelar</Button>
+            <Button className="flex-1" onClick={confirmEdit}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      {createModalOpen && (
-        <div className="ds-overlay">
-          <div className="ds-modal-content" style={{ width: "100%", maxWidth: "340px", padding: "1.5rem", borderRadius: "var(--radius-xl)" }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Nuevo Mazo</h3>
-            <input className="form-input" style={{ width: '100%', marginBottom: '1.5rem' }} autoFocus value={modalInputValue} onChange={e => setModalInputValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && confirmCreate()} placeholder="Nombre del mazo..." />
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setCreateModalOpen(false)}>Cancelar</button>
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirmCreate}>Crear</button>
-            </div>
+      <Dialog open={createModalOpen} onOpenChange={setCreateModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nuevo Mazo</DialogTitle>
+          </DialogHeader>
+          <div className="my-4">
+            <input className="form-input w-full" autoFocus value={modalInputValue} onChange={e => setModalInputValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && confirmCreate()} placeholder="Nombre del mazo..." />
           </div>
-        </div>
-      )}
+          <DialogFooter className="flex gap-3">
+            <Button variant="secondary" className="flex-1" onClick={() => setCreateModalOpen(false)}>Cancelar</Button>
+            <Button className="flex-1" onClick={confirmCreate}>Crear</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
