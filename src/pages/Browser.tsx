@@ -115,16 +115,16 @@ export default function Browser() {
 
   return (
     <div className="fade-in pb-12">
-      <div className="card" style={{ padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+      <div className="card" style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
         
         <div>
           <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Mazo</label>
-          <div className="filter-chips-row">
-            {decks.length === 0 && <span className="filter-chip">Sin mazos</span>}
+          <div className="pills-row">
+            {decks.length === 0 && <span className="pill">Sin mazos</span>}
             {decks.map(d => (
               <button
                 key={d.id}
-                className={`filter-chip ${selectedDeckId === d.id ? 'active' : ''}`}
+                className={`pill ${selectedDeckId === d.id ? 'active' : ''}`}
                 onClick={() => setSelectedDeckId(d.id)}
               >
                 {d.name}
@@ -136,9 +136,9 @@ export default function Browser() {
         {tags.length > 0 && (
           <div>
             <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Etiqueta</label>
-            <div className="filter-chips-row">
+            <div className="pills-row">
               <button
-                className={`filter-chip ${selectedTag === '' ? 'active' : ''}`}
+                className={`pill ${selectedTag === '' ? 'active' : ''}`}
                 onClick={() => setSelectedTag('')}
               >
                 Todas
@@ -146,7 +146,7 @@ export default function Browser() {
               {tags.map(t => (
                 <button
                   key={t}
-                  className={`filter-chip ${selectedTag === t ? 'active' : ''}`}
+                  className={`pill ${selectedTag === t ? 'active' : ''}`}
                   onClick={() => setSelectedTag(t)}
                 >
                   {t}
@@ -173,7 +173,7 @@ export default function Browser() {
             <div className="spinner" />
           </div>
         ) : filteredNotes.length === 0 ? (
-          <div className="card" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+          <div className="card" style={{ textAlign: 'center', borderStyle: 'dashed' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>🔍</div>
             <p style={{ color: 'var(--text-muted)' }}>No se encontraron tarjetas</p>
           </div>

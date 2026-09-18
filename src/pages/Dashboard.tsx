@@ -210,8 +210,8 @@ export default function Dashboard() {
       </div>
 
       {deleteModalDeck && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
+        <div className="ds-overlay">
+          <div className="ds-modal-content" style={{ width: "100%", maxWidth: "340px", padding: "1.5rem", borderRadius: "var(--radius-xl)" }}>
             <h3 style={{ margin: '0 0 1rem 0' }}>Eliminar Mazo</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>¿Seguro que quieres eliminar el mazo "{deleteModalDeck.name}" y todas sus tarjetas?</p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -223,8 +223,8 @@ export default function Dashboard() {
       )}
 
       {editModalDeck && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
+        <div className="ds-overlay">
+          <div className="ds-modal-content" style={{ width: "100%", maxWidth: "340px", padding: "1.5rem", borderRadius: "var(--radius-xl)" }}>
             <h3 style={{ margin: '0 0 1rem 0' }}>Renombrar Mazo</h3>
             <input className="form-input" style={{ width: '100%', marginBottom: '1.5rem' }} autoFocus value={modalInputValue} onChange={e => setModalInputValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && confirmEdit()} />
             <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -236,8 +236,8 @@ export default function Dashboard() {
       )}
 
       {createModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
+        <div className="ds-overlay">
+          <div className="ds-modal-content" style={{ width: "100%", maxWidth: "340px", padding: "1.5rem", borderRadius: "var(--radius-xl)" }}>
             <h3 style={{ margin: '0 0 1rem 0' }}>Nuevo Mazo</h3>
             <input className="form-input" style={{ width: '100%', marginBottom: '1.5rem' }} autoFocus value={modalInputValue} onChange={e => setModalInputValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && confirmCreate()} placeholder="Nombre del mazo..." />
             <div style={{ display: 'flex', gap: '0.75rem' }}>

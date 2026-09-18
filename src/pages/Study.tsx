@@ -251,34 +251,34 @@ export default function Study() {
     const accuracy = sessionStats.reviewed > 0 ? Math.round((sessionStats.correct / sessionStats.reviewed) * 100) : 0;
 
     return (
-      <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
-        <div className="text-6xl mb-6">🎉</div>
-        <h2 className="text-2xl font-bold mb-2">¡Sesión Completada!</h2>
-        <p className="text-muted-foreground mb-8">Has terminado todas las tarjetas de <strong className="text-foreground">{deck?.name}</strong>.</p>
+      <div className="empty-state" style={{ minHeight: "80vh", border: "none", background: "transparent" }}>
+        <div className="empty-state-icon">🎉</div>
+        <h2 className="empty-state-title">¡Sesión Completada!</h2>
+        <p className="empty-state-desc">Has terminado todas las tarjetas de <strong style={{ color: "var(--text-primary)" }}>{deck?.name}</strong>.</p>
         
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8 w-full max-w-2xl">
-            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "1rem", marginBottom: "2rem", width: "100%", maxWidth: "600px" }}>
+            <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
                 <CheckCircle2 className="text-primary mb-2" size={24} />
                 <div className="text-2xl font-bold">{sessionStats.reviewed}</div>
                 <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TARJETAS</div>
             </div>
-            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+            <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
                 <div className="text-2xl font-bold text-emerald-500">{accuracy}%</div>
                 <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">PRECISIÓN</div>
             </div>
-            <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center">
+            <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
                 <Timer className="text-muted-foreground mb-2" size={24} />
                 <div className="text-2xl font-bold">{minutes}:{seconds.toString().padStart(2, '0')}</div>
                 <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TIEMPO</div>
             </div>
-              <div className="bg-card border border-white/5 p-4 rounded-2xl flex flex-col items-center justify-center col-span-2">
+              <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
                   <div className="text-2xl font-bold">{sessionStats.reviewed}</div>
                   <div className="text-xs text-muted-foreground tracking-wider font-semibold mt-1">TOTAL TARJETAS</div>
               </div>
           </div>
 
         <button 
-          className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl text-lg font-semibold shadow-lg shadow-primary/20" 
+          className="btn btn-primary" style={{ padding: "1rem 2rem", fontSize: "1.1rem" }} 
           onClick={() => navigate('/')}
         >
           <ArrowLeft size={20} /> Volver a Mazos
@@ -292,9 +292,9 @@ export default function Study() {
       <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
         <div className="text-6xl mb-6">📭</div>
         <h2 className="text-2xl font-bold mb-2">¡Al día!</h2>
-        <p className="text-muted-foreground mb-8">No hay más tarjetas pendientes en este mazo.</p>
+        <p className="empty-state-desc">No hay más tarjetas pendientes en este mazo.</p>
         <button 
-          className="btn btn-primary flex items-center gap-2 px-6 py-3 rounded-xl font-semibold" 
+          className="btn btn-primary" style={{ padding: "1rem 2rem", fontSize: "1.1rem" }} 
           onClick={() => navigate('/')}
         >
           <ArrowLeft size={20} /> Volver a Mazos
@@ -306,16 +306,16 @@ export default function Study() {
     return (
       <div className="fade-in flex flex-col h-full p-4 overflow-hidden max-w-3xl mx-auto w-full">
         {/* Header */}
-      <div className="flex justify-between items-center mb-6 shrink-0 px-2">
-        <div className="flex items-center gap-3">
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", padding: "0 0.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
           <button 
             onClick={() => navigate('/')} 
-            className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)] rounded-full transition-colors"
+            style={{ padding: "0.5rem", marginLeft: "-0.5rem", color: "var(--text-muted)", borderRadius: "50%", transition: "all 0.2s" }}
           >
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h2 className="m-0 text-lg font-bold">{deck?.name}</h2>
+            <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 600 }}>{deck?.name}</h2>
             {settings?.showTimer && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono">
                 <Timer size={12} />
@@ -324,16 +324,16 @@ export default function Study() {
             )}
           </div>
         </div>
-        <div className="flex gap-2 text-xs font-bold">
-          <div className="bg-blue-500/10 text-blue-500 px-2.5 py-1 rounded-full">{counts.new}</div>
-          <div className="bg-orange-500/10 text-orange-500 px-2.5 py-1 rounded-full">{counts.learning}</div>
-          <div className="bg-emerald-500/10 text-emerald-500 px-2.5 py-1 rounded-full">{counts.review}</div>
+        <div style={{ display: "flex", gap: "0.5rem", fontSize: "0.8rem", fontWeight: 700 }}>
+          <div className="pill" style={{ color: "var(--accent-primary-light)", borderColor: "var(--accent-primary)" }}>{counts.new}</div>
+          <div className="pill" style={{ color: "var(--color-warning)", borderColor: "var(--color-warning)" }}>{counts.learning}</div>
+          <div className="pill" style={{ color: "var(--color-success)", borderColor: "var(--color-success)" }}>{counts.review}</div>
         </div>
       </div>
 
       {/* Card area */}
-      <div className="flex-1 flex flex-col min-h-0 relative">
-        <div className="flex-1 flex flex-col items-center justify-center min-h-0 py-2 sm:py-4 w-full">
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 0, padding: "1rem 0", width: "100%" }}>
             <FlashCard 
               front={getFront()} 
               back={getBack()} 
@@ -344,10 +344,10 @@ export default function Study() {
         </div>
         
         {/* Controls */}
-        <div className="mt-4 shrink-0 flex flex-col gap-4 pb-4">
+        <div style={{ marginTop: "1rem", flexShrink: 0, display: "flex", flexDirection: "column", gap: "1rem", paddingBottom: "1rem" }}>
           {!isFlipped ? (
             <button 
-              className="btn btn-primary w-full py-5 text-xl font-bold rounded-[20px] flex items-center justify-center gap-2 shadow-xl shadow-primary/25"
+              className="btn btn-primary" style={{ width: "100%", padding: "1.25rem", fontSize: "1.25rem", borderRadius: "var(--radius-xl)" }}
               onClick={handleFlip}
             >
               <Eye size={20} /> Mostrar Respuesta

@@ -133,7 +133,7 @@ function StudyHub() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         
         {/* REPASO ESPACIADO (Clásico) */}
-        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/study/${deckId}`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -148,7 +148,7 @@ function StudyHub() {
         </div>
 
         {/* GUÍA DE ESTUDIO */}
-        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/guide`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--purple-accent)'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -162,7 +162,7 @@ function StudyHub() {
         </div>
 
         {/* MODO PASEO */}
-        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/explore`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -176,7 +176,7 @@ function StudyHub() {
         </div>
 
         {/* TEST POR BLOQUES */}
-        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/chunked`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -190,7 +190,7 @@ function StudyHub() {
         </div>
 
         {/* TEST DE OPCIONES */}
-        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
@@ -204,7 +204,7 @@ function StudyHub() {
         </div>
 
         {/* TUTOR IA */}
-        <div className="card" style={{ padding: '16px', cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>

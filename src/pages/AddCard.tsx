@@ -328,7 +328,7 @@ export default function AddCard() {
             En Masa
           </button>
         </div>
-        <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
 
         <input ref={frontFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('front', e)} />
         <input ref={backFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handleFileSelected('back', e)} />
@@ -365,7 +365,7 @@ export default function AddCard() {
       </div>
 
       {addMode === 'mass' ? (
-        <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
           <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>
               Escribe o pega una lista de conceptos (separados por comas o saltos de línea) para autogenerar las tarjetas.
             </p>
@@ -393,25 +393,25 @@ export default function AddCard() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '1.5rem' }}>
           
-          <div className="card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {/* Front */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
-                <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>FRENTE (PREGUNTA)</label>
+                <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Frente</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn btn-secondary btn-sm" onClick={handleDefinition} disabled={lookingUpDef}>
+                    <button className="pill" onClick={handleDefinition} disabled={lookingUpDef}>
                       {lookingUpDef ? '...' : '✨ Def. IA'}
                     </button>
-                    <button className="btn btn-secondary btn-sm" onClick={handleAutoImage} disabled={lookingUpImage}>
+                    <button className="pill" onClick={handleAutoImage} disabled={lookingUpImage}>
                       {lookingUpImage ? '...' : '📸 Foto Auto'}
                     </button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
+                    <button className="pill" onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
+                    <button className="pill" onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
                   </div>
               </div>
               <div 
                 className="form-input" 
-                style={{ minHeight: '120px', padding: '12px', fontSize: '1rem', lineHeight: 1.5, background: 'var(--bg-card)', borderRadius: '12px' }}
+                style={{ minHeight: "120px" }}
                 contentEditable 
                 ref={frontContentRef}
                 onInput={handleFieldChange('front')} 
@@ -422,15 +422,15 @@ export default function AddCard() {
             {/* Back */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
-                <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>DORSO (RESPUESTA)</label>
+                <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dorso</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
+                    <button className="pill" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
+                    <button className="pill" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
                   </div>
               </div>
               <div 
                 className="form-input" 
-                style={{ minHeight: '120px', padding: '12px', fontSize: '1rem', lineHeight: 1.5, background: 'var(--bg-card)', borderRadius: '12px' }}
+                style={{ minHeight: "120px" }}
                 contentEditable 
                 ref={backContentRef}
                 onInput={handleFieldChange('back')} 

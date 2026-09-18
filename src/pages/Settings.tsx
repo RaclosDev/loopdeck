@@ -64,7 +64,7 @@ export default function Settings() {
       </div>
 
       {activeTab === 'study' && (
-        <div className="card" style={{ padding: '1.5rem', background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+        <div className="card" style={{ background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
           <h3 className="card-title" style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Opciones de Estudio</h3>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -85,7 +85,7 @@ export default function Settings() {
       )}
 
       {activeTab === 'appearance' && (
-        <div className="card" style={{ padding: '1.5rem', background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+        <div className="card" style={{ background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
           <h3 className="card-title" style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Apariencia</h3>
 
           <div style={{ marginBottom: '2rem' }}>
@@ -144,7 +144,7 @@ export default function Settings() {
       )}
 
       {activeTab === 'account' && (
-        <div className="card" style={{ padding: '1.5rem', background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+        <div className="card" style={{ background: 'var(--bg-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
           <h3 className="card-title" style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Tu Cuenta</h3>
           
           {user && (

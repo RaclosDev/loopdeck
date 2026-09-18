@@ -45,7 +45,7 @@ export default function Templates() {
           <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>Cargando plantillas...</p>
         </div>
       ) : templates.length === 0 ? (
-        <div className="card" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+        <div className="card" style={{ textAlign: 'center', borderStyle: 'dashed' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📦</div>
           <h3 style={{ margin: '0 0 0.5rem 0' }}>No hay plantillas disponibles</h3>
           <p style={{ color: 'var(--text-muted)', margin: 0 }}>Vuelve más tarde para ver nuevos mazos.</p>

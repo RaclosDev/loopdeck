@@ -94,7 +94,7 @@ export default function GlobalStudy() {
         })}
 
         {decks.length === 0 && (
-          <div className="card" style={{ padding: '3rem', textAlign: 'center', borderStyle: 'dashed' }}>
+          <div className="card" style={{ textAlign: 'center', borderStyle: 'dashed' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem', opacity: 0.5 }}>📭</div>
             <h3 className="card-title" style={{ margin: '0 0 0.5rem 0' }}>¡No tienes mazos aún!</h3>
             <p style={{ color: 'var(--text-muted)', margin: '0 0 1.5rem 0' }}>Ve a Mis Mazos para crear tu primer mazo de tarjetas.</p>

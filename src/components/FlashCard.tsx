@@ -18,13 +18,13 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
 
   return (
     <div 
-      className={`relative w-full max-w-lg mx-auto flex-1 min-h-[400px] max-h-[65vh] flex flex-col ${!isFlipped ? 'cursor-pointer group' : ''}`}
+      style={{ position: "relative", width: "100%", maxWidth: "32rem", margin: "0 auto", flex: 1, minHeight: "400px", maxHeight: "65vh", display: "flex", flexDirection: "column", cursor: !isFlipped ? "pointer" : "default" }}
       onClick={() => !isFlipped && onFlip()}
       style={{ perspective: '1200px' }}
     >
       {/* Front */}
       <div 
-        className="absolute inset-0 flex flex-col p-6 sm:p-10 bg-card shadow-2xl border border-white/10"
+        className="card" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "2rem", boxShadow: "0 10px 40px rgba(0,0,0,0.5)", border: "1px solid var(--border-medium)", borderRadius: "var(--radius-xl)" }}
         style={{
           borderRadius: '28px',
           borderTop: `5px solid ${getStateColor()}`,
@@ -34,24 +34,24 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
           zIndex: isFlipped ? 0 : 1,
         }}
       >
-        <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto min-h-0 w-full text-center" style={{ scrollbarWidth: 'none' }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflowY: "auto", minHeight: 0, width: "100%", textAlign: "center", scrollbarWidth: "none" }} style={{ scrollbarWidth: 'none' }}>
             <div 
-              className="text-2xl sm:text-3xl leading-relaxed text-foreground/90 font-medium" 
+              style={{ fontSize: "1.75rem", lineHeight: 1.6, color: "var(--text-primary)", fontWeight: 500 }} 
               dangerouslySetInnerHTML={{ __html: front || '' }} 
             />
         </div>
         
         {!isFlipped && (
-          <div className="mt-4 pt-4 shrink-0 flex justify-center items-center gap-2 text-sm text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity border-t border-white/5">
+          <div style={{ marginTop: "1rem", paddingTop: "1rem", flexShrink: 0, display: "flex", justifyContent: "center", alignItems: "center", gap: "0.5rem", fontSize: "0.85rem", color: "var(--text-muted)", borderTop: "1px solid var(--border-subtle)", opacity: !isFlipped ? 0.7 : 1 }}>
             <RotateCcw size={18} />
-            <span className="font-medium tracking-wide">Toca para voltear</span>
+            <span style={{ fontWeight: 500, letterSpacing: "0.05em" }}>Toca para voltear</span>
           </div>
         )}
       </div>
 
       {/* Back */}
       <div 
-        className="absolute inset-0 flex flex-col p-6 sm:p-10 bg-card shadow-2xl border border-white/10"
+        className="card" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "2rem", boxShadow: "0 10px 40px rgba(0,0,0,0.5)", border: "1px solid var(--border-medium)", borderRadius: "var(--radius-xl)" }}
         style={{
           borderRadius: '28px',
           borderTop: `5px solid ${getStateColor()}`,
@@ -61,9 +61,9 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
           zIndex: isFlipped ? 1 : 0,
         }}
       >
-        <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto min-h-0 w-full text-center" style={{ scrollbarWidth: 'none' }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflowY: "auto", minHeight: 0, width: "100%", textAlign: "center", scrollbarWidth: "none" }} style={{ scrollbarWidth: 'none' }}>
             <div 
-              className="text-xl sm:text-2xl leading-relaxed text-foreground/90" 
+              style={{ fontSize: "1.25rem", lineHeight: 1.6, color: "var(--text-primary)" }} 
               dangerouslySetInnerHTML={{ __html: back || '' }} 
             />
         </div>
