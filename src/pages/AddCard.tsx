@@ -39,6 +39,8 @@ export default function AddCard() {
   const [massInput, setMassInput] = useState<string>('');
   const [saving, setSaving] = useState<boolean>(false);
   const [massGenerating, setMassGenerating] = useState<boolean>(false);
+  const [showDeckSelector, setShowDeckSelector] = useState(false);
+  const [showTypeSelector, setShowTypeSelector] = useState(false);
   
   const [lookingUpDef, setLookingUpDef] = useState<boolean>(false);
   const [lookingUpImage, setLookingUpImage] = useState<boolean>(false);
@@ -329,29 +331,30 @@ export default function AddCard() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
-            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>MAZO</label>
-            <select 
-              className="form-input" 
-              value={selectedDeckId} 
-              onChange={e => setSelectedDeckId(e.target.value)}
-              style={{ width: '100%', height: '42px' }}
-            >
-              <option value="">Seleccionar mazo...</option>
-              {decks.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
+            <label className="form-label" style={{ margin: 0, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>MAZO</label>
+            <button 
+                type="button"
+                className="form-input" 
+                onClick={() => setShowDeckSelector(true)}
+                style={{ width: '100%', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-input)' }}
+              >
+                <span>{decks.find(d => d.id === selectedDeckId)?.name || 'Seleccionar mazo...'}</span>
+                <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>▼</span>
+              </button>
           </div>
           
           {addMode === 'single' && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>TIPO DE NOTA</label>
-              <select 
-                className="form-input" 
-                value={selectedType} 
-                onChange={e => { setSelectedType(e.target.value); clearEditor(); }}
-                style={{ width: '100%', height: '42px' }}
-              >
-                {NOTE_TYPES.map(t => <option key={t.id} value={t.id}>{t.name} — {t.description}</option>)}
-              </select>
+              <label className="form-label" style={{ margin: 0, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>TIPO DE NOTA</label>
+              <button 
+                  type="button"
+                  className="form-input" 
+                  onClick={() => setShowTypeSelector(true)}
+                  style={{ width: '100%', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-input)' }}
+                >
+                  <span>{NOTE_TYPES.find(t => t.id === selectedType)?.name || 'Básica'}</span>
+                  <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>▼</span>
+                </button>
             </div>
           )}
         </div>
@@ -359,15 +362,12 @@ export default function AddCard() {
 
       {addMode === 'mass' ? (
         <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-          <div style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
-            <h3 style={{ margin: '0 0 8px 0', color: '#60a5fa' }}>✨ Generación Mágica con Inteligencia Artificial</h3>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-dim)' }}>
-              Escribe o pega una lista de conceptos, palabras clave o frases (separados por comas o saltos de línea). La IA se encargará de buscar una definición súper breve para cada uno y creará todas las tarjetas de golpe.
+          <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+              Escribe o pega una lista de conceptos (separados por comas o saltos de línea) para autogenerar las tarjetas.
             </p>
-          </div>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-muted)' }}>Lista de Conceptos</label>
+            <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Lista de Conceptos</label>
             <textarea
               className="form-input"
               style={{ minHeight: '200px', padding: '12px', resize: 'vertical' }}
@@ -393,7 +393,7 @@ export default function AddCard() {
             {/* Front */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
-                <label style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>FRENTE (PREGUNTA)</label>
+                <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>FRENTE (PREGUNTA)</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn btn-secondary btn-sm" onClick={handleDefinition} disabled={lookingUpDef}>
                       {lookingUpDef ? '...' : '✨ Def. IA'}
@@ -418,7 +418,7 @@ export default function AddCard() {
             {/* Back */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
-                <label style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>DORSO (RESPUESTA)</label>
+                <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>DORSO (RESPUESTA)</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button className="btn btn-secondary btn-sm" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
                     <button className="btn btn-secondary btn-sm" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
@@ -479,6 +479,50 @@ export default function AddCard() {
             </div>
           </div>
           
+        </div>
+      )}
+
+
+      {showDeckSelector && (
+        <div className="bottom-sheet-overlay" onClick={() => setShowDeckSelector(false)}>
+          <div className="bottom-sheet-content" onClick={e => e.stopPropagation()}>
+            <div className="bottom-sheet-drag-handle" />
+            <h3 className="bottom-sheet-title">Seleccionar Mazo</h3>
+            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+              {decks.map(d => (
+                <button
+                  key={d.id}
+                  className={`bottom-sheet-item ${selectedDeckId === d.id ? 'active' : ''}`}
+                  onClick={() => { setSelectedDeckId(d.id); setShowDeckSelector(false); }}
+                >
+                  <span>{d.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showTypeSelector && (
+        <div className="bottom-sheet-overlay" onClick={() => setShowTypeSelector(false)}>
+          <div className="bottom-sheet-content" onClick={e => e.stopPropagation()}>
+            <div className="bottom-sheet-drag-handle" />
+            <h3 className="bottom-sheet-title">Tipo de Nota</h3>
+            <div>
+              {NOTE_TYPES.map(t => (
+                <button
+                  key={t.id}
+                  className={`bottom-sheet-item ${selectedType === t.id ? 'active' : ''}`}
+                  onClick={() => { setSelectedType(t.id); clearEditor(); setShowTypeSelector(false); }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <span>{t.name}</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t.description}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

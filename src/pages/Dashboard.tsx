@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null);
 
   const [deleteModalDeck, setDeleteModalDeck] = useState<{ id: string, name: string } | null>(null);
+  const [activeMoreMenu, setActiveMoreMenu] = useState<string | null>(null);
   const [editModalDeck, setEditModalDeck] = useState<{ id: string, name: string } | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [modalInputValue, setModalInputValue] = useState('');
@@ -104,19 +105,19 @@ export default function Dashboard() {
     <div className="fade-in pb-12">
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (
         <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
-          <div className="kpi-card" style={{ padding: '1.25rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
             <div style={{ color: 'var(--accent-primary)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalNew}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nuevas</div>
           </div>
-          <div className="kpi-card" style={{ padding: '1.25rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
             <div style={{ color: '#F59E0B', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalLearning}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Aprend.</div>
           </div>
-          <div className="kpi-card" style={{ padding: '1.25rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
             <div style={{ color: '#10B981', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalReview}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Revisión</div>
           </div>
-          <div className="kpi-card" style={{ padding: '1.25rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
             <div style={{ color: 'var(--text-primary)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalNew + totalLearning + totalReview}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</div>
           </div>
@@ -134,12 +135,28 @@ export default function Dashboard() {
             <div key={deck.id} className="card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                  <h2 className="card-title" style={{ margin: 0, fontSize: '1.25rem' }}>{deck.name}</h2>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button className="icon-btn" onClick={(e) => { e.stopPropagation(); setModalInputValue(deck.name); setEditModalDeck(deck); }}>✏️</button>
-                    <button className="icon-btn" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setDeleteModalDeck(deck); }}>🗑️</button>
+                    <h2 className="card-title" style={{ margin: 0, fontSize: '1.25rem' }}>{deck.name}</h2>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="icon-btn" style={{ opacity: 0.7 }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(deck.id); }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                  
+                  {activeMoreMenu === deck.id && (
+                    <div className="bottom-sheet-overlay" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); }}>
+                      <div className="bottom-sheet-content" onClick={e => e.stopPropagation()}>
+                        <div className="bottom-sheet-drag-handle" />
+                        <h3 className="bottom-sheet-title">Opciones de Mazo</h3>
+                        <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
+                          <span>Editar nombre</span>
+                        </button>
+                        <button className="bottom-sheet-item" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
+                          <span>Eliminar mazo</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
                 <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
