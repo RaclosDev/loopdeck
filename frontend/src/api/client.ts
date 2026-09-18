@@ -74,11 +74,13 @@ api.interceptors.response.use(
         
         processQueue(null, newToken);
         return api(originalRequest);
-      } catch (err) {
+      } catch (err: any) {
         processQueue(err, null);
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/';
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          localStorage.removeItem('jwt_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/';
+        }
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
