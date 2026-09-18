@@ -1,6 +1,6 @@
-# FlashForge (LoopDeck)
+# LoopDeck (formerly FlashForge)
 
-**A modern, spaced-repetition flashcard application designed to optimize long-term memory.**
+**A modern, spaced-repetition flashcard application designed to optimize long-term memory, built on the Ascension Tracker Platform.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-FlashForge (internally known as LoopDeck) is a powerful study tool inspired by Anki. It uses the proven SM-2 (Spaced Repetition) algorithm to schedule flashcards, ensuring you review information exactly when you are about to forget it. Built with a stunning dark-mode glassmorphism UI.
+LoopDeck is a powerful study tool inspired by Anki. It uses the proven SM-2 (Spaced Repetition) algorithm to schedule flashcards, ensuring you review information exactly when you are about to forget it. It has been fully migrated to the **Ascension Tracker Platform Architecture**, sharing the same UI kit, backend standards, and Docker deployment workflows.
 
 ## Features
 
@@ -17,60 +17,58 @@ FlashForge (internally known as LoopDeck) is a powerful study tool inspired by A
 - **Multiple Note Types** — Supports Basic, Basic (and reversed card), and Cloze deletion types
 - **Immersive Study Session** — 3D card flips and full keyboard shortcut support (`Space` to flip, `1-4` for rating)
 - **Insights & Stats** — Track your learning progress, retention rates, and daily study streaks
-- **Cloud Sync** — Secure JWT-based authentication allows you to securely save and access your decks
+- **Ascension Standard Auth** — Secure OAuth2 Resource Server implementation, Refresh Tokens, and Google Login
 - **PWA Ready** — Installable on mobile for an app-like studying experience
 
 ## Tech Stack
 
-**Frontend**
+**Frontend (Ascension Stack)**
 - React 19 + Vite
-- Zustand
+- Tailwind CSS
+- Radix UI (Dialogs, UI Primitives)
+- Zustand (State Management)
 - React Router v6
-- Custom CSS (Dark Theme, Glassmorphism)
 
-**Backend**
-- Java 17 + Spring Boot 3.3
-- Spring Security + JWT
-- PostgreSQL (Production) / H2 (Development)
-- Hibernate / JPA
-- Flyway
+**Backend (Ascension Stack)**
+- Java 21
+- Spring Boot 3.3.2
+- Spring Security (OAuth2 Resource Server)
+- PostgreSQL 16
+- Flyway Migrations
+- Google API Client (for Google Auth)
 
-## Getting Started
+## Running the Application
 
 ### Prerequisites
-- Node.js 18+ and Java 17 for local development
+- Docker & Docker Compose
 
-### Quick Start
+### Start the Application (Production)
 
-**1. Backend**
-The backend uses an in-memory H2 database for local development.
+1. Rename `.env.example` to `.env` and fill in your secrets.
+2. Run the application:
 ```bash
-git clone https://github.com/RaclosDev/loopdeck.git
-cd loopdeck/backend
+docker-compose up -d --build
+```
+
+The frontend will be available at `http://localhost:3000` and the backend at `http://localhost:8080`.
+
+### Local Development
+
+**Backend:**
+```bash
+cd backend
 ./mvnw spring-boot:run
 ```
 
-**2. Frontend**
+**Frontend:**
 ```bash
-cd ../frontend
-npm install
+cd frontend
+npm ci
 npm run dev
 ```
 
-- Frontend → [http://localhost:5173](http://localhost:5173)
-- Backend → [http://localhost:8080/api](http://localhost:8080/api)
+## Architecture Notes
 
-## Project Structure
-
-```text
-loopdeck/
-├── frontend/             # React + Vite application
-├── backend/              # Spring Boot API
-└── README.md
-```
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-Developed by [RaclosDev](https://github.com/RaclosDev)
+LoopDeck is an independent application but strictly adheres to the design standards of **Ascension Tracker**.
+- The backend uses standard explicit getters and setters instead of Lombok for compatibility.
+- The authentication payload (`sub`) strictly maintains the `userId` to be compatible with existing Anki-style repositories and routes.
