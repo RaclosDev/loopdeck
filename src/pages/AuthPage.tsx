@@ -17,7 +17,7 @@ export default function AuthPage() {
   };
 
   useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL + '/auth/config')
+    fetch((import.meta.env.VITE_API_URL || '/api') + '/auth/config')
       .then(res => res.json())
       .then(data => {
         if (data.googleClientId) {
