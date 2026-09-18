@@ -117,19 +117,19 @@ export default function Dashboard() {
     <div className="fade-in pb-12">
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (
         <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ color: 'var(--accent-primary)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalNew}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nuevas</div>
           </div>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ color: '#F59E0B', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalLearning}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Aprend.</div>
           </div>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ color: '#10B981', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalReview}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Revisión</div>
           </div>
-          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem' }}>
+          <div className="kpi-card" style={{ padding: '0.75rem 0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ color: 'var(--text-primary)', fontSize: '1.75rem', fontWeight: 800, lineHeight: 1 }}>{totalNew + totalLearning + totalReview}</div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</div>
           </div>

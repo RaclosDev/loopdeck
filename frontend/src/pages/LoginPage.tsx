@@ -111,10 +111,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
           />
         </div>
         
-        <div className="brand-logo-text" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>
-          <span className="brand-logo-loop">Loop</span>
-          <span className="brand-logo-deck">Deck</span>
-        </div>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 0.5rem 0', letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>LOOPDECK</h1>
 
         <p style={{ 
           color: 'var(--text-secondary)', 

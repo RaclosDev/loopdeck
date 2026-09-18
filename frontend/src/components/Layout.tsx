@@ -105,10 +105,7 @@ function Layout() {
             )}
           </div>
           <div className="mobile-top-logo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="brand-logo-text" style={{ fontSize: '1.5rem' }}>
-              <span className="brand-logo-loop">Loop</span>
-              <span className="brand-logo-deck">Deck</span>
-            </div>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>LOOPDECK</h1>
           </div>
           <div style={{ width: '48px' }} />
         </header>
@@ -120,10 +117,7 @@ function Layout() {
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
             <div className="sidebar-brand-container" style={{ display: 'flex', alignItems: 'center' }}>
-              <div className="brand-logo-text" style={{ fontSize: '1.75rem' }}>
-                <span className="brand-logo-loop">Loop</span>
-                <span className="brand-logo-deck">Deck</span>
-              </div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: 0, letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>LOOPDECK</h1>
             </div>
             {user && (
               <div style={{ color: '#ff7b00', fontWeight: 'bold', marginTop: 12 }}>🔥 {user.currentStreak || 0}</div>

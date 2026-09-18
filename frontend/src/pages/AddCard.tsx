@@ -397,16 +397,16 @@ export default function AddCard() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Frente</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="pill" onClick={handleDefinition} disabled={lookingUpDef}>
-                      {lookingUpDef ? '...' : '✨ Def. IA'}
-                    </button>
-                    <button className="pill" onClick={handleAutoImage} disabled={lookingUpImage}>
-                      {lookingUpImage ? '...' : '📸 Foto Auto'}
-                    </button>
-                    <button className="pill" onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
-                    <button className="pill" onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
-                  </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={handleDefinition} disabled={lookingUpDef}>
+                    {lookingUpDef ? '...' : '✨ Def. IA'}
+                  </button>
+                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={handleAutoImage} disabled={lookingUpImage}>
+                    {lookingUpImage ? '...' : '📸 Foto Auto'}
+                  </button>
+                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleGalleryPick('front')} title="Galería">🖼️ Galería</button>
+                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
+                </div>
               </div>
               <div 
                 className="form-input" 
@@ -422,10 +422,10 @@ export default function AddCard() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dorso</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="pill" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
-                    <button className="pill" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
-                  </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleGalleryPick('back')} title="Galería">🖼️ Galería</button>
+                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
+                </div>
               </div>
               <div 
                 className="form-input" 

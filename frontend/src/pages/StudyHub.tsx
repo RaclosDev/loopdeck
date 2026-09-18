@@ -90,30 +90,42 @@ function StudyHub() {
 
   return (
     <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
-      <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+      <div className="card" style={{ marginBottom: '2rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.03, pointerEvents: 'none' }}>📚</div>
+        
         <div>
-          <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '8px' }}>
-            ← Volver
+          <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)' }}>
+            ← Volver a Mazos
           </button>
-          <h1 style={{ margin: 0, fontSize: '1.8rem', color: 'var(--text-main)' }}>{deck.name}</h1>
-          <p style={{ margin: '4px 0 0 0', color: 'var(--text-dim)' }}>
-            {stats.total} notas totales · <span style={{ color: stats.due > 0 ? 'var(--accent-color)' : 'inherit' }}>{stats.due} tarjetas pendientes</span>
-          </p>
-          <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
+          
+          <h1 style={{ margin: 0, fontSize: '2rem', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '-0.02em' }}>
+            {deck.name}
+          </h1>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+            <span style={{ background: 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, border: '1px solid var(--border-medium)' }}>
+              📝 {stats.total} notas totales
+            </span>
+            <span style={{ background: stats.due > 0 ? 'rgba(0, 133, 255, 0.15)' : 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: stats.due > 0 ? 'var(--accent-primary)' : 'var(--text-secondary)', fontWeight: 600, border: stats.due > 0 ? '1px solid rgba(0, 133, 255, 0.3)' : '1px solid var(--border-medium)' }}>
+              🎯 {stats.due} tarjetas pendientes
+            </span>
+          </div>
+
+          <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
             {hasDocument ? (
               <button 
-                className="icon-btn" 
+                className="btn" 
                 onClick={() => setShowDocModal(true)}
-                style={{ padding: '6px 14px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)' }}
+                style={{ padding: '8px 16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
                 📄 Ver Documento Original
               </button>
             ) : (
               <button 
-                className="icon-btn" 
+                className="btn btn-secondary" 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingDoc}
-                style={{ padding: '6px 14px' }}
+                style={{ padding: '8px 16px', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
                 {uploadingDoc ? 'Subiendo...' : '📎 Vincular Apuntes (DOCX)'}
               </button>
