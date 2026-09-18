@@ -18,7 +18,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
 
   return (
     <div 
-      style={{ perspective: '1200px', position: "relative", width: "100%", maxWidth: "32rem", margin: "0 auto", flex: 1, minHeight: "400px", maxHeight: "65vh", display: "flex", flexDirection: "column", cursor: !isFlipped ? "pointer" : "default" }}
+      style={{ perspective: '1200px', position: "relative", width: "100%", maxWidth: "32rem", margin: "0 auto", flex: 1, display: "flex", flexDirection: "column", cursor: !isFlipped ? "pointer" : "default" }}
       onClick={() => !isFlipped && onFlip()}
     >
       {/* Front */}
