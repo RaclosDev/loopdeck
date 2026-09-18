@@ -143,6 +143,28 @@ public class CardService {
         return card;
     }
 
+    @Transactional
+    public Card restoreCard(String userId, String cardId, Card oldState) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
+
+        Note note = noteRepository.findById(card.getNoteId())
+                .orElseThrow(() -> new IllegalArgumentException("Note not found"));
+        deckRepository.findByIdAndUserId(note.getDeckId(), userId)
+                .orElseThrow(() -> new IllegalArgumentException("Not authorized"));
+
+        card.setState(oldState.getState());
+        card.setDue(oldState.getDue());
+        card.setIntervalDays(oldState.getIntervalDays());
+        card.setEaseFactor(oldState.getEaseFactor());
+        card.setLearningStep(oldState.getLearningStep());
+        card.setRepetitions(oldState.getRepetitions());
+        card.setLapses(oldState.getLapses());
+        card.setLeech(oldState.isLeech());
+
+        return cardRepository.save(card);
+    }
+
     // ── SM-2 Algorithm ────────────────────────────────────────────────────
 
     private static final int[] LEARNING_STEPS_MINUTES = {1, 10};

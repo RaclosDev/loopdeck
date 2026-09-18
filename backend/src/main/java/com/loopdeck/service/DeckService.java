@@ -54,4 +54,28 @@ public class DeckService {
         noteRepository.deleteByDeckId(deckId);
         deckRepository.delete(deck);
     }
+
+    public record DeckStats(String deckId, long newCount, long learningCount, long reviewCount) {}
+
+    public java.util.Map<String, DeckStats> getDeckStats(String userId) {
+        List<Deck> decks = getDecks(userId);
+        if (decks.isEmpty()) return java.util.Collections.emptyMap();
+
+        List<String> deckIds = decks.stream().map(Deck::getId).toList();
+        List<CardRepository.DeckStatsProjection> statsList = cardRepository.getStatsForDecks(deckIds, java.time.Instant.now());
+
+        java.util.Map<String, DeckStats> result = new java.util.HashMap<>();
+        for (Deck d : decks) {
+            result.put(d.getId(), new DeckStats(d.getId(), 0, 0, 0));
+        }
+
+        for (CardRepository.DeckStatsProjection s : statsList) {
+            result.put(s.getDeckId(), new DeckStats(s.getDeckId(), 
+                s.getNewCount() != null ? s.getNewCount() : 0L, 
+                s.getLearningCount() != null ? s.getLearningCount() : 0L, 
+                s.getReviewCount() != null ? s.getReviewCount() : 0L));
+        }
+
+        return result;
+    }
 }

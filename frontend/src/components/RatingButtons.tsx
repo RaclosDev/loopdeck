@@ -36,26 +36,26 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
               onRate(btn.rating);
             }}
             className={`
-              relative flex flex-col items-center justify-center py-4 sm:py-5 px-2 rounded-[20px] shadow-sm
+              relative flex flex-col items-center justify-center py-6 sm:py-8 px-2 rounded-[24px] shadow-sm
               bg-card border ${style.border} ${style.bgHover}
               transition-all duration-200 cursor-pointer
               disabled:opacity-50 disabled:cursor-not-allowed
-              group overflow-hidden
+              group overflow-hidden active:scale-95
             `}
           >
             {/* Interval */}
-            <div className={`flex items-center gap-1 text-xs opacity-80 mb-1.5 font-medium ${style.color}`}>
-              <Clock size={12} />
+            <div className={`flex items-center gap-1.5 text-sm sm:text-base opacity-80 mb-2 font-medium ${style.color}`}>
+              <Clock size={14} />
               <span>{btn.interval || '...'}</span>
             </div>
             
             {/* Label */}
-            <span className={`font-bold text-base sm:text-lg ${style.color}`}>
+            <span className={`font-bold text-lg sm:text-2xl ${style.color}`}>
               {btn.label}
             </span>
 
             {/* Keyboard shortcut hint (hidden on very small screens) */}
-            <span className="hidden sm:flex absolute top-1 right-1 items-center justify-center w-4 h-4 rounded text-[10px] font-mono text-muted-foreground bg-[rgba(255,255,255,0.05)] border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="hidden sm:flex absolute top-2 right-2 items-center justify-center w-5 h-5 rounded text-xs font-mono text-muted-foreground bg-[rgba(255,255,255,0.05)] border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
               {btn.rating}
             </span>
           </button>

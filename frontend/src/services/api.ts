@@ -60,6 +60,10 @@ export const decksApi = {
   getDocumentUrl: (id: string): string => {
     const token = localStorage.getItem('jwt_token');
     return `${API_BASE}/decks/${id}/document?token=${token}`;
+  },
+  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number }>> => {
+    const res = await api.get('/decks/stats');
+    return res.data;
   }
 };
 
@@ -93,6 +97,10 @@ export const studyApi = {
     const res = await api.post(`/cards/${cardId}/review`, data);
     return res.data;
   },
+  restoreCard: async (cardId: string, cardState: Card): Promise<{ card: Card }> => {
+    const res = await api.post(`/cards/${cardId}/restore`, cardState);
+    return res.data;
+  }
 };
 
 export const templatesApi = {

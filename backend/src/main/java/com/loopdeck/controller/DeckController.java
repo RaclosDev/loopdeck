@@ -34,6 +34,11 @@ public class DeckController {
         return ResponseEntity.ok(deckService.getDecks(auth.getName()));
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<java.util.Map<String, DeckService.DeckStats>> getStats(Authentication auth) {
+        return ResponseEntity.ok(deckService.getDeckStats(auth.getName()));
+    }
+
     @PostMapping
     public ResponseEntity<Deck> create(Authentication auth, @Valid @RequestBody CreateBody body) {
         Deck deck = deckService.createDeck(auth.getName(),

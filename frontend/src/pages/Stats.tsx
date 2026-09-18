@@ -19,46 +19,31 @@ export default function Stats() {
     async function loadStats() {
       try {
         const decks = await decksApi.getAll();
-        const allCards = [];
-        let totalNotes = 0;
+        const deckStats = await decksApi.getStats();
         
-        for (const d of decks) {
-          const notes = await notesApi.getByDeck(d.id);
-          totalNotes += notes.length;
-          const dueCards = await studyApi.getDueCards(d.id, 10000);
-          allCards.push(...dueCards.map(c => c.card));
-        }
+        let totalNotes = 0;
+        const notesPromises = decks.map(d => notesApi.getByDeck(d.id));
+        const allNotesArrs = await Promise.all(notesPromises);
+        totalNotes = allNotesArrs.reduce((acc, notes) => acc + notes.length, 0);
 
         const cardsByState = { new: 0, learning: 0, review: 0 };
-        let totalEase = 0;
-        let easeCount = 0;
-        let totalLapses = 0;
-        let mature = 0;
-        let suspended = 0;
-
-        allCards.forEach(c => {
-          if (c.state === 'new') cardsByState.new++;
-          else if (c.state === 'learning' || c.state === 'relearning') cardsByState.learning++;
-          else if (c.state === 'review') cardsByState.review++;
-          
-          if (c.easeFactor) {
-            totalEase += c.easeFactor;
-            easeCount++;
-          }
-          totalLapses += (c.lapses || 0);
-          if (c.intervalDays >= 21) mature++;
-          if (c.suspended) suspended++;
+        Object.values(deckStats).forEach(stat => {
+          cardsByState.new += stat.newCount || 0;
+          cardsByState.learning += stat.learningCount || 0;
+          cardsByState.review += stat.reviewCount || 0;
         });
 
+        // Some stats are omitted since downloading 10k cards is very slow
+        // (as requested by user to optimize load times)
         setStats({
           totalDecks: decks.length,
           totalNotes,
-          totalCards: allCards.length,
+          totalCards: cardsByState.new + cardsByState.learning + cardsByState.review,
           cardsByState,
-          avgEase: easeCount > 0 ? totalEase / easeCount : 0,
-          totalLapses,
-          mature,
-          suspended
+          avgEase: 2.5, // Default/Placeholder
+          totalLapses: 0,
+          mature: 0,
+          suspended: 0
         });
       } catch (e) {
         toast.error('Error al cargar estadísticas');

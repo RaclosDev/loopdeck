@@ -107,4 +107,12 @@ public class CardController {
             "card", card
         ));
     }
+
+    @PostMapping("/cards/{cardId}/restore")
+    public ResponseEntity<Map<String, Object>> restore(Authentication auth,
+                                       @PathVariable String cardId,
+                                       @RequestBody Card body) {
+        Card card = cardService.restoreCard(auth.getName(), cardId, body);
+        return ResponseEntity.ok(Map.of("card", card));
+    }
 }

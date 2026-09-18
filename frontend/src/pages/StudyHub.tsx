@@ -30,11 +30,16 @@ function StudyHub() {
         setDeck(d);
 
         // Fetch counts (we just need a rough idea to show recommendations)
-        const dueCards = await studyApi.getDueCards(deckId!, 1000);
-        const allNotes = await notesApi.getByDeck(deckId!);
+        const [allNotes, allStats] = await Promise.all([
+          notesApi.getByDeck(deckId!),
+          decksApi.getStats()
+        ]);
+        
+        const myStats = allStats[deckId!] || { newCount: 0, learningCount: 0, reviewCount: 0 };
+        const dueCount = myStats.newCount + myStats.learningCount + myStats.reviewCount;
         
         setStats({
-          due: dueCards.length,
+          due: dueCount,
           total: allNotes.length
         });
 

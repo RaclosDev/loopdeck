@@ -32,26 +32,26 @@ export default function Dashboard() {
          return;
       }
       setDecks(data);
-      const counts: Record<string, {new: number, learning: number, review: number}> = {};
       
-      for (const d of data) {
-        try {
-          const dueCards = await studyApi.getDueCards(d.id, 200);
-          let n = 0, l = 0, r = 0;
-          if (Array.isArray(dueCards)) {
-            for (const c of dueCards) {
-              if (c.card.state === 'new') n++;
-              else if (c.card.state === 'learning' || c.card.state === 'relearning') l++;
-              else if (c.card.state === 'review') r++;
-            }
+      try {
+        const stats = await decksApi.getStats();
+        const mappedCounts: Record<string, {new: number, learning: number, review: number}> = {};
+        
+        for (const d of data) {
+          if (stats && stats[d.id]) {
+            mappedCounts[d.id] = {
+              new: stats[d.id].newCount || 0,
+              learning: stats[d.id].learningCount || 0,
+              review: stats[d.id].reviewCount || 0
+            };
+          } else {
+            mappedCounts[d.id] = { new: 0, learning: 0, review: 0 };
           }
-          counts[d.id] = { new: n, learning: l, review: r };
-        } catch (err) {
-          console.error("Error counts for", d.id, err);
-          counts[d.id] = { new: 0, learning: 0, review: 0 };
         }
+        setDeckCounts(mappedCounts);
+      } catch (err) {
+        console.error("Error cargando stats globales", err);
       }
-      setDeckCounts(counts);
     } catch (e) {
       setError('Error al cargar mazos');
     } finally {

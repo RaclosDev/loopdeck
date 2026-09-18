@@ -207,25 +207,32 @@ export default function Study() {
     }
   };
 
-  const handleUndo = () => {
+  const handleUndo = async () => {
     if (undoStack.length === 0) return;
     const last = undoStack[undoStack.length - 1];
-    const newQueue = [...queue];
-    newQueue.splice(currentIndex, 0, last.pair);
-    setQueue(newQueue);
-    setIsFlipped(false);
-    setUndoStack(prev => prev.slice(0, -1));
-    setSessionStats(prev => ({ ...prev, reviewed: Math.max(0, prev.reviewed - 1) }));
-    setCounts(prev => {
-      const n = { ...prev };
-      const s = last.pair.card.state;
-      if (s === 'new') n.new++;
-      else if (s === 'learning' || s === 'relearning') n.learning++;
-      else if (s === 'review') n.review++;
-      return n;
-    });
-    setIsComplete(false);
-    toast('Deshecho');
+    
+    try {
+      await studyApi.restoreCard(last.pair.card.id, last.pair.card);
+      
+      const newQueue = [...queue];
+      newQueue.splice(currentIndex, 0, last.pair);
+      setQueue(newQueue);
+      setIsFlipped(false);
+      setUndoStack(prev => prev.slice(0, -1));
+      setSessionStats(prev => ({ ...prev, reviewed: Math.max(0, prev.reviewed - 1) }));
+      setCounts(prev => {
+        const n = { ...prev };
+        const s = last.pair.card.state;
+        if (s === 'new') n.new++;
+        else if (s === 'learning' || s === 'relearning') n.learning++;
+        else if (s === 'review') n.review++;
+        return n;
+      });
+      setIsComplete(false);
+      toast('Deshecho');
+    } catch (e) {
+      toast.error('Error al deshacer');
+    }
   };
 
   // Keyboard shortcuts
