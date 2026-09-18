@@ -1,23 +1,34 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { registerSW } from 'virtual:pwa-register'
 
 import './index.css'
 import App from './App.jsx'
 
-if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => {
-      console.warn('Service worker registration failed', err);
-    });
-
-    let refreshing = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
-        refreshing = true;
-        window.location.reload();
+// Force clean old caches aggressively
+if (window.caches) {
+  caches.keys().then((names) => {
+    for (let name of names) {
+      // Solo borrar cachés de workbox antiguas si es necesario, 
+      // pero para estar seguros borramos todo lo que parezca de vite-pwa
+      if (name.includes('workbox') || name.includes('vite')) {
+        caches.delete(name);
       }
-    });
+    }
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  // Use vite-plugin-pwa's virtual register to handle auto-updates properly
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      // Force refresh when new content is available
+      updateSW(true);
+    },
+    onOfflineReady() {
+      console.log('App ready to work offline');
+    },
   });
 }
 
