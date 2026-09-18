@@ -1,3 +1,4 @@
+import useAuthStore from '../store/useAuthStore';
 /**
  * FlashForge — Definition Lookup Service
  * Uses Google Gemini AI via Backend with fallback to Wikipedia API.
@@ -18,7 +19,12 @@ export async function lookupDefinition(word: string) {
 
   try {
     // 1. Try fetching from our Spring Boot Backend AI Endpoint
-    const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`);
+    const token = useAuthStore.getState().token;
+    const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`, {
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    });
     if (aiRes.ok) {
       const data = await aiRes.json();
       if (data && data.definition && !data.definition.startsWith('Error:')) {
@@ -68,7 +74,12 @@ export async function lookupImage(word: string) {
   const clean = word.trim().toLowerCase();
 
   try {
-    const res = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(clean)}`);
+    const token = useAuthStore.getState().token;
+    const res = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(clean)}`, {
+      headers: {
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+      }
+    });
     if (res.ok) {
       const data = await res.json();
       if (data && data.imageUrl) {
