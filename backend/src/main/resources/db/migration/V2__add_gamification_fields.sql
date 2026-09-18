@@ -1,4 +1,5 @@
-ALTER TABLE users ADD COLUMN points INTEGER DEFAULT 0;
-ALTER TABLE users ADD COLUMN current_streak INTEGER DEFAULT 0;
-ALTER TABLE users ADD COLUMN last_login_date DATE;
-ALTER TABLE users ADD COLUMN equipped_mascot VARCHAR(255) DEFAULT 'default';
+ALTER TABLE users
+ADD COLUMN points INTEGER DEFAULT 0,
+ADD COLUMN current_streak INTEGER DEFAULT 0,
+ADD COLUMN last_login_date DATE,
+ADD COLUMN equipped_mascot VARCHAR(255) DEFAULT 'default';
