@@ -261,10 +261,12 @@ export default function Study() {
     const accuracy = sessionStats.reviewed > 0 ? Math.round((sessionStats.correct / sessionStats.reviewed) * 100) : 0;
 
     return (
-      <div className="empty-state" style={{ minHeight: "80vh", border: "none", background: "transparent" }}>
-        <div className="empty-state-icon">🎉</div>
-        <h2 className="empty-state-title">¡Sesión Completada!</h2>
-        <p className="empty-state-desc">Has terminado todas las tarjetas de <strong style={{ color: "var(--text-primary)" }}>{deck?.name}</strong>.</p>
+      <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
+        <div className="text-6xl mb-6">🎉</div>
+        <h2 className="text-3xl font-bold mb-3">¡Sesión Completada!</h2>
+        <p className="text-muted-foreground text-lg mb-8 max-w-md">
+          Has terminado todas las tarjetas de <strong className="text-primary">{deck?.name}</strong>.
+        </p>
         
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "1rem", marginBottom: "2rem", width: "100%", maxWidth: "600px" }}>
             <div className="card" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem" }}>
@@ -302,7 +304,7 @@ export default function Study() {
       <div className="fade-in flex flex-col items-center justify-center min-h-[80vh] text-center px-4">
         <div className="text-6xl mb-6">📭</div>
         <h2 className="text-2xl font-bold mb-2">¡Al día!</h2>
-        <p className="empty-state-desc">No hay más tarjetas pendientes en este mazo.</p>
+        <p className="text-muted-foreground text-lg mb-8 max-w-md">No hay más tarjetas pendientes en este mazo.</p>
         <button 
           className="btn btn-primary" style={{ padding: "1rem 2rem", fontSize: "1.1rem" }} 
           onClick={() => navigate('/')}
