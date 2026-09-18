@@ -1,13 +1,13 @@
-﻿{
+{
   "name": "LoopDeck",
   "short_name": "LoopDeck",
   "description": "Memoriza cualquier cosa con repetición espaciada.",
-  "start_url": "/",
+  "start_url": "/?v=2",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
   "categories": ["education", "productivity"],
   "icons": [
     {
