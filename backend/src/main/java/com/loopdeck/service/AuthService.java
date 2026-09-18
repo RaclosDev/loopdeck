@@ -166,12 +166,9 @@ public class AuthService {
                 .map(userId -> {
                     User user = userRepository.findById(userId).orElseThrow(() -> new TokenRefreshException("User not found"));
                     
-                    // Rotate refresh token
-                    refreshTokenService.deleteByToken(requestRefreshToken);
-                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(userId);
-                    
+                    // Do not rotate refresh token to prevent PWA race conditions on poor networks
                     String token = generateToken(user);
-                    return new AuthResponse(token, newRefreshToken.getPlainToken(), toDto(user));
+                    return new AuthResponse(token, requestRefreshToken, toDto(user));
                 })
                 .orElseThrow(() -> new TokenRefreshException("Refresh token is not in database!"));
     }
