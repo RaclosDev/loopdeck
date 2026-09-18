@@ -28,6 +28,7 @@ function StudyChunkedQuiz() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   
+  const [showChunkSheet, setShowChunkSheet] = useState(false);
   const [chunkSize, setChunkSize] = useState(10);
   const [currentChunkStart, setCurrentChunkStart] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -197,16 +198,13 @@ function StudyChunkedQuiz() {
         <div className="study-progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '16px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bloque:</span>
-            <select 
-              value={chunkSize} 
-              onChange={handleChunkSizeChange}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', outline: 'none' }}
+            <button 
+              type="button"
+              onClick={() => setShowChunkSheet(true)}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', outline: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-              <option value={5} style={{color: '#000'}}>5</option>
-              <option value={10} style={{color: '#000'}}>10</option>
-              <option value={20} style={{color: '#000'}}>20</option>
-              <option value={50} style={{color: '#000'}}>50</option>
-            </select>
+              {chunkSize} ▼
+            </button>
           </div>
           
           <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>
