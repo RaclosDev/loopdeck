@@ -398,14 +398,22 @@ export default function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Frente</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={handleDefinition} disabled={lookingUpDef}>
-                    {lookingUpDef ? '...' : '✨ Def. IA'}
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={handleDefinition} disabled={lookingUpDef}>
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>✨</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>{lookingUpDef ? '...' : 'Def. IA'}</span>
                   </button>
-                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={handleAutoImage} disabled={lookingUpImage}>
-                    {lookingUpImage ? '...' : '📸 Foto Auto'}
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={handleAutoImage} disabled={lookingUpImage}>
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>📸</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>{lookingUpImage ? '...' : 'Auto'}</span>
                   </button>
-                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleGalleryPick('front')} title="Galería">🖼️ Galería</button>
-                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('front')} title="Galería">
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>🖼️</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Galería</span>
+                  </button>
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleOpenImageSearch('front')} title="Wikipedia">
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>🔍</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Buscar</span>
+                  </button>
                 </div>
               </div>
               <div 
@@ -423,8 +431,14 @@ export default function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dorso</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleGalleryPick('back')} title="Galería">🖼️ Galería</button>
-                  <button type="button" className="btn" style={{ padding: '4px 10px', fontSize: '0.85rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '8px', color: 'var(--text-primary)' }} onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('back')} title="Galería">
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>🖼️</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Galería</span>
+                  </button>
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleOpenImageSearch('back')} title="Wikipedia">
+                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>🔍</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Buscar</span>
+                  </button>
                 </div>
               </div>
               <div 

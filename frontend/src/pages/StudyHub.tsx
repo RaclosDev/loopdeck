@@ -94,8 +94,9 @@ function StudyHub() {
         <div style={{ position: 'absolute', right: '-20px', top: '-20px', fontSize: '8rem', opacity: 0.03, pointerEvents: 'none' }}>📚</div>
         
         <div>
-          <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '4px 12px', fontSize: '0.85rem', marginBottom: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)' }}>
-            ← Volver a Mazos
+          <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '6px 14px', fontSize: '0.85rem', marginBottom: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', width: 'fit-content' }}>
+            <span>←</span>
+            <span>Mazos</span>
           </button>
           
           <h1 style={{ margin: 0, fontSize: '2rem', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '-0.02em' }}>
