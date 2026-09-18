@@ -5183,3 +5183,12 @@ iframe {
   visibility: visible !important;
   opacity: 1 !important;
 }
+.main-content.study-mode {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.main-content.study-mode .main-content-inner {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}

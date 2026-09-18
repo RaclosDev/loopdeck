@@ -314,7 +314,7 @@ export default function Study() {
   }
 
     return (
-      <div className="fade-in flex flex-col p-4 overflow-hidden max-w-3xl mx-auto w-full" style={{ height: "100dvh" }}>
+      <div className="fade-in flex flex-col p-4 overflow-hidden max-w-3xl mx-auto w-full" style={{ height: "100dvh", paddingTop: "max(1rem, env(safe-area-inset-top))", paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}>
         {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", padding: "0 0.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
