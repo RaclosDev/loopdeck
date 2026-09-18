@@ -10,7 +10,7 @@ import App from './App.jsx'
 if (window.caches) {
   caches.keys().then((names) => {
     for (let name of names) {
-      // Solo borrar cachés de workbox antiguas si es necesario, 
+      // Solo borrar cachÃ©s de workbox antiguas si es necesario, 
       // pero para estar seguros borramos todo lo que parezca de vite-pwa
       if (name.includes('workbox') || name.includes('vite')) {
         caches.delete(name);
