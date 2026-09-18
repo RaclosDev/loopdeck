@@ -96,40 +96,37 @@ public class AuthService {
     @Transactional
     public AuthResponse googleLogin(String credential) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                    new NetHttpTransport(), GsonFactory.getDefaultInstance())
-                    .setAudience(Collections.singletonList(googleClientId))
-                    .build();
-
-            GoogleIdToken idToken = verifier.verify(credential);
-            if (idToken == null) {
-                throw new IllegalArgumentException("Token de Google invǭlido");
-            }
-
-            GoogleIdToken.Payload payload = idToken.getPayload();
-            String googleId = payload.getSubject();
-            String email = payload.getEmail();
-            String name = (String) payload.get("name");
-
-            User user = userRepository.findByGoogleId(googleId)
-                    .orElseGet(() -> userRepository.findByEmail(email.toLowerCase().trim())
-                            .orElse(null));
-
-            if (user == null) {
-                user = User.builder()
-                        .email(email.toLowerCase().trim())
-                        .name(name != null ? name : email.split("@")[0])
-                        .googleId(googleId)
+            // Intentamos validar como ID Token primero
+            try {
+                GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                        new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                        .setAudience(Collections.singletonList(googleClientId))
                         .build();
-                userRepository.save(user);
 
-            } else if (user.getGoogleId() == null) {
-                user.setGoogleId(googleId);
-                userRepository.save(user);
+                GoogleIdToken idToken = verifier.verify(credential);
+                if (idToken != null) {
+                    GoogleIdToken.Payload payload = idToken.getPayload();
+                    return processGoogleUser(payload.getSubject(), payload.getEmail(), (String) payload.get("name"));
+                }
+            } catch (Exception e) {
+                // Si falla, ignoramos y probamos como Access Token
             }
 
-            String token = this.generateToken(user);
-            return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
+            // Probamos como Access Token
+            java.net.URL url = new java.net.URL("https://www.googleapis.com/oauth2/v3/userinfo");
+            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Authorization", "Bearer " + credential);
+            conn.setRequestMethod("GET");
+            if (conn.getResponseCode() == 200) {
+                java.io.InputStream is = conn.getInputStream();
+                String response = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                com.fasterxml.jackson.databind.JsonNode json = new com.fasterxml.jackson.databind.ObjectMapper().readTree(response);
+                String googleId = json.get("sub").asText();
+                String email = json.get("email").asText();
+                String name = json.has("name") ? json.get("name").asText() : null;
+                return processGoogleUser(googleId, email, name);
+            }
+            throw new IllegalArgumentException("Token de Google inválido o expirado");
 
         } catch (IllegalArgumentException e) {
             throw e;
@@ -137,6 +134,28 @@ public class AuthService {
             log.error("Error al verificar con Google", e);
             throw new IllegalArgumentException("Error al verificar credenciales de Google");
         }
+    }
+
+    private AuthResponse processGoogleUser(String googleId, String email, String name) {
+        User user = userRepository.findByGoogleId(googleId)
+                .orElseGet(() -> userRepository.findByEmail(email.toLowerCase().trim())
+                        .orElse(null));
+
+        if (user == null) {
+            user = User.builder()
+                    .email(email.toLowerCase().trim())
+                    .name(name != null ? name : email.split("@")[0])
+                    .googleId(googleId)
+                    .build();
+            userRepository.save(user);
+
+        } else if (user.getGoogleId() == null) {
+            user.setGoogleId(googleId);
+            userRepository.save(user);
+        }
+
+        String token = this.generateToken(user);
+        return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
     }
 
     @Transactional

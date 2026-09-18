@@ -506,7 +506,7 @@ export default function AddCard() {
         onClose={() => setShowDeckSelector(false)}
         title="Seleccionar Mazo"
       >
-        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <div className="bottom-sheet-grid" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
           {decks.map(d => (
             <button
               key={d.id}
@@ -524,7 +524,7 @@ export default function AddCard() {
         onClose={() => setShowTypeSelector(false)}
         title="Tipo de Nota"
       >
-        <div>
+        <div className="bottom-sheet-grid">
           {NOTE_TYPES.map(t => (
             <button
               key={t.id}
