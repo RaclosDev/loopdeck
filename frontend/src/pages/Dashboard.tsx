@@ -150,10 +150,10 @@ export default function Dashboard() {
           const totalCards = counts.totalCount || 0;
           
           return (
-            <div key={deck.id} className="card overflow-hidden p-0 flex flex-col">
-              <div className="p-6 border-b border-[var(--border-subtle)]">
-                <div className="mb-4">
-                  <h2 className="text-[1.1rem] font-bold m-0 text-white">{deck.name}</h2>
+            <div key={deck.id} className="overflow-hidden flex flex-col cursor-pointer transition-colors" style={{ background: '#1c1c1c', border: '1px solid #333', borderRadius: '12px' }} onClick={() => navigate(`/hub/${deck.id}`)}>
+              <div className="p-5 flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <h2 className="text-[1.2rem] font-bold m-0 text-white">{deck.name}</h2>
                 </div>
                 
                 <BottomSheet
@@ -173,31 +173,30 @@ export default function Dashboard() {
                   </div>
                 </BottomSheet>
 
-                <div className="flex bg-black/20 border border-white/5 rounded-xl p-3 mt-2">
+                <div className="flex rounded-md p-4" style={{ background: '#161616', border: '1px solid #222' }}>
                   <div className="flex-1 flex flex-col items-center">
-                    <span className="text-[var(--accent-primary)] font-bold text-lg">{counts.new}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Nuevas</span>
+                    <span className="font-bold text-lg" style={{ color: '#007AFF' }}>{counts.new}</span>
+                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Nuevas</span>
                   </div>
-                  <div className="w-[1px] bg-white/10 mx-2" />
+                  <div className="w-[1px] bg-[#222] mx-2" />
                   <div className="flex-1 flex flex-col items-center">
-                    <span className="text-[#F59E0B] font-bold text-lg">{counts.learning}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Aprend.</span>
+                    <span className="font-bold text-lg" style={{ color: '#F59E0B' }}>{counts.learning}</span>
+                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Aprend.</span>
                   </div>
-                  <div className="w-[1px] bg-white/10 mx-2" />
+                  <div className="w-[1px] bg-[#222] mx-2" />
                   <div className="flex-1 flex flex-col items-center">
-                    <span className="text-[#10B981] font-bold text-lg">{counts.review}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Revisión</span>
+                    <span className="font-bold text-lg" style={{ color: '#10B981' }}>{counts.review}</span>
+                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Revisión</span>
                   </div>
-                  <div className="w-[1px] bg-white/10 mx-2" />
+                  <div className="w-[1px] bg-[#222] mx-2" />
                   <div className="flex-1 flex flex-col items-center">
-                    <span className="text-foreground font-bold text-lg">{totalCards}</span>
-                    <span className="text-muted-foreground text-[0.7rem] font-semibold mt-1 uppercase">Total</span>
+                    <span className="font-bold text-lg text-white">{totalCards}</span>
+                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Total</span>
                   </div>
                 </div>
               </div>
-
-              <div className="bg-[var(--bg-glass)] p-3 flex">
-                <Button className="flex-1 py-5 text-sm font-bold rounded-lg bg-[var(--accent-primary)] hover:brightness-110 text-white" onClick={(e) => { e.stopPropagation(); navigate(`/hub/${deck.id}`); }}>
+              <div className="px-5 pb-5 flex">
+                <Button className="flex-1 py-6 text-[0.95rem] font-bold rounded-lg text-white transition-opacity hover:opacity-90" style={{ background: '#007AFF', border: 'none' }} onClick={(e) => { e.stopPropagation(); navigate(`/hub/${deck.id}`); }}>
                   Entrar al Hub
                 </Button>
               </div>
