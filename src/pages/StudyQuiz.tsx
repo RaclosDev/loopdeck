@@ -119,11 +119,11 @@ function StudyQuiz() {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎉</div>
-        <h2 style={{ color: 'var(--text-main)', marginBottom: '0.5rem' }}>¡Quiz Terminado!</h2>
-        <p style={{ color: 'var(--text-dim)', fontSize: '1.2rem', marginBottom: '2rem' }}>
+        <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>¡Quiz Terminado!</h2>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem' }}>
           Has acertado <strong>{score}</strong> de {notes.length}
         </p>
-        <button className="primary-btn" onClick={() => navigate(`/hub/${deckId}`)}>
+        <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)}>
           Volver al Centro de Estudio
         </button>
       </div>
@@ -141,7 +141,7 @@ function StudyQuiz() {
         </button>
         <div className="study-progress">
           <span>Test de Opciones</span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginLeft: '12px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '12px' }}>
             {currentIndex + 1} / {notes.length}
           </span>
         </div>
@@ -151,7 +151,7 @@ function StudyQuiz() {
         
         {/* Question Card */}
         <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
           <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
         </div>
 
@@ -159,8 +159,8 @@ function StudyQuiz() {
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {options.map((option, idx) => {
             let bgColor = 'rgba(255, 255, 255, 0.05)';
-            let borderColor = 'var(--border-color)';
-            let textColor = 'var(--text-main)';
+            let borderColor = 'var(--border-subtle)';
+            let textColor = 'var(--text-primary)';
 
             if (selectedOption !== null) {
               if (option.isCorrect) {
@@ -199,7 +199,7 @@ function StudyQuiz() {
         {/* Next Button */}
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
-            <button className="primary-btn" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
+            <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
               Siguiente →
             </button>
           </div>

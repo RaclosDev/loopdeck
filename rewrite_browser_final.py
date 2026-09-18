@@ -1,4 +1,9 @@
-import { useState, useEffect } from 'react';
+﻿import os
+
+with open('src/pages/Browser.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+new_browser = '''import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, studyApi } from '../services/api';
@@ -255,3 +260,7 @@ export default function Browser() {
     </div>
   );
 }
+'''
+
+with open('src/pages/Browser.tsx', 'w', encoding='utf-8') as f:
+    f.write(new_browser)

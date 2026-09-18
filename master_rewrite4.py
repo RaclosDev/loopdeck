@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
+﻿import os
+
+with open('src/pages/Browser.tsx', 'w', encoding='utf-8') as f:
+    f.write('''import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useStore from '../store/useStore';
 import { decksApi, notesApi, studyApi } from '../services/api';
 import { Deck, Note } from '../types';
+import Modal from '../components/ui/Modal';
 
 type BrowserNote = Note & { parsedFields: any, state: string };
 
@@ -203,41 +207,42 @@ export default function Browser() {
         )}
       </div>
 
-      {editingNote && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
-          <div className="card" style={{ width: '100%', maxWidth: '500px', padding: '1.5rem', borderRadius: '16px' }}>
-            <h3 style={{ margin: '0 0 1rem 0' }}>Editar Tarjeta</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '1.5rem' }}>
-              <div>
-                <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Frente</label>
-                <div 
-                  className="form-input" 
-                  style={{ minHeight: '80px', padding: '0.75rem' }} 
-                  contentEditable 
-                  dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
-                  onInput={e => setEditFront(e.currentTarget.innerHTML)} 
-                />
-              </div>
-              <div>
-                <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Dorso</label>
-                <div 
-                  className="form-input" 
-                  style={{ minHeight: '80px', padding: '0.75rem' }} 
-                  contentEditable 
-                  dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
-                  onInput={e => setEditBack(e.currentTarget.innerHTML)} 
-                />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
-              <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingNote(null)}>Cancelar</button>
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSaveEdit} disabled={saving}>
-                {saving ? '...' : 'Guardar'}
-              </button>
-            </div>
+      <Modal
+        isOpen={!!editingNote}
+        onClose={() => setEditingNote(null)}
+        title="Editar Tarjeta"
+        footer={
+          <div style={{ display: 'flex', gap: '0.75rem', width: '100%' }}>
+            <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setEditingNote(null)}>Cancelar</button>
+            <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleSaveEdit} disabled={saving}>
+              {saving ? '...' : 'Guardar'}
+            </button>
+          </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div>
+            <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Frente</label>
+            <div 
+              className="form-input" 
+              style={{ minHeight: '80px', padding: '0.75rem' }} 
+              contentEditable 
+              dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
+              onInput={e => setEditFront(e.currentTarget.innerHTML)} 
+            />
+          </div>
+          <div>
+            <label className="form-label" style={{ marginBottom: '0.5rem', display: 'block' }}>Dorso</label>
+            <div 
+              className="form-input" 
+              style={{ minHeight: '80px', padding: '0.75rem' }} 
+              contentEditable 
+              dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
+              onInput={e => setEditBack(e.currentTarget.innerHTML)} 
+            />
           </div>
         </div>
-      )}
+      </Modal>
 
       {/* Delete Modal */}
       {deletingNoteId && (
@@ -255,3 +260,6 @@ export default function Browser() {
     </div>
   );
 }
+''')
+
+print("Browser rewritten")

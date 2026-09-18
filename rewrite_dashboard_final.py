@@ -1,4 +1,9 @@
-import { useState, useEffect } from 'react';
+﻿import os
+
+with open('src/pages/Dashboard.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+new_dashboard = '''import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { decksApi, studyApi } from '../services/api';
 import useStore from '../store/useStore';
@@ -233,3 +238,8 @@ export default function Dashboard() {
     </div>
   );
 }
+'''
+with open('src/pages/Dashboard.tsx', 'w', encoding='utf-8') as f:
+    f.write(new_dashboard)
+
+print("Dashboard rewritten")

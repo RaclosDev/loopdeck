@@ -52,16 +52,16 @@ function StudyGuide() {
   return (
     <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
       
-      <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--panel-bg)', padding: '15px 20px', borderBottom: '1px solid var(--border-color)', margin: '-20px -20px 20px -20px' }}>
+      <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--panel-bg)', padding: '15px 20px', borderBottom: '1px solid var(--border-subtle)', margin: '-20px -20px 20px -20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
             ← Volver
           </button>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '1.2rem' }}>
+            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>
               📖 {deck.name} (Guía)
             </div>
-            <div style={{ color: 'var(--text-dim)', fontSize: '0.9rem', fontWeight: 600 }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
               {notes.length} conceptos
             </div>
           </div>
@@ -69,7 +69,7 @@ function StudyGuide() {
       </div>
 
       {notes.length === 0 ? (
-        <div style={{ textAlign: 'center', color: 'var(--text-dim)', marginTop: '4rem' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '4rem' }}>
           Este mazo está vacío. Añade algunas tarjetas primero.
         </div>
       ) : (
@@ -80,7 +80,7 @@ function StudyGuide() {
             return (
               <div key={note.id} style={{ 
                 background: 'rgba(255, 255, 255, 0.03)', 
-                border: '1px solid var(--border-color)', 
+                border: '1px solid var(--border-subtle)', 
                 borderRadius: 'var(--radius-lg)',
                 overflow: 'hidden'
               }}>
@@ -88,23 +88,23 @@ function StudyGuide() {
                   background: 'rgba(0,0,0,0.2)', 
                   padding: '4px 12px', 
                   fontSize: '0.75rem', 
-                  color: 'var(--text-dim)', 
+                  color: 'var(--text-muted)', 
                   fontWeight: 600,
-                  borderBottom: '1px solid var(--border-color)'
+                  borderBottom: '1px solid var(--border-subtle)'
                 }}>
                   #{index + 1}
                 </div>
                 <div style={{ padding: '20px' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-dim)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
                     <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
                   </div>
                   
-                  <div style={{ width: '40%', height: '1px', background: 'var(--border-color)', margin: '0 auto 16px auto' }} />
+                  <div style={{ width: '40%', height: '1px', background: 'var(--border-subtle)', margin: '0 auto 16px auto' }} />
                   
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--accent-light)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>RESPUESTA</div>
-                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: marked.parse(fields.back || '') }} style={{ color: 'var(--text-main)', fontSize: '1.1rem' }} />
+                    <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary-light)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>RESPUESTA</div>
+                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: marked.parse(fields.back || '') }} style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }} />
                   </div>
                 </div>
               </div>
@@ -114,8 +114,8 @@ function StudyGuide() {
       )}
       
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-        <p style={{ color: 'var(--text-dim)', marginBottom: '1rem' }}>¿Ya te suenan los conceptos?</p>
-        <button className="primary-btn" onClick={() => navigate(`/study/${deckId}`)}>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>¿Ya te suenan los conceptos?</p>
+        <button className="btn btn-primary" onClick={() => navigate(`/study/${deckId}`)}>
           🧠 Empezar a Memorizar
         </button>
       </div>

@@ -310,7 +310,7 @@ export default function Study() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => navigate('/')} 
-            className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-white/5 rounded-full transition-colors"
+            className="p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-[rgba(255,255,255,0.05)] rounded-full transition-colors"
           >
             <ArrowLeft size={24} />
           </button>
@@ -364,7 +364,7 @@ export default function Study() {
                 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
                 ${undoStack.length === 0 
                   ? 'text-muted-foreground/30 cursor-not-allowed' 
-                  : 'text-muted-foreground hover:bg-white/5 hover:text-foreground cursor-pointer'}
+                  : 'text-muted-foreground hover:bg-[rgba(255,255,255,0.05)] hover:text-foreground cursor-pointer'}
               `}
             >
               <Undo2 size={16} /> Deshacer

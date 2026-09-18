@@ -55,7 +55,7 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
             </span>
 
             {/* Keyboard shortcut hint (hidden on very small screens) */}
-            <span className="hidden sm:flex absolute top-1 right-1 items-center justify-center w-4 h-4 rounded text-[10px] font-mono text-muted-foreground bg-white/5 border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="hidden sm:flex absolute top-1 right-1 items-center justify-center w-4 h-4 rounded text-[10px] font-mono text-muted-foreground bg-[rgba(255,255,255,0.05)] border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
               {btn.rating}
             </span>
           </button>

@@ -157,12 +157,12 @@ function StudyChunkedQuiz() {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
         <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{isFinished ? '🎉' : '🧱'}</div>
-        <h2 style={{ color: 'var(--text-main)', marginBottom: '0.5rem', textAlign: 'center' }}>
+        <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', textAlign: 'center' }}>
           {isFinished ? '¡Mazo Completado!' : '¡Bloque Completado!'}
         </h2>
         
-        <p style={{ color: 'var(--text-dim)', fontSize: '1.2rem', marginBottom: '2rem', textAlign: 'center' }}>
-          Aciertos en este bloque: <strong style={{ color: 'var(--accent-color)' }}>{chunkScore}</strong> de {currentChunkLength}
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem', textAlign: 'center' }}>
+          Aciertos en este bloque: <strong style={{ color: 'var(--accent-primary)' }}>{chunkScore}</strong> de {currentChunkLength}
         </p>
         
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -171,11 +171,11 @@ function StudyChunkedQuiz() {
           </button>
           
           {isFinished ? (
-            <button className="primary-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
+            <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
               Volver al Centro
             </button>
           ) : (
-            <button className="primary-btn" onClick={handleNextChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
+            <button className="btn btn-primary" onClick={handleNextChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
               Siguiente Bloque →
             </button>
           )}
@@ -196,11 +196,11 @@ function StudyChunkedQuiz() {
         
         <div className="study-progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '16px' }}>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Bloque:</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bloque:</span>
             <select 
               value={chunkSize} 
               onChange={handleChunkSizeChange}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-main)', fontSize: '0.9rem', cursor: 'pointer', outline: 'none' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', outline: 'none' }}
             >
               <option value={5} style={{color: '#000'}}>5</option>
               <option value={10} style={{color: '#000'}}>10</option>
@@ -209,10 +209,10 @@ function StudyChunkedQuiz() {
             </select>
           </div>
           
-          <span style={{ fontSize: '0.9rem', color: 'var(--text-main)', fontWeight: 600 }}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>
             {currentIndex - currentChunkStart + 1} / {currentChunkLength}
           </span>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
             (Total: {currentIndex + 1}/{notes.length})
           </span>
         </div>
@@ -222,7 +222,7 @@ function StudyChunkedQuiz() {
         
         {/* Question Card */}
         <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
+          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
           <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
         </div>
 
@@ -230,8 +230,8 @@ function StudyChunkedQuiz() {
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {options.map((option, idx) => {
             let bgColor = 'rgba(255, 255, 255, 0.05)';
-            let borderColor = 'var(--border-color)';
-            let textColor = 'var(--text-main)';
+            let borderColor = 'var(--border-subtle)';
+            let textColor = 'var(--text-primary)';
 
             if (selectedOption !== null) {
               if (option.isCorrect) {
@@ -270,7 +270,7 @@ function StudyChunkedQuiz() {
         {/* Next Button */}
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
-            <button className="primary-btn" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
+            <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
               {currentIndex + 1 >= currentChunkStart + chunkSize || currentIndex + 1 >= notes.length ? 'Finalizar Bloque' : 'Siguiente →'}
             </button>
           </div>

@@ -1,17 +1,26 @@
-import { useState, useEffect } from 'react';
+﻿import re
+
+with open('src/pages/Dashboard.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# We need to replace the entire return block, and modify handleEdit, handleDelete, and create new deck.
+# It's easier to just rewrite the whole file preserving imports and API calls.
+
+new_file = '''import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { decksApi, studyApi } from '../services/api';
+import { decksApi } from '../services/api';
 import useStore from '../store/useStore';
-import { Deck } from '../types';
+import { Deck, DeckCounts } from '../types';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { addToast } = useStore();
   const [decks, setDecks] = useState<Deck[]>([]);
-  const [deckCounts, setDeckCounts] = useState<Record<string, {new: number, learning: number, review: number}>>({});
+  const [deckCounts, setDeckCounts] = useState<Record<string, DeckCounts>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Modals state
   const [deleteModalDeck, setDeleteModalDeck] = useState<{ id: string, name: string } | null>(null);
   const [editModalDeck, setEditModalDeck] = useState<{ id: string, name: string } | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -26,16 +35,9 @@ export default function Dashboard() {
       setLoading(true);
       const data = await decksApi.getAll();
       setDecks(data);
-      const counts: Record<string, {new: number, learning: number, review: number}> = {};
+      const counts: Record<string, DeckCounts> = {};
       for (const d of data) {
-        const dueCards = await studyApi.getDueCards(d.id, 10000);
-        let n = 0, l = 0, r = 0;
-        for (const c of dueCards) {
-          if (c.card.state === 'new') n++;
-          else if (c.card.state === 'learning' || c.card.state === 'relearning') l++;
-          else if (c.card.state === 'review') r++;
-        }
-        counts[d.id] = { new: n, learning: l, review: r };
+        counts[d.id] = await decksApi.getCounts(d.id);
       }
       setDeckCounts(counts);
     } catch (e) {
@@ -166,7 +168,7 @@ export default function Dashboard() {
 
               <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
                 {totalDue > 0 ? (
-                  <button className="btn btn-primary" style={{ flex: 1, padding: '0.75rem', borderRadius: '12px' }} onClick={() => navigate(`/study/${deck.id}`)}>
+                  <button className="btn btn-primary" style={{ flex: 1, padding: '0.75rem', borderRadius: '12px' }} onClick={() => navigate(/study/)}>
                     Responder ({totalDue})
                   </button>
                 ) : (
@@ -174,8 +176,8 @@ export default function Dashboard() {
                     Al día ✨
                   </div>
                 )}
-                <button className="btn btn-primary" style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }} onClick={() => navigate(`/add/${deck.id}`)}>+</button>
-                <button className="btn btn-secondary" style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>🔍</button>
+                <button className="btn btn-primary" style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }} onClick={() => navigate(/add/)}>+</button>
+                <button className="btn btn-secondary" style={{ width: '44px', height: '44px', borderRadius: '12px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => navigate(/browser?deck=)}>🔍</button>
               </div>
             </div>
           );
@@ -192,6 +194,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Delete Modal */}
       {deleteModalDeck && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
           <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
@@ -205,6 +208,7 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Edit Modal */}
       {editModalDeck && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
           <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
@@ -218,6 +222,7 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Create Modal */}
       {createModalOpen && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1.25rem' }}>
           <div className="card" style={{ width: '100%', maxWidth: '340px', padding: '1.5rem', borderRadius: '16px' }}>
@@ -233,3 +238,7 @@ export default function Dashboard() {
     </div>
   );
 }
+'''
+
+with open('src/pages/Dashboard.tsx', 'w', encoding='utf-8') as f:
+    f.write(new_file)

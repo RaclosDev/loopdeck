@@ -107,11 +107,11 @@ function StudyTutor() {
   return (
     <div className="study-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 0, borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
       
-      <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-color)', background: 'var(--panel-bg)', flexShrink: 0 }}>
+      <div className="study-header" style={{ padding: '15px 20px', borderBottom: '1px solid var(--border-subtle)', background: 'var(--panel-bg)', flexShrink: 0 }}>
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
           ← Volver
         </button>
-        <div style={{ fontWeight: 600, color: 'var(--text-main)' }}>
+        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
           🤖 Tutor IA - {deck?.name}
         </div>
       </div>
@@ -121,9 +121,9 @@ function StudyTutor() {
           <div key={idx} style={{
             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
             maxWidth: '90%',
-            background: msg.role === 'user' ? 'var(--accent-color)' : 'rgba(255, 255, 255, 0.05)',
-            border: msg.role === 'ai' ? '1px solid var(--border-color)' : 'none',
-            color: msg.role === 'user' ? '#fff' : 'var(--text-main)',
+            background: msg.role === 'user' ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.05)',
+            border: msg.role === 'ai' ? '1px solid var(--border-subtle)' : 'none',
+            color: msg.role === 'user' ? '#fff' : 'var(--text-primary)',
             padding: '12px 16px',
             borderRadius: '16px',
             borderBottomRightRadius: msg.role === 'user' ? '4px' : '16px',
@@ -140,25 +140,25 @@ function StudyTutor() {
           </div>
         ))}
         {isTyping && (
-          <div style={{ alignSelf: 'flex-start', color: 'var(--text-dim)', padding: '12px 16px', fontStyle: 'italic', fontSize: '0.9rem' }}>
+          <div style={{ alignSelf: 'flex-start', color: 'var(--text-muted)', padding: '12px 16px', fontStyle: 'italic', fontSize: '0.9rem' }}>
             La IA está escribiendo...
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ padding: '15px 20px', borderTop: '1px solid var(--border-color)', background: 'var(--panel-bg)', flexShrink: 0 }}>
+      <div style={{ padding: '15px 20px', borderTop: '1px solid var(--border-subtle)', background: 'var(--panel-bg)', flexShrink: 0 }}>
         <form onSubmit={handleSend} style={{ display: 'flex', gap: '10px' }}>
           <input
             type="text"
             className="input-field"
-            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-color)', color: 'var(--text-main)', outline: 'none' }}
+            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)', outline: 'none' }}
             placeholder="Pregunta a la IA sobre este mazo..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
           />
-          <button type="submit" className="primary-btn" style={{ borderRadius: 'var(--radius-full)', padding: '0 20px' }} disabled={!input.trim() || isTyping}>
+          <button type="submit" className="btn btn-primary" style={{ borderRadius: 'var(--radius-full)', padding: '0 20px' }} disabled={!input.trim() || isTyping}>
             Enviar
           </button>
         </form>

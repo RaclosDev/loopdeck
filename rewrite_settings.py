@@ -1,4 +1,9 @@
-import { useState } from 'react';
+﻿import re
+
+with open('src/pages/Settings.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+new_file = '''import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useStore from '../store/useStore';
 import useAuthStore from '../store/useAuthStore';
@@ -200,3 +205,7 @@ export default function Settings() {
     </div>
   );
 }
+'''
+
+with open('src/pages/Settings.tsx', 'w', encoding='utf-8') as f:
+    f.write(new_file)

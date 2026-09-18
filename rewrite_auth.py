@@ -1,5 +1,10 @@
-declare global { interface Window { google: any; } }
-import React, { useState, useEffect, useRef } from 'react';
+﻿import re
+
+with open('src/pages/AuthPage.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# I will replace the tab control with the proper one, and clean up form inputs
+new_file = '''import React, { useState, useEffect, useRef } from 'react';
 import useAuthStore from '../store/useAuthStore';
 
 export default function AuthPage() {
@@ -257,3 +262,7 @@ export default function AuthPage() {
     </div>
   );
 }
+'''
+
+with open('src/pages/AuthPage.tsx', 'w', encoding='utf-8') as f:
+    f.write(new_file)

@@ -86,8 +86,8 @@ function StudyExplore() {
   if (!deck || notes.length === 0) {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'var(--text-dim)' }}>No hay tarjetas en este mazo.</p>
-        <button className="primary-btn" onClick={() => navigate(`/hub/${deckId}`)}>Volver al Hub</button>
+        <p style={{ color: 'var(--text-muted)' }}>No hay tarjetas en este mazo.</p>
+        <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)}>Volver al Hub</button>
       </div>
     );
   }
@@ -103,7 +103,7 @@ function StudyExplore() {
         </button>
         <div className="study-progress">
           <span>Paseo Libre</span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginLeft: '12px' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '12px' }}>
             {currentIndex + 1} / {notes.length}
           </span>
         </div>
@@ -141,7 +141,7 @@ function StudyExplore() {
 
         </div>
         
-        <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-dim)', fontSize: '0.85rem' }}>
+        <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
           Toca la tarjeta o pulsa <kbd>Espacio</kbd> para girar<br/>
           Usa <kbd>←</kbd> y <kbd>→</kbd> para navegar
         </div>

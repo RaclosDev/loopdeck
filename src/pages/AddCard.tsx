@@ -378,7 +378,7 @@ export default function AddCard() {
           </div>
           
           <button 
-            className="primary-btn" 
+            className="btn btn-primary" 
             style={{ width: '100%', padding: '16px', fontSize: '1.1rem' }} 
             onClick={handleMassAdd}
             disabled={massGenerating}
@@ -395,14 +395,14 @@ export default function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>FRENTE (PREGUNTA)</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={handleDefinition} disabled={lookingUpDef}>
+                    <button className="btn btn-secondary btn-sm" onClick={handleDefinition} disabled={lookingUpDef}>
                       {lookingUpDef ? '...' : '✨ Def. IA'}
                     </button>
-                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={handleAutoImage} disabled={lookingUpImage}>
+                    <button className="btn btn-secondary btn-sm" onClick={handleAutoImage} disabled={lookingUpImage}>
                       {lookingUpImage ? '...' : '📸 Foto Auto'}
                     </button>
-                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
-                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleGalleryPick('front')} title="Galería">🖼️</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleOpenImageSearch('front')} title="Wikipedia">🔍 Buscar</button>
                   </div>
               </div>
               <div 
@@ -420,8 +420,8 @@ export default function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>DORSO (RESPUESTA)</label>
                   <div style={{ display: 'flex', gap: '8px' }}>
-                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
-                    <button className="bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex items-center gap-1" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleGalleryPick('back')} title="Galería">🖼️</button>
+                    <button className="btn btn-secondary btn-sm" onClick={() => handleOpenImageSearch('back')} title="Wikipedia">🔍 Buscar</button>
                   </div>
               </div>
               <div 
@@ -456,7 +456,7 @@ export default function AddCard() {
             </div>
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-              <button className="primary-btn" style={{ flex: 1 }} onClick={() => handleAdd(false)} disabled={saving}>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => handleAdd(false)} disabled={saving}>
                 {saving ? 'Guardando...' : 'Añadir (Ctrl+Enter)'}
               </button>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => handleAdd(true)} disabled={saving}>

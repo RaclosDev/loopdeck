@@ -64,22 +64,22 @@ export default function GlobalStudy() {
                 <div className="flex items-center justify-between bg-black/20 border border-white/5 rounded-xl px-2 sm:px-4 py-3 mt-2">
                   <div className="flex flex-col items-center flex-1">
                     <span className="text-blue-500 font-bold text-lg leading-none">{counts.new}</span>
-                    <span className="text-[9px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Nuevas</span>
+                    <span className="text-[10px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Nuevas</span>
                   </div>
                   <div className="w-px h-6 bg-white/10" />
                   <div className="flex flex-col items-center flex-1">
                     <span className="text-orange-500 font-bold text-lg leading-none">{counts.learning}</span>
-                    <span className="text-[9px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Aprend.</span>
+                    <span className="text-[10px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Aprend.</span>
                   </div>
                   <div className="w-px h-6 bg-white/10" />
                   <div className="flex flex-col items-center flex-1">
                     <span className="text-emerald-500 font-bold text-lg leading-none">{counts.review}</span>
-                    <span className="text-[9px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Revisión</span>
+                    <span className="text-[10px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Revisión</span>
                   </div>
                   <div className="w-px h-6 bg-white/10" />
                   <div className="flex flex-col items-center flex-1">
                     <span className="text-foreground font-bold text-lg leading-none">{counts.total}</span>
-                    <span className="text-[9px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Total</span>
+                    <span className="text-[10px] text-muted-foreground mt-1.5 uppercase font-bold tracking-wider">Total</span>
                   </div>
                 </div>
               </div>

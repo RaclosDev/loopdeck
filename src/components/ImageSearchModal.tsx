@@ -127,14 +127,14 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
               onChange={e => setQuery(e.target.value)}
               style={{ flex: 1, minWidth: '150px' }}
             />
-            <button type="submit" className="primary-btn" disabled={loading} style={{ whiteSpace: 'nowrap' }}>
+            <button type="submit" className="btn btn-primary" disabled={loading} style={{ whiteSpace: 'nowrap' }}>
               {loading ? <span className="spinner-sm" /> : '🔍 Buscar'}
             </button>
           </form>
 
           {error && (
             <div style={{
-              color: 'var(--danger-color)',
+              color: 'var(--color-danger)',
               marginBottom: 16,
               fontSize: '0.9rem',
               padding: '10px 14px',
@@ -155,7 +155,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
 
           {results.length > 0 && (
             <>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', marginBottom: 12 }}>
+              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 12 }}>
                 {results.length} imágenes encontradas · Toca para seleccionar
               </div>
               <div style={{
@@ -176,7 +176,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
                       transition: 'border-color 0.15s, transform 0.1s',
                     }}
                     onClick={() => onSelect(img.url)}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-color)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; }}
                     onTouchStart={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
                     onTouchEnd={e => { e.currentTarget.style.transform = 'scale(1)'; }}
