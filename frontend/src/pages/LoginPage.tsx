@@ -111,7 +111,9 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
           />
         </div>
         
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 0.5rem 0', letterSpacing: '-0.05em', color: 'var(--text-primary)' }}>LOOPDECK</h1>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 0.5rem 0', letterSpacing: '-0.05em' }}>
+          <span style={{ color: 'var(--accent-primary)' }}>Loop</span><span style={{ color: 'var(--text-primary)' }}>Deck</span>
+        </h1>
 
         <p style={{ 
           color: 'var(--text-secondary)', 
