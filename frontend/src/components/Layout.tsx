@@ -2,6 +2,7 @@ import useStore from '../store/useStore';
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import BottomSheet from './BottomSheet';
 
 const navItems = [
   { path: '/', icon: '📚', label: 'Mis Mazos', shortLabel: 'Mazos' },
@@ -21,7 +22,6 @@ function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
-  const moreMenuRef = useRef<HTMLDivElement>(null);
   
   const { user, logout } = useAuth();
   const deferredPrompt = useStore(s => s.deferredPrompt);
@@ -37,17 +37,6 @@ function Layout() {
     setMoreMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
-
-  useEffect(() => {
-    if (!moreMenuOpen) return;
-    const handleClick = (e: Event) => {
-      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
-        setMoreMenuOpen(false);
-      }
-    };
-    document.addEventListener('pointerdown', handleClick);
-    return () => document.removeEventListener('pointerdown', handleClick);
-  }, [moreMenuOpen]);
 
   // Interceptar PWA
   useEffect(() => {
@@ -222,42 +211,33 @@ function Layout() {
         </nav>
       )}
 
-      {moreMenuOpen && (
-        <div 
-          className="bottom-sheet-overlay"
-          onClick={() => setMoreMenuOpen(false)}
-        >
-          <div 
-            className="bottom-sheet-content"
-            onClick={(e) => e.stopPropagation()}
-            ref={moreMenuRef}
-          >
-            <div className="bottom-sheet-drag-handle" />
-            <h3 className="bottom-sheet-title">Más opciones</h3>
-            <div className="bottom-sheet-grid">
-              {navItems.filter(i => moreMenuPaths.includes(i.path)).map(item => {
-                const isActive = location.pathname.startsWith(item.path);
-                return (
-                  <button
-                    key={item.path}
-                    type="button"
-                    className={`bottom-sheet-item ${isActive ? 'active' : ''}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setMoreMenuOpen(false);
-                      if (location.pathname !== item.path) navigate(item.path);
-                    }}
-                  >
-                    <div className="bottom-sheet-item-icon">{item.icon}</div>
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      <BottomSheet
+        isOpen={moreMenuOpen}
+        onClose={() => setMoreMenuOpen(false)}
+        title="Más opciones"
+      >
+        <div className="bottom-sheet-grid">
+          {navItems.filter(i => moreMenuPaths.includes(i.path)).map(item => {
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <button
+                key={item.path}
+                type="button"
+                className={`bottom-sheet-item ${isActive ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMoreMenuOpen(false);
+                  if (location.pathname !== item.path) navigate(item.path);
+                }}
+              >
+                <div className="bottom-sheet-item-icon">{item.icon}</div>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </div>
-      )}
+      </BottomSheet>
     </div>
   );
 }

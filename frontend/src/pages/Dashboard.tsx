@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { decksApi, studyApi } from '../services/api';
 import { Deck } from '../types';
+import BottomSheet from '../components/BottomSheet';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -155,20 +156,20 @@ export default function Dashboard() {
                     </div>
                   </div>
                   
-                  {activeMoreMenu === deck.id && (
-                    <div className="bottom-sheet-overlay" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); }}>
-                      <div className="bottom-sheet-content" onClick={e => e.stopPropagation()}>
-                        <div className="bottom-sheet-drag-handle" />
-                        <h3 className="bottom-sheet-title">Opciones de Mazo</h3>
-                        <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
-                          <span>Editar nombre</span>
-                        </button>
-                        <button className="bottom-sheet-item" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
-                          <span>Eliminar mazo</span>
-                        </button>
-                      </div>
+                  <BottomSheet
+                    isOpen={activeMoreMenu === deck.id}
+                    onClose={() => setActiveMoreMenu(null)}
+                    title="Opciones de Mazo"
+                  >
+                    <div className="bottom-sheet-grid">
+                      <button className="bottom-sheet-item" onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setModalInputValue(deck.name); setEditModalDeck(deck); }}>
+                        <span>Editar nombre</span>
+                      </button>
+                      <button className="bottom-sheet-item" style={{ color: 'var(--color-danger)' }} onClick={(e) => { e.stopPropagation(); setActiveMoreMenu(null); setDeleteModalDeck(deck); }}>
+                        <span>Eliminar mazo</span>
+                      </button>
                     </div>
-                  )}
+                  </BottomSheet>
 
                 <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

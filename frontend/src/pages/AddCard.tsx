@@ -6,6 +6,7 @@ import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
 import { lookupDefinition, lookupImage } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
 import { Deck } from '../types';
+import BottomSheet from '../components/BottomSheet';
 
 const NOTE_TYPES = [
   { id: 'basic', name: 'Básica', description: 'Frente y dorso simple' },
@@ -500,48 +501,44 @@ export default function AddCard() {
       )}
 
 
-      {showDeckSelector && (
-        <div className="bottom-sheet-overlay" onClick={() => setShowDeckSelector(false)}>
-          <div className="bottom-sheet-content" onClick={e => e.stopPropagation()}>
-            <div className="bottom-sheet-drag-handle" />
-            <h3 className="bottom-sheet-title">Seleccionar Mazo</h3>
-            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-              {decks.map(d => (
-                <button
-                  key={d.id}
-                  className={`bottom-sheet-item ${selectedDeckId === d.id ? 'active' : ''}`}
-                  onClick={() => { setSelectedDeckId(d.id); setShowDeckSelector(false); }}
-                >
-                  <span>{d.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+      <BottomSheet
+        isOpen={showDeckSelector}
+        onClose={() => setShowDeckSelector(false)}
+        title="Seleccionar Mazo"
+      >
+        <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+          {decks.map(d => (
+            <button
+              key={d.id}
+              className={`bottom-sheet-item ${selectedDeckId === d.id ? 'active' : ''}`}
+              onClick={() => { setSelectedDeckId(d.id); setShowDeckSelector(false); }}
+            >
+              <span>{d.name}</span>
+            </button>
+          ))}
         </div>
-      )}
+      </BottomSheet>
 
-      {showTypeSelector && (
-        <div className="bottom-sheet-overlay" onClick={() => setShowTypeSelector(false)}>
-          <div className="bottom-sheet-content" onClick={e => e.stopPropagation()}>
-            <div className="bottom-sheet-drag-handle" />
-            <h3 className="bottom-sheet-title">Tipo de Nota</h3>
-            <div>
-              {NOTE_TYPES.map(t => (
-                <button
-                  key={t.id}
-                  className={`bottom-sheet-item ${selectedType === t.id ? 'active' : ''}`}
-                  onClick={() => { setSelectedType(t.id); clearEditor(); setShowTypeSelector(false); }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                    <span>{t.name}</span>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t.description}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+      <BottomSheet
+        isOpen={showTypeSelector}
+        onClose={() => setShowTypeSelector(false)}
+        title="Tipo de Nota"
+      >
+        <div>
+          {NOTE_TYPES.map(t => (
+            <button
+              key={t.id}
+              className={`bottom-sheet-item ${selectedType === t.id ? 'active' : ''}`}
+              onClick={() => { setSelectedType(t.id); clearEditor(); setShowTypeSelector(false); }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <span>{t.name}</span>
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{t.description}</span>
+              </div>
+            </button>
+          ))}
         </div>
-      )}
+      </BottomSheet>
 
       {imageSearchModalInfo && (
         <ImageSearchModal
