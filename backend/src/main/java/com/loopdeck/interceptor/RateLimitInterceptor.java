@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final Map<String, Deque<Long>> requestCounts = new ConcurrentHashMap<>();
-    private static final int MAX_REQUESTS_PER_MINUTE = 20;
+    private static final int MAX_REQUESTS_PER_MINUTE = 60;
     private static final long TIME_WINDOW_MS = 60000;
 
     @Override

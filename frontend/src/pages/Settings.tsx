@@ -23,12 +23,12 @@ export default function Settings() {
   const handleClearLocalData = () => {
     localStorage.clear();
     logout();
-    window.location.href = '/auth';
+    window.location.href = '/';
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/auth');
+    window.location.href = '/';
   };
 
   const tabs = [

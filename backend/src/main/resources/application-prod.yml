@@ -1,9 +1,8 @@
-
 spring:
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
-    password: ${DATABASE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:loopdeck}}
+    username: ${SPRING_DATASOURCE_USERNAME:${PGUSER:loopdeck}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:CHANGE_ME}}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -13,6 +12,3 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   flyway:
     enabled: true
-
-cors:
-  allowed-origins: ${CORS_ORIGINS:https://loopdeck.app}

@@ -1,14 +1,24 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
-export default function LoginPage() {
+export default function LoginPage({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [googleWidth, setGoogleWidth] = useState(320);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const width = containerRef.current.offsetWidth;
+      setGoogleWidth(Math.min(width, 400));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -18,7 +28,10 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await api.post('/auth/google', { token: credentialResponse.credential });
+      const res = await api.post('/auth/google', { 
+        token: credentialResponse.credential,
+        credential: credentialResponse.credential
+      });
       login(res.data.token, res.data.refreshToken);
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Error con Google');
@@ -59,7 +72,9 @@ export default function LoginPage() {
       padding: '1.5rem',
       position: 'relative'
     }}>
-      <div style={{
+      <div 
+        ref={containerRef}
+        style={{
         background: 'var(--bg-card)',
         backdropFilter: 'blur(24px)',
         WebkitBackdropFilter: 'blur(24px)',
@@ -148,23 +163,27 @@ export default function LoginPage() {
           </button>
         </div>
 
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError('Google Login Failed')}
-            theme="filled_black"
-            size="large"
-            shape="rectangular"
-            text="continue_with"
-            width="100%"
-          />
-        </div>
+        {googleEnabled && (
+          <>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', minHeight: '44px', overflow: 'visible' }}>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google Login Failed')}
+                theme="filled_black"
+                size="large"
+                shape="pill"
+                text="continue_with"
+                width={googleWidth}
+              />
+            </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '1.5rem', opacity: 0.5 }}>
-          <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
-          <span style={{ padding: '0 10px', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--text-primary)' }}>O CON EMAIL</span>
-          <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '1.5rem', opacity: 0.5 }}>
+              <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
+              <span style={{ padding: '0 10px', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--text-primary)' }}>O CON EMAIL</span>
+              <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
+            </div>
+          </>
+        )}
 
         <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {mode === 'register' && (
@@ -206,7 +225,7 @@ export default function LoginPage() {
 
           {error && (
             <div style={{ color: '#EF4444', fontSize: '0.85rem', background: 'rgba(239,68,68,0.1)', padding: '0.75rem', borderRadius: '12px' }}>
-              ⚠️ {error}
+              s? {error}
             </div>
           )}
 

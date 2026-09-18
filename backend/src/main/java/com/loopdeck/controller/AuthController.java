@@ -1,21 +1,28 @@
 package com.loopdeck.controller;
 
 import com.loopdeck.service.AuthService;
+import com.loopdeck.service.RefreshTokenService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
+
+    public AuthController(AuthService authService, RefreshTokenService refreshTokenService) {
+        this.authService = authService;
+        this.refreshTokenService = refreshTokenService;
+    }
 
     public record RegisterBody(
         @Email @NotBlank String email,
@@ -29,7 +36,12 @@ public class AuthController {
     ) {}
 
     public record GoogleLoginBody(
-        @NotBlank String credential
+        String credential,
+        String token
+    ) {}
+    
+    public record RefreshTokenRequest(
+        @NotBlank String refreshToken
     ) {}
 
     @PostMapping("/register")
@@ -45,14 +57,33 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<AuthService.AuthResponse> googleLogin(@Valid @RequestBody GoogleLoginBody body) {
-        AuthService.AuthResponse res = authService.googleLogin(body.credential());
+    public ResponseEntity<AuthService.AuthResponse> googleLogin(@RequestBody GoogleLoginBody body) {
+        String idToken = body.credential() != null && !body.credential().isBlank() 
+            ? body.credential() 
+            : body.token();
+            
+        if (idToken == null || idToken.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        AuthService.AuthResponse res = authService.googleLogin(idToken);
         return ResponseEntity.ok(res);
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthService.AuthResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request.refreshToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
+        authService.logout(request.refreshToken());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/config")
-    public ResponseEntity<java.util.Map<String, String>> getConfig() {
-        return ResponseEntity.ok(java.util.Map.of("googleClientId", authService.getGoogleClientId()));
+    public ResponseEntity<Map<String, String>> getConfig() {
+        return ResponseEntity.ok(Map.of("googleClientId", authService.getGoogleClientId()));
     }
 
     @GetMapping("/me")

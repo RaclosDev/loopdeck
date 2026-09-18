@@ -19,7 +19,9 @@ public class RefreshTokenService {
     }
 
     public Optional<RefreshToken> findByToken(String token) {
-        return refreshTokenRepository.findByToken(token);
+        // HASH the plain token before looking it up in the database!
+        String hashedToken = RefreshToken.hashToken(token);
+        return refreshTokenRepository.findByToken(hashedToken);
     }
 
     public RefreshToken createRefreshToken(String userId) {
@@ -33,6 +35,12 @@ public class RefreshTokenService {
             throw new TokenRefreshException("Refresh token was expired. Please make a new signin request");
         }
         return token;
+    }
+    
+    @Transactional
+    public void deleteByToken(String token) {
+        String hashedToken = RefreshToken.hashToken(token);
+        refreshTokenRepository.findByToken(hashedToken).ifPresent(refreshTokenRepository::delete);
     }
 
     @Transactional

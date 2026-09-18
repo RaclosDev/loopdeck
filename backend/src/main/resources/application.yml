@@ -1,4 +1,3 @@
-
 spring:
   application:
     name: LoopDeck
@@ -6,7 +5,7 @@ spring:
     active: ${SPRING_PROFILES_ACTIVE:dev}
 
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/loopdeck;AUTO_SERVER=TRUE}
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:file:./data/loopdeck;AUTO_SERVER=TRUE;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.h2.Driver}
     username: ${SPRING_DATASOURCE_USERNAME:sa}
     password: ${SPRING_DATASOURCE_PASSWORD:}
@@ -29,11 +28,18 @@ spring:
       write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
+  mandatory-file-encoding: UTF-8
+
 server:
   port: ${PORT:8080}
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
 
 cors:
-  allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:4173}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:4173}
 
 jwt:
   secret: ${JWT_SECRET:CHANGE_ME_DO_NOT_USE_IN_PROD_12345678901234567890123456789012}
@@ -43,7 +49,7 @@ gemini:
     key: ${GEMINI_API_KEY:}
 
 google:
-  client-id: ${GOOGLE_CLIENT_ID:498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com}
+  client-id: ${GOOGLE_CLIENT_ID:CHANGE_ME}
 
 rate-limit:
   enabled: ${RATE_LIMIT_ENABLED:true}

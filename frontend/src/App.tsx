@@ -24,8 +24,8 @@ import useStore, { BeforeInstallPromptEvent } from './store/useStore';
 
 let currentAppVersion: string | null = null;
 
-function AppContent() {
-  const { token } = useAuth();
+function AppContent({ googleEnabled }: { googleEnabled: boolean }) {
+  const { token, updateUser } = useAuth();
   const setDeferredPrompt = useStore(s => s.setDeferredPrompt);
 
   useEffect(() => {
@@ -55,12 +55,13 @@ function AppContent() {
     if (token) {
       api.post('/users/daily-login')
         .then((res: any) => {
-          // If we want to update the user context with streak, we'd do it here.
-          // For now, it will be handled on next token refresh or manual context update
+          if (res.data && typeof res.data.streak === 'number') {
+             updateUser({ currentStreak: res.data.streak });
+          }
         })
         .catch(err => console.error("Error en daily login", err));
     }
-  }, [token]);
+  }, [token, updateUser]);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
@@ -72,7 +73,7 @@ function AppContent() {
   }, [setDeferredPrompt]);
 
   if (!token) {
-    return <LoginPage />;
+    return <LoginPage googleEnabled={googleEnabled} />;
   }
 
   return (
@@ -152,59 +153,55 @@ export default function App() {
     };
   }, []);
 
-  const [googleClientId, setGoogleClientId] = useState(import.meta.env.VITE_GOOGLE_CLIENT_ID || null);
-  const [authError, setAuthError] = useState(false);
+  const envClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const initialClientId = (envClientId && envClientId !== 'CHANGE_ME') ? envClientId : null;
+
+  const [googleClientId, setGoogleClientId] = useState<string | null>(initialClientId);
+  const [configLoaded, setConfigLoaded] = useState(!!initialClientId);
 
   useEffect(() => {
-    if (!googleClientId) {
-      const baseUrl = import.meta.env.VITE_API_URL || '';
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => { controller.abort(); }, 5000);
-
-      fetch(baseUrl + '/api/auth/config', { signal: controller.signal })
+    if (!configLoaded) {
+      // Usar ruta relativa para que funcione el proxy de vite
+      fetch('/api/auth/config')
         .then((res: any) => {
           if (!res.ok) throw new Error('Failed config fetch');
           return res.json();
         })
         .then(data => {
-          clearTimeout(timeoutId);
           if (data.googleClientId && data.googleClientId !== 'CHANGE_ME') {
             setGoogleClientId(data.googleClientId);
-          } else {
-            setAuthError(true);
           }
+          setConfigLoaded(true);
         })
         .catch(err => {
-          clearTimeout(timeoutId);
           console.error("Error al cargar la config de auth:", err);
-          setAuthError(true);
+          setConfigLoaded(true); // Always unblock even if it fails
         });
     }
-  }, [googleClientId]);
+  }, [configLoaded]);
 
-  if (authError && !googleClientId) {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', alignItems: 'center', color: 'var(--text-primary)', padding: '20px', textAlign: 'center' }}>
-        <h2 style={{ marginBottom: '10px' }}>Error de conexión</h2>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>No se pudo cargar la configuración segura. Comprueba tu conexión y que el servidor esté online.</p>
-        <button className="btn btn-primary" onClick={() => window.location.reload()}>Reintentar</button>
-      </div>
-    );
-  }
+  const appProvider = (
+    <AuthProvider>
+      <AppContent googleEnabled={!!googleClientId} />
+    </AuthProvider>
+  );
 
-  if (!googleClientId) {
+  if (!configLoaded) {
     return (
       <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center', color: 'var(--text-muted)' }}>
-        Cargando configuración...
+        Cargando...
       </div>
     );
   }
 
-  return (
-    <GoogleOAuthProvider clientId={googleClientId}>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </GoogleOAuthProvider>
-  );
+  // Si googleClientId estǭ presente, envolvemos en GoogleOAuthProvider. Si no, renderizamos directamente.
+  if (googleClientId) {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {appProvider}
+      </GoogleOAuthProvider>
+    );
+  }
+
+  return appProvider;
 }

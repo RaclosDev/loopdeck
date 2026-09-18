@@ -34,14 +34,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response && error.response.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth')) {
+    // Do not retry auth routes that don't need token or handle it themselves
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !originalRequest.url.match(/\/auth\/(login|register|google|refresh|config)/)) {
       
       if (isRefreshing) {
         return new Promise(function(resolve, reject) {
           failedQueue.push({resolve, reject});
         }).then(token => {
           originalRequest.headers['Authorization'] = 'Bearer ' + token;
-          return axios(originalRequest);
+          return api(originalRequest);
         }).catch(err => {
           return Promise.reject(err);
         });
@@ -59,7 +60,7 @@ api.interceptors.response.use(
       }
 
       try {
-        const res = await axios.post('/api/auth/refresh', { refreshToken });
+        const res = await api.post('/auth/refresh', { refreshToken });
         const newToken = res.data.token;
         const newRefreshToken = res.data.refreshToken;
         
@@ -72,7 +73,7 @@ api.interceptors.response.use(
         originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
         
         processQueue(null, newToken);
-        return axios(originalRequest);
+        return api(originalRequest);
       } catch (err) {
         processQueue(err, null);
         localStorage.removeItem('jwt_token');
@@ -88,4 +89,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-

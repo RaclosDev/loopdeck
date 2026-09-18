@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import com.loopdeck.model.RefreshToken;
+import com.loopdeck.exception.TokenRefreshException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,12 +26,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthService.class);
-
 
     private final UserRepository userRepository;
     private final DeckRepository deckRepository;
@@ -39,7 +38,6 @@ public class AuthService {
     private final JwtEncoder jwtEncoder;
     private final RefreshTokenService refreshTokenService;
 
-
     @Value("${google.client.id}")
     private String googleClientId;
 
@@ -47,15 +45,15 @@ public class AuthService {
         return googleClientId;
     }
 
-    
-    private String generateToken(String userId, String email) {
+    private String generateToken(User user) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("loopdeck-backend")
                 .issuedAt(now)
-                .expiresAt(now.plus(15, ChronoUnit.MINUTES)) // JWT expira en 15 minutos
-                .subject(userId)
-                .claim("email", email)
+                .expiresAt(now.plus(15, ChronoUnit.MINUTES))
+                .subject(user.getId())
+                .claim("email", user.getEmail())
+                .claim("name", user.getName())
                 .build();
         org.springframework.security.oauth2.jose.jws.MacAlgorithm alg = org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS256;
         org.springframework.security.oauth2.jwt.JwsHeader jwsHeader = org.springframework.security.oauth2.jwt.JwsHeader.with(alg).build();
@@ -79,7 +77,7 @@ public class AuthService {
                 .build();
         userRepository.save(user);
 
-        String token = this.generateToken(user.getId(), user.getEmail());
+        String token = this.generateToken(user);
         return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
     }
 
@@ -91,7 +89,7 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        String token = this.generateToken(user.getId(), user.getEmail());
+        String token = this.generateToken(user);
         return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
     }
 
@@ -105,7 +103,7 @@ public class AuthService {
 
             GoogleIdToken idToken = verifier.verify(credential);
             if (idToken == null) {
-                throw new IllegalArgumentException("Token de Google inválido");
+                throw new IllegalArgumentException("Token de Google invǭlido");
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -113,13 +111,11 @@ public class AuthService {
             String email = payload.getEmail();
             String name = (String) payload.get("name");
 
-            // Buscar usuario por googleId o por email
             User user = userRepository.findByGoogleId(googleId)
                     .orElseGet(() -> userRepository.findByEmail(email.toLowerCase().trim())
                             .orElse(null));
 
             if (user == null) {
-                // Crear usuario nuevo
                 user = User.builder()
                         .email(email.toLowerCase().trim())
                         .name(name != null ? name : email.split("@")[0])
@@ -128,12 +124,11 @@ public class AuthService {
                 userRepository.save(user);
 
             } else if (user.getGoogleId() == null) {
-                // Vincular cuenta existente con Google
                 user.setGoogleId(googleId);
                 userRepository.save(user);
             }
 
-            String token = this.generateToken(user.getId(), user.getEmail());
+            String token = this.generateToken(user);
             return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
 
         } catch (IllegalArgumentException e) {
@@ -142,6 +137,28 @@ public class AuthService {
             log.error("Error al verificar con Google", e);
             throw new IllegalArgumentException("Error al verificar credenciales de Google");
         }
+    }
+
+    @Transactional
+    public AuthResponse refreshToken(String requestRefreshToken) {
+        return refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUserId)
+                .map(userId -> {
+                    User user = userRepository.findById(userId).orElseThrow(() -> new TokenRefreshException("User not found"));
+                    
+                    // Rotate refresh token
+                    refreshTokenService.deleteByToken(requestRefreshToken);
+                    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(userId);
+                    
+                    String token = generateToken(user);
+                    return new AuthResponse(token, newRefreshToken.getPlainToken(), toDto(user));
+                })
+                .orElseThrow(() -> new TokenRefreshException("Refresh token is not in database!"));
+    }
+
+    public void logout(String requestRefreshToken) {
+        refreshTokenService.deleteByToken(requestRefreshToken);
     }
 
     public UserDto me(String userId) {

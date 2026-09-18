@@ -24,18 +24,31 @@ export default function Dashboard() {
   const fetchDecks = async () => {
     try {
       setLoading(true);
+      setError('');
       const data = await decksApi.getAll();
+      if (!Array.isArray(data)) {
+         setDecks([]);
+         return;
+      }
       setDecks(data);
       const counts: Record<string, {new: number, learning: number, review: number}> = {};
+      
       for (const d of data) {
-        const dueCards = await studyApi.getDueCards(d.id, 10000);
-        let n = 0, l = 0, r = 0;
-        for (const c of dueCards) {
-          if (c.card.state === 'new') n++;
-          else if (c.card.state === 'learning' || c.card.state === 'relearning') l++;
-          else if (c.card.state === 'review') r++;
+        try {
+          const dueCards = await studyApi.getDueCards(d.id, 200);
+          let n = 0, l = 0, r = 0;
+          if (Array.isArray(dueCards)) {
+            for (const c of dueCards) {
+              if (c.card.state === 'new') n++;
+              else if (c.card.state === 'learning' || c.card.state === 'relearning') l++;
+              else if (c.card.state === 'review') r++;
+            }
+          }
+          counts[d.id] = { new: n, learning: l, review: r };
+        } catch (err) {
+          console.error("Error counts for", d.id, err);
+          counts[d.id] = { new: 0, learning: 0, review: 0 };
         }
-        counts[d.id] = { new: n, learning: l, review: r };
       }
       setDeckCounts(counts);
     } catch (e) {

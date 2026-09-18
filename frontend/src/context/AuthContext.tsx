@@ -18,6 +18,7 @@ export interface AuthContextType {
   login: (jwtToken: string, refreshToken: string) => void;
   logout: () => void;
   updateToken: (newToken: string) => void;
+  updateUser: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -29,66 +30,65 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem('jwt_token', token);
-      if (refreshToken) {
-        localStorage.setItem('refresh_token', refreshToken);
-      }
       try {
-        const payload = jwtDecode<any>(token);
+        const decoded: any = jwtDecode(token);
         setUser({
-          id: payload.sub,
-          email: payload.email,
-          name: payload.name,
-          picture: payload.picture,
+          id: decoded.sub || '',
+          email: decoded.email || '',
+          name: decoded.name || 'User',
+          picture: decoded.picture || undefined,
+          points: decoded.points || 0,
+          currentStreak: decoded.currentStreak || 0
         });
-      } catch (e) {
-        console.error("Invalid token format");
-        setToken(null);
-        setRefreshToken(null);
-        localStorage.removeItem('jwt_token');
-        localStorage.removeItem('refresh_token');
+      } catch (err) {
+        console.error("Token invǭlido", err);
+        logout();
       }
     } else {
-      localStorage.removeItem('jwt_token');
-      localStorage.removeItem('refresh_token');
       setUser(null);
     }
-  }, [token, refreshToken]);
+  }, [token]);
 
-  const login = (jwtToken: string, rToken: string) => {
-    setRefreshToken(rToken);
+  const login = (jwtToken: string, newRefreshToken: string) => {
+    localStorage.setItem('jwt_token', jwtToken);
+    localStorage.setItem('refresh_token', newRefreshToken);
     setToken(jwtToken);
-  };
-
-  const updateToken = (newToken: string) => {
-    setToken(newToken);
+    setRefreshToken(newRefreshToken);
   };
 
   const logout = () => {
-    if (refreshToken) {
-      // Opcional: avisar al backend
-      fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken })
-      }).catch(() => {});
-    }
-    googleLogout();
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('refresh_token');
     setToken(null);
     setRefreshToken(null);
+    setUser(null);
+    try {
+      googleLogout();
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const updateToken = (newToken: string) => {
+    localStorage.setItem('jwt_token', newToken);
+    setToken(newToken);
+  };
+
+  const updateUser = (updates: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...updates } : null);
   };
 
   return (
-    <AuthContext.Provider value={{ token, refreshToken, user, login, logout, updateToken }}>
+    <AuthContext.Provider value={{ token, refreshToken, user, login, logout, updateToken, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(): AuthContextType {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
