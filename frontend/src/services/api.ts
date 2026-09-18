@@ -61,7 +61,7 @@ export const decksApi = {
     const token = localStorage.getItem('jwt_token');
     return `${API_BASE}/decks/${id}/document?token=${token}`;
   },
-  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number }>> => {
+  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number }>> => {
     const res = await api.get('/decks/stats');
     return res.data;
   }

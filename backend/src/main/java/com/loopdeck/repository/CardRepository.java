@@ -29,14 +29,16 @@ public interface CardRepository extends JpaRepository<Card, String> {
         Long getNewCount();
         Long getLearningCount();
         Long getReviewCount();
+        Long getTotalCount();
     }
 
     @Query("SELECT n.deckId as deckId, " +
-           "SUM(CASE WHEN c.state = 'new' THEN 1 ELSE 0 END) as newCount, " +
-           "SUM(CASE WHEN c.state = 'learning' OR c.state = 'relearning' THEN 1 ELSE 0 END) as learningCount, " +
-           "SUM(CASE WHEN c.state = 'review' THEN 1 ELSE 0 END) as reviewCount " +
+           "SUM(CASE WHEN c.suspended = false AND c.buried = false AND c.state = 'new' THEN 1 ELSE 0 END) as newCount, " +
+           "SUM(CASE WHEN c.suspended = false AND c.buried = false AND (c.state = 'learning' OR c.state = 'relearning') AND c.due <= :now THEN 1 ELSE 0 END) as learningCount, " +
+           "SUM(CASE WHEN c.suspended = false AND c.buried = false AND c.state = 'review' AND c.due <= :now THEN 1 ELSE 0 END) as reviewCount, " +
+           "COUNT(c.id) as totalCount " +
            "FROM Card c JOIN Note n ON c.noteId = n.id " +
-           "WHERE n.deckId IN :deckIds AND c.suspended = false AND c.buried = false AND (c.state = 'new' OR c.due <= :now) " +
+           "WHERE n.deckId IN :deckIds " +
            "GROUP BY n.deckId")
     List<DeckStatsProjection> getStatsForDecks(@Param("deckIds") List<String> deckIds, @Param("now") Instant now);
 }

@@ -8,7 +8,7 @@ import BottomSheet from '../components/BottomSheet';
 export default function Dashboard() {
   const navigate = useNavigate();
     const [decks, setDecks] = useState<Deck[]>([]);
-  const [deckCounts, setDeckCounts] = useState<Record<string, {new: number, learning: number, review: number}>>({});
+  const [deckCounts, setDeckCounts] = useState<Record<string, {new: number, learning: number, review: number, totalCount: number}>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,17 +35,18 @@ export default function Dashboard() {
       
       try {
         const stats = await decksApi.getStats();
-        const mappedCounts: Record<string, {new: number, learning: number, review: number}> = {};
+        const mappedCounts: Record<string, {new: number, learning: number, review: number, totalCount: number}> = {};
         
         for (const d of data) {
           if (stats && stats[d.id]) {
             mappedCounts[d.id] = {
               new: stats[d.id].newCount || 0,
               learning: stats[d.id].learningCount || 0,
-              review: stats[d.id].reviewCount || 0
+              review: stats[d.id].reviewCount || 0,
+              totalCount: stats[d.id].totalCount || 0
             };
           } else {
-            mappedCounts[d.id] = { new: 0, learning: 0, review: 0 };
+            mappedCounts[d.id] = { new: 0, learning: 0, review: 0, totalCount: 0 };
           }
         }
         setDeckCounts(mappedCounts);
@@ -141,8 +142,9 @@ export default function Dashboard() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {decks.map(deck => {
-          const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0 };
+          const counts = deckCounts[deck.id] || { new: 0, learning: 0, review: 0, totalCount: 0 };
           const totalDue = counts.new + counts.learning + counts.review;
+          const totalCards = counts.totalCount || 0;
           
           return (
             <div key={deck.id} className="card" style={{ overflow: 'hidden', padding: 0, display: 'flex', flexDirection: 'column' }}>
@@ -188,7 +190,7 @@ export default function Dashboard() {
                   </div>
                   <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{totalDue}</span>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{totalCards}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Total</span>
                   </div>
                 </div>
