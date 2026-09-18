@@ -43,16 +43,15 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
               group overflow-hidden active:scale-95
             `}
           >
-            {/* Interval */}
-            <div className={`flex items-center gap-1.5 text-sm sm:text-base opacity-80 mb-2 font-medium ${style.color}`}>
-              <Clock size={14} />
+            {/* Interval (Big) */}
+            <div className={`flex items-center gap-1.5 font-bold text-2xl sm:text-3xl ${style.color}`}>
               <span>{btn.interval || '...'}</span>
             </div>
             
-            {/* Label */}
-            <span className={`font-bold text-xl sm:text-2xl ${style.color}`}>
-              {btn.label}
-            </span>
+            {/* Label (Small) */}
+            <div className={`flex items-center gap-1 text-sm sm:text-base opacity-80 mt-2 font-medium ${style.color}`}>
+              <span>{btn.label}</span>
+            </div>
 
             {/* Keyboard shortcut hint (hidden on very small screens) */}
             <span className="hidden sm:flex absolute top-2 right-2 items-center justify-center w-5 h-5 rounded text-xs font-mono text-muted-foreground bg-[rgba(255,255,255,0.05)] border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">
