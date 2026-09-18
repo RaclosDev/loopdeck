@@ -1,4 +1,4 @@
-﻿import toast from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi, aiApi } from '../services/api';
@@ -12,8 +12,8 @@ import { Button } from '../components/ui/button';
 import BottomSheet from '../components/BottomSheet';
 
 const NOTE_TYPES = [
-  { id: 'basic', name: 'B├ísica', description: 'Frente y dorso simple' },
-  { id: 'reverse', name: 'B├ísica + Reversa', description: 'Genera 2 tarjetas' },
+  { id: 'basic', name: 'Básica', description: 'Frente y dorso simple' },
+  { id: 'reverse', name: 'Básica + Reversa', description: 'Genera 2 tarjetas' },
 ];
 
 const formatMovedText = (html: string) => {
@@ -164,7 +164,7 @@ export default function AddCard() {
 
   const handleDefinition = async () => {
     const term = (fields.front || '').replace(/<[^>]*>/g, '').trim();
-    if (!term) return toast.error('Escribe un t├®rmino en el frente primero');
+    if (!term) return toast.error('Escribe un término en el frente primero');
     setLookingUpDef(true);
     try {
       const def = await lookupDefinition(term);
@@ -182,7 +182,7 @@ export default function AddCard() {
 
   const handleAutoImage = async () => {
     const term = (fields.front || '').replace(/<[^>]*>/g, '').trim();
-    if (!term) return toast.error('Escribe un t├®rmino en el frente primero');
+    if (!term) return toast.error('Escribe un término en el frente primero');
     setLookingUpImage(true);
     try {
       const url = await lookupImage(term);
@@ -192,7 +192,7 @@ export default function AddCard() {
         if (backContentRef.current) backContentRef.current.innerHTML = term;
         setFields(prev => ({ ...prev, front: imgHtml, back: term }));
       } else {
-        toast.error('No se encontr├│ imagen');
+        toast.error('No se encontró imagen');
       }
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Error buscando imagen');
@@ -214,7 +214,7 @@ export default function AddCard() {
         fieldsJson,
         tags: tags.join(',')
       });
-      toast.success('Tarjeta a├▒adida');
+      toast.success('Tarjeta añadida');
       clearEditor();
       if (closeAfter) navigate('/');
     } catch (e: unknown) {
@@ -247,7 +247,7 @@ export default function AddCard() {
         count++;
       }
       
-      toast.success(`┬íGeneradas ${count} tarjetas!`);
+      toast.success(`¡Generadas ${count} tarjetas!`);
       setMassInput('');
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Error al generar masa');
@@ -331,7 +331,7 @@ export default function AddCard() {
                   onClick={() => setShowTypeSelector(true)}
                   style={{ width: '100%', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-input)' }}
                 >
-                  <span>{NOTE_TYPES.find(t => t.id === selectedType)?.name || 'B├ísica'}</span>
+                  <span>{NOTE_TYPES.find(t => t.id === selectedType)?.name || 'Básica'}</span>
                   <ChevronDown className="w-4 h-4 opacity-50" />
                 </button>
             </div>
@@ -342,7 +342,7 @@ export default function AddCard() {
       {addMode === 'mass' ? (
         <div className="card" style={{ marginBottom: '1.5rem' }}>
           <p style={{ margin: '0 0 16px 0', fontSize: '0.9rem', color: 'var(--text-muted)', textAlign: 'center' }}>
-              Escribe o pega una lista de conceptos (separados por comas o saltos de l├¡nea) para autogenerar las tarjetas.
+              Escribe o pega una lista de conceptos (separados por comas o saltos de línea) para autogenerar las tarjetas.
             </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
@@ -352,7 +352,7 @@ export default function AddCard() {
               style={{ minHeight: '200px', padding: '12px', resize: 'vertical' }}
               value={massInput}
               onChange={e => setMassInput(e.target.value)}
-              placeholder="Ejemplo:&#10;Polimorfismo&#10;Herencia&#10;Encapsulaci├│n&#10;Abstracci├│n"
+              placeholder="Ejemplo:&#10;Polimorfismo&#10;Herencia&#10;Encapsulación&#10;Abstracción"
             />
           </div>
           
@@ -382,9 +382,9 @@ export default function AddCard() {
                     <Image className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>{lookingUpImage ? '...' : 'Auto'}</span>
                   </button>
-                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('front')} title="Galer├¡a">
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('front')} title="Galería">
                     <Folder className="w-4 h-4 mb-1" />
-                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Galer├¡a</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Galería</span>
                   </button>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleOpenImageSearch('front')} title="Wikipedia">
                     <Search className="w-4 h-4 mb-1" />
@@ -407,9 +407,9 @@ export default function AddCard() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: '8px' }}>
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dorso</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('back')} title="Galer├¡a">
+                  <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('back')} title="Galería">
                     <Folder className="w-4 h-4 mb-1" />
-                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Galer├¡a</span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Galería</span>
                   </button>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleOpenImageSearch('back')} title="Wikipedia">
                     <Search className="w-4 h-4 mb-1" />
@@ -440,7 +440,7 @@ export default function AddCard() {
                 <input
                   ref={tagInputRef}
                   style={{ flex: 1, minWidth: '120px', background: 'transparent', border: 'none', outline: 'none', color: 'inherit' }}
-                  placeholder={tags.length === 0 ? 'A├▒adir etiquetas...' : ''}
+                  placeholder={tags.length === 0 ? 'Añadir etiquetas...' : ''}
                   value={tagInput}
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={handleTagKeyDown}
@@ -450,10 +450,10 @@ export default function AddCard() {
 
             <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
               <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => handleAdd(false)} disabled={saving}>
-                {saving ? 'Guardando...' : 'A├▒adir (Ctrl+Enter)'}
+                {saving ? 'Guardando...' : 'Añadir (Ctrl+Enter)'}
               </button>
               <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => handleAdd(true)} disabled={saving}>
-                A├▒adir y Cerrar
+                Añadir y Cerrar
               </button>
             </div>
           </div>
