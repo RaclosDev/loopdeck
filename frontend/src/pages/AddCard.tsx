@@ -283,14 +283,7 @@ export default function AddCard() {
   return (
     <div className="fade-in pb-12">
 
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="-ml-2">
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
-        <div>
-          <h2 className="text-xl font-bold m-0">Añadir Tarjeta</h2>
-        </div>
-      </div>
+      
 
               
         <SegmentedControl
@@ -300,7 +293,7 @@ export default function AddCard() {
           ]}
           value={addMode}
           onChange={(val) => setAddMode(val as 'single' | 'mass')}
-          className="mb-6 max-w-sm mx-auto"
+          className="mb-6 w-full"
         />
 
         <div className="card" style={{ marginBottom: '1.5rem' }}>
