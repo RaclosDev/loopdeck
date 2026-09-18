@@ -150,10 +150,13 @@ export default function Dashboard() {
           const totalCards = counts.totalCount || 0;
           
           return (
-            <div key={deck.id} className="overflow-hidden flex flex-col cursor-pointer transition-colors" style={{ background: '#1c1c1c', border: '1px solid #333', borderRadius: '12px' }} onClick={() => navigate(`/hub/${deck.id}`)}>
-              <div className="p-5 flex flex-col gap-4">
-                <div className="flex justify-between items-start">
-                  <h2 className="text-[1.2rem] font-bold m-0 text-white">{deck.name}</h2>
+            <div key={deck.id} className="card" style={{ overflow: 'hidden', padding: 0, marginBottom: '1rem', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
+                  <h3 className="card-title" style={{ margin: '0', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h3>
+                  <Button variant="ghost" size="icon" onClick={() => setActiveMoreMenu(deck.id)} style={{ marginTop: '-4px', marginRight: '-8px' }}>
+                    <MoreVertical className="w-5 h-5 opacity-70" />
+                  </Button>
                 </div>
                 
                 <BottomSheet
@@ -173,31 +176,44 @@ export default function Dashboard() {
                   </div>
                 </BottomSheet>
 
-                <div className="flex rounded-md p-4" style={{ background: '#161616', border: '1px solid #222' }}>
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="font-bold text-lg" style={{ color: '#007AFF' }}>{counts.new}</span>
-                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Nuevas</span>
+                <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{counts.new}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Nuevas</span>
                   </div>
-                  <div className="w-[1px] bg-[#222] mx-2" />
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="font-bold text-lg" style={{ color: '#F59E0B' }}>{counts.learning}</span>
-                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Aprend.</span>
+                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ color: '#F59E0B', fontWeight: 700, fontSize: '1.1rem' }}>{counts.learning}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Aprend.</span>
                   </div>
-                  <div className="w-[1px] bg-[#222] mx-2" />
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="font-bold text-lg" style={{ color: '#10B981' }}>{counts.review}</span>
-                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Revisión</span>
+                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ color: '#10B981', fontWeight: 700, fontSize: '1.1rem' }}>{counts.review}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Revisión</span>
                   </div>
-                  <div className="w-[1px] bg-[#222] mx-2" />
-                  <div className="flex-1 flex flex-col items-center">
-                    <span className="font-bold text-lg text-white">{totalCards}</span>
-                    <span className="text-[#666] text-[0.65rem] font-bold mt-1 uppercase tracking-wider">Total</span>
+                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{totalCards}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Total</span>
                   </div>
                 </div>
               </div>
-              <div className="px-5 pb-5 flex">
-                <Button className="flex-1 py-6 text-[0.95rem] font-bold rounded-lg text-white transition-opacity hover:opacity-90" style={{ background: '#007AFF', border: 'none' }} onClick={(e) => { e.stopPropagation(); navigate(`/hub/${deck.id}`); }}>
-                  Entrar al Hub
+
+              <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
+                {totalDue > 0 ? (
+                  <Button style={{ flex: 1, borderRadius: '12px', padding: '0.875rem', fontWeight: 700 }} className="btn-primary" onClick={() => navigate(`/study/${deck.id}`)}>
+                    <Play className="w-5 h-5 mr-2" fill="currentColor" /> Responder ({totalDue})
+                  </Button>
+                ) : (
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', fontWeight: 'bold' }}>
+                    Al día 🌟
+                  </div>
+                )}
+                <Button style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/add/${deck.id}`)}>
+                  <Plus className="w-5 h-5" />
+                </Button>
+                <Button variant="secondary" style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>
+                  <Search className="w-5 h-5" />
                 </Button>
               </div>
             </div>
