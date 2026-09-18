@@ -273,21 +273,54 @@ export default function AddCard() {
 
   return (
     <div className="fade-in pb-10">
-      <div className="mb-6 w-full max-w-sm mx-auto">
-          <div className="flex items-center p-1 bg-[#121212] border border-white/5 rounded-2xl w-full">
-            <button 
-              className={`flex-1 rounded-xl py-2.5 px-4 text-[0.95rem] font-medium transition-all ${addMode === 'single' ? 'bg-[#252525] text-white border border-white/10 shadow-sm' : 'text-white/50 hover:text-white/80'}`}
-              onClick={() => setAddMode('single')}
-            >
-              Una a una
-            </button>
-            <button 
-              className={`flex-1 rounded-xl py-2.5 px-4 text-[0.95rem] font-medium transition-all ${addMode === 'mass' ? 'bg-[#252525] text-white border border-white/10 shadow-sm' : 'text-white/50 hover:text-white/80'}`}
-              onClick={() => setAddMode('mass')}
-            >
-              En Masa
-            </button>
-          </div>
+              <div style={{
+          display: 'flex',
+          background: 'rgba(255, 255, 255, 0.05)',
+          padding: '0.35rem',
+          borderRadius: '20px',
+          marginBottom: '1.5rem',
+          position: 'relative',
+          maxWidth: '400px',
+          width: '100%',
+          marginLeft: 'auto',
+          marginRight: 'auto'
+        }}>
+          <button
+            onClick={() => setAddMode('single')}
+            style={{
+              flex: 1,
+              padding: '0.65rem',
+              borderRadius: '16px',
+              background: addMode === 'single' ? 'var(--bg-card)' : 'transparent',
+              color: addMode === 'single' ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontWeight: addMode === 'single' ? 600 : 500,
+              boxShadow: addMode === 'single' ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              border: addMode === 'single' ? '1px solid var(--border-medium)' : '1px solid transparent',
+              transition: 'all 0.25s ease',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            Una a una
+          </button>
+          <button
+            onClick={() => setAddMode('mass')}
+            style={{
+              flex: 1,
+              padding: '0.65rem',
+              borderRadius: '16px',
+              background: addMode === 'mass' ? 'var(--bg-card)' : 'transparent',
+              color: addMode === 'mass' ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontWeight: addMode === 'mass' ? 600 : 500,
+              boxShadow: addMode === 'mass' ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              border: addMode === 'mass' ? '1px solid var(--border-medium)' : '1px solid transparent',
+              transition: 'all 0.25s ease',
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            En Masa
+          </button>
         </div>
         <div className="card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
 
@@ -460,6 +493,7 @@ export default function AddCard() {
     </div>
   );
 }
+
 
 
 
