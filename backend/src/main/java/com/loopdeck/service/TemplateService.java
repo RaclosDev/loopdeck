@@ -17,9 +17,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-@lombok.extern.slf4j.Slf4j
+
 @Service
 public class TemplateService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TemplateService.class);
+
 
     private final DeckRepository deckRepository;
     private final NoteRepository noteRepository;

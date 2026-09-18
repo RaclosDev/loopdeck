@@ -10,7 +10,12 @@ import com.loopdeck.model.User;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
 import com.loopdeck.repository.UserRepository;
-import com.loopdeck.security.JwtUtil;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import com.loopdeck.model.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,16 +25,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 
-@lombok.extern.slf4j.Slf4j
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AuthService.class);
+
 
     private final UserRepository userRepository;
     private final DeckRepository deckRepository;
     private final NoteRepository noteRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    private final JwtEncoder jwtEncoder;
+    private final RefreshTokenService refreshTokenService;
 
 
     @Value("${google.client.id}")
@@ -39,9 +47,24 @@ public class AuthService {
         return googleClientId;
     }
 
+    
+    private String generateToken(String userId, String email) {
+        Instant now = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("loopdeck-backend")
+                .issuedAt(now)
+                .expiresAt(now.plus(15, ChronoUnit.MINUTES)) // JWT expira en 15 minutos
+                .subject(userId)
+                .claim("email", email)
+                .build();
+        org.springframework.security.oauth2.jose.jws.MacAlgorithm alg = org.springframework.security.oauth2.jose.jws.MacAlgorithm.HS256;
+        org.springframework.security.oauth2.jwt.JwsHeader jwsHeader = org.springframework.security.oauth2.jwt.JwsHeader.with(alg).build();
+        return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+    }
+
     public record RegisterRequest(String email, String name, String password) {}
     public record LoginRequest(String email, String password) {}
-    public record AuthResponse(String token, UserDto user) {}
+    public record AuthResponse(String token, String refreshToken, UserDto user) {}
     public record UserDto(String id, String email, String name, Integer points, Integer streak, String mascot, java.util.List<String> unlockedSkins) {}
 
     @Transactional
@@ -56,8 +79,8 @@ public class AuthService {
                 .build();
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
-        return new AuthResponse(token, toDto(user));
+        String token = this.generateToken(user.getId(), user.getEmail());
+        return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
     }
 
     public AuthResponse login(LoginRequest req) {
@@ -68,8 +91,8 @@ public class AuthService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
-        return new AuthResponse(token, toDto(user));
+        String token = this.generateToken(user.getId(), user.getEmail());
+        return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
     }
 
     @Transactional
@@ -110,8 +133,8 @@ public class AuthService {
                 userRepository.save(user);
             }
 
-            String token = jwtUtil.generateToken(user.getId(), user.getEmail());
-            return new AuthResponse(token, toDto(user));
+            String token = this.generateToken(user.getId(), user.getEmail());
+            return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), toDto(user));
 
         } catch (IllegalArgumentException e) {
             throw e;
