@@ -318,7 +318,7 @@ export default function AddCard() {
                 style={{ width: '100%', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-input)' }}
               >
                 <span>{decks.find(d => d.id === selectedDeckId)?.name || 'Seleccionar mazo...'}</span>
-                <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>Ôû╝</span>
+                <ChevronDown className="w-4 h-4 opacity-50" />
               </button>
           </div>
           
@@ -332,7 +332,7 @@ export default function AddCard() {
                   style={{ width: '100%', height: '42px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-input)' }}
                 >
                   <span>{NOTE_TYPES.find(t => t.id === selectedType)?.name || 'B├ísica'}</span>
-                  <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>Ôû╝</span>
+                  <ChevronDown className="w-4 h-4 opacity-50" />
                 </button>
             </div>
           )}
@@ -362,7 +362,7 @@ export default function AddCard() {
             onClick={handleMassAdd}
             disabled={massGenerating}
           >
-            {massGenerating ? <span className="spinner-sm" /> : 'Ô£¿ Generar y A├▒adir Tarjetas (Ctrl+Enter)'}
+            {massGenerating ? <span className="spinner-sm" /> : <span className="flex items-center justify-center gap-2"><Sparkles className="w-5 h-5" /> Generar y Añadir (Ctrl+Enter)</span>}
           </button>
         </div>
       ) : (
@@ -375,19 +375,19 @@ export default function AddCard() {
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Frente</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={handleDefinition} disabled={lookingUpDef}>
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>Ô£¿</span>
+                    <Sparkles className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>{lookingUpDef ? '...' : 'Def. IA'}</span>
                   </button>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={handleAutoImage} disabled={lookingUpImage}>
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>­ƒô©</span>
+                    <Image className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>{lookingUpImage ? '...' : 'Auto'}</span>
                   </button>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('front')} title="Galer├¡a">
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>­ƒû╝´©Å</span>
+                    <Folder className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>Galer├¡a</span>
                   </button>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleOpenImageSearch('front')} title="Wikipedia">
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>­ƒöì</span>
+                    <Search className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>Buscar</span>
                   </button>
                 </div>
@@ -408,11 +408,11 @@ export default function AddCard() {
                 <label className="form-label" style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dorso</label>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleGalleryPick('back')} title="Galer├¡a">
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>­ƒû╝´©Å</span>
+                    <Folder className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>Galer├¡a</span>
                   </button>
                   <button type="button" className="btn" style={{ padding: '6px 8px', fontSize: '0.75rem', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '10px', color: 'var(--text-primary)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: '60px' }} onClick={() => handleOpenImageSearch('back')} title="Wikipedia">
-                    <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>­ƒöì</span>
+                    <Search className="w-4 h-4 mb-1" />
                     <span style={{ lineHeight: 1, fontWeight: 600 }}>Buscar</span>
                   </button>
                 </div>
@@ -434,7 +434,7 @@ export default function AddCard() {
                 {tags.map(tag => (
                   <span key={tag} style={{ background: 'var(--accent-color)', color: 'white', padding: '2px 8px', borderRadius: '12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     {tag}
-                    <span style={{ cursor: 'pointer', opacity: 0.7 }} onClick={(e) => { e.stopPropagation(); removeTag(tag); }}>├ù</span>
+                    <span style={{ cursor: 'pointer', opacity: 0.7 }} onClick={(e) => { e.stopPropagation(); removeTag(tag); }}><X className="w-3 h-3" /></span>
                   </span>
                 ))}
                 <input
