@@ -36,7 +36,7 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
               onRate(btn.rating);
             }}
             className={`
-              relative flex flex-col items-center justify-center aspect-square px-2 rounded-[24px] shadow-sm
+              relative flex flex-col items-center justify-center h-24 sm:h-32 px-2 rounded-[24px] shadow-sm
               bg-card border ${style.border} ${style.bgHover}
               transition-all duration-200 cursor-pointer
               disabled:opacity-50 disabled:cursor-not-allowed

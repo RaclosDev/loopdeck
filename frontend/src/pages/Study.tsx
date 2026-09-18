@@ -215,8 +215,9 @@ export default function Study() {
       await studyApi.restoreCard(last.pair.card.id, last.pair.card);
       
       const newQueue = [...queue];
-      newQueue.splice(currentIndex, 0, last.pair);
+      newQueue.splice(last.index, 0, last.pair);
       setQueue(newQueue);
+      setCurrentIndex(last.index);
       setIsFlipped(false);
       setUndoStack(prev => prev.slice(0, -1));
       setSessionStats(prev => ({ ...prev, reviewed: Math.max(0, prev.reviewed - 1) }));
@@ -230,8 +231,9 @@ export default function Study() {
       });
       setIsComplete(false);
       toast('Deshecho');
-    } catch (e) {
-      toast.error('Error al deshacer');
+    } catch (e: any) {
+      console.error("Undo failed:", e);
+      toast.error('Error al deshacer: ' + (e.response?.data?.message || e.message));
     }
   };
 
@@ -312,7 +314,7 @@ export default function Study() {
   }
 
     return (
-      <div className="fade-in flex flex-col h-full p-4 overflow-hidden max-w-3xl mx-auto w-full">
+      <div className="fade-in flex flex-col p-4 overflow-hidden max-w-3xl mx-auto w-full" style={{ height: "100dvh" }}>
         {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", padding: "0 0.5rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
