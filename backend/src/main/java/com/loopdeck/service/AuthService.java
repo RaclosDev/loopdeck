@@ -38,7 +38,7 @@ public class AuthService {
     private final JwtEncoder jwtEncoder;
     private final RefreshTokenService refreshTokenService;
 
-    @Value("${google.client.id}")
+    @Value("${google.client-id:CHANGE_ME}")
     private String googleClientId;
 
     public String getGoogleClientId() {
