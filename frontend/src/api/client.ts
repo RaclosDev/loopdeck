@@ -7,7 +7,8 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('loopdeck_jwt_token');
-  if (token) {
+  // Don't send token for specific auth routes to avoid Spring Security rejecting valid requests (like refresh) due to expired token
+  if (token && !config.url?.match(/\/auth\/(login|register|google|refresh|config)/)) {
     config.headers.Authorization = 'Bearer ' + token;
   }
   return config;
