@@ -18,7 +18,7 @@ export async function lookupDefinition(word: string) {
 
   try {
     // 1. Try fetching from our Spring Boot Backend AI Endpoint
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('loopdeck_jwt_token');
     const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`, {
       headers: {
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -73,7 +73,7 @@ export async function lookupImage(word: string) {
   const clean = word.trim().toLowerCase();
 
   try {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('loopdeck_jwt_token');
     const res = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(clean)}`, {
       headers: {
         ...(token ? { 'Authorization': `Bearer ${token}` } : {})

@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jwt_token');
+  const token = localStorage.getItem('loopdeck_jwt_token');
   if (token) {
     config.headers.Authorization = 'Bearer ' + token;
   }
@@ -51,10 +51,10 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
+      const refreshToken = localStorage.getItem('loopdeck_refresh_token');
       if (!refreshToken) {
         processQueue(new Error("No refresh token available"), null);
-        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('loopdeck_jwt_token');
         window.location.href = '/';
         return Promise.reject(error);
       }
@@ -64,9 +64,9 @@ api.interceptors.response.use(
         const newToken = res.data.token;
         const newRefreshToken = res.data.refreshToken;
         
-        localStorage.setItem('jwt_token', newToken);
+        localStorage.setItem('loopdeck_jwt_token', newToken);
         if (newRefreshToken) {
-          localStorage.setItem('refresh_token', newRefreshToken);
+          localStorage.setItem('loopdeck_refresh_token', newRefreshToken);
         }
 
         api.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
@@ -77,8 +77,8 @@ api.interceptors.response.use(
       } catch (err: any) {
         processQueue(err, null);
         if (err.response && (err.response.status === 401 || err.response.status === 403)) {
-          localStorage.removeItem('jwt_token');
-          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('loopdeck_jwt_token');
+          localStorage.removeItem('loopdeck_refresh_token');
           window.location.href = '/';
         }
         return Promise.reject(err);

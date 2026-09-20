@@ -58,7 +58,7 @@ export const decksApi = {
     return res.data;
   },
   getDocumentUrl: (id: string): string => {
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('loopdeck_jwt_token');
     return `${API_BASE}/decks/${id}/document?token=${token}`;
   },
   getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number }>> => {

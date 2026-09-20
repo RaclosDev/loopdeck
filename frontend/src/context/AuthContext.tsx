@@ -24,8 +24,8 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('jwt_token'));
-  const [refreshToken, setRefreshToken] = useState<string | null>(() => localStorage.getItem('refresh_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('loopdeck_jwt_token'));
+  const [refreshToken, setRefreshToken] = useState<string | null>(() => localStorage.getItem('loopdeck_refresh_token'));
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -50,15 +50,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   const login = (jwtToken: string, newRefreshToken: string) => {
-    localStorage.setItem('jwt_token', jwtToken);
-    localStorage.setItem('refresh_token', newRefreshToken);
+    localStorage.setItem('loopdeck_jwt_token', jwtToken);
+    localStorage.setItem('loopdeck_refresh_token', newRefreshToken);
     setToken(jwtToken);
     setRefreshToken(newRefreshToken);
   };
 
   const logout = () => {
-    localStorage.removeItem('jwt_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('loopdeck_jwt_token');
+    localStorage.removeItem('loopdeck_refresh_token');
     setToken(null);
     setRefreshToken(null);
     setUser(null);
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateToken = (newToken: string) => {
-    localStorage.setItem('jwt_token', newToken);
+    localStorage.setItem('loopdeck_jwt_token', newToken);
     setToken(newToken);
   };
 
