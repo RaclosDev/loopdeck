@@ -1,0 +1,82 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: '/api',
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('loopdeck_jwt_token');
+  // Don't send token for specific auth routes to avoid Spring Security rejecting valid requests (like refresh) due to expired token
+  if (token && !config.url?.match(/\/auth\/(login|register|google|refresh|config)/)) {
+    config.headers.Authorization = 'Bearer ' + token;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+let isRefreshing = false;
+let failedQueue: {resolve: (value?: unknown) => void, reject: (reason?: unknown) => void}[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Do not retry auth routes that don't need token or handle it themselves
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !originalRequest.url.match(/\/auth\/(login|register|google|refresh|config)/)) {
+      
+      if (isRefreshing) {
+        return new Promise(function(resolve, reject) {
+          failedQueue.push({resolve, reject});
+        }).then(token => {
+          originalRequest.headers['Authorization'] = 'Bearer ' + token;
+          return api(originalRequest);
+        }).catch(err => {
+          return Promise.reject(err);
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const res = await api.post('/auth/refresh');
+        const newToken = res.data.token;
+        
+        localStorage.setItem('loopdeck_jwt_token', newToken);
+
+        api.defaults.headers.common['Authorization'] = 'Bearer ' + newToken;
+        originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
+        
+        processQueue(null, newToken);
+        return api(originalRequest);
+      } catch (err: any) {
+        processQueue(err, null);
+        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+          localStorage.removeItem('loopdeck_jwt_token');
+          window.location.href = '/';
+        }
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default api;

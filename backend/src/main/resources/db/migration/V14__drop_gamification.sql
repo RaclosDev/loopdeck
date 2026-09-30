@@ -1,0 +1,5 @@
+ALTER TABLE users DROP COLUMN IF EXISTS points;
+ALTER TABLE users DROP COLUMN IF EXISTS current_streak;
+ALTER TABLE users DROP COLUMN IF EXISTS last_login_date;
+ALTER TABLE users DROP COLUMN IF EXISTS equipped_mascot;
+ALTER TABLE users DROP COLUMN IF EXISTS unlocked_skins;

@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS farm_harvests CASCADE;
+DROP TABLE IF EXISTS farm_inventory CASCADE;

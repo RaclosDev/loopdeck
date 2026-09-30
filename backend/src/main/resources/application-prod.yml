@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:loopdeck}}
+    username: ${SPRING_DATASOURCE_USERNAME:${PGUSER:loopdeck}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:CHANGE_ME}}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
