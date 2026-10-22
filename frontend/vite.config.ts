@@ -27,6 +27,29 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            if (id.includes('@tanstack/react-query')) {
+              return 'vendor-query';
+            }
+            if (id.includes('marked') || id.includes('docx-preview') || id.includes('mammoth') || id.includes('jszip')) {
+              return 'vendor-docs';
+            }
+            if (id.includes('lucide-react') || id.includes('@radix-ui')) {
+              return 'vendor-ui';
+            }
+            return 'vendor-utils';
+          }
+        }
+      }
+    }
+  },
   server: {
     proxy: {
       '/api': {
