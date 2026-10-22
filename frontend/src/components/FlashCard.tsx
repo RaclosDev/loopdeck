@@ -1,4 +1,5 @@
 import { RotateCcw } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 interface FlashCardProps {
   front: string;
@@ -35,7 +36,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflowY: "auto", minHeight: 0, width: "100%", textAlign: "center", scrollbarWidth: "none"} }>
             <div 
               style={{ fontSize: "1.75rem", lineHeight: 1.6, color: "var(--text-primary)", fontWeight: 500 }} 
-              dangerouslySetInnerHTML={{ __html: front || '' }} 
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(front || '') }} 
             />
         </div>
         
@@ -61,7 +62,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflowY: "auto", minHeight: 0, width: "100%", textAlign: "center", scrollbarWidth: "none"} }>
             <div 
               style={{ fontSize: "1.25rem", lineHeight: 1.6, color: "var(--text-primary)" }} 
-              dangerouslySetInnerHTML={{ __html: back || '' }} 
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(back || '') }} 
             />
         </div>
       </div>

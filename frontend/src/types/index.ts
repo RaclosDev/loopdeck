@@ -51,9 +51,6 @@ export interface UserDto {
   id: string;
   email: string;
   name: string;
-  streak: number;
-  mascot: string;
-  unlockedSkins: string[];
 }
 
 export interface AuthResponse {

@@ -1,6 +1,5 @@
-import toast from 'react-hot-toast';
 /**
- * LoopDeck — Global Store (Zustand)
+ * LoopDeck - Global Store (Zustand)
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -20,34 +19,28 @@ export interface Settings {
   showTimer: boolean;
   animationsEnabled: boolean;
   studyOrder: string;
+  theme: 'dark' | 'light';
 }
 
 export interface StoreState {
-  // ── UI State ────────────────────────────────────────────────
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   closeSidebar: () => void;
 
-  // ── Toasts ──────────────────────────────────────────────────
   toasts: ToastMessage[];
   addToast: (message: string, type?: ToastMessage['type'], duration?: number) => void;
 
-  // ── Study Session State ─────────────────────────────────────
   currentDeckId: string | null;
   setCurrentDeckId: (id: string | null) => void;
 
-  // ── Modal State ─────────────────────────────────────────────
   activeModal: string | null;
-  // unknown ya que el payload depende del modal específico
   modalData: unknown;
   openModal: (name: string, data?: unknown) => void;
   closeModal: () => void;
 
-  // ── PWA Install State ───────────────────────────────────────
   deferredPrompt: BeforeInstallPromptEvent | null;
   setDeferredPrompt: (prompt: BeforeInstallPromptEvent | null) => void;
 
-  // ── Settings ────────────────────────────────────────────────
   settings: Settings;
   updateSettings: (newSettings: Partial<Settings>) => void;
 }
@@ -55,34 +48,29 @@ export interface StoreState {
 const useStore = create<StoreState>()(
   persist(
     (set) => ({
-      // ── UI State ────────────────────────────────────────────────
       sidebarOpen: false,
       toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
       closeSidebar: () => set({ sidebarOpen: false }),
 
-      // ── Toasts ──────────────────────────────────────────────────
       toasts: [],
       addToast: () => {},
 
-      // ── Study Session State ─────────────────────────────────────
       currentDeckId: null,
       setCurrentDeckId: (id: string | null) => set({ currentDeckId: id }),
 
-      // ── Modal State ─────────────────────────────────────────────
       activeModal: null,
       modalData: null,
       openModal: (name: string, data: unknown = null) => set({ activeModal: name, modalData: data }),
       closeModal: () => set({ activeModal: null, modalData: null }),
 
-      // ── PWA Install State ───────────────────────────────────────
       deferredPrompt: null,
       setDeferredPrompt: (prompt: BeforeInstallPromptEvent | null) => set({ deferredPrompt: prompt }),
 
-      // ── Settings ────────────────────────────────────────────────
       settings: {
         showTimer: false,
         animationsEnabled: true,
         studyOrder: 'new_first',
+        theme: 'dark',
       },
       updateSettings: (newSettings: Partial<Settings>) => set((s) => ({ settings: { ...s.settings, ...newSettings } })),
     }),

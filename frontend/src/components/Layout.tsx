@@ -84,7 +84,7 @@ export default function Layout() {
 
   const handleInstallClick = async () => {
     if (showIosInstall) {
-      alert('📲 Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari.\n2. Selecciona "Añadir a la pantalla de inicio".');
+      alert('Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari.\n2. Selecciona "Añadir a la pantalla de inicio".');
       return;
     }
     

@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
 import { Note } from '../types';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 function shuffleArray<T>(array: T[]): T[] {
   const newArr = [...array];
@@ -46,7 +48,7 @@ function StudyQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Quiz', { icon: '️' });
+           toast('Necesitas al menos 2 tarjetas para el modo Quiz');
            navigate(`/hub/${deckId}`);
            return;
         }
@@ -57,7 +59,6 @@ function StudyQuiz() {
 
       } catch (e) {
         toast.error('Error cargando mazo');
-        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -117,7 +118,7 @@ function StudyQuiz() {
   if (isFinished) {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}></div>
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4"><CheckCircle2 className="w-8 h-8" /></div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>¡Quiz Terminado!</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem' }}>
           Has acertado <strong>{score}</strong> de {notes.length}
@@ -136,7 +137,7 @@ function StudyQuiz() {
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-           Salir
+          <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         <div className="study-progress">
           <span>Test de Opciones</span>
@@ -151,7 +152,7 @@ function StudyQuiz() {
         {/* Question Card */}
         <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
+          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.front || '') as string) }} />
         </div>
 
         {/* Options Grid */}
@@ -189,7 +190,7 @@ function StudyQuiz() {
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: marked.parse(option.text) }} />
+                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(option.text) as string) }} />
               </button>
             );
           })}
@@ -199,7 +200,7 @@ function StudyQuiz() {
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
             <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
-              Siguiente →
+              Siguiente
             </button>
           </div>
         )}

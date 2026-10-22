@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
 import { Deck, Note } from '../types';
+import { ArrowLeft } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 function StudyGuide() {
   const { deckId } = useParams<{ deckId: string }>();
@@ -54,11 +56,11 @@ function StudyGuide() {
       <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10,  padding: '15px 20px',  margin: '-20px -20px 20px -20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
           <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
-            ← Volver
+            <ArrowLeft className="w-4 h-4 mr-1" /> Volver
           </button>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
             <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>
-               {deck.name} (Guía)
+              {deck.name} (Guía)
             </div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
               {notes.length} conceptos
@@ -96,14 +98,14 @@ function StudyGuide() {
                 <div style={{ padding: '20px' }}>
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
+                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.front || '') as string) }} />
                   </div>
                   
                   <div style={{ width: '40%', height: '1px', background: 'var(--border-subtle)', margin: '0 auto 16px auto' }} />
                   
                   <div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary-light)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>RESPUESTA</div>
-                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: marked.parse(fields.back || '') }} style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }} />
+                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.back || '') as string) }} style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }} />
                   </div>
                 </div>
               </div>
@@ -115,7 +117,7 @@ function StudyGuide() {
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
         <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>¿Ya te suenan los conceptos?</p>
         <button className="btn btn-primary" onClick={() => navigate(`/study/${deckId}`)}>
-           Empezar a Memorizar
+          Empezar a Memorizar
         </button>
       </div>
 

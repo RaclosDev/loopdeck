@@ -8,7 +8,7 @@ import BottomSheet from '../components/BottomSheet';
 import { Button } from '../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Skeleton } from '../components/ui/skeleton';
-import { Play, Plus, Search, MoreVertical, Trash2, Edit3, FolderPlus } from 'lucide-react';
+import { Play, Plus, Search, MoreVertical, Trash2, Edit3, FolderPlus, CheckCircle2 } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -195,8 +195,8 @@ export default function Dashboard() {
                     <Play className="w-5 h-5 mr-2" fill="currentColor" /> Responder ({totalDue})
                   </Button>
                 ) : (
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-primary)', fontWeight: 'bold' }}>
-                    Al día 🌟
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10B981', fontWeight: 600, gap: '6px' }}>
+                    <CheckCircle2 className="w-4 h-4" /> Al día
                   </div>
                 )}
                 <Button style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/add/${deck.id}`)}>
@@ -210,6 +210,14 @@ export default function Dashboard() {
           );
         })}
 
+        {decks.length === 0 && (
+          <div className="card text-center p-8 border-dashed mb-4">
+            <h3 className="text-xl font-bold mb-2">Comienza tu viaje de aprendizaje</h3>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
+              Crea tu primer mazo de tarjetas o descarga una de las plantillas prediseñadas para empezar a estudiar.
+            </p>
+          </div>
+        )}
         <div className="card border-2 border-dashed border-[var(--border-medium)] bg-[var(--bg-card)] p-0 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
           <button 
             className="w-full p-8 bg-transparent border-none flex flex-col items-center gap-3 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"

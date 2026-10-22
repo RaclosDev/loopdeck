@@ -49,7 +49,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // Auth endpoints: NO JWT filter at all - pure cookie-based refresh
+    // Public auth endpoints for cookie-based refresh
     @Bean
     @org.springframework.core.annotation.Order(1)
     public SecurityFilterChain authFilterChain(HttpSecurity http) throws Exception {

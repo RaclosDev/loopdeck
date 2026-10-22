@@ -38,7 +38,6 @@ public class TemplateService {
     @Transactional
     public Deck importTemplate(User user, String templateId) {
         try {
-            // Load JSON from resources
             ClassPathResource resource = new ClassPathResource("templates/" + templateId + ".json");
             if (!resource.exists()) {
                 throw new RuntimeException("Template not found: " + templateId);
@@ -47,14 +46,12 @@ public class TemplateService {
             try (InputStream is = resource.getInputStream()) {
                 Map<String, Object> templateData = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
                 
-                // Create Deck
                 Deck deck = new Deck();
                 deck.setUserId(user.getId());
                 deck.setName((String) templateData.get("name"));
                 deck.setDescription((String) templateData.get("description"));
                 deck = deckRepository.save(deck);
 
-                // Create Notes and Cards
                 List<Map<String, String>> cards = (List<Map<String, String>>) templateData.get("cards");
                 String tags = templateData.containsKey("category") ? ((String) templateData.get("category")).toLowerCase() : "template";
                 
