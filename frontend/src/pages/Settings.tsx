@@ -15,6 +15,15 @@ export default function Settings() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('study');
   const [customColor, setCustomColor] = useState(localStorage.getItem('loopdeck_custom_color') || '#0085FF');
+  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>((localStorage.getItem('loopdeck_theme') as 'dark' | 'light') || 'dark');
+
+  const handleThemeChange = (newTheme: 'dark' | 'light') => {
+    setCurrentTheme(newTheme);
+    updateSettings({ theme: newTheme });
+    localStorage.setItem('loopdeck_theme', newTheme);
+    document.body.classList.remove('dark-mode', 'light-mode');
+    document.body.classList.add(newTheme === 'light' ? 'light-mode' : 'dark-mode');
+  };
   const [showClearModal, setShowClearModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -71,6 +80,28 @@ export default function Settings() {
       {activeTab === 'appearance' && (
         <div className="card">
           <h3 className="text-xl font-bold mb-6">Apariencia</h3>
+
+          <div className="mb-8">
+            <label className="form-label mb-3 block uppercase tracking-wide text-xs">Tema</label>
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                variant={currentTheme === 'dark' ? 'default' : 'secondary'}
+                onClick={() => handleThemeChange('dark')}
+                className="flex-1"
+              >
+                Oscuro
+              </Button>
+              <Button
+                type="button"
+                variant={currentTheme === 'light' ? 'default' : 'secondary'}
+                onClick={() => handleThemeChange('light')}
+                className="flex-1"
+              >
+                Claro
+              </Button>
+            </div>
+          </div>
 
           <div className="mb-8">
             <label className="form-label mb-3 block uppercase tracking-wide text-xs">Color Principal</label>

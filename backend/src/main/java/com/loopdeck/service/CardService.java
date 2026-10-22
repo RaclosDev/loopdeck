@@ -26,7 +26,6 @@ public class CardService {
     public record UpdateNoteRequest(String fieldsJson, String tags) {}
     public record ReviewRequest(int rating, int timeTakenMs) {}
 
-    // ── Notes ──────────────────────────────────────────────────────────────
 
     public List<Note> getNotesByDeck(String userId, String deckId) {
         deckRepository.findByIdAndUserId(deckId, userId)
@@ -105,7 +104,6 @@ public class CardService {
         noteRepository.delete(note);
     }
 
-    // ── Study session ──────────────────────────────────────────────────────
 
     public record DueCardDto(Card card, Note note) {}
 
@@ -166,7 +164,6 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    // ── SM-2 Algorithm ────────────────────────────────────────────────────
 
     private static final int[] LEARNING_STEPS_MINUTES = {1, 10};
     private static final int GRADUATING_INTERVAL_DAYS = 1;

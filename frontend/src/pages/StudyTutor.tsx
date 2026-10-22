@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi, aiApi } from '../services/api';
 import { marked } from 'marked';
 import { Deck } from '../types';
+import { ArrowLeft, Send } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 interface Message {
   role: 'user' | 'ai';
@@ -59,7 +61,6 @@ function StudyTutor() {
 
       } catch (e) {
         toast.error('Error cargando mazo');
-        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -108,10 +109,10 @@ function StudyTutor() {
       
       <div className="study-header" style={{ padding: '15px 20px',   flexShrink: 0 }}>
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
-          ← Volver
+          <ArrowLeft className="w-4 h-4 mr-1" /> Volver
         </button>
         <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
-           Tutor IA - {deck?.name}
+          Tutor IA - {deck?.name}
         </div>
       </div>
 
@@ -132,7 +133,7 @@ function StudyTutor() {
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}>
             {msg.role === 'ai' ? (
-              <div className="flashcard-content" style={{ fontSize: '0.95rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(msg.text) }} />
+              <div className="flashcard-content" style={{ fontSize: '0.95rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(msg.text) as string) }} />
             ) : (
               <div style={{ whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>{msg.text}</div>
             )}
@@ -151,13 +152,13 @@ function StudyTutor() {
           <input
             type="text"
             className="input-field"
-            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-full)', background: 'rgba(255, 255, 255, 0.05)',  color: 'var(--text-primary)', outline: 'none' }}
+            style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-md)', background: 'rgba(255, 255, 255, 0.05)', color: 'var(--text-primary)' }}
             placeholder="Pregunta a la IA sobre este mazo..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
           />
-          <button type="submit" className="btn btn-primary" style={{ borderRadius: 'var(--radius-full)', padding: '0 20px' }} disabled={!input.trim() || isTyping}>
+          <button type="submit" className="btn btn-primary" style={{ borderRadius: 'var(--radius-md)', padding: '0 20px' }} disabled={!input.trim() || isTyping}>
             Enviar
           </button>
         </form>

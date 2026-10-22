@@ -74,16 +74,23 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
       } else {
         setTimeout(() => inputRef.current?.focus(), 100);
       }
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          onClose();
+        }
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('keydown', handleKeyDown);
+      };
     } else {
       document.body.style.overflow = '';
       setQuery('');
       setResults([]);
       setError(null);
     }
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, initialQuery, handleSearch]);
+  }, [isOpen, initialQuery, handleSearch, onClose]);
 
   const searchImages = (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,12 +114,12 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
         }}
       >
         <div className="modal-header" style={{ padding: '16px 20px', flexShrink: 0 }}>
-          <h3 className="modal-title">🖼️ Buscar Imagen</h3>
+          <h3 className="modal-title">Buscar Imagen</h3>
           <button
             className="modal-close"
             onClick={onClose}
             aria-label="Cerrar"
-            style={{ padding: '8px', minWidth: 36, minHeight: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ padding: '8px', minWidth: 44, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >✕</button>
         </div>
 
@@ -128,7 +135,7 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
               style={{ flex: 1, minWidth: '150px' }}
             />
             <button type="submit" className="btn btn-primary" disabled={loading} style={{ whiteSpace: 'nowrap' }}>
-              {loading ? <span className="spinner-sm" /> : '🔍 Buscar'}
+              {loading ? <span className="spinner-sm" /> : 'Buscar'}
             </button>
           </form>
 
@@ -166,6 +173,9 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
                 {results.map((img, i) => (
                   <div
                     key={i}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Seleccionar imagen: ${img.title}`}
                     style={{
                       cursor: 'pointer',
                       borderRadius: 'var(--radius-md)',
@@ -176,6 +186,12 @@ export default function ImageSearchModal({ isOpen, onClose, onSelect, initialQue
                       transition: 'border-color 0.15s, transform 0.1s',
                     }}
                     onClick={() => onSelect(img.url)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelect(img.url);
+                      }
+                    }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent-primary)'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = 'transparent'; }}
                     onTouchStart={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}

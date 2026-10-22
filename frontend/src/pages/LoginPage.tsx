@@ -78,7 +78,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
         padding: '2.5rem 2rem',
         borderRadius: '28px',
         border: '1px solid var(--border-medium)',
-        boxShadow: '0 24px 64px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 133, 255, 0.1)',
+        boxShadow: 'var(--shadow-lg)',
         maxWidth: '400px',
         width: '100%',
         position: 'relative',
@@ -95,7 +95,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
           overflow: 'hidden',
           marginBottom: '1rem',
           border: '1.5px solid var(--accent-primary)',
-          boxShadow: '0 0 25px rgba(0, 133, 255, 0.45), 0 8px 24px rgba(0, 0, 0, 0.7)',
+          boxShadow: 'var(--shadow-md)',
           background: '#000',
           display: 'flex',
           alignItems: 'center',
@@ -118,7 +118,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
           marginBottom: '2rem',
           textAlign: 'center'
         }}>
-          Spaced repetition, reimagined.
+          Repaso espaciado simple y eficaz.
         </p>
 
         <div style={{ 
@@ -238,7 +238,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
 
           {error && (
             <div style={{ color: '#EF4444', fontSize: '0.85rem', background: 'rgba(239,68,68,0.1)', padding: '0.75rem', borderRadius: '12px' }}>
-              s? {error}
+              {error}
             </div>
           )}
 

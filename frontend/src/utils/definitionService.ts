@@ -1,5 +1,5 @@
 /**
- * FlashForge — Definition Lookup Service
+ * LoopDeck - Definition Lookup Service
  * Uses Google Gemini AI via Backend with fallback to Wikipedia API.
  */
 
@@ -17,7 +17,6 @@ export async function lookupDefinition(word: string) {
   let resultDefinition = null;
 
   try {
-    // 1. Try fetching from our Spring Boot Backend AI Endpoint
     const token = localStorage.getItem('loopdeck_jwt_token');
     const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`, {
       headers: {
@@ -34,7 +33,6 @@ export async function lookupDefinition(word: string) {
     console.warn('Backend AI no disponible, usando Wikipedia como plan B...');
   }
 
-  // 2. Fallback to Wikipedia API if backend is down or Gemini fails
   if (!resultDefinition) {
     try {
       const url = `https://es.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=1&exlimit=1&titles=${encodeURIComponent(clean)}&explaintext=1&formatversion=2&format=json&origin=*`;
@@ -64,7 +62,7 @@ export async function lookupDefinition(word: string) {
 
 /**
  * Fetch the best image for a word via our backend (uses Gemini AI to find Wikipedia images).
- * We send the word in SPANISH directly — no translation needed, Gemini understands it perfectly.
+ * Envía la palabra en español directamente sin traducción previa.
  * @param {string} word - The word to search for
  * @returns {Promise<string | null>} The image URL, or null if not found
  */

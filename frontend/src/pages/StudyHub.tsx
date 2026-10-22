@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { decksApi, notesApi } from '../services/api';
 import DocxViewerModal from '../components/DocxViewerModal';
 import { Skeleton } from '../components/ui/skeleton';
+import { ArrowLeft, Repeat, BookOpen, Compass, Layers, ListChecks, Bot, FileText } from 'lucide-react';
 import { useDecks, useDeckStats } from '../hooks/useDecks';
 
 function StudyHub() {
@@ -98,7 +99,7 @@ function StudyHub() {
         
         <div>
           <button className="icon-btn" onClick={() => navigate('/')} style={{ padding: '6px 14px', fontSize: '0.85rem', marginBottom: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-medium)', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '6px', width: 'fit-content' }}>
-            <span>←</span>
+            <ArrowLeft className="w-4 h-4" />
             <span>Mazos</span>
           </button>
           
@@ -108,10 +109,10 @@ function StudyHub() {
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
             <span style={{ background: 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, border: '1px solid var(--border-medium)' }}>
-               {stats.total} notas totales
+              {stats.total} notas totales
             </span>
             <span style={{ background: stats.due > 0 ? 'rgba(0, 133, 255, 0.15)' : 'var(--bg-secondary)', padding: '4px 10px', borderRadius: '12px', fontSize: '0.85rem', color: stats.due > 0 ? 'var(--accent-primary)' : 'var(--text-secondary)', fontWeight: 600, border: stats.due > 0 ? '1px solid rgba(0, 133, 255, 0.3)' : '1px solid var(--border-medium)' }}>
-               {stats.due} tarjetas pendientes
+              {stats.due} tarjetas pendientes
             </span>
           </div>
 
@@ -122,7 +123,7 @@ function StudyHub() {
                 onClick={() => setShowDocModal(true)}
                 style={{ padding: '8px 16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
-                 Ver Documento Original
+                Ver Documento Original
               </button>
             ) : (
               <button 
@@ -131,7 +132,7 @@ function StudyHub() {
                 disabled={uploadingDoc}
                 style={{ padding: '8px 16px', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
-                {uploadingDoc ? 'Subiendo...' : ' Vincular Apuntes (DOCX)'}
+                {uploadingDoc ? 'Subiendo...' : 'Vincular Apuntes (DOCX)'}
               </button>
             )}
             <input 
@@ -154,11 +155,11 @@ function StudyHub() {
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-             Repaso Espaciado
+            <Repeat className="w-5 h-5 text-[var(--accent-primary)]" /> Repaso Espaciado
             {stats.due > 0 && <span style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{stats.due} DUE</span>}
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
-            Algoritmo inteligente de LoopDeck. Responde para optimizar tu memoria a largo plazo.
+            Algoritmo SM-2 de LoopDeck. Programa repasos para optimizar tu memoria a largo plazo.
           </p>
         </div>
 
@@ -169,7 +170,7 @@ function StudyHub() {
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-             Guía de Estudio
+            <BookOpen className="w-5 h-5 text-indigo-400" /> Guía de Estudio
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Lee todas las preguntas y respuestas del tirón. Ideal para el primer contacto.
@@ -183,7 +184,7 @@ function StudyHub() {
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-             Modo Paseo
+            <Compass className="w-5 h-5 text-emerald-400" /> Modo Paseo
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Navega por las tarjetas libremente, sin la presión de acertar y sin afectar a las estadísticas.
@@ -197,7 +198,7 @@ function StudyHub() {
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-             Test por Bloques
+            <Layers className="w-5 h-5 text-blue-400" /> Test por Bloques
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Estudia en orden configurando bloques (10, 20...). Perfecto para asentar conocimiento paso a paso.
@@ -211,7 +212,7 @@ function StudyHub() {
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-             Test de Opciones
+            <ListChecks className="w-5 h-5 text-amber-400" /> Test de Opciones
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Adivina la respuesta correcta entre 4 opciones aleatorias. Un escalón intermedio perfecto.
@@ -225,7 +226,7 @@ function StudyHub() {
              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
           
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
-             Tutor IA
+            <Bot className="w-5 h-5 text-cyan-400" /> Tutor IA
           </h2>
           <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Chatea con la IA sobre el temario. Resuelve tus dudas o ponte a prueba.

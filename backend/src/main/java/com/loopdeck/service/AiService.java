@@ -43,10 +43,8 @@ public class AiService {
 
         String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
 
-        // Prompt para la IA
         String prompt = "Actúa como un diccionario. Da una definición súper breve, de una sola línea (máximo 15 palabras) para la palabra: " + word + ". Solo responde con la definición, sin nada más.";
 
-        // Body de la petición
         Map<String, Object> parts = new HashMap<>();
         parts.put("text", prompt);
 
@@ -214,7 +212,7 @@ public class AiService {
 
     /**
      * Fetch the main image of a Wikipedia article for a given word.
-     * Uses the Wikipedia API directly (pageimages) — guaranteed to return real, valid URLs.
+     * Uses the Wikipedia API directly (pageimages), guaranteed to return real, valid URLs.
      */
     public String getImageUrl(String word) {
         if (word == null || word.trim().isEmpty()) return null;

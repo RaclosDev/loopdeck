@@ -55,8 +55,9 @@ export default function Stats() {
 
   if (loading) {
     return (
-      <div className="flex justify-center p-12">
+      <div className="flex flex-col items-center justify-center p-12 gap-3">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Cargando estadísticas...</span>
       </div>
     );
   }
@@ -84,9 +85,9 @@ export default function Stats() {
               <div className="kpi-label">TARJETAS</div>
               <div className="kpi-value">{stats.totalCards}</div>
             </div>
-            <div className="kpi-card info">
-              <div className="kpi-label">EASE AVG</div>
-              <div className="kpi-value info">{(stats.avgEase * 100).toFixed(0)}%</div>
+            <div className="kpi-card success">
+              <div className="kpi-label">EN REVISIÓN</div>
+              <div className="kpi-value success">{stats.cardsByState.review}</div>
             </div>
           </div>
 
