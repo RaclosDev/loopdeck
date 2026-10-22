@@ -4,7 +4,7 @@ import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { ExpirationPlugin } from 'workbox-expiration';
 
-const CACHE_NAME = 'loopdeck-v-post-ascension-2';
+const CACHE_NAME = 'loopdeck-v2';
 
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
