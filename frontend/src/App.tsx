@@ -65,13 +65,13 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
 
   useEffect(() => {
     if (token && !isLoading) {
-      api.get('/version').then((res: any) => {
+      api.get<{ version: string }>('/version').then(res => {
         currentAppVersion = res.data.version;
       }).catch(err => console.error("Error fetching app version", err));
       
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
-          api.get('/version').then((res: any) => {
+          api.get<{ version: string }>('/version').then(res => {
             if (currentAppVersion && res.data.version !== currentAppVersion) {
               window.location.reload();
             }
@@ -200,7 +200,7 @@ export default function App() {
     if (!configLoaded) {
       // Usar ruta relativa para que funcione el proxy de vite
       fetch('/api/auth/config')
-        .then((res: any) => {
+        .then(res => {
           if (!res.ok) throw new Error('Failed config fetch');
           return res.json();
         })
