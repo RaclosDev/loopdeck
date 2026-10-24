@@ -22,19 +22,29 @@ public interface CardRepository extends JpaRepository<Card, String> {
 
     void deleteByDeckId(String deckId);
 
+    interface CardStateProjection {
+        String getNoteId();
+        String getState();
+    }
+
+    @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId")
+    List<CardStateProjection> findCardStatesByDeckId(@Param("deckId") String deckId);
+
     interface DeckStatsProjection {
         String getDeckId();
         Long getNewCount();
         Long getLearningCount();
         Long getReviewCount();
         Long getTotalCount();
+        Long getNoteCount();
     }
 
     @Query("SELECT c.deckId as deckId, " +
            "SUM(CASE WHEN c.suspended = false AND c.buried = false AND c.state = 'new' THEN 1 ELSE 0 END) as newCount, " +
            "SUM(CASE WHEN c.suspended = false AND c.buried = false AND (c.state = 'learning' OR c.state = 'relearning') AND c.due <= :now THEN 1 ELSE 0 END) as learningCount, " +
            "SUM(CASE WHEN c.suspended = false AND c.buried = false AND c.state = 'review' AND c.due <= :now THEN 1 ELSE 0 END) as reviewCount, " +
-           "COUNT(c.id) as totalCount " +
+           "COUNT(c.id) as totalCount, " +
+           "COUNT(DISTINCT c.noteId) as noteCount " +
            "FROM Card c " +
            "WHERE c.deckId IN :deckIds " +
            "GROUP BY c.deckId")

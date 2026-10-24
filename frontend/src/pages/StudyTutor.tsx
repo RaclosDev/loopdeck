@@ -153,6 +153,7 @@ function StudyTutor() {
             type="text"
             className="input-field"
             style={{ flex: 1, margin: 0, padding: '12px 16px', borderRadius: 'var(--radius-md)', background: 'var(--bg-input)', color: 'var(--text-primary)', border: '1px solid var(--border-subtle)' }}
+            aria-label="Pregunta al tutor IA"
             placeholder="Pregunta a la IA sobre este mazo..."
             value={input}
             onChange={(e) => setInput(e.target.value)}

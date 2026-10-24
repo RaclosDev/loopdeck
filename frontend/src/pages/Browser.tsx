@@ -1,8 +1,9 @@
 import toast from 'react-hot-toast';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import { sanitizeHtml } from '../lib/utils';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { notesApi, studyApi } from '../services/api';
+import { notesApi, decksApi } from '../services/api';
 import { Note } from '../types';
 import { useDecks } from '../hooks/useDecks';
 import { Button } from '../components/ui/button';
@@ -45,14 +46,14 @@ export default function Browser() {
     queryKey: ['browserNotes', selectedDeckId],
     queryFn: async () => {
       const data = await notesApi.getByDeck(selectedDeckId);
-      const cards = await studyApi.getDueCards(selectedDeckId, 10000);
+      const cardStateMap = await decksApi.getCardStates(selectedDeckId);
       
       const allTags = new Set<string>();
-      const cardStateMap: Record<string, string> = {};
+
       
-      cards.forEach(c => {
-        cardStateMap[c.card.noteId] = c.card.state;
-      });
+
+
+
 
       const processed: BrowserNote[] = data.map(n => {
         if (n.tags) n.tags.split(',').forEach(t => allTags.add(t.trim()));
@@ -62,6 +63,7 @@ export default function Browser() {
           state: cardStateMap[n.id] || 'new'
         };
       });
+
 
       return { notes: processed, tags: Array.from(allTags).filter(t => t) };
     },
@@ -73,12 +75,17 @@ export default function Browser() {
   const tags = browserData?.tags || [];
   const loading = loadingDecks || loadingNotes || !selectedDeckId;
 
-  const filteredNotes = notes.filter(n => {
-    const matchSearch = (n.parsedFields.front || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
-                        (n.parsedFields.back || '').toLowerCase().includes(searchQuery.toLowerCase());
-    const matchTag = selectedTag ? (n.tags && n.tags.includes(selectedTag)) : true;
-    return matchSearch && matchTag;
-  });
+  const deferredSearch = useDeferredValue(searchQuery);
+
+  const filteredNotes = useMemo(() => {
+    const q = deferredSearch.toLowerCase();
+    return notes.filter(n => {
+      const matchSearch = (n.parsedFields.front || '').toLowerCase().includes(q) || 
+                          (n.parsedFields.back || '').toLowerCase().includes(q);
+      const matchTag = selectedTag ? (n.tags && n.tags.includes(selectedTag)) : true;
+      return matchSearch && matchTag;
+    });
+  }, [notes, deferredSearch, selectedTag]);
 
   const handleEditClick = (note: BrowserNote) => {
     setEditingNote(note);
@@ -196,14 +203,14 @@ export default function Browser() {
                     <Badge key={t} variant="outline">{t.trim()}</Badge>
                   ))}
                 </div>
-                <div className="text-[0.95rem] font-semibold mb-1 truncate text-foreground" dangerouslySetInnerHTML={{ __html: note.parsedFields.front || '(Vacío)' }} />
-                <div className="text-[0.85rem] text-muted-foreground truncate" dangerouslySetInnerHTML={{ __html: note.parsedFields.back || '(Vacío)' }} />
+                <div className="text-[0.95rem] font-semibold mb-1 truncate text-foreground" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.parsedFields.front || '(Vacío)') }} />
+                <div className="text-[0.85rem] text-muted-foreground truncate" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.parsedFields.back || '(Vacío)') }} />
               </div>
               <div className="flex flex-col gap-2">
-                <Button variant="secondary" size="icon" onClick={() => handleEditClick(note)}>
+                <Button variant="secondary" size="icon" aria-label="Editar tarjeta" onClick={() => handleEditClick(note)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
-                <Button variant="destructive" size="icon" onClick={() => setDeletingNoteId(note.id)}>
+                <Button variant="destructive" size="icon" aria-label="Eliminar tarjeta" onClick={() => setDeletingNoteId(note.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -223,7 +230,7 @@ export default function Browser() {
               <div 
                 className="form-input min-h-[80px] p-3" 
                 contentEditable 
-                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
+                role="textbox" aria-multiline="true" aria-label="Frente de la tarjeta" tabIndex={0} dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
                 onInput={e => setEditFront(e.currentTarget.innerHTML)} 
               />
             </div>
@@ -232,7 +239,7 @@ export default function Browser() {
               <div 
                 className="form-input min-h-[80px] p-3" 
                 contentEditable 
-                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
+                role="textbox" aria-multiline="true" aria-label="Dorso de la tarjeta" tabIndex={0} dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
                 onInput={e => setEditBack(e.currentTarget.innerHTML)} 
               />
             </div>

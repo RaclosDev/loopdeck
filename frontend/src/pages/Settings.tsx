@@ -7,7 +7,7 @@ import { SegmentedControl } from '../components/ui/segmented-control';
 import { Button } from '../components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 
-const PRESETS = ['#0085FF', '#E11D48', '#FFFFFF', '#FF5E00', '#8B5CF6', '#10B981'];
+const PRESETS = ['#0085FF', '#E11D48', '#06B6D4', '#FF5E00', '#8B5CF6', '#10B981'];
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -70,6 +70,8 @@ export default function Settings() {
             <input 
               type="checkbox" 
               className="w-6 h-6 accent-[var(--accent-primary)]"
+              id="timer-checkbox"
+              aria-label="Mostrar cronómetro de sesión"
               checked={settings.showTimer} 
               onChange={(e) => updateSettings({ showTimer: e.target.checked })} 
             />
@@ -108,6 +110,7 @@ export default function Settings() {
             <div className="flex items-center gap-4 mb-3">
               <input 
                 type="color" 
+                aria-label="Seleccionar color de acento personalizado"
                 value={customColor}
                 onChange={(e) => handleColorChange(e.target.value)}
                 className="w-12 h-12 p-0 border-0 rounded-xl cursor-pointer bg-transparent"
@@ -124,6 +127,7 @@ export default function Settings() {
                       border: customColor === color ? '3px solid var(--text-primary)' : '2px solid transparent',
                     }}
                     title={color}
+                    aria-label={`Color de tema ${color}`}
                   />
                 ))}
               </div>
@@ -141,6 +145,8 @@ export default function Settings() {
             <input 
               type="checkbox" 
               className="w-6 h-6 accent-[var(--accent-primary)]"
+              id="animations-checkbox"
+              aria-label="Animaciones 3D de giro de tarjetas"
               checked={settings.animationsEnabled ?? true} 
               onChange={(e) => updateSettings({ animationsEnabled: e.target.checked })} 
             />

@@ -112,7 +112,7 @@ export interface DueCardDto {
   note: Note;
 }
 
-// Template Requests
+
 export interface TemplateDeck {
   id: string;
   name: string;
@@ -122,7 +122,7 @@ export interface TemplateDeck {
   cardCount?: number;
 }
 
-// Ai Requests/Responses
+
 export interface AiDefinitionResponse {
   definition: string;
 }

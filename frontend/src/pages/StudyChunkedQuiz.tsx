@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
@@ -19,6 +19,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 interface QuizOption {
   text: string;
+  html: string;
   isCorrect: boolean;
 }
 
@@ -92,7 +93,16 @@ function StudyChunkedQuiz() {
     });
 
     // Combine and shuffle
-    const allOptions = shuffleArray([{ text: correctBack, isCorrect: true }, ...wrongAnswers.map(text => ({ text, isCorrect: false }))]);
+    const correctHtml = sanitizeHtml(marked.parse(correctBack) as string);
+    const wrongOptions = wrongAnswers.map(text => ({
+      text,
+      html: sanitizeHtml(marked.parse(text) as string),
+      isCorrect: false
+    }));
+    const allOptions = shuffleArray([
+      { text: correctBack, html: correctHtml, isCorrect: true },
+      ...wrongOptions
+    ]);
     
     setOptions(allOptions);
     setSelectedOption(null);
@@ -186,7 +196,8 @@ function StudyChunkedQuiz() {
   }
 
   const currentNote = notes[currentIndex];
-  const fields = JSON.parse(currentNote?.fieldsJson || '{}');
+  const fields = useMemo(() => JSON.parse(currentNote?.fieldsJson || '{}'), [currentNote?.fieldsJson]);
+  const questionHtml = useMemo(() => sanitizeHtml(marked.parse(fields.front || '') as string), [fields.front]);
 
   return (
     <div className="study-container">
@@ -221,7 +232,7 @@ function StudyChunkedQuiz() {
         {/* Question Card */}
         <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.front || '') as string) }} />
+          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: questionHtml }} />
         </div>
 
         {/* Options Grid */}
@@ -259,7 +270,7 @@ function StudyChunkedQuiz() {
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(option.text) as string) }} />
+                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: option.html }} />
               </button>
             );
           })}

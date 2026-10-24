@@ -144,7 +144,7 @@ export default function Dashboard() {
               <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
                 <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
                   <h3 className="card-title" style={{ margin: '0', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h3>
-                  <Button variant="ghost" size="icon" onClick={() => setActiveMoreMenu(deck.id)} style={{ marginTop: '-4px', marginRight: '-8px' }}>
+                  <Button variant="ghost" size="icon" aria-label={`Opciones del mazo ${deck.name}`} onClick={() => setActiveMoreMenu(deck.id)} style={{ marginTop: '-4px', marginRight: '-8px' }}>
                     <MoreVertical className="w-5 h-5 opacity-70" />
                   </Button>
                 </div>
@@ -199,10 +199,10 @@ export default function Dashboard() {
                     <CheckCircle2 className="w-4 h-4" /> Al día
                   </div>
                 )}
-                <Button style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/add/${deck.id}`)}>
+                <Button aria-label={`Añadir tarjeta a ${deck.name}`} style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/add/${deck.id}`)}>
                   <Plus className="w-5 h-5" />
                 </Button>
-                <Button variant="secondary" style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>
+                <Button variant="secondary" aria-label={`Explorar tarjetas de ${deck.name}`} style={{ width: '48px', height: 'auto', borderRadius: '12px' }} onClick={() => navigate(`/browser?deck=${deck.id}`)}>
                   <Search className="w-5 h-5" />
                 </Button>
               </div>

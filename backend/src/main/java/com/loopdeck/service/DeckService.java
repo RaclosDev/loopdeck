@@ -58,7 +58,7 @@ public class DeckService {
         deckRepository.delete(deck);
     }
 
-    public record DeckStats(String deckId, long newCount, long learningCount, long reviewCount, long totalCount) {}
+    public record DeckStats(String deckId, long newCount, long learningCount, long reviewCount, long totalCount, long noteCount) {}
 
     @Transactional(readOnly = true)
     public java.util.Map<String, DeckStats> getDeckStats(String userId) {
@@ -70,7 +70,7 @@ public class DeckService {
 
         java.util.Map<String, DeckStats> result = new java.util.HashMap<>();
         for (Deck d : decks) {
-            result.put(d.getId(), new DeckStats(d.getId(), 0, 0, 0, 0));
+            result.put(d.getId(), new DeckStats(d.getId(), 0, 0, 0, 0, 0));
         }
 
         for (CardRepository.DeckStatsProjection s : statsList) {
@@ -78,7 +78,8 @@ public class DeckService {
                 s.getNewCount() != null ? s.getNewCount() : 0L, 
                 s.getLearningCount() != null ? s.getLearningCount() : 0L, 
                 s.getReviewCount() != null ? s.getReviewCount() : 0L,
-                s.getTotalCount() != null ? s.getTotalCount() : 0L));
+                s.getTotalCount() != null ? s.getTotalCount() : 0L,
+                s.getNoteCount() != null ? s.getNoteCount() : 0L));
         }
 
         return result;

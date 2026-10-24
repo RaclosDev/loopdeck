@@ -61,8 +61,16 @@ export const decksApi = {
     const token = localStorage.getItem('loopdeck_jwt_token');
     return `${API_BASE}/decks/${id}/document?token=${token}`;
   },
-  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number }>> => {
+  downloadDocument: async (id: string): Promise<Blob> => {
+    const res = await api.get(`/decks/${id}/document`, { responseType: 'blob' });
+    return res.data;
+  },
+  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number, noteCount?: number }>> => {
     const res = await api.get('/decks/stats');
+    return res.data;
+  },
+  getCardStates: async (deckId: string): Promise<Record<string, string>> => {
+    const res = await api.get(`/decks/${deckId}/card-states`);
     return res.data;
   }
 };

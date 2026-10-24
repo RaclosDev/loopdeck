@@ -8,6 +8,7 @@ import ImageSearchModal from '../components/ImageSearchModal';
 import { Deck } from '../types';
 import { SegmentedControl } from '../components/ui/segmented-control';
 import { BookA, ListPlus, Bot, Image, Folder, Search, ChevronDown, X, ArrowLeft } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 import { Button } from '../components/ui/button';
 import BottomSheet from '../components/BottomSheet';
 
@@ -389,7 +390,7 @@ export default function AddCard() {
                 className="form-input" 
                 style={{ minHeight: "120px" }}
                 contentEditable 
-                ref={frontContentRef}
+                role="textbox" aria-multiline="true" aria-label="Frente de la tarjeta" tabIndex={0} ref={frontContentRef}
                 onInput={handleFieldChange('front')} 
                 onPaste={handlePaste('front')}
               />
@@ -414,7 +415,7 @@ export default function AddCard() {
                 className="form-input" 
                 style={{ minHeight: "120px" }}
                 contentEditable 
-                ref={backContentRef}
+                role="textbox" aria-multiline="true" aria-label="Dorso de la tarjeta" tabIndex={0} ref={backContentRef}
                 onInput={handleFieldChange('back')} 
                 onPaste={handlePaste('back')}
               />
@@ -454,9 +455,9 @@ export default function AddCard() {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>Vista Previa</div>
             <div className="card" style={{ flex: 1, padding: '1.5rem', display: 'flex', flexDirection: 'column', minHeight: '400px' }}>
-              <div style={{ textAlign: 'center', fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: fields.front || '<span style="color:var(--text-muted)">Pregunta...</span>' }} />
+              <div style={{ textAlign: 'center', fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(fields.front || '<span style="color:var(--text-muted)">Pregunta...</span>') }} />
               <div style={{ height: '1px', width: '66%', background: 'var(--border-medium)', margin: '24px auto' }} />
-              <div style={{ textAlign: 'center', fontSize: '1.1rem', flex: 1 }} dangerouslySetInnerHTML={{ __html: fields.back || '<span style="color:var(--text-muted)">Respuesta...</span>' }} />
+              <div style={{ textAlign: 'center', fontSize: '1.1rem', flex: 1 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(fields.back || '<span style="color:var(--text-muted)">Respuesta...</span>') }} />
               {tags.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-medium)' }}>
                   {tags.map(tag => <span key={tag} style={{ border: '1px solid var(--border-medium)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem' }}>{tag}</span>)}

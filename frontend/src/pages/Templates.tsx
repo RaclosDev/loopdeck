@@ -1,11 +1,13 @@
 import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { templatesApi } from '../services/api';
 import { TemplateDeck } from '../types';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Loader2, Library, Download, Map, Globe, Flag, BookOpen } from 'lucide-react';
+import { Skeleton } from '../components/ui/skeleton';
+import { Loader2, Library, Download, Map, Globe, Flag, BookOpen, AlertCircle } from 'lucide-react';
 
 function getCategoryIcon(icon?: string, category?: string) {
   switch (icon?.toLowerCase()) {
@@ -21,22 +23,14 @@ function getCategoryIcon(icon?: string, category?: string) {
 }
 
 export default function Templates() {
-  const [templates, setTemplates] = useState<TemplateDeck[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [importingId, setImportingId] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [importingId, setImportingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    templatesApi.getAll()
-      .then(data => {
-        setTemplates(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        toast.error('Error al cargar plantillas');
-        setLoading(false);
-      });
-  }, []);
+  const { data: templates = [], isLoading: loading, isError, refetch } = useQuery<TemplateDeck[]>({
+    queryKey: ['templates'],
+    queryFn: () => templatesApi.getAll(),
+    staleTime: 10 * 60 * 1000,
+  });
 
   const handleImportTemplate = async (templateId: string) => {
     if (importingId) return;
@@ -54,10 +48,26 @@ export default function Templates() {
 
   return (
     <div className="fade-in pb-10">
-      {loading ? (
-        <div className="flex flex-col items-center justify-center p-12">
-          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-          <p className="mt-4 text-muted-foreground">Cargando plantillas...</p>
+      {isError ? (
+        <div className="card border-dashed flex flex-col items-center justify-center p-12 text-muted-foreground gap-3">
+          <AlertCircle className="w-12 h-12 text-destructive opacity-80" />
+          <p className="text-foreground font-medium">Error al cargar las plantillas</p>
+          <Button variant="secondary" size="sm" onClick={() => refetch()}>
+            Reintentar
+          </Button>
+        </div>
+      ) : loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="card p-6 flex flex-col gap-4 border-dashed">
+              <Skeleton className="h-6 w-3/4 rounded-md" />
+              <Skeleton className="h-16 w-full rounded-md" />
+              <div className="flex justify-between items-center mt-auto">
+                <Skeleton className="h-4 w-20 rounded-md" />
+                <Skeleton className="h-8 w-24 rounded-lg" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : templates.length === 0 ? (
         <div className="card border-dashed flex flex-col items-center justify-center text-center p-12">

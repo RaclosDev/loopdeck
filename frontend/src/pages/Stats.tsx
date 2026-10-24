@@ -1,55 +1,45 @@
-import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
-import { decksApi, notesApi } from '../services/api';
-import { Loader2, BarChart2 } from 'lucide-react';
+import { useMemo } from 'react';
+import { useDecks, useDeckStats } from '../hooks/useDecks';
+import { Skeleton } from '../components/ui/skeleton';
+import { BarChart2 } from 'lucide-react';
 
 export default function Stats() {
-  const [stats, setStats] = useState({
-    totalDecks: 0,
-    totalNotes: 0,
-    totalCards: 0,
-    cardsByState: { new: 0, learning: 0, review: 0 }
-  });
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        const decks = await decksApi.getAll();
-        const deckStats = await decksApi.getStats();
-        
-        let totalNotes = 0;
-        const notesPromises = decks.map(d => notesApi.getByDeck(d.id));
-        const allNotesArrs = await Promise.all(notesPromises);
-        totalNotes = allNotesArrs.reduce((acc, notes) => acc + notes.length, 0);
+  const { data: decks = [], isLoading: loadingDecks } = useDecks();
+  const deckIds = useMemo(() => decks.map(d => d.id), [decks]);
+  const { data: deckStats = {}, isLoading: loadingStats } = useDeckStats(deckIds);
 
-        const cardsByState = { new: 0, learning: 0, review: 0 };
-        Object.values(deckStats).forEach(stat => {
-          cardsByState.new += stat.newCount || 0;
-          cardsByState.learning += stat.learningCount || 0;
-          cardsByState.review += stat.reviewCount || 0;
-        });
+  const loading = loadingDecks || loadingStats;
 
-        setStats({
-          totalDecks: decks.length,
-          totalNotes,
-          totalCards: cardsByState.new + cardsByState.learning + cardsByState.review,
-          cardsByState
-        });
-      } catch (e) {
-        toast.error('Error al cargar estadísticas');
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadStats();
-  }, []);
+  const stats = useMemo(() => {
+    let totalNotes = 0;
+    let totalCards = 0;
+    const cardsByState = { new: 0, learning: 0, review: 0 };
+
+    Object.values(deckStats).forEach(stat => {
+      cardsByState.new += stat.newCount || 0;
+      cardsByState.learning += stat.learningCount || 0;
+      cardsByState.review += stat.reviewCount || 0;
+      totalCards += stat.totalCount || 0;
+      totalNotes += stat.noteCount !== undefined ? stat.noteCount : (stat.totalCount || 0);
+    });
+
+    return {
+      totalDecks: decks.length,
+      totalNotes,
+      totalCards,
+      cardsByState
+    };
+  }, [decks.length, deckStats]);
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 gap-3">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Cargando estadísticas...</span>
+      <div className="fade-in pb-10">
+        <div className="kpi-grid mb-6">
+          {[1, 2, 3, 4].map(i => (
+            <Skeleton key={i} className="h-24 w-full rounded-2xl" />
+          ))}
+        </div>
+        <Skeleton className="h-40 w-full rounded-2xl" />
       </div>
     );
   }

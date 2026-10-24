@@ -11,6 +11,12 @@
   --color-primary-foreground: #fff;
   --color-border: var(--border-color);
   --color-success: #10b981;
+  --color-secondary: var(--bg-secondary);
+  --color-secondary-foreground: var(--text-primary);
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #ffffff;
+  --color-ring: var(--accent-primary);
+  --color-accent: var(--bg-card-hover);
 }
 
 :root {
@@ -625,6 +631,7 @@ button, a, input, select, textarea, [role=button], [onclick] {
 .form-input:focus, .input-field:focus, .glass-input:focus {
   border-color: var(--accent-primary);
   outline: none;
+  box-shadow: 0 0 0 2px var(--border-accent);
 }
 
 .form-hint {

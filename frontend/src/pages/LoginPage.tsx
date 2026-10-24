@@ -62,7 +62,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
   const [error, setError] = useState('');
   const { login } = useAuth();
   
-  const containerRef = useRef<HTMLDivElement>(null);
+
 
   const handleGoogleSuccess = async (accessToken: string) => {
     setError('');
@@ -125,7 +125,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
       position: 'relative'
     }}>
       <div 
-        ref={containerRef}
+
         style={{
         background: 'var(--bg-card)',
         backdropFilter: 'var(--backdrop-blur)',

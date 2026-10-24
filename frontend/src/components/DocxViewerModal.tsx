@@ -23,14 +23,7 @@ function DocxViewerModal({ isOpen, onClose, deckId }: DocxViewerModalProps) {
 
     const loadDocx = async () => {
       try {
-        const url = decksApi.getDocumentUrl(deckId);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-           throw new Error('No se pudo cargar el documento');
-        }
-
-        const blob = await response.blob();
+        const blob = await decksApi.downloadDocument(deckId);
         
         if (isMounted && containerRef.current) {
 

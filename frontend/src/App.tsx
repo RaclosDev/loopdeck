@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Component } from 'react';
+import { useEffect, useState, lazy, Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
@@ -140,7 +140,7 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
         }}
       />
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Suspense fallback={<div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center"><div className="spinner" /></div>}><Layout /></Suspense>}>
           <Route index element={<Dashboard />} />
           <Route path="hub" element={<GlobalStudy />} />
           <Route path="study/:deckId" element={<Study />} />
