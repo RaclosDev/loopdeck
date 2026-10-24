@@ -54,7 +54,7 @@ public class AiController {
         if (prompt == null || prompt.trim().isEmpty() || prompt.length() > 2000) {
             throw new IllegalArgumentException("El prompt es inválido o excede los 2000 caracteres");
         }
-        if (context != null && context.length() > 5000) {
+        if (context != null && context.length() > 50000) {
             throw new IllegalArgumentException("El contexto excede el límite permitido");
         }
         

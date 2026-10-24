@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
@@ -48,6 +48,18 @@ function StudyGuide() {
     );
   }
 
+  const parsedNotes = useMemo(() => {
+    return notes.map((note, index) => {
+      const fields = JSON.parse(note.fieldsJson || '{}');
+      return {
+        id: note.id,
+        index,
+        frontHtml: sanitizeHtml(marked.parse(fields.front || '') as string),
+        backHtml: sanitizeHtml(marked.parse(fields.back || '') as string),
+      };
+    });
+  }, [notes]);
+
   if (!deck) return null;
 
   return (
@@ -75,11 +87,11 @@ function StudyGuide() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {notes.map((note, index) => {
-            const fields = JSON.parse(note.fieldsJson || '{}');
+          {parsedNotes.map((item) => {
+
             
             return (
-              <div key={note.id} style={{ 
+              <div key={item.id} style={{ 
                 background: 'var(--bg-glass-strong)',
                 border: '1px solid var(--border-subtle)',
                  
@@ -94,19 +106,19 @@ function StudyGuide() {
                   fontWeight: 600,
                   borderBottom: '1px solid var(--border-subtle)'
                 }}>
-                  #{index + 1}
+                  #{item.index + 1}
                 </div>
                 <div style={{ padding: '20px' }}>
                   <div style={{ marginBottom: '16px' }}>
                     <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.front || '') as string) }} />
+                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: item.frontHtml }} />
                   </div>
                   
                   <div style={{ width: '40%', height: '1px', background: 'var(--border-subtle)', margin: '0 auto 16px auto' }} />
                   
                   <div>
                     <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary-light)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>RESPUESTA</div>
-                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.back || '') as string) }} style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }} />
+                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: item.backHtml }} style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }} />
                   </div>
                 </div>
               </div>

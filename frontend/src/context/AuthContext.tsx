@@ -1,3 +1,4 @@
+import api from '../api/client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { googleLogout } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             });
           }
         } catch (err) {
-          console.error("Token invǭlido", err);
+          console.error("Token inválido", err);
           needsRefresh = true; // Try refreshing before giving up completely
         }
       } else {
@@ -130,7 +131,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(jwtToken);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Ignore network errors during logout
+    }
     localStorage.removeItem('loopdeck_jwt_token');
     setToken(null);
     setUser(null);

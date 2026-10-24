@@ -38,7 +38,10 @@ export default defineConfig({
             if (id.includes('@tanstack/react-query')) {
               return 'vendor-query';
             }
-            if (id.includes('marked') || id.includes('docx-preview') || id.includes('mammoth') || id.includes('jszip')) {
+            if (id.includes('marked') || id.includes('dompurify')) {
+              return 'vendor-markdown';
+            }
+            if (id.includes('docx-preview') || id.includes('mammoth') || id.includes('jszip')) {
               return 'vendor-docs';
             }
             if (id.includes('lucide-react') || id.includes('@radix-ui')) {
