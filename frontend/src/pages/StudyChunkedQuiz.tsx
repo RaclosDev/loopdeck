@@ -5,6 +5,8 @@ import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
 
 import { Note } from '../types';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 function shuffleArray<T>(array: T[]): T[] {
   const newArr = [...array];
@@ -54,7 +56,7 @@ function StudyChunkedQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Test', { icon: '️' });
+           toast('Necesitas al menos 2 tarjetas para el modo Test');
            navigate(`/hub/${deckId}`);
            return;
         }
@@ -65,7 +67,6 @@ function StudyChunkedQuiz() {
 
       } catch (e) {
         toast.error('Error cargando mazo');
-        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -156,7 +157,7 @@ function StudyChunkedQuiz() {
   if (isChunkFinished) {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>{isFinished ? '' : ''}</div>
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4"><CheckCircle2 className="w-8 h-8" /></div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', textAlign: 'center' }}>
           {isFinished ? '¡Mazo Completado!' : '¡Bloque Completado!'}
         </h2>
@@ -167,7 +168,7 @@ function StudyChunkedQuiz() {
         
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button className="icon-btn" onClick={handleRepeatChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
-             Repetir estas {currentChunkLength}
+            Repetir estas {currentChunkLength}
           </button>
           
           {isFinished ? (
@@ -176,7 +177,7 @@ function StudyChunkedQuiz() {
             </button>
           ) : (
             <button className="btn btn-primary" onClick={handleNextChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
-              Siguiente Bloque →
+              Siguiente Bloque
             </button>
           )}
         </div>
@@ -191,7 +192,7 @@ function StudyChunkedQuiz() {
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-           Salir
+          <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         
         <div className="study-progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -200,7 +201,7 @@ function StudyChunkedQuiz() {
             <button 
               type="button"
               onClick={() => setShowChunkSheet(true)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', outline: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
             >
               {chunkSize} ▼
             </button>
@@ -220,7 +221,7 @@ function StudyChunkedQuiz() {
         {/* Question Card */}
         <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
+          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(fields.front || '') as string) }} />
         </div>
 
         {/* Options Grid */}
@@ -258,7 +259,7 @@ function StudyChunkedQuiz() {
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: marked.parse(option.text) }} />
+                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(marked.parse(option.text) as string) }} />
               </button>
             );
           })}
@@ -268,7 +269,7 @@ function StudyChunkedQuiz() {
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
             <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
-              {currentIndex + 1 >= currentChunkStart + chunkSize || currentIndex + 1 >= notes.length ? 'Finalizar Bloque' : 'Siguiente →'}
+              {currentIndex + 1 >= currentChunkStart + chunkSize || currentIndex + 1 >= notes.length ? 'Finalizar Bloque' : 'Siguiente'}
             </button>
           </div>
         )}

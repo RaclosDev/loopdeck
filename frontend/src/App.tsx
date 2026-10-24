@@ -165,14 +165,10 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
 
 export default function App() {
   useEffect(() => {
-    document.body.className = 'dark-mode';
-    const handleTouchStart = (e: TouchEvent) => {
-      const x = e.touches[0].clientX;
-      if (x < 20 || x > window.innerWidth - 20) {
-        e.preventDefault();
-      }
-    };
-    
+    const savedTheme = localStorage.getItem('loopdeck_theme') || 'dark';
+    document.body.classList.remove('dark-mode', 'light-mode');
+    document.body.classList.add(savedTheme === 'light' ? 'light-mode' : 'dark-mode');
+
     const handleFocusIn = (e: FocusEvent) => {
       if (e.target && ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA')) {
         document.body.classList.add('keyboard-open');
@@ -185,12 +181,10 @@ export default function App() {
       }
     };
 
-    document.addEventListener('touchstart', handleTouchStart, { passive: false });
     document.addEventListener('focusin', handleFocusIn);
     document.addEventListener('focusout', handleFocusOut);
     
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('focusin', handleFocusIn);
       document.removeEventListener('focusout', handleFocusOut);
     };

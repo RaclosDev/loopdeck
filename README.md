@@ -18,9 +18,9 @@
 
 ## Descripción
 
-Loopdeck (anteriormente FlashForge) es una aplicación PWA (instalable en móvil y escritorio) de tarjetas de estudio inteligente. Utiliza el algoritmo SM-2 (Spaced Repetition) para planificar los repasos y garantizar la retención a largo plazo. Combina rendimiento empresarial (bases de datos desnormalizadas O(1), cachés locales con React Query) con orquestación de Inteligencia Artificial (Google Gemini) para generar tarjetas de estudio, buscar explicaciones y procesar documentos de texto.
+Loopdeck es una aplicación PWA (instalable en móvil y escritorio) de tarjetas de estudio inteligente. Utiliza el algoritmo SM-2 (Spaced Repetition) para planificar los repasos y garantizar la retención a largo plazo. Combina rendimiento empresarial (bases de datos desnormalizadas O(1), cachés locales con React Query) con orquestación de Inteligencia Artificial (Google Gemini) para generar tarjetas de estudio, buscar explicaciones y procesar documentos de texto.
 
-Este repositorio está desarrollado con la misma **Arquitectura Base (Ascension Tracker Platform)**, estandarizando componentes UI, flujos de seguridad JWT HttpOnly y despliegue Dockerizado.
+El proyecto cuenta con una arquitectura estandarizada con componentes UI modulares, flujos de seguridad JWT HttpOnly y despliegue dockerizado.
 
 ## Arquitectura Empresarial (FAANG-Ready)
 

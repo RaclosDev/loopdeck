@@ -20,8 +20,14 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     if (!isOpen) {
       setDragY(0);
       startY.current = null;
+    } else {
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

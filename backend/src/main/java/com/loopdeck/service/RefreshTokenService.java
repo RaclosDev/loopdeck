@@ -19,7 +19,7 @@ public class RefreshTokenService {
     }
 
     public Optional<RefreshToken> findByToken(String token) {
-        // HASH the plain token before looking it up in the database!
+        // Hash the plain token before querying the database.
         String hashedToken = RefreshToken.hashToken(token);
         return refreshTokenRepository.findByToken(hashedToken);
     }
