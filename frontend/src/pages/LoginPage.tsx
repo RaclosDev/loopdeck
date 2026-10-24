@@ -3,6 +3,58 @@ import { useGoogleLogin } from '@react-oauth/google';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 
+function GoogleLoginSection({ 
+  onSuccess, 
+  onError 
+}: { 
+  onSuccess: (token: string) => void; 
+  onError: (msg: string) => void;
+}) {
+  const customGoogleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => onSuccess(tokenResponse.access_token),
+    onError: () => onError('Google Login Failed')
+  });
+
+  return (
+    <>
+      <button
+        type="button"
+        className="btn btn-secondary"
+        onClick={() => customGoogleLogin()}
+        style={{
+          width: '100%',
+          padding: '0.875rem',
+          marginBottom: '1.5rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+          borderRadius: '16px',
+          border: '1px solid var(--border-medium)',
+          background: 'var(--bg-glass-strong)',
+          color: 'var(--text-primary)',
+          fontWeight: 600,
+          fontSize: '1rem'
+        }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.66 15.63 16.88 16.8 15.72 17.58V20.34H19.29C21.37 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4"/>
+          <path d="M12 23C14.97 23 17.46 22.02 19.29 20.34L15.72 17.58C14.73 18.24 13.47 18.64 12 18.64C9.15 18.64 6.74 16.71 5.88 14.12H2.21V16.97C4.01 20.55 7.71 23 12 23Z" fill="#34A853"/>
+          <path d="M5.88 14.12C5.66 13.46 5.54 12.75 5.54 12C5.54 11.25 5.66 10.54 5.88 9.88V7.03H2.21C1.47 8.5 1.05 10.2 1.05 12C1.05 13.8 1.47 15.5 2.21 16.97L5.88 14.12Z" fill="#FBBC05"/>
+          <path d="M12 5.36C13.62 5.36 15.07 5.92 16.21 7.02L19.37 3.86C17.45 2.07 14.96 1 12 1C7.71 1 4.01 3.45 2.21 7.03L5.88 9.88C6.74 7.29 9.15 5.36 12 5.36Z" fill="#EA4335"/>
+        </svg>
+        Continuar con Google
+      </button>
+
+      <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '1.5rem', opacity: 0.5 }}>
+        <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
+        <span style={{ padding: '0 10px', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--text-primary)' }}>O CON EMAIL</span>
+        <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
+      </div>
+    </>
+  );
+}
+
 export default function LoginPage({ googleEnabled = false }: { googleEnabled?: boolean }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -12,24 +64,26 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
   
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const customGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setError('');
-      setLoading(true);
-      try {
-        const res = await api.post('/auth/google', { 
-          credential: tokenResponse.access_token,
-          token: tokenResponse.access_token
-        });
-        login(res.data.token);
-      } catch (err: any) {
-        setError(err.response?.data?.error || err.message || 'Error con Google');
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: () => setError('Google Login Failed')
-  });
+  const handleGoogleSuccess = async (accessToken: string) => {
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post('/auth/google', { 
+        credential: accessToken,
+        token: accessToken
+      });
+      login(res.data.token);
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || (err instanceof Error ? err.message : 'Error con Google');
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = (msg: string) => {
+    setError(msg);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -50,8 +104,9 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
         const res = await api.post('/auth/register', { name: form.name, email: form.email, password: form.password });
         login(res.data.token);
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Error en auth');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || (err instanceof Error ? err.message : 'Error en auth');
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -64,7 +119,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(rgba(8, 8, 12, 0.82), rgba(5, 5, 8, 0.90)), url(/login-bg.jpg) center/cover no-repeat fixed',
+      background: 'radial-gradient(circle at 50% 0%, rgba(0, 133, 255, 0.12) 0%, var(--bg-primary) 70%)',
       color: 'var(--text-primary)',
       padding: '1.5rem',
       position: 'relative'
@@ -73,8 +128,8 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
         ref={containerRef}
         style={{
         background: 'var(--bg-card)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        backdropFilter: 'var(--backdrop-blur)',
+        WebkitBackdropFilter: 'var(--backdrop-blur)',
         padding: '2.5rem 2rem',
         borderRadius: '28px',
         border: '1px solid var(--border-medium)',
@@ -123,7 +178,8 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
 
         <div style={{ 
           display: 'flex', 
-          background: 'rgba(255, 255, 255, 0.05)', 
+          background: 'var(--bg-glass-strong)', 
+          border: '1px solid var(--border-subtle)',
           padding: '0.35rem', 
           borderRadius: '20px', 
           marginBottom: '1.5rem',
@@ -137,7 +193,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
               background: mode === 'login' ? 'var(--bg-primary)' : 'transparent', 
               color: mode === 'login' ? 'var(--text-primary)' : 'var(--text-secondary)',
               fontWeight: mode === 'login' ? 600 : 500,
-              boxShadow: mode === 'login' ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              boxShadow: mode === 'login' ? 'var(--shadow-card)' : 'none',
               transition: 'all 0.25s ease', cursor: 'pointer'
             }}
           >
@@ -151,7 +207,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
               background: mode === 'register' ? 'var(--bg-primary)' : 'transparent', 
               color: mode === 'register' ? 'var(--text-primary)' : 'var(--text-secondary)',
               fontWeight: mode === 'register' ? 600 : 500,
-              boxShadow: mode === 'register' ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              boxShadow: mode === 'register' ? 'var(--shadow-card)' : 'none',
               transition: 'all 0.25s ease', cursor: 'pointer'
             }}
           >
@@ -160,42 +216,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
         </div>
 
         {googleEnabled && (
-          <>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => customGoogleLogin()}
-              style={{
-                width: '100%',
-                padding: '0.875rem',
-                marginBottom: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                borderRadius: '16px',
-                border: '1px solid var(--border-medium)',
-                background: 'rgba(255, 255, 255, 0.05)',
-                color: 'var(--text-primary)',
-                fontWeight: 600,
-                fontSize: '1rem'
-              }}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22.56 12.25C22.56 11.47 22.49 10.72 22.36 10H12V14.26H17.92C17.66 15.63 16.88 16.8 15.72 17.58V20.34H19.29C21.37 18.42 22.56 15.6 22.56 12.25Z" fill="#4285F4"/>
-                <path d="M12 23C14.97 23 17.46 22.02 19.29 20.34L15.72 17.58C14.73 18.24 13.47 18.64 12 18.64C9.15 18.64 6.74 16.71 5.88 14.12H2.21V16.97C4.01 20.55 7.71 23 12 23Z" fill="#34A853"/>
-                <path d="M5.88 14.12C5.66 13.46 5.54 12.75 5.54 12C5.54 11.25 5.66 10.54 5.88 9.88V7.03H2.21C1.47 8.5 1.05 10.2 1.05 12C1.05 13.8 1.47 15.5 2.21 16.97L5.88 14.12Z" fill="#FBBC05"/>
-                <path d="M12 5.36C13.62 5.36 15.07 5.92 16.21 7.02L19.37 3.86C17.45 2.07 14.96 1 12 1C7.71 1 4.01 3.45 2.21 7.03L5.88 9.88C6.74 7.29 9.15 5.36 12 5.36Z" fill="#EA4335"/>
-              </svg>
-              Continuar con Google
-            </button>
-
-            <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '1.5rem', opacity: 0.5 }}>
-              <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
-              <span style={{ padding: '0 10px', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--text-primary)' }}>O CON EMAIL</span>
-              <div style={{ flex: 1, height: '1px', background: 'var(--text-primary)' }}></div>
-            </div>
-          </>
+          <GoogleLoginSection onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
         )}
 
         <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>

@@ -47,7 +47,7 @@ public class CardService {
                 .build();
         noteRepository.save(note);
 
-        // Create card(s) for the note
+
         int numCards = "cloze".equals(note.getNoteType()) ? 1 : ("reverse".equals(note.getNoteType()) ? 2 : 1);
         for (int i = 0; i < numCards; i++) {
             Card card = Card.builder()

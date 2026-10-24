@@ -58,7 +58,7 @@ export interface AuthResponse {
   user: UserDto;
 }
 
-// Auth Requests
+
 export interface RegisterRequest {
   email: string;
   name: string;
@@ -70,7 +70,7 @@ export interface LoginRequest {
   password?: string;
 }
 
-// Deck Requests
+
 export interface DeckCreateBody {
   name: string;
   description?: string;
@@ -82,7 +82,7 @@ export interface DeckUpdateBody {
   description?: string;
 }
 
-// Card & Note Requests
+
 export interface NoteCreateBody {
   deckId: string;
   noteType?: string;

@@ -230,9 +230,9 @@ export default function Study() {
       });
       setIsComplete(false);
       toast('Deshecho');
-    } catch (e: any) {
-      console.error("Undo failed:", e);
-      toast.error('Error al deshacer: ' + (e.response?.data?.error || e.message));
+    } catch (e: unknown) {
+      const msg = (e as { response?: { data?: { error?: string } } })?.response?.data?.error || (e instanceof Error ? e.message : 'Error desconocido');
+      toast.error('Error al deshacer: ' + msg);
     }
   };
 

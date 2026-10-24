@@ -8,11 +8,7 @@ export default function Stats() {
     totalDecks: 0,
     totalNotes: 0,
     totalCards: 0,
-    cardsByState: { new: 0, learning: 0, review: 0 },
-    avgEase: 0,
-    totalLapses: 0,
-    mature: 0,
-    suspended: 0
+    cardsByState: { new: 0, learning: 0, review: 0 }
   });
   const [loading, setLoading] = useState(true);
   
@@ -38,11 +34,7 @@ export default function Stats() {
           totalDecks: decks.length,
           totalNotes,
           totalCards: cardsByState.new + cardsByState.learning + cardsByState.review,
-          cardsByState,
-          avgEase: 2.5,
-          totalLapses: 0,
-          mature: 0,
-          suspended: 0
+          cardsByState
         });
       } catch (e) {
         toast.error('Error al cargar estadísticas');

@@ -41,6 +41,19 @@
   --accent-primary-light: #339CFF;
   --accent-primary-dark: #0066CC;
   --accent-glow: rgba(0, 133, 255, 0.15);
+  --accent-primary-rgb: 0, 133, 255;
+
+  /* Aliases & Complementary Tokens */
+  --bg-base: var(--bg-primary);
+  --accent-hover: var(--accent-primary-dark);
+  --srs-new: #3B82F6;
+  --srs-learning: #F59E0B;
+  --srs-review: #10B981;
+  --shadow-elevated: 0 10px 40px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --backdrop-blur: blur(16px);
+  --shadow-border: 0 0 0 1px var(--border-medium);
+  --shadow-border-hover: 0 0 0 1px var(--border-accent);
 
   /* Semantic */
   --color-success: #10B981;
@@ -113,6 +126,19 @@ body.light-mode {
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  --accent-primary: #0066CC;
+  --accent-primary-light: #0085FF;
+  --accent-primary-dark: #004C99;
+  --text-accent: #0066CC;
+  --accent-primary-rgb: 0, 102, 204;
+  --bg-base: var(--bg-primary);
+  --accent-hover: var(--accent-primary-dark);
+  --shadow-elevated: 0 10px 40px rgba(0, 0, 0, 0.15);
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --backdrop-blur: blur(12px);
+  --shadow-border: 0 0 0 1px var(--border-medium);
+  --shadow-border-hover: 0 0 0 1px var(--border-accent);
 }
 
 *, *::before, *::after {

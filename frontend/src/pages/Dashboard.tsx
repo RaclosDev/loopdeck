@@ -166,22 +166,22 @@ export default function Dashboard() {
                   </div>
                 </BottomSheet>
 
-                <div style={{ display: 'flex', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
+                <div style={{ display: 'flex', background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <span style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{counts.newCount}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Nuevas</span>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+                  <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 0.5rem' }} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <span style={{ color: '#F59E0B', fontWeight: 700, fontSize: '1.1rem' }}>{counts.learningCount}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Aprend.</span>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+                  <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 0.5rem' }} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <span style={{ color: '#10B981', fontWeight: 700, fontSize: '1.1rem' }}>{counts.reviewCount}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Revisión</span>
                   </div>
-                  <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)', margin: '0 0.5rem' }} />
+                  <div style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 0.5rem' }} />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{totalCards}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Total</span>
@@ -212,9 +212,9 @@ export default function Dashboard() {
 
         {decks.length === 0 && (
           <div className="card text-center p-8 border-dashed mb-4">
-            <h3 className="text-xl font-bold mb-2">Comienza tu viaje de aprendizaje</h3>
+            <h3 className="text-xl font-bold mb-2">Crea tu primer mazo</h3>
             <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
-              Crea tu primer mazo de tarjetas o descarga una de las plantillas prediseñadas para empezar a estudiar.
+              Crea tu primer mazo o descarga una de las plantillas prediseñadas para empezar a repasar.
             </p>
           </div>
         )}
@@ -223,7 +223,7 @@ export default function Dashboard() {
             className="w-full p-8 bg-transparent border-none flex flex-col items-center gap-3 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
             onClick={() => { setModalInputValue(''); setCreateModalOpen(true); }}
           >
-            <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-foreground">
+            <div className="w-12 h-12 bg-[var(--bg-glass-strong)] border border-[var(--border-subtle)] rounded-full flex items-center justify-center text-foreground">
               <FolderPlus className="w-6 h-6" />
             </div>
             <div className="font-semibold text-lg">Nuevo Mazo</div>

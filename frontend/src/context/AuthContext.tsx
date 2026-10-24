@@ -137,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       googleLogout();
     } catch (e) {
-      // ignore
+
     }
   };
 

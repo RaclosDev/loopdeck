@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
 let isRefreshing = false;
 let failedQueue: {resolve: (value?: unknown) => void, reject: (reason?: unknown) => void}[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
@@ -64,9 +64,10 @@ api.interceptors.response.use(
         
         processQueue(null, newToken);
         return api(originalRequest);
-      } catch (err: any) {
+      } catch (err: unknown) {
         processQueue(err, null);
-        if (err.response && (err.response.status === 401 || err.response.status === 403)) {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 401 || status === 403) {
           localStorage.removeItem('loopdeck_jwt_token');
           window.location.href = '/';
         }

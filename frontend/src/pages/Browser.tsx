@@ -9,7 +9,7 @@ import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Skeleton } from '../components/ui/skeleton';
-import { Pencil, Trash2, Search, Loader2 } from 'lucide-react';
+import { Pencil, Trash2, Search, Loader2, AlertCircle } from 'lucide-react';
 
 type BrowserNote = Note & { parsedFields: Record<string, string>, state: string };
 
@@ -41,7 +41,7 @@ export default function Browser() {
     }
   }, [decks, initialDeck, selectedDeckId]);
 
-  const { data: browserData, isLoading: loadingNotes, refetch: refetchNotes } = useQuery({
+  const { data: browserData, isLoading: loadingNotes, isError: isErrorNotes, refetch: refetchNotes } = useQuery({
     queryKey: ['browserNotes', selectedDeckId],
     queryFn: async () => {
       const data = await notesApi.getByDeck(selectedDeckId);
@@ -123,7 +123,7 @@ export default function Browser() {
           <div className="flex flex-wrap gap-2">
             {decks.length === 0 && <div style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>Sin mazos</div>}
             {decks.map(d => (
-              <button key={d.id} onClick={() => setSelectedDeckId(d.id)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedDeckId === d.id ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedDeckId === d.id ? 'var(--accent-text, white)' : 'var(--text-secondary)', fontWeight: selectedDeckId === d.id ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{d.name}</button>
+              <button key={d.id} onClick={() => setSelectedDeckId(d.id)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedDeckId === d.id ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedDeckId === d.id ? 'white' : 'var(--text-secondary)', fontWeight: selectedDeckId === d.id ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{d.name}</button>
             ))}
           </div>
         </div>
@@ -132,9 +132,9 @@ export default function Browser() {
           <div>
             <label className="form-label mb-2 block uppercase tracking-wide text-xs">Etiqueta</label>
             <div className="flex flex-wrap gap-2">
-              <button onClick={() => setSelectedTag('')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === '' ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === '' ? 'var(--accent-text, white)' : 'var(--text-secondary)', fontWeight: selectedTag === '' ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>Todas</button>
+              <button onClick={() => setSelectedTag('')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === '' ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === '' ? 'white' : 'var(--text-secondary)', fontWeight: selectedTag === '' ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>Todas</button>
               {tags.map(t => (
-                <button key={t} onClick={() => setSelectedTag(t)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === t ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === t ? 'var(--accent-text, white)' : 'var(--text-secondary)', fontWeight: selectedTag === t ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{t}</button>
+                <button key={t} onClick={() => setSelectedTag(t)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === t ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === t ? 'white' : 'var(--text-secondary)', fontWeight: selectedTag === t ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{t}</button>
               ))}
             </div>
           </div>
@@ -152,7 +152,15 @@ export default function Browser() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {loading ? (
+        {isErrorNotes ? (
+          <div className="card border-dashed flex flex-col items-center justify-center p-12 text-muted-foreground gap-3">
+            <AlertCircle className="w-12 h-12 text-destructive opacity-80" />
+            <p className="text-foreground font-medium">Error al cargar las tarjetas del mazo</p>
+            <Button variant="secondary" size="sm" onClick={() => refetchNotes()}>
+              Reintentar
+            </Button>
+          </div>
+        ) : loading ? (
           <div className="flex flex-col gap-4">
             {[1, 2, 3, 4, 5].map(i => (
               <div key={i} className="card p-4 flex gap-4 items-center flex-row">

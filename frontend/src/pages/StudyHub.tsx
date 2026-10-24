@@ -121,7 +121,7 @@ function StudyHub() {
               <button 
                 className="btn" 
                 onClick={() => setShowDocModal(true)}
-                style={{ padding: '8px 16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-light)', border: '1px solid var(--accent-color)', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
+                style={{ padding: '8px 16px', background: 'rgba(6, 182, 212, 0.1)', color: 'var(--accent-primary-light)', border: '1px solid var(--accent-primary)', borderRadius: '12px', fontWeight: 600, fontSize: '0.9rem' }}
               >
                 Ver Documento Original
               </button>
@@ -149,86 +149,86 @@ function StudyHub() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
         
         {/* REPASO ESPACIADO (Clásico) */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/study/${deckId}`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-color)'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+             onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-primary)'}
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
           
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Repeat className="w-5 h-5 text-[var(--accent-primary)]" /> Repaso Espaciado
-            {stats.due > 0 && <span style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{stats.due} DUE</span>}
+            {stats.due > 0 && <span style={{ background: 'var(--accent-primary)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{stats.due} DUE</span>}
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Algoritmo SM-2 de LoopDeck. Programa repasos para optimizar tu memoria a largo plazo.
           </p>
         </div>
 
         {/* GUÍA DE ESTUDIO */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/guide`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--purple-accent)'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#8B5CF6'}
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
           
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <BookOpen className="w-5 h-5 text-indigo-400" /> Guía de Estudio
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Lee todas las preguntas y respuestas del tirón. Ideal para el primer contacto.
           </p>
         </div>
 
         {/* MODO PASEO */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/explore`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
           
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Compass className="w-5 h-5 text-emerald-400" /> Modo Paseo
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Navega por las tarjetas libremente, sin la presión de acertar y sin afectar a las estadísticas.
           </p>
         </div>
 
         {/* TEST POR BLOQUES */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/chunked`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
           
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Layers className="w-5 h-5 text-blue-400" /> Test por Bloques
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Estudia en orden configurando bloques (10, 20...). Perfecto para asentar conocimiento paso a paso.
           </p>
         </div>
 
         {/* TEST DE OPCIONES */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/quiz`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
           
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <ListChecks className="w-5 h-5 text-amber-400" /> Test de Opciones
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Adivina la respuesta correcta entre 4 opciones aleatorias. Un escalón intermedio perfecto.
           </p>
         </div>
 
         {/* TUTOR IA */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-color)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
              onClick={() => navigate(`/hub/${deckId}/tutor`)}
              onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-color)'}>
+             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
           
-          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '1.2rem' }}>
+          <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Bot className="w-5 h-5 text-cyan-400" /> Tutor IA
           </h2>
-          <p style={{ margin: 0, color: 'var(--text-dim)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.4, maxWidth: '90%' }}>
             Chatea con la IA sobre el temario. Resuelve tus dudas o ponte a prueba.
           </p>
         </div>
