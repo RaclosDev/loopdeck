@@ -1,15 +1,18 @@
 import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { marked } from 'marked';
 import { decksApi, notesApi } from '../services/api';
 import { Deck, Note } from '../types';
 import FlashCard from '../components/FlashCard';
+import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 function StudyExplore() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-  const { settings } = useStore();
+  const settings = useStore(s => s.settings);
   
   const [deck, setDeck] = useState<Deck | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -31,13 +34,12 @@ function StudyExplore() {
         }
         setDeck(d);
 
-        // For explore mode, we just load all notes and display them.
+        // For explore mode, we load all notes and display them.
         const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
 
       } catch (e) {
         toast.error('Error cargando mazo');
-        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -76,6 +78,11 @@ function StudyExplore() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [notes.length, settings?.animationsEnabled]);
 
+  const currentNote = notes[currentIndex];
+  const fields = useMemo(() => JSON.parse(currentNote?.fieldsJson || '{}'), [currentNote?.fieldsJson]);
+  const frontHtml = useMemo(() => sanitizeHtml(marked.parse(fields.front || '') as string), [fields.front]);
+  const backHtml = useMemo(() => sanitizeHtml(marked.parse(fields.back || '') as string), [fields.back]);
+
   if (loading) {
     return (
       <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -93,14 +100,11 @@ function StudyExplore() {
     );
   }
 
-  const currentNote = notes[currentIndex];
-  const fields = JSON.parse(currentNote.fieldsJson || '{}');
-
   return (
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-           Salir
+          <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         <div className="study-progress">
           <span>Paseo Libre</span>
@@ -111,21 +115,20 @@ function StudyExplore() {
       </div>
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-        
         <div style={{ width: '100%', maxWidth: '600px', padding: '0 20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
-          
           <button 
             className="icon-btn" 
-            style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
+            style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
             onClick={handlePrev}
+            aria-label="Tarjeta anterior"
           >
-            ←
+            <ChevronLeft className="w-5 h-5" />
           </button>
           
           <div style={{ flex: 1 }}>
             <FlashCard
-              front={fields.front || ''}
-              back={fields.back || ''}
+              front={frontHtml}
+              back={backHtml}
               isFlipped={isFlipped}
               onFlip={() => setIsFlipped(!isFlipped)}
               cardState="new"
@@ -134,17 +137,17 @@ function StudyExplore() {
 
           <button 
             className="icon-btn" 
-            style={{ width: '40px', height: '40px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
+            style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
             onClick={handleNext}
+            aria-label="Tarjeta siguiente"
           >
-            →
+            <ChevronRight className="w-5 h-5" />
           </button>
-
         </div>
         
         <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
           Toca la tarjeta o pulsa <kbd>Espacio</kbd> para girar<br/>
-          Usa <kbd>←</kbd> y <kbd>→</kbd> para navegar
+          Usa <kbd>Flecha Izquierda</kbd> y <kbd>Flecha Derecha</kbd> para navegar
         </div>
       </div>
     </div>
@@ -152,4 +155,3 @@ function StudyExplore() {
 }
 
 export default StudyExplore;
-

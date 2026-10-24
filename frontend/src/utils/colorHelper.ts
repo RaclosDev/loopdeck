@@ -1,6 +1,5 @@
 function hexToRgb(hex: string) {
   let r = 0, g = 0, b = 0;
-  // Handle 3-digit hex
   if (hex.length === 4) {
     r = parseInt("0x" + hex[1] + hex[1]);
     g = parseInt("0x" + hex[2] + hex[2]);
@@ -14,7 +13,6 @@ function hexToRgb(hex: string) {
 }
 
 function adjustBrightness(hex: string, percent: number) {
-  // Parse hex to rgb
   let r = parseInt(hex.slice(1, 3), 16);
   let g = parseInt(hex.slice(3, 5), 16);
   let b = parseInt(hex.slice(5, 7), 16);
@@ -29,22 +27,17 @@ function adjustBrightness(hex: string, percent: number) {
 export function applyThemeColor(hexColor: string) {
   const root = document.documentElement;
   
-  // Calculate variations
   const light = adjustBrightness(hexColor, 15);
   const dark = adjustBrightness(hexColor, -15);
   const rgb = hexToRgb(hexColor);
 
-  // Set CSS Variables globally
   root.style.setProperty('--accent-primary', hexColor);
   root.style.setProperty('--accent-primary-light', light);
   root.style.setProperty('--accent-primary-dark', dark);
   
-  // Set glow with opacity using rgb
   root.style.setProperty('--accent-glow', `rgba(${rgb}, 0.15)`);
   
-  // Update gradients
   root.style.setProperty('--gradient-primary', `linear-gradient(135deg, ${hexColor}, ${dark})`);
   
-  // Save to local storage
   localStorage.setItem('loopdeck_custom_color', hexColor);
 }

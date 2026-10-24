@@ -41,12 +41,10 @@ public class AiService {
             return "Error: Clave de IA no configurada.";
         }
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent";
 
-        // Prompt para la IA
         String prompt = "Actúa como un diccionario. Da una definición súper breve, de una sola línea (máximo 15 palabras) para la palabra: " + word + ". Solo responde con la definición, sin nada más.";
 
-        // Body de la petición
         Map<String, Object> parts = new HashMap<>();
         parts.put("text", prompt);
 
@@ -63,6 +61,7 @@ public class AiService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", geminiApiKey);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
@@ -84,7 +83,7 @@ public class AiService {
                 }
             }
         } catch (org.springframework.web.client.RestClientException e) {
-            log.error("Error llamando a Gemini: {}", e.getMessage(), e);
+            log.error("Error llamando a Gemini: {}", e.getMessage() != null ? e.getMessage().replaceAll("key=[^&]+", "key=HIDDEN") : "Unknown error");
         }
         
         return "No se pudo obtener la definición.";
@@ -95,7 +94,7 @@ public class AiService {
             return "Error: Clave de IA no configurada.";
         }
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent";
 
         String fullPrompt = "Eres un tutor experto. Responde a la pregunta del usuario utilizando este contexto como base de conocimiento:\n\nCONTEXTO:\n" + context + "\n\nPREGUNTA DEL USUARIO:\n" + prompt;
 
@@ -114,6 +113,7 @@ public class AiService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", geminiApiKey);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
@@ -150,7 +150,7 @@ public class AiService {
             return "[]";
         }
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + geminiApiKey;
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent";
 
         String prompt = "Actúa como un creador de tarjetas de estudio (flashcards). Te voy a dar una lista de conceptos. Para CADA concepto, genera una definición súper breve (máximo 15 palabras).\n"
                 + "DEVUELVE ÚNICAMENTE un array JSON válido, sin Markdown ni texto extra. El formato debe ser estrictamente este:\n"
@@ -173,6 +173,7 @@ public class AiService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("x-goog-api-key", geminiApiKey);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
 
@@ -214,7 +215,7 @@ public class AiService {
 
     /**
      * Fetch the main image of a Wikipedia article for a given word.
-     * Uses the Wikipedia API directly (pageimages) — guaranteed to return real, valid URLs.
+     * Uses the Wikipedia API directly (pageimages), guaranteed to return real, valid URLs.
      */
     public String getImageUrl(String word) {
         if (word == null || word.trim().isEmpty()) return null;

@@ -51,9 +51,6 @@ export interface UserDto {
   id: string;
   email: string;
   name: string;
-  streak: number;
-  mascot: string;
-  unlockedSkins: string[];
 }
 
 export interface AuthResponse {
@@ -61,7 +58,7 @@ export interface AuthResponse {
   user: UserDto;
 }
 
-// Auth Requests
+
 export interface RegisterRequest {
   email: string;
   name: string;
@@ -73,7 +70,7 @@ export interface LoginRequest {
   password?: string;
 }
 
-// Deck Requests
+
 export interface DeckCreateBody {
   name: string;
   description?: string;
@@ -85,7 +82,7 @@ export interface DeckUpdateBody {
   description?: string;
 }
 
-// Card & Note Requests
+
 export interface NoteCreateBody {
   deckId: string;
   noteType?: string;
@@ -115,7 +112,7 @@ export interface DueCardDto {
   note: Note;
 }
 
-// Template Requests
+
 export interface TemplateDeck {
   id: string;
   name: string;
@@ -125,7 +122,7 @@ export interface TemplateDeck {
   cardCount?: number;
 }
 
-// Ai Requests/Responses
+
 export interface AiDefinitionResponse {
   definition: string;
 }

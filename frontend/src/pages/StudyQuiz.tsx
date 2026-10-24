@@ -1,9 +1,11 @@
 import toast from 'react-hot-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
 import { Note } from '../types';
+import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { sanitizeHtml } from '../lib/utils';
 
 function shuffleArray<T>(array: T[]): T[] {
   const newArr = [...array];
@@ -16,6 +18,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 interface QuizOption {
   text: string;
+  html: string;
   isCorrect: boolean;
 }
 
@@ -46,7 +49,7 @@ function StudyQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Quiz', { icon: '️' });
+           toast('Necesitas al menos 2 tarjetas para el modo Quiz');
            navigate(`/hub/${deckId}`);
            return;
         }
@@ -57,7 +60,6 @@ function StudyQuiz() {
 
       } catch (e) {
         toast.error('Error cargando mazo');
-        console.error(e);
       } finally {
         setLoading(false);
       }
@@ -81,7 +83,16 @@ function StudyQuiz() {
     });
 
     // Combine and shuffle
-    const allOptions = shuffleArray([{ text: correctBack, isCorrect: true }, ...wrongAnswers.map(text => ({ text, isCorrect: false }))]);
+    const correctHtml = sanitizeHtml(marked.parse(correctBack) as string);
+    const wrongOptions = wrongAnswers.map(text => ({
+      text,
+      html: sanitizeHtml(marked.parse(text) as string),
+      isCorrect: false
+    }));
+    const allOptions = shuffleArray([
+      { text: correctBack, html: correctHtml, isCorrect: true },
+      ...wrongOptions
+    ]);
     
     setOptions(allOptions);
     setSelectedOption(null);
@@ -117,7 +128,7 @@ function StudyQuiz() {
   if (isFinished) {
     return (
       <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ fontSize: '4rem', marginBottom: '1rem' }}></div>
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4"><CheckCircle2 className="w-8 h-8" /></div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>¡Quiz Terminado!</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem' }}>
           Has acertado <strong>{score}</strong> de {notes.length}
@@ -130,13 +141,14 @@ function StudyQuiz() {
   }
 
   const currentNote = notes[currentIndex];
-  const fields = JSON.parse(currentNote?.fieldsJson || '{}');
+  const fields = useMemo(() => JSON.parse(currentNote?.fieldsJson || '{}'), [currentNote?.fieldsJson]);
+  const questionHtml = useMemo(() => sanitizeHtml(marked.parse(fields.front || '') as string), [fields.front]);
 
   return (
     <div className="study-container">
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
-           Salir
+          <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         <div className="study-progress">
           <span>Test de Opciones</span>
@@ -151,13 +163,13 @@ function StudyQuiz() {
         {/* Question Card */}
         <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: marked.parse(fields.front || '') }} />
+          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: questionHtml }} />
         </div>
 
         {/* Options Grid */}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {options.map((option, idx) => {
-            let bgColor = 'rgba(255, 255, 255, 0.05)';
+            let bgColor = 'var(--bg-glass-strong)';
             let borderColor = 'var(--border-subtle)';
             let textColor = 'var(--text-primary)';
 
@@ -189,7 +201,7 @@ function StudyQuiz() {
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: marked.parse(option.text) }} />
+                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: option.html }} />
               </button>
             );
           })}
@@ -199,7 +211,7 @@ function StudyQuiz() {
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
             <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
-              Siguiente →
+              Siguiente
             </button>
           </div>
         )}

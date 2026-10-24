@@ -2,9 +2,11 @@ package com.loopdeck.service;
 
 import com.loopdeck.model.Card;
 import com.loopdeck.model.Note;
+import com.loopdeck.model.Review;
 import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
+import com.loopdeck.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,13 +22,13 @@ public class CardService {
     private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
+    private final ReviewRepository reviewRepository;
 
 
     public record CreateNoteRequest(String deckId, String noteType, String fieldsJson, String tags) {}
     public record UpdateNoteRequest(String fieldsJson, String tags) {}
     public record ReviewRequest(int rating, int timeTakenMs) {}
 
-    // ── Notes ──────────────────────────────────────────────────────────────
 
     public List<Note> getNotesByDeck(String userId, String deckId) {
         deckRepository.findByIdAndUserId(deckId, userId)
@@ -48,11 +50,12 @@ public class CardService {
                 .build();
         noteRepository.save(note);
 
-        // Create card(s) for the note
+
         int numCards = "cloze".equals(note.getNoteType()) ? 1 : ("reverse".equals(note.getNoteType()) ? 2 : 1);
         for (int i = 0; i < numCards; i++) {
             Card card = Card.builder()
                     .noteId(note.getId())
+                    .deckId(req.deckId())
                     .cardOrdinal(i)
                     .build();
             cardRepository.save(card);
@@ -105,7 +108,6 @@ public class CardService {
         noteRepository.delete(note);
     }
 
-    // ── Study session ──────────────────────────────────────────────────────
 
     public record DueCardDto(Card card, Note note) {}
 
@@ -127,6 +129,20 @@ public class CardService {
     }
 
     @Transactional
+
+    public Map<String, String> getCardStatesByDeck(String userId, String deckId) {
+        deckRepository.findByIdAndUserId(deckId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
+
+        List<CardRepository.CardStateProjection> list = cardRepository.findCardStatesByDeckId(deckId);
+        Map<String, String> map = new java.util.HashMap<>();
+        for (CardRepository.CardStateProjection p : list) {
+            map.put(p.getNoteId(), p.getState());
+        }
+        return map;
+    }
+
+    @Transactional
     public Card reviewCard(String userId, String cardId, ReviewRequest req) {
         Card card = cardRepository.findById(cardId)
                 .orElseThrow(() -> new IllegalArgumentException("Card not found"));
@@ -139,7 +155,17 @@ public class CardService {
 
         applySmTwo(card, req.rating());
         card = cardRepository.save(card);
-        
+
+        Review review = new Review(
+                java.util.UUID.randomUUID().toString(),
+                card.getId(),
+                req.rating(),
+                card.getIntervalDays(),
+                card.getEaseFactor(),
+                req.timeTakenMs() > 0 ? req.timeTakenMs() : null,
+                Instant.now()
+        );
+        reviewRepository.save(review);
 
         return card;
     }
@@ -166,7 +192,6 @@ public class CardService {
         return cardRepository.save(card);
     }
 
-    // ── SM-2 Algorithm ────────────────────────────────────────────────────
 
     private static final int[] LEARNING_STEPS_MINUTES = {1, 10};
     private static final int GRADUATING_INTERVAL_DAYS = 1;
@@ -194,7 +219,7 @@ public class CardService {
         } else { // Good / Hard → advance steps
             int nextStep = card.getLearningStep() + 1;
             if (nextStep >= LEARNING_STEPS_MINUTES.length) {
-                // Graduate
+
                 card.setState("review");
                 card.setIntervalDays((double) GRADUATING_INTERVAL_DAYS);
                 card.setEaseFactor(2.5);

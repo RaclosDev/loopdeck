@@ -4,7 +4,7 @@
     "name": "Capitales de Europa",
     "description": "Aprende las capitales de Europa.",
     "category": "Geografía",
-    "icon": "🗺️",
+    "icon": "map",
     "cardCount": 53
   },
   {
@@ -12,7 +12,7 @@
     "name": "Capitales de América",
     "description": "Aprende las capitales de América.",
     "category": "Geografía",
-    "icon": "🗺️",
+    "icon": "map",
     "cardCount": 54
   },
   {
@@ -20,7 +20,7 @@
     "name": "Capitales de Asia",
     "description": "Aprende las capitales de Asia.",
     "category": "Geografía",
-    "icon": "🗺️",
+    "icon": "map",
     "cardCount": 49
   },
   {
@@ -28,7 +28,7 @@
     "name": "Capitales de África",
     "description": "Aprende las capitales de África.",
     "category": "Geografía",
-    "icon": "🗺️",
+    "icon": "map",
     "cardCount": 59
   },
   {
@@ -36,15 +36,15 @@
     "name": "Capitales de Oceanía",
     "description": "Aprende las capitales de Oceanía.",
     "category": "Geografía",
-    "icon": "🗺️",
+    "icon": "map",
     "cardCount": 27
   },
   {
     "id": "capitals-world",
     "name": "Capitales del Mundo",
-    "description": "El reto definitivo. Todas las capitales del mundo en un solo mazo.",
+    "description": "Todas las capitales del mundo en un solo mazo.",
     "category": "Geografía",
-    "icon": "🌍",
+    "icon": "globe",
     "cardCount": 242
   },
   {
@@ -52,7 +52,7 @@
     "name": "Banderas del Mundo",
     "description": "Memoriza las banderas de todos los países usando emojis nativos.",
     "category": "Cultura",
-    "icon": "🚩",
+    "icon": "flag",
     "cardCount": 242
   }
 ]

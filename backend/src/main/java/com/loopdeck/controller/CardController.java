@@ -41,7 +41,6 @@ public class CardController {
         int timeTakenMs
     ) {}
 
-    // ── Notes ──────────────────────────────────────────────────────────────
 
     @GetMapping("/decks/{deckId}/notes")
     public ResponseEntity<List<Note>> listNotes(Authentication auth, @PathVariable String deckId) {
@@ -87,7 +86,11 @@ public class CardController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Study ──────────────────────────────────────────────────────────────
+
+    @GetMapping("/decks/{deckId}/card-states")
+    public ResponseEntity<Map<String, String>> cardStates(Authentication auth, @PathVariable String deckId) {
+        return ResponseEntity.ok(cardService.getCardStatesByDeck(auth.getName(), deckId));
+    }
 
     @GetMapping("/decks/{deckId}/study")
     public ResponseEntity<List<CardService.DueCardDto>> dueCards(Authentication auth,

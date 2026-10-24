@@ -37,6 +37,10 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml
+    min-response-size: 1024
 
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:4173}
@@ -49,7 +53,7 @@ gemini:
     key: ${GEMINI_API_KEY:}
 
 google:
-  client-id: ${GOOGLE_CLIENT_ID:CHANGE_ME}
+  client-id: ${GOOGLE_CLIENT_ID:498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com}
 
 rate-limit:
   enabled: ${RATE_LIMIT_ENABLED:true}

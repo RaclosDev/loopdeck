@@ -70,11 +70,20 @@ public class DeckController {
                                              @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         deckService.verifyOwnership(auth.getName(), id);
         
+        if (file.isEmpty() || file.getSize() > 15 * 1024 * 1024) {
+            throw new IllegalArgumentException("El archivo es inválido o excede el límite máximo de 15MB");
+        }
+        String originalName = file.getOriginalFilename();
+        if (originalName == null || !originalName.toLowerCase().matches(".*\\.(docx|pdf|txt|md)$")) {
+            throw new IllegalArgumentException("Formato de archivo no permitido. Solo se permiten .docx, .pdf, .txt o .md");
+        }
+
         try {
             com.loopdeck.model.DeckDocument doc = new com.loopdeck.model.DeckDocument();
             doc.setDeckId(id);
             doc.setFileData(file.getBytes());
-            doc.setFileName(file.getOriginalFilename());
+            // Sanitize filename to prevent header injection
+            doc.setFileName(originalName.replaceAll("[\r\n\"\\]", "_"));
             doc.setContentType(file.getContentType());
             docRepo.save(doc);
             return ResponseEntity.ok().build();
@@ -89,7 +98,12 @@ public class DeckController {
         deckService.verifyOwnership(auth.getName(), id);
         return docRepo.findById(id)
             .map(doc -> ResponseEntity.ok()
-                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
+                .headers(headers -> {
+                    org.springframework.http.ContentDisposition cd = org.springframework.http.ContentDisposition.attachment()
+                        .filename(doc.getFileName(), java.nio.charset.StandardCharsets.UTF_8)
+                        .build();
+                    headers.setContentDisposition(cd);
+                })
                 .header(org.springframework.http.HttpHeaders.CONTENT_TYPE, doc.getContentType() != null ? doc.getContentType() : "application/octet-stream")
                 .body(doc.getFileData()))
             .orElse(ResponseEntity.notFound().build());
