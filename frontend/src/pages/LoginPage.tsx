@@ -31,7 +31,7 @@ function GoogleLoginSection({
           gap: '10px',
           borderRadius: '16px',
           border: '1px solid var(--border-medium)',
-          background: 'rgba(255, 255, 255, 0.05)',
+          background: 'var(--bg-glass-strong)',
           color: 'var(--text-primary)',
           fontWeight: 600,
           fontSize: '1rem'
@@ -62,7 +62,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
   const [error, setError] = useState('');
   const { login } = useAuth();
   
-  const containerRef = useRef<HTMLDivElement>(null);
+
 
   const handleGoogleSuccess = async (accessToken: string) => {
     setError('');
@@ -125,11 +125,11 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
       position: 'relative'
     }}>
       <div 
-        ref={containerRef}
+
         style={{
         background: 'var(--bg-card)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
+        backdropFilter: 'var(--backdrop-blur)',
+        WebkitBackdropFilter: 'var(--backdrop-blur)',
         padding: '2.5rem 2rem',
         borderRadius: '28px',
         border: '1px solid var(--border-medium)',
@@ -178,7 +178,8 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
 
         <div style={{ 
           display: 'flex', 
-          background: 'rgba(255, 255, 255, 0.05)', 
+          background: 'var(--bg-glass-strong)', 
+          border: '1px solid var(--border-subtle)',
           padding: '0.35rem', 
           borderRadius: '20px', 
           marginBottom: '1.5rem',
@@ -192,7 +193,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
               background: mode === 'login' ? 'var(--bg-primary)' : 'transparent', 
               color: mode === 'login' ? 'var(--text-primary)' : 'var(--text-secondary)',
               fontWeight: mode === 'login' ? 600 : 500,
-              boxShadow: mode === 'login' ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              boxShadow: mode === 'login' ? 'var(--shadow-card)' : 'none',
               transition: 'all 0.25s ease', cursor: 'pointer'
             }}
           >
@@ -206,7 +207,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
               background: mode === 'register' ? 'var(--bg-primary)' : 'transparent', 
               color: mode === 'register' ? 'var(--text-primary)' : 'var(--text-secondary)',
               fontWeight: mode === 'register' ? 600 : 500,
-              boxShadow: mode === 'register' ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              boxShadow: mode === 'register' ? 'var(--shadow-card)' : 'none',
               transition: 'all 0.25s ease', cursor: 'pointer'
             }}
           >

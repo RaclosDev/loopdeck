@@ -158,7 +158,7 @@ function StudyQuiz() {
         {/* Options Grid */}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {options.map((option, idx) => {
-            let bgColor = 'rgba(255, 255, 255, 0.05)';
+            let bgColor = 'var(--bg-glass-strong)';
             let borderColor = 'var(--border-subtle)';
             let textColor = 'var(--text-primary)';
 

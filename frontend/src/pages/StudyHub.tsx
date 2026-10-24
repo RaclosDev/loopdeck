@@ -138,13 +138,17 @@ function StudyHub() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-        
-        {/* REPASO ESPACIADO (Clásico) */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/study/${deckId}`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-primary)'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
-          
+        <div 
+          className="card" 
+          role="button"
+          tabIndex={0}
+          aria-label="Repaso Espaciado: Algoritmo SM-2 de LoopDeck"
+          style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate(`/study/${deckId}`)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/study/${deckId}`); } }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent-primary)'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
+        >
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Repeat className="w-5 h-5 text-[var(--accent-primary)]" /> Repaso Espaciado
             {stats.due > 0 && <span style={{ background: 'var(--accent-primary)', color: '#fff', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '12px' }}>{stats.due} DUE</span>}
@@ -154,12 +158,17 @@ function StudyHub() {
           </p>
         </div>
 
-        {/* GUÍA DE ESTUDIO */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/hub/${deckId}/guide`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#8B5CF6'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
-          
+        <div 
+          className="card" 
+          role="button"
+          tabIndex={0}
+          aria-label="Guía de Estudio: Lee todas las preguntas y respuestas"
+          style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate(`/hub/${deckId}/guide`)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/hub/${deckId}/guide`); } }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#8B5CF6'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
+        >
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <BookOpen className="w-5 h-5 text-indigo-400" /> Guía de Estudio
           </h2>
@@ -168,12 +177,17 @@ function StudyHub() {
           </p>
         </div>
 
-        {/* MODO PASEO */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/hub/${deckId}/explore`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
-          
+        <div 
+          className="card" 
+          role="button"
+          tabIndex={0}
+          aria-label="Modo Paseo: Navega por las tarjetas libremente"
+          style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate(`/hub/${deckId}/explore`)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/hub/${deckId}/explore`); } }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10b981'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
+        >
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Compass className="w-5 h-5 text-emerald-400" /> Modo Paseo
           </h2>
@@ -182,12 +196,17 @@ function StudyHub() {
           </p>
         </div>
 
-        {/* TEST POR BLOQUES */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/hub/${deckId}/chunked`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
-          
+        <div 
+          className="card" 
+          role="button"
+          tabIndex={0}
+          aria-label="Test por Bloques: Estudia en orden configurando bloques"
+          style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate(`/hub/${deckId}/chunked`)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/hub/${deckId}/chunked`); } }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#3b82f6'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
+        >
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Layers className="w-5 h-5 text-blue-400" /> Test por Bloques
           </h2>
@@ -196,12 +215,17 @@ function StudyHub() {
           </p>
         </div>
 
-        {/* TEST DE OPCIONES */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/hub/${deckId}/quiz`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
-          
+        <div 
+          className="card" 
+          role="button"
+          tabIndex={0}
+          aria-label="Test de Opciones: Adivina la respuesta correcta entre 4 opciones"
+          style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate(`/hub/${deckId}/quiz`)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/hub/${deckId}/quiz`); } }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#f59e0b'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
+        >
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <ListChecks className="w-5 h-5 text-amber-400" /> Test de Opciones
           </h2>
@@ -210,12 +234,17 @@ function StudyHub() {
           </p>
         </div>
 
-        {/* TUTOR IA */}
-        <div className="card" style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
-             onClick={() => navigate(`/hub/${deckId}/tutor`)}
-             onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
-             onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}>
-          
+        <div 
+          className="card" 
+          role="button"
+          tabIndex={0}
+          aria-label="Tutor IA: Chatea con la IA sobre el temario"
+          style={{ cursor: 'pointer', border: '2px solid var(--border-medium)', transition: 'all 0.2s', position: 'relative', overflow: 'hidden' }}
+          onClick={() => navigate(`/hub/${deckId}/tutor`)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(`/hub/${deckId}/tutor`); } }}
+          onMouseEnter={(e) => e.currentTarget.style.borderColor = '#06b6d4'}
+          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border-medium)'}
+        >
           <h2 style={{ margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '1.2rem' }}>
             <Bot className="w-5 h-5 text-cyan-400" /> Tutor IA
           </h2>

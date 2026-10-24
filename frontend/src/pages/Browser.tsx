@@ -207,10 +207,10 @@ export default function Browser() {
                 <div className="text-[0.85rem] text-muted-foreground truncate" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.parsedFields.back || '(Vacío)') }} />
               </div>
               <div className="flex flex-col gap-2">
-                <Button variant="secondary" size="icon" onClick={() => handleEditClick(note)}>
+                <Button variant="secondary" size="icon" aria-label="Editar tarjeta" onClick={() => handleEditClick(note)}>
                   <Pencil className="w-4 h-4" />
                 </Button>
-                <Button variant="destructive" size="icon" onClick={() => setDeletingNoteId(note.id)}>
+                <Button variant="destructive" size="icon" aria-label="Eliminar tarjeta" onClick={() => setDeletingNoteId(note.id)}>
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -230,7 +230,7 @@ export default function Browser() {
               <div 
                 className="form-input min-h-[80px] p-3" 
                 contentEditable 
-                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
+                role="textbox" aria-multiline="true" aria-label="Frente de la tarjeta" tabIndex={0} dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
                 onInput={e => setEditFront(e.currentTarget.innerHTML)} 
               />
             </div>
@@ -239,7 +239,7 @@ export default function Browser() {
               <div 
                 className="form-input min-h-[80px] p-3" 
                 contentEditable 
-                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
+                role="textbox" aria-multiline="true" aria-label="Dorso de la tarjeta" tabIndex={0} dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
                 onInput={e => setEditBack(e.currentTarget.innerHTML)} 
               />
             </div>

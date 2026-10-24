@@ -9,6 +9,7 @@ import RatingButtons from '../components/RatingButtons';
 import { studyApi, decksApi } from '../services/api';
 import { Deck, DueCardDto, Card } from '../types';
 import { Skeleton } from '../components/ui/skeleton';
+import { sanitizeHtml } from '../lib/utils';
 
 function getIntervalLabel(card: Card, rating: number) {
   if (!card) return '';
@@ -51,7 +52,7 @@ function formatMinutes(m: number) {
 export default function Study() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-  const { settings } = useStore();
+  const settings = useStore(s => s.settings);
   
   const [deck, setDeck] = useState<Deck | null>(null);
   const [queue, setQueue] = useState<DueCardDto[]>([]);
@@ -138,35 +139,35 @@ export default function Study() {
     ];
   }, [card]);
 
-  const getFront = useCallback(() => {
+  const frontHtml = useMemo(() => {
     if (!note || !card) return '';
     if (note.noteType === 'cloze') {
       const idx = card.cardOrdinal;
-      const html = marked.parse(fields.text || '') as string;
+      const html = sanitizeHtml(marked.parse(fields.text || '') as string);
       return html.replace(/{{c(\d+)::(.*?)}}/g, (match, n, content) => {
         if (parseInt(n) === idx) return '<span class="cloze">[...]</span>';
         return content;
       });
     } else {
-      if (card.cardOrdinal === 1) return marked.parse(fields.back || '') as string;
-      return marked.parse(fields.front || '') as string;
+      if (card.cardOrdinal === 1) return sanitizeHtml(marked.parse(fields.back || '') as string);
+      return sanitizeHtml(marked.parse(fields.front || '') as string);
     }
-  }, [note, card, fields]);
+  }, [note?.id, note?.noteType, card?.id, card?.cardOrdinal, fields]);
 
-  const getBack = useCallback(() => {
+  const backHtml = useMemo(() => {
     if (!note || !card) return '';
     if (note.noteType === 'cloze') {
       const idx = card.cardOrdinal;
-      const html = marked.parse(fields.text || '') as string;
+      const html = sanitizeHtml(marked.parse(fields.text || '') as string);
       return html.replace(/{{c(\d+)::(.*?)}}/g, (match, n, content) => {
         if (parseInt(n) === idx) return `<span class="cloze-revealed">${content}</span>`;
         return content;
       });
     } else {
-      if (card.cardOrdinal === 1) return marked.parse(fields.front || '') as string;
-      return marked.parse(fields.back || '') as string;
+      if (card.cardOrdinal === 1) return sanitizeHtml(marked.parse(fields.front || '') as string);
+      return sanitizeHtml(marked.parse(fields.back || '') as string);
     }
-  }, [note, card, fields]);
+  }, [note?.id, note?.noteType, card?.id, card?.cardOrdinal, fields]);
 
   const handleFlip = () => setIsFlipped(true);
 
@@ -349,8 +350,8 @@ export default function Study() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, position: "relative" }}>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 0, padding: "1rem 0", width: "100%" }}>
             <FlashCard 
-              front={getFront()} 
-              back={getBack()} 
+              front={frontHtml} 
+              back={backHtml} 
               isFlipped={isFlipped}
               onFlip={handleFlip}
               cardState={card.state}
@@ -378,7 +379,7 @@ export default function Study() {
                 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
                 ${undoStack.length === 0 
                   ? 'text-muted-foreground/30 cursor-not-allowed' 
-                  : 'text-muted-foreground hover:bg-[rgba(255,255,255,0.05)] hover:text-foreground cursor-pointer'}
+                  : 'text-muted-foreground hover:bg-[var(--bg-card-hover)] hover:text-foreground cursor-pointer'}
               `}
             >
               <Undo2 size={16} /> Deshacer

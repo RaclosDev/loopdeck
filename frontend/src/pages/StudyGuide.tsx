@@ -80,13 +80,14 @@ function StudyGuide() {
             
             return (
               <div key={note.id} style={{ 
-                background: 'rgba(255, 255, 255, 0.03)', 
+                background: 'var(--bg-glass-strong)',
+                border: '1px solid var(--border-subtle)',
                  
                 borderRadius: 'var(--radius-lg)',
                 overflow: 'hidden'
               }}>
                 <div style={{ 
-                  background: 'rgba(0,0,0,0.2)', 
+                  background: 'var(--bg-glass)', 
                   padding: '4px 12px', 
                   fontSize: '0.75rem', 
                   color: 'var(--text-muted)', 

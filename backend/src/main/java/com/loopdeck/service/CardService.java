@@ -219,7 +219,7 @@ public class CardService {
         } else { // Good / Hard → advance steps
             int nextStep = card.getLearningStep() + 1;
             if (nextStep >= LEARNING_STEPS_MINUTES.length) {
-                // Graduate
+
                 card.setState("review");
                 card.setIntervalDays((double) GRADUATING_INTERVAL_DAYS);
                 card.setEaseFactor(2.5);

@@ -7,7 +7,7 @@ import { TemplateDeck } from '../types';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Skeleton } from '../components/ui/skeleton';
-import { Loader2, Library, Download, Map, Globe, Flag, BookOpen } from 'lucide-react';
+import { Loader2, Library, Download, Map, Globe, Flag, BookOpen, AlertCircle } from 'lucide-react';
 
 function getCategoryIcon(icon?: string, category?: string) {
   switch (icon?.toLowerCase()) {
@@ -26,7 +26,7 @@ export default function Templates() {
   const navigate = useNavigate();
   const [importingId, setImportingId] = useState<string | null>(null);
 
-  const { data: templates = [], isLoading: loading } = useQuery<TemplateDeck[]>({
+  const { data: templates = [], isLoading: loading, isError, refetch } = useQuery<TemplateDeck[]>({
     queryKey: ['templates'],
     queryFn: () => templatesApi.getAll(),
     staleTime: 10 * 60 * 1000,
@@ -48,7 +48,15 @@ export default function Templates() {
 
   return (
     <div className="fade-in pb-10">
-      {loading ? (
+      {isError ? (
+        <div className="card border-dashed flex flex-col items-center justify-center p-12 text-muted-foreground gap-3">
+          <AlertCircle className="w-12 h-12 text-destructive opacity-80" />
+          <p className="text-foreground font-medium">Error al cargar las plantillas</p>
+          <Button variant="secondary" size="sm" onClick={() => refetch()}>
+            Reintentar
+          </Button>
+        </div>
+      ) : loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} className="card p-6 flex flex-col gap-4 border-dashed">

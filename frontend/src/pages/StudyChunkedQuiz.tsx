@@ -196,7 +196,7 @@ function StudyChunkedQuiz() {
         </button>
         
         <div className="study-progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '4px 12px', borderRadius: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-glass-strong)', border: '1px solid var(--border-subtle)', padding: '4px 12px', borderRadius: '16px' }}>
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bloque:</span>
             <button 
               type="button"
@@ -227,7 +227,7 @@ function StudyChunkedQuiz() {
         {/* Options Grid */}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {options.map((option, idx) => {
-            let bgColor = 'rgba(255, 255, 255, 0.05)';
+            let bgColor = 'var(--bg-glass-strong)';
             let borderColor = 'var(--border-subtle)';
             let textColor = 'var(--text-primary)';
 

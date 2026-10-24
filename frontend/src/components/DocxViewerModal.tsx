@@ -33,7 +33,7 @@ function DocxViewerModal({ isOpen, onClose, deckId }: DocxViewerModalProps) {
         const blob = await response.blob();
         
         if (isMounted && containerRef.current) {
-          // Render docx
+
           await docx.renderAsync(blob, containerRef.current, undefined, {
             className: 'docx-viewer',
             inWrapper: false,
