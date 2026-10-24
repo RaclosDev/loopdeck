@@ -191,7 +191,8 @@ export default function App() {
   }, []);
 
   const envClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const initialClientId = (envClientId && envClientId !== 'CHANGE_ME') ? envClientId : null;
+  const fallbackClientId = '498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com';
+  const initialClientId = (envClientId && envClientId !== 'CHANGE_ME') ? envClientId : fallbackClientId;
 
   const [googleClientId, setGoogleClientId] = useState<string | null>(initialClientId);
   const [configLoaded, setConfigLoaded] = useState(!!initialClientId);
