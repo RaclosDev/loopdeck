@@ -17,16 +17,31 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final Map<String, Deque<Long>> requestCounts = new ConcurrentHashMap<>();
     private static final int MAX_REQUESTS_PER_MINUTE = 60;
     private static final long TIME_WINDOW_MS = 60000;
+    private static final int MAX_TRACKED_ENTRIES = 2000;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String clientIp = request.getRemoteAddr();
         String path = request.getRequestURI();
 
         // Limitar endpoints sensibles
-        if (path.startsWith("/api/auth") || path.startsWith("/api/ai") || path.startsWith("/api/food-external")) {
+        if (path.startsWith("/api/auth") || path.startsWith("/api/ai")) {
+            String clientIp = request.getHeader("X-Forwarded-For");
+            if (clientIp != null && !clientIp.isBlank()) {
+                clientIp = clientIp.split(",")[0].trim();
+            } else {
+                clientIp = request.getRemoteAddr();
+            }
+
             String key = clientIp + ":" + path;
             long currentTime = System.currentTimeMillis();
+
+            // Evitar crecimiento ilimitado de memoria podando entradas inactivas
+            if (requestCounts.size() > MAX_TRACKED_ENTRIES) {
+                requestCounts.entrySet().removeIf(entry -> {
+                    Deque<Long> d = entry.getValue();
+                    return d.isEmpty() || (currentTime - d.peekLast() > TIME_WINDOW_MS);
+                });
+            }
 
             requestCounts.putIfAbsent(key, new ConcurrentLinkedDeque<>());
             Deque<Long> timestamps = requestCounts.get(key);

@@ -110,21 +110,54 @@ public class AuthService {
                 // Si falla, ignoramos y probamos como Access Token
             }
 
-            // Probamos como Access Token
-            java.net.URL url = new java.net.URL("https://www.googleapis.com/oauth2/v3/userinfo");
-            java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("Authorization", "Bearer " + credential);
-            conn.setRequestMethod("GET");
-            if (conn.getResponseCode() == 200) {
-                java.io.InputStream is = conn.getInputStream();
-                String response = new String(is.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-                com.fasterxml.jackson.databind.JsonNode json = new com.fasterxml.jackson.databind.ObjectMapper().readTree(response);
-                String googleId = json.get("sub").asText();
-                String email = json.get("email").asText();
-                String name = json.has("name") ? json.get("name").asText() : null;
+                        // Validamos como Access Token ante el endpoint tokeninfo de Google
+            java.net.URL tokenInfoUrl = new java.net.URL("https://oauth2.googleapis.com/tokeninfo?access_token=" + java.net.URLEncoder.encode(credential, java.nio.charset.StandardCharsets.UTF_8));
+            java.net.HttpURLConnection tokenInfoConn = (java.net.HttpURLConnection) tokenInfoUrl.openConnection();
+            tokenInfoConn.setRequestMethod("GET");
+            if (tokenInfoConn.getResponseCode() == 200) {
+                java.io.InputStream tis = tokenInfoConn.getInputStream();
+                String tokenInfoResponse = new String(tis.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                com.fasterxml.jackson.databind.JsonNode tokenInfoJson = new com.fasterxml.jackson.databind.ObjectMapper().readTree(tokenInfoResponse);
+
+                // Validar audiencia
+                if (googleClientId != null && !googleClientId.isBlank()) {
+                    String aud = tokenInfoJson.has("aud") ? tokenInfoJson.get("aud").asText() : "";
+                    String azp = tokenInfoJson.has("azp") ? tokenInfoJson.get("azp").asText() : "";
+                    String issuedTo = tokenInfoJson.has("issued_to") ? tokenInfoJson.get("issued_to").asText() : "";
+                    if (!googleClientId.equals(aud) && !googleClientId.equals(azp) && !googleClientId.equals(issuedTo)) {
+                        throw new IllegalArgumentException("Token de Google no emitido para esta aplicación");
+                    }
+                }
+
+                // Validar email verificado
+                if (tokenInfoJson.has("email_verified") && !tokenInfoJson.get("email_verified").asBoolean()) {
+                    throw new IllegalArgumentException("El email de Google no está verificado");
+                }
+
+                String googleId = tokenInfoJson.get("sub").asText();
+                String email = tokenInfoJson.get("email").asText();
+
+                // Obtener nombre desde userinfo si está disponible
+                String name = null;
+                try {
+                    java.net.URL userinfoUrl = new java.net.URL("https://www.googleapis.com/oauth2/v3/userinfo");
+                    java.net.HttpURLConnection userinfoConn = (java.net.HttpURLConnection) userinfoUrl.openConnection();
+                    userinfoConn.setRequestProperty("Authorization", "Bearer " + credential);
+                    userinfoConn.setRequestMethod("GET");
+                    if (userinfoConn.getResponseCode() == 200) {
+                        String uiResp = new String(userinfoConn.getInputStream().readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                        com.fasterxml.jackson.databind.JsonNode uiJson = new com.fasterxml.jackson.databind.ObjectMapper().readTree(uiResp);
+                        if (uiJson.has("name")) {
+                            name = uiJson.get("name").asText();
+                        }
+                    }
+                } catch (Exception e) {
+                    log.debug("No se pudo obtener el nombre desde Google userinfo", e);
+                }
+
                 return processGoogleUser(googleId, email, name);
             }
-            throw new IllegalArgumentException("Token de Google invǭlido o expirado");
+            throw new IllegalArgumentException("Token de Google inválido o expirado");
 
         } catch (IllegalArgumentException e) {
             throw e;
@@ -141,6 +174,7 @@ public class AuthService {
 
         if (user == null) {
             user = User.builder()
+                    .id(java.util.UUID.randomUUID().toString())
                     .email(email.toLowerCase().trim())
                     .name(name != null ? name : email.split("@")[0])
                     .googleId(googleId)

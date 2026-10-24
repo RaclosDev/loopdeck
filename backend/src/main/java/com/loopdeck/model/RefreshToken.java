@@ -56,7 +56,7 @@ public class RefreshToken {
                 hexString.append(hex);
             }
             return hexString.toString();
-        } catch (Exception e) {
+        } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
     }

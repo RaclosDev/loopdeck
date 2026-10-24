@@ -19,7 +19,8 @@ export function SegmentedControl({ options, value, onChange, className }: Segmen
       className={cn(className)}
       style={{
         display: 'flex',
-        background: 'rgba(255, 255, 255, 0.05)',
+        background: 'var(--bg-glass-strong)',
+        border: '1px solid var(--border-subtle)',
         padding: '0.35rem',
         borderRadius: '20px',
         position: 'relative',
@@ -40,7 +41,7 @@ export function SegmentedControl({ options, value, onChange, className }: Segmen
               background: isActive ? 'var(--bg-card)' : 'transparent',
               color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
               fontWeight: isActive ? 600 : 500,
-              boxShadow: isActive ? '0 4px 16px rgba(0,0,0,0.4)' : 'none',
+              boxShadow: isActive ? 'var(--shadow-card)' : 'none',
               border: isActive ? '1px solid var(--border-medium)' : '1px solid transparent',
               transition: 'all 0.25s ease',
               cursor: 'pointer',

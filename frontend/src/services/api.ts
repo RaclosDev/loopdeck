@@ -40,18 +40,18 @@ export const decksApi = {
     const res = await api.put(`/decks/${id}`, data);
     return res.data;
   },
-  delete: async (id: string): Promise<any> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/decks/${id}`);
   },
-  uploadDocument: async (id: string, file: File): Promise<any> => {
+  uploadDocument: async (id: string, file: File): Promise<{ hasDocument: boolean }> => {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await api.post(`/decks/${id}/document`, formData, {
+    const res = await api.post<{ hasDocument: boolean }>(`/decks/${id}/document`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    return res;
+    return res.data;
   },
   hasDocument: async (id: string): Promise<{ hasDocument: boolean }> => {
     const res = await api.get(`/decks/${id}/document/info`);
@@ -61,8 +61,16 @@ export const decksApi = {
     const token = localStorage.getItem('loopdeck_jwt_token');
     return `${API_BASE}/decks/${id}/document?token=${token}`;
   },
-  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number }>> => {
+  downloadDocument: async (id: string): Promise<Blob> => {
+    const res = await api.get(`/decks/${id}/document`, { responseType: 'blob' });
+    return res.data;
+  },
+  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number, noteCount?: number }>> => {
     const res = await api.get('/decks/stats');
+    return res.data;
+  },
+  getCardStates: async (deckId: string): Promise<Record<string, string>> => {
+    const res = await api.get(`/decks/${deckId}/card-states`);
     return res.data;
   }
 };
@@ -80,7 +88,7 @@ export const notesApi = {
     const res = await api.put(`/notes/${id}`, data);
     return res.data;
   },
-  delete: async (id: string): Promise<any> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/notes/${id}`);
   },
   importBulk: async (deckId: string, dataList: ImportNoteBody[]): Promise<any> => {

@@ -16,16 +16,6 @@ if (savedColor) {
   applyThemeColor(savedColor);
 }
 
-// Force clean old caches aggressively
-if (window.caches) {
-  caches.keys().then((names) => {
-    for (let name of names) {
-      if (name.includes('workbox') || name.includes('vite')) {
-        caches.delete(name);
-      }
-    }
-  });
-}
 
 if ('serviceWorker' in navigator) {
   const updateSW = registerSW({
@@ -33,9 +23,7 @@ if ('serviceWorker' in navigator) {
     onNeedRefresh() {
       updateSW(true);
     },
-    onOfflineReady() {
-      console.log('App ready to work offline');
-    },
+    onOfflineReady() {},
   });
 }
 

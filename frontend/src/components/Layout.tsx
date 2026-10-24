@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import useStore from '../store/useStore';
 import { useState, useEffect, Suspense } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
@@ -84,7 +85,7 @@ export default function Layout() {
 
   const handleInstallClick = async () => {
     if (showIosInstall) {
-      alert('Para instalar LoopDeck en iOS:\n\n1. Toca el botón de Compartir en Safari.\n2. Selecciona "Añadir a la pantalla de inicio".');
+      toast('Para instalar LoopDeck en iOS: toca Compartir y "Añadir a la pantalla de inicio".', { icon: '📲', duration: 6000 });
       return;
     }
     
@@ -100,16 +101,12 @@ export default function Layout() {
   return (
     <div className="app-root">
       {!isStudyPage && (
-        <header className="mobile-top-bar">
-          <div style={{ width: '48px' }} className="flex items-center justify-center">
-            
-          </div>
+        <header className="mobile-top-bar justify-center">
           <div className="mobile-top-logo flex items-center justify-center">
             <h1 className="text-2xl font-black m-0 tracking-tight">
               <span className="text-[var(--accent-primary)]">Loop</span><span className="text-foreground">Deck</span>
             </h1>
           </div>
-          <div style={{ width: '48px' }} />
         </header>
       )}
 

@@ -20,11 +20,20 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
   return (
     <div 
       style={{ perspective: '1200px', position: "relative", width: "100%", maxWidth: "32rem", margin: "0 auto", flex: 1, display: "flex", flexDirection: "column", cursor: !isFlipped ? "pointer" : "default" }}
+      role="button"
+      tabIndex={0}
+      aria-label={isFlipped ? "Tarjeta volteada" : "Voltear tarjeta"}
+      onKeyDown={(e) => {
+        if (!isFlipped && (e.key === ' ' || e.key === 'Enter')) {
+          e.preventDefault();
+          onFlip();
+        }
+      }}
       onClick={() => !isFlipped && onFlip()}
     >
       {/* Front */}
       <div 
-        className="card" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "2rem", boxShadow: "0 10px 40px rgba(0,0,0,0.5)", border: "1px solid var(--border-medium)",  
+        className="card" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "2rem", boxShadow: "var(--shadow-elevated, 0 10px 40px rgba(0,0,0,0.35))", border: "1px solid var(--border-medium)",  
           borderRadius: '28px',
           borderTop: `5px solid ${getStateColor()}`,
           backfaceVisibility: 'hidden',
@@ -50,7 +59,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
 
       {/* Back */}
       <div 
-        className="card" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "2rem", boxShadow: "0 10px 40px rgba(0,0,0,0.5)", border: "1px solid var(--border-medium)",  
+        className="card" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", padding: "2rem", boxShadow: "var(--shadow-elevated, 0 10px 40px rgba(0,0,0,0.35))", border: "1px solid var(--border-medium)",  
           borderRadius: '28px',
           borderTop: `5px solid ${getStateColor()}`,
           backfaceVisibility: 'hidden',
