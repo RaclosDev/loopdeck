@@ -2,8 +2,8 @@
 @import "tailwindcss/theme" theme(reference);
 
 @theme {
-  --color-background: var(--bg-main);
-  --color-foreground: var(--text-main);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
   --color-card: var(--bg-card);
   --color-muted: var(--bg-card-hover);
   --color-muted-foreground: var(--text-muted);
@@ -989,4 +989,337 @@ button, a, input, select, textarea, [role=button], [onclick] {
     height: 100vh !important;
     min-height: 100vh !important;
   }
+}
+
+
+/* ==========================================================================
+   LoopDeck visual refresh — polished, calm and consistent
+   ========================================================================== */
+:root {
+  --bg-primary: #0b1020;
+  --bg-secondary: #10182a;
+  --bg-card: #151f33;
+  --bg-card-hover: rgba(148, 163, 184, 0.08);
+  --bg-glass: rgba(148, 163, 184, 0.055);
+  --bg-glass-strong: rgba(148, 163, 184, 0.10);
+  --bg-input: #0f1728;
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-medium: rgba(148, 163, 184, 0.22);
+  --border-color: rgba(148, 163, 184, 0.14);
+  --text-primary: #f1f5f9;
+  --text-main: #f1f5f9;
+  --text-secondary: #c0ccdc;
+  --text-muted: #91a1b8;
+  --accent-primary: #38bdf8;
+  --accent-primary-light: #7dd3fc;
+  --accent-primary-dark: #0284c7;
+  --text-accent: #7dd3fc;
+  --accent-primary-rgb: 56, 189, 248;
+  --border-accent: rgba(56, 189, 248, 0.32);
+  --accent-glow: rgba(56, 189, 248, 0.12);
+  --bg-base: var(--bg-primary);
+  --accent-hover: var(--accent-primary-dark);
+  --shadow-card: 0 8px 28px rgba(0, 0, 0, 0.18);
+  --shadow-elevated: 0 24px 70px rgba(0, 0, 0, 0.42);
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+}
+
+body.light-mode {
+  --bg-primary: #f4f7fb;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: rgba(15, 23, 42, 0.045);
+  --bg-glass: rgba(15, 23, 42, 0.035);
+  --bg-glass-strong: rgba(15, 23, 42, 0.06);
+  --bg-input: #f8fafc;
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-medium: rgba(15, 23, 42, 0.14);
+  --border-color: rgba(15, 23, 42, 0.10);
+  --text-primary: #142033;
+  --text-main: #142033;
+  --text-secondary: #42516a;
+  --text-muted: #64748b;
+  --accent-primary: #0369a1;
+  --accent-primary-light: #0284c7;
+  --accent-primary-dark: #075985;
+  --text-accent: #0369a1;
+  --accent-primary-rgb: 3, 105, 161;
+  --border-accent: rgba(3, 105, 161, 0.24);
+  --accent-glow: rgba(3, 105, 161, 0.09);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 78% -12%, rgba(var(--accent-primary-rgb), 0.09), transparent 38%),
+    var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.sidebar {
+  background: color-mix(in srgb, var(--bg-secondary) 94%, transparent);
+  border-right-color: var(--border-subtle);
+  backdrop-filter: blur(20px);
+}
+
+.sidebar-header {
+  padding: 1.75rem 1.25rem;
+  border-bottom-color: transparent;
+}
+
+.sidebar-brand-container h1,
+.mobile-top-logo h1 {
+  letter-spacing: -0.055em;
+}
+
+.nav-item {
+  margin: 2px 0;
+  padding: 0.8rem 0.9rem;
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.nav-item:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.nav-item.active {
+  color: var(--accent-primary);
+  background: var(--accent-glow);
+  border-color: var(--border-accent);
+}
+
+.main-content-inner {
+  max-width: 1280px;
+  padding: clamp(1.1rem, 3vw, 2.5rem);
+}
+
+.card,
+.kpi-card {
+  border-color: var(--border-subtle);
+  box-shadow: var(--shadow-card);
+}
+
+.card {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(155deg, color-mix(in srgb, var(--bg-card) 97%, white 3%), var(--bg-card));
+}
+
+.card:hover {
+  border-color: var(--border-medium);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.20);
+}
+
+.card-title {
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+}
+
+.kpi-card {
+  border-radius: var(--radius-md);
+  padding: 1.1rem 1.2rem;
+  gap: 0.45rem;
+  background: var(--bg-card);
+}
+
+.kpi-label {
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+}
+
+.kpi-value {
+  letter-spacing: -0.04em;
+  font-size: clamp(1.45rem, 2.4vw, 1.9rem);
+}
+
+.btn,
+button {
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn-primary,
+.primary-btn {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-dark));
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 65%, white 0%);
+  box-shadow: 0 5px 18px rgba(var(--accent-primary-rgb), 0.18);
+}
+
+.btn-primary:hover:not(:disabled),
+.primary-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  box-shadow: 0 8px 24px rgba(var(--accent-primary-rgb), 0.24);
+}
+
+.form-input,
+.input-field,
+.glass-input {
+  border-color: var(--border-medium);
+  background: var(--bg-input);
+  border-radius: 12px;
+}
+
+.mobile-top-bar,
+.mobile-bottom-nav {
+  background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
+  backdrop-filter: blur(20px);
+  border-color: var(--border-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dashboard: purposeful hierarchy and responsive deck cards */
+.dashboard-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.dashboard-eyebrow {
+  color: var(--accent-primary);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  margin-bottom: 0.65rem;
+}
+
+.dashboard-title {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  font-weight: 850;
+  letter-spacing: -0.065em;
+  color: var(--text-primary);
+}
+
+.dashboard-subtitle {
+  color: var(--text-muted);
+  margin-top: 0.75rem;
+  line-height: 1.6;
+  max-width: 36rem;
+  font-size: 0.96rem;
+}
+
+.dashboard-create-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 46px;
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+  border-radius: 13px;
+  font-weight: 750;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-primary-dark));
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(var(--accent-primary-rgb), 0.2);
+}
+
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.15rem;
+}
+
+.deck-card {
+  min-width: 0;
+  align-self: stretch;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.deck-card:hover {
+  transform: translateY(-2px);
+}
+
+.deck-card-main {
+  flex: 1;
+}
+
+.deck-metrics {
+  gap: 0.25rem;
+  padding: 0.9rem 0.5rem !important;
+  border-radius: 14px !important;
+}
+
+.deck-metrics > div {
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.deck-metrics > div > span:first-child {
+  font-size: 1.3rem !important;
+  letter-spacing: -0.04em;
+}
+
+.deck-metrics > div > span:last-child {
+  font-size: 0.64rem !important;
+  letter-spacing: 0.04em;
+}
+
+.deck-actions {
+  align-items: center;
+  min-height: 76px;
+}
+
+.deck-actions .btn-primary {
+  min-height: 46px;
+  border-radius: 12px !important;
+}
+
+.deck-actions > button:not(:first-child) {
+  flex: 0 0 46px;
+  width: 46px !important;
+  min-height: 46px;
+  border-radius: 12px !important;
+}
+
+.deck-add-card {
+  min-height: 190px;
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+.deck-add-card > button {
+  min-height: 190px;
+  color: var(--text-muted);
+}
+
+.deck-add-card > button > div:first-child {
+  width: 54px;
+  height: 54px;
+  color: var(--accent-primary);
+  border-radius: 16px;
+  background: var(--accent-glow);
+  border-color: var(--border-accent);
+}
+
+@media (max-width: 900px) {
+  .main-content-inner { padding: 1.25rem; }
+  .deck-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .dashboard-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+  .dashboard-create-button { width: 100%; }
+  .deck-metrics { padding: 0.75rem 0.25rem !important; }
+  .deck-metrics > div > span:last-child { font-size: 0.58rem !important; }
+  .deck-actions { padding: 0.75rem !important; gap: 0.5rem !important; }
+  .deck-actions .btn-primary { font-size: 0.82rem; padding-inline: 0.6rem; }
 }
