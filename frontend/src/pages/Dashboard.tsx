@@ -109,7 +109,17 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="fade-in pb-12">
+    <div className="fade-in pb-12 dashboard-page">
+      <header className="dashboard-heading">
+        <div>
+          <p className="dashboard-eyebrow">TU ESPACIO DE APRENDIZAJE</p>
+          <h1 className="dashboard-title">Mis mazos</h1>
+          <p className="dashboard-subtitle">Organiza tus tarjetas y mantén el ritmo de estudio.</p>
+        </div>
+        <Button className="dashboard-create-button" onClick={() => { setModalInputValue(''); setCreateModalOpen(true); }}>
+          <Plus className="w-4 h-4" /> Nuevo mazo
+        </Button>
+      </header>
       {decks.length > 0 && (totalNew + totalLearning + totalReview) > 0 && (
         <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
           <div className="kpi-card accent">
@@ -133,15 +143,15 @@ export default function Dashboard() {
 
       {error && <div className="kpi-badge negative" style={{ marginBottom: 20 }}>{error}</div>}
 
-      <div className="flex flex-col gap-6">
+      <div className="deck-grid">
         {decks.map(deck => {
           const counts = deckCounts[deck.id] || { newCount: 0, learningCount: 0, reviewCount: 0, totalCount: 0 };
           const totalDue = counts.newCount + counts.learningCount + counts.reviewCount;
           const totalCards = counts.totalCount || 0;
           
           return (
-            <div key={deck.id} className="card" style={{ overflow: 'hidden', padding: 0, marginBottom: '1rem', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
+            <div key={deck.id} className="card deck-card" style={{ overflow: 'hidden', padding: 0, marginBottom: 0, display: 'flex', flexDirection: 'column' }}>
+              <div className="deck-card-main" style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
                 <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
                   <h3 className="card-title" style={{ margin: '0', fontSize: '1.25rem', cursor: 'pointer' }} onClick={() => navigate(`/study/${deck.id}`)}>{deck.name}</h3>
                   <Button variant="ghost" size="icon" aria-label={`Opciones del mazo ${deck.name}`} onClick={() => setActiveMoreMenu(deck.id)} style={{ marginTop: '-4px', marginRight: '-8px' }}>
@@ -166,7 +176,7 @@ export default function Dashboard() {
                   </div>
                 </BottomSheet>
 
-                <div style={{ display: 'flex', background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
+                <div className="deck-metrics" style={{ display: 'flex', background: 'var(--bg-glass)', border: '1px solid var(--border-subtle)', borderRadius: '12px', padding: '0.75rem', marginTop: '0.5rem' }}>
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <span style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem' }}>{counts.newCount}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem', fontWeight: 600, marginTop: '0.25rem', textTransform: 'uppercase' }}>Nuevas</span>
@@ -189,7 +199,7 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              <div style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
+              <div className="deck-actions" style={{ background: 'var(--bg-glass)', padding: '1rem', display: 'flex', gap: '0.75rem' }}>
                 {totalDue > 0 ? (
                   <Button style={{ flex: 1, borderRadius: '12px', padding: '0.875rem', fontWeight: 700 }} className="btn-primary" onClick={() => navigate(`/study/${deck.id}`)}>
                     <Play className="w-5 h-5 mr-2" fill="currentColor" /> Responder ({totalDue})
@@ -218,7 +228,7 @@ export default function Dashboard() {
             </p>
           </div>
         )}
-        <div className="card border-2 border-dashed border-[var(--border-medium)] bg-[var(--bg-card)] p-0 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
+        <div className="card deck-add-card border-2 border-dashed border-[var(--border-medium)] bg-[var(--bg-card)] p-0 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
           <button 
             className="w-full p-8 bg-transparent border-none flex flex-col items-center gap-3 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
             onClick={() => { setModalInputValue(''); setCreateModalOpen(true); }}
