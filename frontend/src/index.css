@@ -2,8 +2,8 @@
 @import "tailwindcss/theme" theme(reference);
 
 @theme {
-  --color-background: var(--bg-main);
-  --color-foreground: var(--text-main);
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
   --color-card: var(--bg-card);
   --color-muted: var(--bg-card-hover);
   --color-muted-foreground: var(--text-muted);
