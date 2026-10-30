@@ -13,15 +13,15 @@ import { API_BASE } from '../services/api';
 export async function lookupDefinition(word: string) {
   if (!word || !word.trim()) return null;
   const clean = word.trim().toLowerCase();
-  
+
   let resultDefinition = null;
 
   try {
     const token = localStorage.getItem('loopdeck_jwt_token');
     const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`, {
       headers: {
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-      }
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     });
     if (aiRes.ok) {
       const data = await aiRes.json();
@@ -29,7 +29,7 @@ export async function lookupDefinition(word: string) {
         resultDefinition = data.definition;
       }
     }
-  } catch (error) {
+  } catch {
     console.warn('Backend AI no disponible, usando Wikipedia como plan B...');
   }
 
@@ -54,9 +54,9 @@ export async function lookupDefinition(word: string) {
 
   if (!resultDefinition) return null;
 
-  return { 
+  return {
     definition: resultDefinition,
-    language: 'es'
+    language: 'es',
   };
 }
 
@@ -74,8 +74,8 @@ export async function lookupImage(word: string) {
     const token = localStorage.getItem('loopdeck_jwt_token');
     const res = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(clean)}`, {
       headers: {
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-      }
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
     });
     if (res.ok) {
       const data = await res.json();
