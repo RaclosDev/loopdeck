@@ -27,6 +27,10 @@
   align-items: center;
   padding-bottom: 90px;
 }
+.landing-intro > *,
+.landing-account > * {
+  min-width: 0;
+}
 .landing-copy {
   background-color: var(--paper);
   color: var(--ink);
@@ -180,6 +184,9 @@ body.light-mode .landing-footer {
   color: #48505c;
 }
 @media (max-width: 760px) {
+  .landing-copy h1 {
+    font-size: clamp(2.6rem, 13vw, 3.5rem);
+  }
   .landing-page {
     padding: 0 20px;
   }

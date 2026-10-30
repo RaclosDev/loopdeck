@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-for (const width of [390, 1440]) {
+for (const width of [320, 390, 1440]) {
   test(`public landing and example at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 960 });
     await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
