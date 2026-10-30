@@ -12,12 +12,12 @@ import { sanitizeHtml } from '../lib/utils';
 function StudyExplore() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-  const settings = useStore(s => s.settings);
-  
+  const settings = useStore((s) => s.settings);
+
   const [deck, setDeck] = useState<Deck | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -26,7 +26,7 @@ function StudyExplore() {
       setLoading(true);
       try {
         const decks = await decksApi.getAll();
-        const d = decks.find(d => d.id === deckId);
+        const d = decks.find((d) => d.id === deckId);
         if (!d) {
           toast.error('Mazo no encontrado');
           navigate('/');
@@ -37,8 +37,7 @@ function StudyExplore() {
         // For explore mode, we load all notes and display them.
         const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
-
-      } catch (e) {
+      } catch {
         toast.error('Error cargando mazo');
       } finally {
         setLoading(false);
@@ -49,23 +48,35 @@ function StudyExplore() {
 
   const handleNext = () => {
     setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentIndex(prev => (prev + 1) % notes.length);
-    }, settings?.animationsEnabled !== false ? 150 : 0);
+    setTimeout(
+      () => {
+        setCurrentIndex((prev) => (prev + 1) % notes.length);
+      },
+      settings?.animationsEnabled !== false ? 150 : 0,
+    );
   };
 
   const handlePrev = () => {
     setIsFlipped(false);
-    setTimeout(() => {
-      setCurrentIndex(prev => (prev - 1 + notes.length) % notes.length);
-    }, settings?.animationsEnabled !== false ? 150 : 0);
+    setTimeout(
+      () => {
+        setCurrentIndex((prev) => (prev - 1 + notes.length) % notes.length);
+      },
+      settings?.animationsEnabled !== false ? 150 : 0,
+    );
   };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.defaultPrevented ||
+        (e.target instanceof Element &&
+          e.target.closest('button, input, textarea, select, [contenteditable="true"]'))
+      )
+        return;
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
-        setIsFlipped(prev => !prev);
+        setIsFlipped((prev) => !prev);
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
         handleNext();
@@ -79,13 +90,25 @@ function StudyExplore() {
   }, [notes.length, settings?.animationsEnabled]);
 
   const currentNote = notes[currentIndex];
-  const fields = useMemo(() => JSON.parse(currentNote?.fieldsJson || '{}'), [currentNote?.fieldsJson]);
-  const frontHtml = useMemo(() => sanitizeHtml(marked.parse(fields.front || '') as string), [fields.front]);
-  const backHtml = useMemo(() => sanitizeHtml(marked.parse(fields.back || '') as string), [fields.back]);
+  const fields = useMemo(
+    () => JSON.parse(currentNote?.fieldsJson || '{}'),
+    [currentNote?.fieldsJson],
+  );
+  const frontHtml = useMemo(
+    () => sanitizeHtml(marked.parse(fields.front || '') as string),
+    [fields.front],
+  );
+  const backHtml = useMemo(
+    () => sanitizeHtml(marked.parse(fields.back || '') as string),
+    [fields.back],
+  );
 
   if (loading) {
     return (
-      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        className="study-container"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <div className="spinner" />
       </div>
     );
@@ -93,9 +116,19 @@ function StudyExplore() {
 
   if (!deck || notes.length === 0) {
     return (
-      <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        className="study-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
         <p style={{ color: 'var(--text-muted)' }}>No hay tarjetas en este mazo.</p>
-        <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)}>Volver al Hub</button>
+        <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)}>
+          Volver al Hub
+        </button>
       </div>
     );
   }
@@ -114,17 +147,37 @@ function StudyExplore() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', position: 'relative' }}>
-        <div style={{ width: '100%', maxWidth: '600px', padding: '0 20px', display: 'flex', gap: '20px', alignItems: 'center' }}>
-          <button 
-            className="icon-btn" 
-            style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+        }}
+      >
+        <div className="explore-controls">
+          <button
+            className="icon-btn"
+            style={{
+              width: '44px',
+              height: '44px',
+              minWidth: '44px',
+              minHeight: '44px',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              borderRadius: '50%',
+            }}
             onClick={handlePrev}
             aria-label="Tarjeta anterior"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
-          
+
           <div style={{ flex: 1 }}>
             <FlashCard
               front={frontHtml}
@@ -135,18 +188,37 @@ function StudyExplore() {
             />
           </div>
 
-          <button 
-            className="icon-btn" 
-            style={{ width: '44px', height: '44px', minWidth: '44px', minHeight: '44px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, borderRadius: '50%' }}
+          <button
+            className="icon-btn"
+            style={{
+              width: '44px',
+              height: '44px',
+              minWidth: '44px',
+              minHeight: '44px',
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              borderRadius: '50%',
+            }}
             onClick={handleNext}
             aria-label="Tarjeta siguiente"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
-        
-        <div style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-          Toca la tarjeta o pulsa <kbd>Espacio</kbd> para girar<br/>
+
+        <div
+          style={{
+            marginTop: '2rem',
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            fontSize: '0.85rem',
+          }}
+        >
+          Toca la tarjeta o pulsa <kbd>Espacio</kbd> para girar
+          <br />
           Usa <kbd>Flecha Izquierda</kbd> y <kbd>Flecha Derecha</kbd> para navegar
         </div>
       </div>
