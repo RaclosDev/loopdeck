@@ -1,20 +1,41 @@
 import toast from 'react-hot-toast';
-import { useState, useRef, ChangeEvent, useMemo, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useRef, ChangeEvent, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { decksApi } from '../services/api';
 import DocxViewerModal from '../components/DocxViewerModal';
-import { Skeleton } from '../components/ui/skeleton';
-import { ArrowLeft, Repeat, BookOpen, Compass, Layers, ListChecks, Bot } from 'lucide-react';
+import StudyCounts, { CountsNotice, pendingCards } from '../components/StudyCounts';
+import { DeckSheetsLoading } from '../components/DeckSheet';
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Repeat,
+  BookOpen,
+  Compass,
+  Layers,
+  ListChecks,
+  Bot,
+  FileText,
+} from 'lucide-react';
 import { useDecks, useDeckStats } from '../hooks/useDecks';
 
 function StudyHub() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
 
-  const { data: decks = [], isLoading: loadingDecks } = useDecks();
+  const {
+    data: decks = [],
+    isLoading: loadingDecks,
+    isError: errorDecks,
+    refetch: retryDecks,
+  } = useDecks();
   const deck = decks.find((d) => d.id === deckId);
-  const { data: allStats = {}, isLoading: loadingStats } = useDeckStats([deckId || '']);
+  const {
+    data: allStats = {},
+    isLoading: loadingStats,
+    isError: errorStats,
+    refetch: retryStats,
+  } = useDeckStats([deckId || '']);
 
   const { data: docInfo } = useQuery({
     queryKey: ['deckDoc', deckId],
@@ -27,28 +48,15 @@ function StudyHub() {
   const [uploadingDoc, setUploadingDoc] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Derive stats
-  const stats = useMemo(() => {
-    const myStats = allStats[deckId!] || {
-      newCount: 0,
-      learningCount: 0,
-      reviewCount: 0,
-      totalCount: 0,
-    };
-    const dueCount =
-      (myStats.newCount || 0) + (myStats.learningCount || 0) + (myStats.reviewCount || 0);
-    return { due: dueCount, total: myStats.totalCount || 0 };
-  }, [allStats, deckId]);
-
+  const stats = !errorStats ? allStats[deckId || ''] : undefined;
   const hasDocument = docInfo?.hasDocument || false;
-  const loading = loadingDecks || loadingStats;
 
   useEffect(() => {
-    if (!loadingDecks && !deck) {
+    if (!loadingDecks && !errorDecks && !deck) {
       toast.error('Mazo no encontrado');
       navigate('/');
     }
-  }, [loadingDecks, deck, navigate]);
+  }, [loadingDecks, errorDecks, deck, navigate]);
 
   const queryClient = useQueryClient();
 
@@ -75,470 +83,142 @@ function StudyHub() {
     }
   };
 
-  if (loading) {
+  if (errorDecks)
     return (
-      <div
-        className="animate-fade-in"
-        style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}
-      >
-        <Skeleton className="h-40 w-full mb-8" />
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.5rem',
-          }}
-        >
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-          <Skeleton className="h-48 w-full" />
-        </div>
+      <div className="paper-sheet sheet-empty" role="alert">
+        <h1>El mazo no se ha podido cargar</h1>
+        <button className="sheet-action" onClick={() => void retryDecks()}>
+          Reintentar
+        </button>
       </div>
     );
-  }
-
+  if (loadingDecks) return <DeckSheetsLoading />;
   if (!deck) return null;
 
+  const methods = [
+    {
+      title: 'Guía de estudio',
+      description: 'Lee las preguntas y sus respuestas antes de ponerte a prueba.',
+      path: 'guide',
+      icon: BookOpen,
+    },
+    {
+      title: 'Modo paseo',
+      description: 'Recorre las tarjetas a tu ritmo, sin calificaciones.',
+      path: 'explore',
+      icon: Compass,
+    },
+    {
+      title: 'Test por bloques',
+      description: 'Divide el temario en grupos y avanza paso a paso.',
+      path: 'chunked',
+      icon: Layers,
+    },
+    {
+      title: 'Test de opciones',
+      description: 'Elige la respuesta correcta entre cuatro opciones.',
+      path: 'quiz',
+      icon: ListChecks,
+    },
+    {
+      title: 'Tutor IA',
+      description: 'Pregunta sobre el temario y resuelve tus dudas.',
+      path: 'tutor',
+      icon: Bot,
+    },
+  ];
+
   return (
-    <div
-      className="animate-fade-in"
-      style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}
-    >
-      <div
-        className="card"
-        style={{
-          marginBottom: '2rem',
-          padding: '1.5rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
+    <div className="fade-in study-canvas-page">
+      <Link className="canvas-back" to="/hub">
+        <ArrowLeft size={17} aria-hidden="true" /> Centro de estudio
+      </Link>
+      <header className="canvas-heading">
         <div>
-          <button
-            className="icon-btn"
-            onClick={() => navigate('/')}
-            style={{
-              padding: '6px 14px',
-              fontSize: '0.85rem',
-              marginBottom: '12px',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border-medium)',
-              borderRadius: '12px',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              width: 'fit-content',
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Mazos</span>
-          </button>
-
-          <h1
-            style={{
-              margin: 0,
-              fontSize: '2rem',
-              color: 'var(--text-primary)',
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {deck.name}
-          </h1>
-
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              marginTop: '8px',
-              flexWrap: 'wrap',
-            }}
-          >
-            <span
-              style={{
-                background: 'var(--bg-secondary)',
-                padding: '4px 10px',
-                borderRadius: '12px',
-                fontSize: '0.85rem',
-                color: 'var(--text-secondary)',
-                fontWeight: 600,
-                border: '1px solid var(--border-medium)',
-              }}
-            >
-              {stats.total} notas totales
-            </span>
-            <span
-              style={{
-                background: stats.due > 0 ? 'rgba(0, 133, 255, 0.15)' : 'var(--bg-secondary)',
-                padding: '4px 10px',
-                borderRadius: '12px',
-                fontSize: '0.85rem',
-                color: stats.due > 0 ? 'var(--accent-primary)' : 'var(--text-secondary)',
-                fontWeight: 600,
-                border:
-                  stats.due > 0
-                    ? '1px solid rgba(0, 133, 255, 0.3)'
-                    : '1px solid var(--border-medium)',
-              }}
-            >
-              {stats.due} tarjetas pendientes
-            </span>
+          <p className="canvas-eyebrow">Tu mazo</p>
+          <h1>{deck.name}</h1>
+        </div>
+      </header>
+      <CountsNotice loading={loadingStats} error={errorStats} onRetry={() => void retryStats()} />
+      <section className="paper-sheet landing-tape deck-study-summary" aria-label="Estado del mazo">
+        <div className="deck-study-summary-heading">
+          <div>
+            <h2>Listo para repasar</h2>
+            <p>
+              {stats
+                ? `${stats.totalCount.toLocaleString('es-ES')} tarjetas en este mazo`
+                : 'Recuentos no disponibles'}
+            </p>
           </div>
-
-          <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
-            {hasDocument ? (
-              <button
-                className="btn"
-                onClick={() => setShowDocModal(true)}
-                style={{
-                  padding: '8px 16px',
-                  background: 'rgba(6, 182, 212, 0.1)',
-                  color: 'var(--accent-primary-light)',
-                  border: '1px solid var(--accent-primary)',
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                }}
-              >
-                Ver Documento Original
-              </button>
-            ) : (
-              <button
-                className="btn btn-secondary"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingDoc}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '12px',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                }}
-              >
-                {uploadingDoc ? 'Subiendo...' : 'Vincular Apuntes (DOCX)'}
-              </button>
-            )}
-            <input
-              type="file"
-              accept=".docx"
-              ref={fileInputRef}
-              style={{ display: 'none' }}
-              onChange={handleUploadDocument}
-            />
-          </div>
+          {stats && (
+            <span className="ink-status">
+              {stats.totalCount === 0
+                ? 'Sin tarjetas'
+                : pendingCards(stats) === 0
+                  ? 'Al día'
+                  : `${pendingCards(stats).toLocaleString('es-ES')} pendientes`}
+            </span>
+          )}
         </div>
-      </div>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '1rem',
-        }}
-      >
-        <div
-          className="card"
-          role="button"
-          tabIndex={0}
-          aria-label="Repaso Espaciado: Algoritmo SM-2 de LoopDeck"
-          style={{
-            cursor: 'pointer',
-            border: '2px solid var(--border-medium)',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onClick={() => navigate(`/study/${deckId}`)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              navigate(`/study/${deckId}`);
-            }
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-medium)')}
-        >
-          <h2
-            style={{
-              margin: '0 0 8px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--text-primary)',
-              fontSize: '1.2rem',
-            }}
-          >
-            <Repeat className="w-5 h-5 text-[var(--accent-primary)]" /> Repaso Espaciado
-            {stats.due > 0 && (
-              <span
-                style={{
-                  background: 'var(--accent-primary)',
-                  color: '#fff',
-                  fontSize: '0.65rem',
-                  padding: '2px 6px',
-                  borderRadius: '12px',
-                }}
-              >
-                {stats.due} DUE
-              </span>
-            )}
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
-              lineHeight: 1.4,
-              maxWidth: '90%',
-            }}
-          >
-            Algoritmo SM-2 de LoopDeck. Programa repasos para optimizar tu memoria a largo plazo.
-          </p>
+        <StudyCounts stats={stats} />
+        <div className="deck-document-action">
+          <FileText size={18} aria-hidden="true" />
+          <span>Apuntes del mazo</span>
+          {hasDocument ? (
+            <button className="sheet-action" onClick={() => setShowDocModal(true)}>
+              Ver Documento Original
+            </button>
+          ) : (
+            <button
+              className="sheet-action"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingDoc}
+            >
+              {uploadingDoc ? 'Subiendo…' : 'Vincular apuntes (DOCX)'}
+            </button>
+          )}
+          <input
+            type="file"
+            accept=".docx"
+            ref={fileInputRef}
+            hidden
+            onChange={handleUploadDocument}
+          />
         </div>
-
-        <div
-          className="card"
-          role="button"
-          tabIndex={0}
-          aria-label="Guía de Estudio: Lee todas las preguntas y respuestas"
-          style={{
-            cursor: 'pointer',
-            border: '2px solid var(--border-medium)',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onClick={() => navigate(`/hub/${deckId}/guide`)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              navigate(`/hub/${deckId}/guide`);
-            }
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-medium)')}
-        >
-          <h2
-            style={{
-              margin: '0 0 8px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--text-primary)',
-              fontSize: '1.2rem',
-            }}
-          >
-            <BookOpen className="w-5 h-5 text-indigo-400" /> Guía de Estudio
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
-              lineHeight: 1.4,
-              maxWidth: '90%',
-            }}
-          >
-            Lee todas las preguntas y respuestas del tirón. Ideal para el primer contacto.
-          </p>
+      </section>
+      <section aria-labelledby="study-methods-title">
+        <div className="canvas-section-heading">
+          <h2 id="study-methods-title">Cómo quieres estudiar</h2>
         </div>
-
-        <div
-          className="card"
-          role="button"
-          tabIndex={0}
-          aria-label="Modo Paseo: Navega por las tarjetas libremente"
-          style={{
-            cursor: 'pointer',
-            border: '2px solid var(--border-medium)',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onClick={() => navigate(`/hub/${deckId}/explore`)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              navigate(`/hub/${deckId}/explore`);
-            }
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-medium)')}
-        >
-          <h2
-            style={{
-              margin: '0 0 8px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--text-primary)',
-              fontSize: '1.2rem',
-            }}
-          >
-            <Compass className="w-5 h-5 text-emerald-400" /> Modo Paseo
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
-              lineHeight: 1.4,
-              maxWidth: '90%',
-            }}
-          >
-            Navega por las tarjetas libremente, sin la presión de acertar y sin afectar a las
-            estadísticas.
-          </p>
+        <div className="study-method-grid">
+          <Link className="paper-sheet study-method study-method--primary" to={`/study/${deckId}`}>
+            <Repeat size={25} aria-hidden="true" />
+            <div>
+              <p className="sheet-eyebrow">Tu repaso de hoy</p>
+              <h3>Repaso espaciado</h3>
+              <p>Responde las tarjetas pendientes y programa tu siguiente repaso.</p>
+            </div>
+            <span className="method-link-label">
+              {stats
+                ? pendingCards(stats) > 0
+                  ? `Repasar ${pendingCards(stats).toLocaleString('es-ES')} tarjetas`
+                  : 'Abrir repaso'
+                : 'Abrir repaso'}
+              <ArrowUpRight size={20} aria-hidden="true" />
+            </span>
+          </Link>
+          {methods.map(({ title, description, path, icon: Icon }) => (
+            <Link className="paper-sheet study-method" key={path} to={`/hub/${deckId}/${path}`}>
+              <Icon size={24} aria-hidden="true" />
+              <div>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </div>
+              <ArrowUpRight className="method-arrow" size={19} aria-hidden="true" />
+            </Link>
+          ))}
         </div>
-
-        <div
-          className="card"
-          role="button"
-          tabIndex={0}
-          aria-label="Test por Bloques: Estudia en orden configurando bloques"
-          style={{
-            cursor: 'pointer',
-            border: '2px solid var(--border-medium)',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onClick={() => navigate(`/hub/${deckId}/chunked`)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              navigate(`/hub/${deckId}/chunked`);
-            }
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-medium)')}
-        >
-          <h2
-            style={{
-              margin: '0 0 8px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--text-primary)',
-              fontSize: '1.2rem',
-            }}
-          >
-            <Layers className="w-5 h-5 text-blue-400" /> Test por Bloques
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
-              lineHeight: 1.4,
-              maxWidth: '90%',
-            }}
-          >
-            Estudia en orden configurando bloques (10, 20...). Perfecto para asentar conocimiento
-            paso a paso.
-          </p>
-        </div>
-
-        <div
-          className="card"
-          role="button"
-          tabIndex={0}
-          aria-label="Test de Opciones: Adivina la respuesta correcta entre 4 opciones"
-          style={{
-            cursor: 'pointer',
-            border: '2px solid var(--border-medium)',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onClick={() => navigate(`/hub/${deckId}/quiz`)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              navigate(`/hub/${deckId}/quiz`);
-            }
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-medium)')}
-        >
-          <h2
-            style={{
-              margin: '0 0 8px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--text-primary)',
-              fontSize: '1.2rem',
-            }}
-          >
-            <ListChecks className="w-5 h-5 text-amber-400" /> Test de Opciones
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
-              lineHeight: 1.4,
-              maxWidth: '90%',
-            }}
-          >
-            Adivina la respuesta correcta entre 4 opciones aleatorias. Un escalón intermedio
-            perfecto.
-          </p>
-        </div>
-
-        <div
-          className="card"
-          role="button"
-          tabIndex={0}
-          aria-label="Tutor IA: Chatea con la IA sobre el temario"
-          style={{
-            cursor: 'pointer',
-            border: '2px solid var(--border-medium)',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-          onClick={() => navigate(`/hub/${deckId}/tutor`)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              navigate(`/hub/${deckId}/tutor`);
-            }
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--accent-primary)')}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-medium)')}
-        >
-          <h2
-            style={{
-              margin: '0 0 8px 0',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              color: 'var(--text-primary)',
-              fontSize: '1.2rem',
-            }}
-          >
-            <Bot className="w-5 h-5 text-cyan-400" /> Tutor IA
-          </h2>
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--text-secondary)',
-              fontSize: '0.85rem',
-              lineHeight: 1.4,
-              maxWidth: '90%',
-            }}
-          >
-            Chatea con la IA sobre el temario. Resuelve tus dudas o ponte a prueba.
-          </p>
-        </div>
-      </div>
-
+      </section>
       <DocxViewerModal
         isOpen={showDocModal}
         onClose={() => setShowDocModal(false)}

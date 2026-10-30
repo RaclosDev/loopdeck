@@ -6,6 +6,7 @@ import { registerSW } from 'virtual:pwa-register';
 import './tailwind.css';
 import './index.css';
 import './paper.css';
+import './study-sheets.css';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary';
 

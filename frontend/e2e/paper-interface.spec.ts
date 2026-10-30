@@ -74,6 +74,147 @@ async function noOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 }
 
+for (const width of [320, 390, 1440]) {
+  test(`separate deck sheets and study states at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 960 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await fixture(page);
+    await page.route('**/api/decks', (route) =>
+      route.fulfill({
+        json: [
+          deck,
+          {
+            ...deck,
+            id: 'history',
+            name: 'Historia · La Europa del siglo XX y sus transformaciones',
+          },
+          { ...deck, id: 'empty', name: 'Inglés' },
+        ],
+      }),
+    );
+    await page.route('**/api/decks/stats', (route) =>
+      route.fulfill({
+        json: {
+          [deck.id]: { newCount: 4, learningCount: 2, reviewCount: 3, totalCount: 29 },
+          history: { newCount: 0, learningCount: 0, reviewCount: 0, totalCount: 1200 },
+          empty: { newCount: 0, learningCount: 0, reviewCount: 0, totalCount: 0 },
+        },
+      }),
+    );
+    for (const path of ['/', '/hub']) {
+      await page.goto(path);
+      const sheets = page.getByRole('article');
+      await expect(sheets).toHaveCount(3);
+      const biology = sheets.filter({ has: page.getByRole('heading', { name: deck.name }) });
+      await expect(biology.getByText('Aprendiendo', { exact: true })).toBeVisible();
+      await expect(biology.locator('dd')).toHaveText(['4', '2', '3']);
+      await expect(biology).toContainText('29 tarjetas');
+      await expect(sheets.filter({ hasText: 'Historia' })).toContainText('Al día');
+      await expect(sheets.filter({ hasText: 'Inglés' })).toContainText('Sin tarjetas');
+      const first = await sheets.nth(0).boundingBox();
+      const second = await sheets.nth(1).boundingBox();
+      expect(
+        width < 900 ? second!.y - first!.y - first!.height : second!.x - first!.x - first!.width,
+      ).toBeGreaterThanOrEqual(20);
+      await noOverflow(page);
+      await textContrast(page);
+      if (process.env.LOOPDECK_SCREENSHOTS)
+        await page.screenshot({
+          path: `${process.env.LOOPDECK_SCREENSHOTS}/sheets-${width}-${path === '/' ? 'decks' : 'study'}.png`,
+          fullPage: true,
+        });
+    }
+    await page
+      .getByRole('article')
+      .first()
+      .getByRole('link', { name: /Elegir método/ })
+      .focus();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/hub\/paper-deck$/);
+    await expect(page.getByRole('heading', { name: deck.name, level: 1 })).toBeVisible();
+    await expect(page.getByText('Aprendiendo', { exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: /Repaso espaciado/ })).toHaveAttribute(
+      'href',
+      '/study/paper-deck',
+    );
+    await expect(page.getByRole('link', { name: /Guía de estudio/ })).toHaveAttribute(
+      'href',
+      '/hub/paper-deck/guide',
+    );
+    await noOverflow(page);
+    await textContrast(page);
+    if (process.env.LOOPDECK_SCREENSHOTS)
+      await page.screenshot({
+        path: `${process.env.LOOPDECK_SCREENSHOTS}/sheets-${width}-methods.png`,
+        fullPage: true,
+      });
+  });
+}
+
+test('unavailable counts never claim the deck is up to date', async ({ page }) => {
+  await fixture(page);
+  await page.route('**/api/decks/stats', (route) => route.fulfill({ status: 500, json: {} }));
+  for (const path of ['/', '/hub', '/hub/paper-deck']) {
+    await page.goto(path);
+    await expect(page.getByText('No se han podido cargar los recuentos.')).toBeVisible();
+    await expect(page.getByText('Al día', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Reintentar recuentos' })).toBeVisible();
+  }
+  await page.route('**/api/decks/stats', (route) =>
+    route.fulfill({
+      json: {
+        [deck.id]: { newCount: 4, learningCount: 2, reviewCount: 3, totalCount: 29 },
+      },
+    }),
+  );
+  await page.getByRole('button', { name: 'Reintentar recuentos' }).click();
+  await expect(page.getByText('9 pendientes', { exact: true })).toBeVisible();
+  await expect(page.locator('.study-counts dd')).toHaveText(['4', '2', '3']);
+});
+
+test('deck sheet actions and menu target the selected deck', async ({ page }) => {
+  await fixture(page);
+  await page.goto('/');
+  const sheet = page.getByRole('article', { name: deck.name });
+  await expect(sheet.getByRole('link', { name: 'Repasar (9)' })).toHaveAttribute(
+    'href',
+    '/study/paper-deck',
+  );
+  await expect(sheet.getByRole('link', { name: `Añadir tarjeta a ${deck.name}` })).toHaveAttribute(
+    'href',
+    '/add/paper-deck',
+  );
+  await expect(
+    sheet.getByRole('link', { name: `Explorar tarjetas de ${deck.name}` }),
+  ).toHaveAttribute('href', '/browser?deck=paper-deck');
+  let updatedName = '';
+  let deleted = false;
+  await page.route('**/api/decks/paper-deck', async (route) => {
+    if (route.request().method() === 'PUT') {
+      updatedName = route.request().postDataJSON().name;
+      await route.fulfill({ json: { ...deck, name: updatedName } });
+    } else {
+      deleted = route.request().method() === 'DELETE';
+      await route.fulfill({ status: 204 });
+    }
+  });
+  await sheet.getByRole('button', { name: /Opciones del mazo/ }).click();
+  await page.getByRole('button', { name: 'Editar nombre' }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('textbox', { name: 'Nombre del mazo' }).fill('  Biología actualizada  ');
+  await dialog.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByText('Nombre actualizado', { exact: true })).toBeVisible();
+  expect(updatedName).toBe('Biología actualizada');
+  await page
+    .getByRole('article')
+    .getByRole('button', { name: /Opciones del mazo/ })
+    .click();
+  await page.getByRole('button', { name: 'Eliminar mazo', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Eliminar', exact: true }).click();
+  await expect(page.getByText('Mazo eliminado', { exact: true })).toBeVisible();
+  expect(deleted).toBe(true);
+});
+
 async function textContrast(page: Page) {
   await page.locator('.fade-in').evaluateAll(async (elements) => {
     await Promise.all(
@@ -166,7 +307,9 @@ for (const width of [390, 1440]) {
         await page
           .locator('.main-content-inner')
           .evaluate((el) => getComputedStyle(el).backgroundColor),
-      ).toBe('rgb(243, 236, 220)');
+      ).toBe(
+        ['/', '/hub', '/hub/paper-deck'].includes(path) ? 'rgba(0, 0, 0, 0)' : 'rgb(243, 236, 220)',
+      );
       if (process.env.LOOPDECK_SCREENSHOTS)
         await page.screenshot({
           path: `${process.env.LOOPDECK_SCREENSHOTS}/${width}-${path.replaceAll('/', '_') || 'dashboard'}.png`,
@@ -205,7 +348,7 @@ test('dialog keyboard, centered stable tape, themes and reduced motion', async (
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Nuevo Mazo' })).toBeFocused();
-  const tape = page.locator('.main-content-inner');
+  const tape = page.getByRole('article').first();
   const angle = await tape.evaluate((el) => el.style.getPropertyValue('--tape-angle'));
   expect(Math.abs(parseFloat(angle))).toBeLessThanOrEqual(6);
   const centered = await tape.evaluate((el) =>
@@ -214,11 +357,13 @@ test('dialog keyboard, centered stable tape, themes and reduced motion', async (
     ),
   );
   expect(centered).toBeLessThanOrEqual(1);
+  await page.getByRole('button', { name: `Opciones del mazo ${deck.name}` }).click();
+  await page.keyboard.press('Escape');
+  expect(await tape.evaluate((el) => el.style.getPropertyValue('--tape-angle'))).toBe(angle);
   await page.getByRole('button', { name: 'Configuración', exact: true }).click();
   await page.getByRole('button', { name: 'Apariencia', exact: true }).click();
   await page.getByRole('button', { name: /Claro/ }).click();
   await expect(page.locator('body')).toHaveClass('light-mode');
-  expect(await tape.evaluate((el) => el.style.getPropertyValue('--tape-angle'))).toBe(angle);
   await page.getByRole('button', { name: /Oscuro/ }).click();
   await expect(page.locator('body')).toHaveClass('dark-mode');
   await noOverflow(page);
