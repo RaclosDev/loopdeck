@@ -76,6 +76,9 @@ export default function Layout() {
     location.pathname.includes('/chunked') ||
     location.pathname.includes('/tutor');
 
+  const isSheetOverview =
+    location.pathname === '/' || /^\/hub(?:\/[^/]+)?\/?$/.test(location.pathname);
+
   useEffect(() => {
     setSidebarOpen(false);
     setMoreMenuOpen(false);
@@ -214,8 +217,10 @@ export default function Layout() {
         </aside>
 
         <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}>
-          <div className="main-content-inner paper-panel landing-tape">
-            {pageTitle && location.pathname !== '/' && (
+          <div
+            className={`main-content-inner ${isSheetOverview ? 'sheet-canvas' : 'paper-panel landing-tape'}`}
+          >
+            {pageTitle && !isSheetOverview && (
               <header className="page-heading">
                 <h1>{pageTitle}</h1>
                 <p>

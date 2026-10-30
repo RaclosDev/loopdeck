@@ -1,5 +1,6 @@
 import {
   Deck,
+  DeckStats,
   Card,
   Note,
   UserDto,
@@ -13,7 +14,7 @@ import {
   TemplateDeck,
   AiChatResponse,
   AiChatPayload,
-  AiMassDefinePayload
+  AiMassDefinePayload,
 } from '../types';
 
 import api from '../api/client';
@@ -24,7 +25,7 @@ export const authApi = {
   me: async (): Promise<UserDto> => {
     const res = await api.get('/auth/me');
     return res.data;
-  }
+  },
 };
 
 export const decksApi = {
@@ -48,8 +49,8 @@ export const decksApi = {
     formData.append('file', file);
     const res = await api.post<{ hasDocument: boolean }>(`/decks/${id}/document`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
     return res.data;
   },
@@ -65,14 +66,14 @@ export const decksApi = {
     const res = await api.get(`/decks/${id}/document`, { responseType: 'blob' });
     return res.data;
   },
-  getStats: async (): Promise<Record<string, { newCount: number, learningCount: number, reviewCount: number, totalCount: number, noteCount?: number }>> => {
+  getStats: async (): Promise<Record<string, DeckStats>> => {
     const res = await api.get('/decks/stats');
     return res.data;
   },
   getCardStates: async (deckId: string): Promise<Record<string, string>> => {
     const res = await api.get(`/decks/${deckId}/card-states`);
     return res.data;
-  }
+  },
 };
 
 export const notesApi = {
@@ -108,7 +109,7 @@ export const studyApi = {
   restoreCard: async (cardId: string, cardState: Card): Promise<{ card: Card }> => {
     const res = await api.post(`/cards/${cardId}/restore`, cardState);
     return res.data;
-  }
+  },
 };
 
 export const templatesApi = {
@@ -130,7 +131,7 @@ export const aiApi = {
   massDefine: async (words: string): Promise<string> => {
     const res = await api.post('/ai/mass-define', { words } as AiMassDefinePayload);
     return res.data;
-  }
+  },
 };
 
 export const usersApi = {

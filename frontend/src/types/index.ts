@@ -8,6 +8,14 @@ export interface Deck {
   createdAt: string;
 }
 
+export interface DeckStats {
+  newCount: number;
+  learningCount: number;
+  reviewCount: number;
+  totalCount: number;
+  noteCount?: number;
+}
+
 export interface Card {
   id: string;
   noteId: string;
@@ -58,7 +66,6 @@ export interface AuthResponse {
   user: UserDto;
 }
 
-
 export interface RegisterRequest {
   email: string;
   name: string;
@@ -70,7 +77,6 @@ export interface LoginRequest {
   password?: string;
 }
 
-
 export interface DeckCreateBody {
   name: string;
   description?: string;
@@ -81,7 +87,6 @@ export interface DeckUpdateBody {
   name: string;
   description?: string;
 }
-
 
 export interface NoteCreateBody {
   deckId: string;
@@ -112,7 +117,6 @@ export interface DueCardDto {
   note: Note;
 }
 
-
 export interface TemplateDeck {
   id: string;
   name: string;
@@ -121,7 +125,6 @@ export interface TemplateDeck {
   category?: string;
   cardCount?: number;
 }
-
 
 export interface AiDefinitionResponse {
   definition: string;

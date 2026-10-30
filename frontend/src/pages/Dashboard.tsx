@@ -1,6 +1,9 @@
 import toast from 'react-hot-toast';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import DeckSheet, { DeckSheetsLoading } from '../components/DeckSheet';
+import { CountsNotice, pendingCards } from '../components/StudyCounts';
+import StudySummary from '../components/StudySummary';
 
 import {
   useDecks,
@@ -18,24 +21,21 @@ import {
   DialogTitle,
   DialogFooter,
 } from '../components/ui/dialog';
-import { Skeleton } from '../components/ui/skeleton';
-import {
-  Play,
-  Plus,
-  Search,
-  MoreVertical,
-  Trash2,
-  Edit3,
-  FolderPlus,
-  CheckCircle2,
-} from 'lucide-react';
+import { Play, Plus, Search, MoreVertical, Trash2, Edit3, FolderPlus } from 'lucide-react';
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const { data: decks = [], isLoading: loadingDecks, isError: isErrorDecks } = useDecks();
-  const { data: deckCounts = {} } = useDeckStats(decks.map((d) => d.id));
-  const loading = loadingDecks;
-  const error = isErrorDecks ? 'Error cargando mazos.' : null;
+  const {
+    data: decks = [],
+    isLoading: loadingDecks,
+    isError: isErrorDecks,
+    refetch: retryDecks,
+  } = useDecks();
+  const {
+    data: deckCounts = {},
+    isLoading: loadingStats,
+    isError: errorStats,
+    refetch: retryStats,
+  } = useDeckStats(decks.map((d) => d.id));
 
   const createMutation = useCreateDeck();
   const deleteMutation = useDeleteDeck();
@@ -97,368 +97,157 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="fade-in pb-12">
-        <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-        <div className="card-grid">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="card p-0 overflow-hidden flex flex-col justify-between">
-              <div className="p-4 flex-1">
-                <Skeleton className="h-6 w-1/2 mb-4" />
-                <Skeleton className="h-20 w-full" />
-              </div>
-              <div className="p-4 flex gap-3 bg-[var(--bg-glass)]">
-                <Skeleton className="h-12 flex-1 rounded-xl" />
-                <Skeleton className="h-12 w-12 rounded-xl" />
-                <Skeleton className="h-12 w-12 rounded-xl" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  let totalNew = 0,
-    totalLearning = 0,
-    totalReview = 0;
-  Object.values(
-    deckCounts as Record<string, { newCount: number; learningCount: number; reviewCount: number }>,
-  ).forEach((c) => {
-    totalNew += c.newCount || 0;
-    totalLearning += c.learningCount || 0;
-    totalReview += c.reviewCount || 0;
-  });
-
   return (
-    <div className="fade-in pb-12 dashboard-page">
-      <header className="dashboard-heading">
+    <div className="fade-in study-canvas-page">
+      <header className="canvas-heading">
         <div>
+          <p className="canvas-eyebrow">Tu colección</p>
           <h1>Mis mazos</h1>
-          <p className="marker-ink">Organiza tus tarjetas y mantén el ritmo de estudio.</p>
+          <p>Cada materia, en su sitio. Elige un mazo para empezar.</p>
         </div>
         <Button
+          className="canvas-create"
           aria-label="Crear un mazo"
           onClick={() => {
             setModalInputValue('');
             setCreateModalOpen(true);
           }}
         >
-          <Plus className="w-4 h-4" /> Nuevo mazo
+          <Plus size={18} aria-hidden="true" /> Nuevo mazo
         </Button>
       </header>
-      {decks.length > 0 && totalNew + totalLearning + totalReview > 0 && (
-        <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
-          <div className="kpi-card accent">
-            <div className="kpi-label">NUEVAS</div>
-            <div className="kpi-value accent">{totalNew}</div>
-          </div>
-          <div className="kpi-card warning" style={{ borderColor: 'rgba(245, 158, 11, 0.3)' }}>
-            <div className="kpi-label" style={{ color: 'var(--srs-learning)' }}>
-              APRENDIENDO
-            </div>
-            <div className="kpi-value" style={{ color: 'var(--srs-learning)' }}>
-              {totalLearning}
-            </div>
-          </div>
-          <div className="kpi-card success">
-            <div className="kpi-label">REVISIÓN</div>
-            <div className="kpi-value success">{totalReview}</div>
-          </div>
-          <div className="kpi-card">
-            <div className="kpi-label">TOTAL</div>
-            <div className="kpi-value">{totalNew + totalLearning + totalReview}</div>
-          </div>
-        </div>
-      )}
 
-      {error && (
-        <div className="kpi-badge negative" style={{ marginBottom: 20 }}>
-          {error}
-        </div>
-      )}
-
-      <div className="deck-grid">
-        {decks.map((deck) => {
-          const counts = deckCounts[deck.id] || {
-            newCount: 0,
-            learningCount: 0,
-            reviewCount: 0,
-            totalCount: 0,
-          };
-          const totalDue = counts.newCount + counts.learningCount + counts.reviewCount;
-          const totalCards = counts.totalCount || 0;
-
-          return (
-            <div
-              key={deck.id}
-              className="card"
-              style={{
-                overflow: 'hidden',
-                padding: 0,
-                marginBottom: '1rem',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-subtle)' }}>
-                <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
-                  <h3
-                    className="card-title"
-                    style={{ margin: '0', fontSize: '1.25rem', cursor: 'pointer' }}
-                    onClick={() => navigate(`/study/${deck.id}`)}
-                  >
-                    {deck.name}
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Opciones del mazo ${deck.name}`}
-                    onClick={() => setActiveMoreMenu(deck.id)}
-                    style={{ marginTop: '-4px', marginRight: '-8px' }}
-                  >
-                    <MoreVertical className="w-5 h-5 opacity-70" />
-                  </Button>
-                </div>
-
-                <BottomSheet
-                  isOpen={activeMoreMenu === deck.id}
-                  onClose={() => setActiveMoreMenu(null)}
-                  title="Opciones de Mazo"
-                >
-                  <div className="bottom-sheet-grid">
-                    <button
-                      className="bottom-sheet-item"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveMoreMenu(null);
-                        setModalInputValue(deck.name);
-                        setEditModalDeck(deck);
-                      }}
-                    >
-                      <Edit3 className="bottom-sheet-item-icon" />
-                      <span>Editar nombre</span>
-                    </button>
-                    <button
-                      className="bottom-sheet-item text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setActiveMoreMenu(null);
-                        setDeleteModalDeck(deck);
-                      }}
-                    >
-                      <Trash2 className="bottom-sheet-item-icon bg-destructive/10 text-destructive" />
-                      <span>Eliminar mazo</span>
-                    </button>
-                  </div>
-                </BottomSheet>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    background: 'var(--bg-glass)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '12px',
-                    padding: '0.75rem',
-                    marginTop: '0.5rem',
-                  }}
-                >
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span
-                      style={{
-                        color: 'var(--accent-primary)',
-                        fontWeight: 700,
-                        fontSize: '1.1rem',
-                      }}
-                    >
-                      {counts.newCount}
-                    </span>
-                    <span
-                      style={{
-                        color: 'var(--text-muted)',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                        marginTop: '0.25rem',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      Nuevas
-                    </span>
-                  </div>
-                  <div
-                    style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 0.5rem' }}
-                  />
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span
-                      style={{ color: 'var(--srs-learning)', fontWeight: 700, fontSize: '1.1rem' }}
-                    >
-                      {counts.learningCount}
-                    </span>
-                    <span
-                      style={{
-                        color: 'var(--text-muted)',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                        marginTop: '0.25rem',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      Aprend.
-                    </span>
-                  </div>
-                  <div
-                    style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 0.5rem' }}
-                  />
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span
-                      style={{ color: 'var(--srs-review)', fontWeight: 700, fontSize: '1.1rem' }}
-                    >
-                      {counts.reviewCount}
-                    </span>
-                    <span
-                      style={{
-                        color: 'var(--text-muted)',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                        marginTop: '0.25rem',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      Revisión
-                    </span>
-                  </div>
-                  <div
-                    style={{ width: '1px', background: 'var(--border-subtle)', margin: '0 0.5rem' }}
-                  />
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <span
-                      style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}
-                    >
-                      {totalCards}
-                    </span>
-                    <span
-                      style={{
-                        color: 'var(--text-muted)',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                        marginTop: '0.25rem',
-                        textTransform: 'uppercase',
-                      }}
-                    >
-                      Total
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  background: 'var(--bg-glass)',
-                  padding: '1rem',
-                  display: 'flex',
-                  gap: '0.75rem',
-                }}
-              >
-                {totalDue > 0 ? (
-                  <Button
-                    style={{ flex: 1, borderRadius: '12px', padding: '0.875rem', fontWeight: 700 }}
-                    className="btn-primary"
-                    onClick={() => navigate(`/study/${deck.id}`)}
-                  >
-                    <Play className="w-5 h-5 mr-2" fill="currentColor" /> Responder ({totalDue})
-                  </Button>
-                ) : (
-                  <div
-                    style={{
-                      flex: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'var(--srs-review)',
-                      fontWeight: 600,
-                      gap: '6px',
-                    }}
-                  >
-                    <CheckCircle2 className="w-4 h-4" /> Al día
-                  </div>
-                )}
-                <Button
-                  aria-label={`Añadir tarjeta a ${deck.name}`}
-                  style={{ width: '48px', height: 'auto', borderRadius: '12px' }}
-                  onClick={() => navigate(`/add/${deck.id}`)}
-                >
-                  <Plus className="w-5 h-5" />
-                </Button>
-                <Button
-                  variant="secondary"
-                  aria-label={`Explorar tarjetas de ${deck.name}`}
-                  style={{ width: '48px', height: 'auto', borderRadius: '12px' }}
-                  onClick={() => navigate(`/browser?deck=${deck.id}`)}
-                >
-                  <Search className="w-5 h-5" />
-                </Button>
-              </div>
-            </div>
-          );
-        })}
-
-        {decks.length === 0 && (
-          <div className="card text-center p-8 border-dashed mb-4">
-            <h3 className="text-xl font-bold mb-2">Crea tu primer mazo</h3>
-            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
-              Crea tu primer mazo o descarga una de las plantillas prediseñadas para empezar a
-              repasar.
-            </p>
-          </div>
-        )}
-        <div className="card border-2 border-dashed border-[var(--border-medium)] bg-[var(--bg-card)] p-0 hover:border-[var(--accent-primary)] hover:bg-[var(--bg-card-hover)] transition-all">
-          <button
-            className="w-full p-8 bg-transparent border-none flex flex-col items-center gap-3 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => {
-              setModalInputValue('');
-              setCreateModalOpen(true);
-            }}
-          >
-            <div className="w-12 h-12 bg-[var(--bg-glass-strong)] border border-[var(--border-subtle)] rounded-full flex items-center justify-center text-foreground">
-              <FolderPlus className="w-6 h-6" />
-            </div>
-            <div className="font-semibold text-lg">Nuevo Mazo</div>
+      {isErrorDecks ? (
+        <div className="paper-sheet sheet-empty" role="alert">
+          <h2>Error cargando mazos.</h2>
+          <p>No se ha podido abrir tu colección.</p>
+          <button className="sheet-action" onClick={() => void retryDecks()}>
+            Reintentar
           </button>
         </div>
-      </div>
+      ) : loadingDecks ? (
+        <DeckSheetsLoading />
+      ) : (
+        <>
+          <CountsNotice
+            loading={loadingStats}
+            error={errorStats}
+            onRetry={() => void retryStats()}
+          />
+          {decks.length > 0 && !loadingStats && !errorStats && (
+            <StudySummary
+              stats={decks.flatMap((deck) => (deckCounts[deck.id] ? [deckCounts[deck.id]] : []))}
+            />
+          )}
+          <div className="canvas-section-heading">
+            <h2>Tus mazos</h2>
+            <span>
+              {decks.length} {decks.length === 1 ? 'mazo' : 'mazos'}
+            </span>
+          </div>
+          <div className="deck-grid">
+            {decks.map((deck) => {
+              const counts = !errorStats ? deckCounts[deck.id] : undefined;
+              const due = counts && pendingCards(counts);
+              return (
+                <DeckSheet
+                  key={deck.id}
+                  deck={deck}
+                  stats={counts}
+                  menu={
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Opciones del mazo ${deck.name}`}
+                      onClick={() => setActiveMoreMenu(deck.id)}
+                    >
+                      <MoreVertical size={20} aria-hidden="true" />
+                    </Button>
+                  }
+                >
+                  {counts && counts.totalCount === 0 ? (
+                    <Link className="sheet-action sheet-action--primary" to={`/add/${deck.id}`}>
+                      <Plus size={18} aria-hidden="true" /> Añadir tarjetas
+                    </Link>
+                  ) : (
+                    <Link
+                      className="sheet-action sheet-action--primary"
+                      to={due ? `/study/${deck.id}` : `/hub/${deck.id}`}
+                    >
+                      <Play size={16} aria-hidden="true" />{' '}
+                      {due ? `Repasar (${due.toLocaleString('es-ES')})` : 'Abrir mazo'}
+                    </Link>
+                  )}
+                  <Link
+                    className="sheet-action sheet-action--icon"
+                    aria-label={`Añadir tarjeta a ${deck.name}`}
+                    to={`/add/${deck.id}`}
+                  >
+                    <Plus size={20} aria-hidden="true" />
+                  </Link>
+                  <Link
+                    className="sheet-action sheet-action--icon"
+                    aria-label={`Explorar tarjetas de ${deck.name}`}
+                    to={`/browser?deck=${deck.id}`}
+                  >
+                    <Search size={19} aria-hidden="true" />
+                  </Link>
+                </DeckSheet>
+              );
+            })}
+            {decks.length === 0 && (
+              <div className="paper-sheet sheet-empty">
+                <h2>Crea tu primer mazo</h2>
+                <p>Reúne las tarjetas de una materia o empieza con una plantilla.</p>
+                <Link className="sheet-action" to="/templates">
+                  Ver plantillas
+                </Link>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+      <button
+        className="add-deck-sheet"
+        onClick={() => {
+          setModalInputValue('');
+          setCreateModalOpen(true);
+        }}
+      >
+        <FolderPlus size={22} aria-hidden="true" /> Nuevo Mazo
+      </button>
+      {decks.map((deck) => (
+        <BottomSheet
+          key={deck.id}
+          isOpen={activeMoreMenu === deck.id}
+          onClose={() => setActiveMoreMenu(null)}
+          title="Opciones de Mazo"
+        >
+          <div className="bottom-sheet-grid">
+            <button
+              className="bottom-sheet-item"
+              onClick={() => {
+                setActiveMoreMenu(null);
+                setModalInputValue(deck.name);
+                setEditModalDeck(deck);
+              }}
+            >
+              <Edit3 className="bottom-sheet-item-icon" />
+              <span>Editar nombre</span>
+            </button>
+            <button
+              className="bottom-sheet-item text-destructive"
+              onClick={() => {
+                setActiveMoreMenu(null);
+                setDeleteModalDeck(deck);
+              }}
+            >
+              <Trash2 className="bottom-sheet-item-icon bg-destructive/10 text-destructive" />
+              <span>Eliminar mazo</span>
+            </button>
+          </div>
+        </BottomSheet>
+      ))}
 
       <Dialog open={!!deleteModalDeck} onOpenChange={(open) => !open && setDeleteModalDeck(null)}>
         <DialogContent>
