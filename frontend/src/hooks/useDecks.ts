@@ -14,8 +14,11 @@ export function useDecks() {
 }
 
 export function useDeckStats(deckIds: string[]) {
+  // The endpoint returns all deck statistics in a single request.
+  const enabled = deckIds.length > 0;
   return useQuery({
     queryKey: ['deckStats'],
+    enabled,
     queryFn: async () => {
       const data = await decksApi.getStats();
       return data;
@@ -31,11 +34,22 @@ export function useCreateDeck() {
     onMutate: async (newDeck) => {
       await queryClient.cancelQueries({ queryKey: ['decks'] });
       const previousDecks = queryClient.getQueryData<Deck[]>(['decks']);
-      
+
       if (previousDecks) {
-        queryClient.setQueryData<Deck[]>(['decks'], [...previousDecks, { ...newDeck, id: 'temp-' + Date.now(), userId: 'temp', createdAt: new Date().toISOString() } as Deck]);
+        queryClient.setQueryData<Deck[]>(
+          ['decks'],
+          [
+            ...previousDecks,
+            {
+              ...newDeck,
+              id: 'temp-' + Date.now(),
+              userId: 'temp',
+              createdAt: new Date().toISOString(),
+            } as Deck,
+          ],
+        );
       }
-      
+
       return { previousDecks };
     },
     onError: (err, newDeck, context) => {
@@ -56,11 +70,14 @@ export function useDeleteDeck() {
     onMutate: async (id: string) => {
       await queryClient.cancelQueries({ queryKey: ['decks'] });
       const previousDecks = queryClient.getQueryData<Deck[]>(['decks']);
-      
+
       if (previousDecks) {
-        queryClient.setQueryData<Deck[]>(['decks'], previousDecks.filter(d => d.id !== id));
+        queryClient.setQueryData<Deck[]>(
+          ['decks'],
+          previousDecks.filter((d) => d.id !== id),
+        );
       }
-      
+
       return { previousDecks };
     },
     onError: (err, id, context) => {
@@ -78,15 +95,19 @@ export function useDeleteDeck() {
 export function useUpdateDeck() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: { name: string; description?: string } }) => decksApi.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: { name: string; description?: string } }) =>
+      decksApi.update(id, data),
     onMutate: async ({ id, data }) => {
       await queryClient.cancelQueries({ queryKey: ['decks'] });
       const previousDecks = queryClient.getQueryData<Deck[]>(['decks']);
-      
+
       if (previousDecks) {
-        queryClient.setQueryData<Deck[]>(['decks'], previousDecks.map(d => d.id === id ? { ...d, ...data } : d));
+        queryClient.setQueryData<Deck[]>(
+          ['decks'],
+          previousDecks.map((d) => (d.id === id ? { ...d, ...data } : d)),
+        );
       }
-      
+
       return { previousDecks };
     },
     onError: (err, variables, context) => {

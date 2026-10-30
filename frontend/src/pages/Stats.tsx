@@ -5,7 +5,7 @@ import { BarChart2 } from 'lucide-react';
 
 export default function Stats() {
   const { data: decks = [], isLoading: loadingDecks } = useDecks();
-  const deckIds = useMemo(() => decks.map(d => d.id), [decks]);
+  const deckIds = useMemo(() => decks.map((d) => d.id), [decks]);
   const { data: deckStats = {}, isLoading: loadingStats } = useDeckStats(deckIds);
 
   const loading = loadingDecks || loadingStats;
@@ -15,19 +15,19 @@ export default function Stats() {
     let totalCards = 0;
     const cardsByState = { new: 0, learning: 0, review: 0 };
 
-    Object.values(deckStats).forEach(stat => {
+    Object.values(deckStats).forEach((stat) => {
       cardsByState.new += stat.newCount || 0;
       cardsByState.learning += stat.learningCount || 0;
       cardsByState.review += stat.reviewCount || 0;
       totalCards += stat.totalCount || 0;
-      totalNotes += stat.noteCount !== undefined ? stat.noteCount : (stat.totalCount || 0);
+      totalNotes += stat.noteCount !== undefined ? stat.noteCount : stat.totalCount || 0;
     });
 
     return {
       totalDecks: decks.length,
       totalNotes,
       totalCards,
-      cardsByState
+      cardsByState,
     };
   }, [decks.length, deckStats]);
 
@@ -35,7 +35,7 @@ export default function Stats() {
     return (
       <div className="fade-in pb-10">
         <div className="kpi-grid mb-6">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton key={i} className="h-24 w-full rounded-2xl" />
           ))}
         </div>
@@ -76,22 +76,47 @@ export default function Stats() {
           <div className="card mb-6">
             <h3 className="text-xl font-bold m-0 mb-4">Distribución</h3>
             <div className="flex w-full h-6 rounded-full overflow-hidden mb-4">
-              <div style={{ width: `${(stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100}%`, background: 'var(--accent-primary)' }} />
-              <div style={{ width: `${(stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100}%`, background: '#F59E0B' }} />
-              <div style={{ width: `${(stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100}%`, background: '#10B981' }} />
+              <div
+                style={{
+                  width: `${(stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100}%`,
+                  background: 'var(--accent-primary)',
+                }}
+              />
+              <div
+                style={{
+                  width: `${(stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100}%`,
+                  background: 'var(--srs-learning)',
+                }}
+              />
+              <div
+                style={{
+                  width: `${(stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100}%`,
+                  background: 'var(--srs-review)',
+                }}
+              />
             </div>
-            <div className="flex justify-between text-sm font-medium">
+            <div className="flex flex-wrap gap-3 justify-between text-sm font-medium">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-[var(--accent-primary)]" />
-                <span>Nuevas {((stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+                <span>
+                  Nuevas{' '}
+                  {((stats.cardsByState.new / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#F59E0B]" />
-                <span>Aprendizaje {((stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+                <div className="w-3 h-3 rounded bg-[var(--srs-learning)]" />
+                <span>
+                  Aprendizaje{' '}
+                  {((stats.cardsByState.learning / Math.max(1, stats.totalCards)) * 100).toFixed(0)}
+                  %
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-[#10B981]" />
-                <span>Revisión {((stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%</span>
+                <div className="w-3 h-3 rounded bg-[var(--srs-review)]" />
+                <span>
+                  Revisión{' '}
+                  {((stats.cardsByState.review / Math.max(1, stats.totalCards)) * 100).toFixed(0)}%
+                </span>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { usePaperTapeAngles } from './hooks/usePaperTapeAngles';
 
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
@@ -26,16 +27,13 @@ import useStore, { BeforeInstallPromptEvent } from './store/useStore';
 
 let currentAppVersion: string | null = null;
 
-class GlobalErrorBoundary extends Component<
-  { children: React.ReactNode },
-  { hasError: boolean }
-> {
+class GlobalErrorBoundary extends Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(_error: unknown) {
+  static getDerivedStateFromError() {
     return { hasError: true };
   }
 
@@ -48,37 +46,55 @@ class GlobalErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', alignItems: 'center', color: '#f1f5f9', padding: '20px', textAlign: 'center' }}>
-          <h2 style={{ marginBottom: '10px' }}>Nueva versión disponible</h2>
-          <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Estamos actualizando la app. Por favor, recarga.</p>
-          <button style={{ padding: '10px 20px', borderRadius: '8px', background: 'var(--accent-primary)', color: 'white', border: 'none' }} onClick={() => window.location.reload()}>Recargar</button>
-        </div>
+        <main className="auth-stage">
+          <section className="auth-paper paper-panel landing-tape" role="alert">
+            <h2 style={{ marginBottom: '10px' }}>Nueva versión disponible</h2>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>
+              Estamos actualizando la app. Por favor, recarga.
+            </p>
+            <button className="btn btn-primary" onClick={() => window.location.reload()}>
+              Recargar
+            </button>
+          </section>
+        </main>
       );
     }
     return this.props.children;
   }
 }
 
-function AppContent({ googleClientId, configLoaded }: { googleClientId: string | null, configLoaded: boolean }) {
-  const { token, isLoading, updateUser } = useAuth();
-  const setDeferredPrompt = useStore(s => s.setDeferredPrompt);
+function AppContent({
+  googleClientId,
+  configLoaded,
+}: {
+  googleClientId: string | null;
+  configLoaded: boolean;
+}) {
+  const { token, isLoading } = useAuth();
+  const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
 
   useEffect(() => {
     if (token && !isLoading) {
-      api.get<{ version: string }>('/version').then(res => {
-        currentAppVersion = res.data.version;
-      }).catch(err => console.error("Error fetching app version", err));
-      
+      api
+        .get<{ version: string }>('/version')
+        .then((res) => {
+          currentAppVersion = res.data.version;
+        })
+        .catch((err) => console.error('Error fetching app version', err));
+
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
-          api.get<{ version: string }>('/version').then(res => {
-            if (currentAppVersion && res.data.version !== currentAppVersion) {
-              window.location.reload();
-            }
-          }).catch(err => console.error("Error fetching app version", err));
+          api
+            .get<{ version: string }>('/version')
+            .then((res) => {
+              if (currentAppVersion && res.data.version !== currentAppVersion) {
+                window.location.reload();
+              }
+            })
+            .catch((err) => console.error('Error fetching app version', err));
         }
       };
-      
+
       document.addEventListener('visibilitychange', handleVisibilityChange);
       return () => {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -98,7 +114,9 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
   // Si está refrescando el token proactivamente, mostramos loader nativo del CSS
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}>
+      <div
+        style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}
+      >
         <div className="spinner" />
       </div>
     );
@@ -108,14 +126,25 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
   if (!token) {
     // Si aún no ha cargado la config de google, esperamos en login
     if (!configLoaded) {
-       return <div style={{ display: 'flex', height: '100vh', justifyContent: 'center', alignItems: 'center' }}><div className="spinner" /></div>;
+      return (
+        <div
+          style={{
+            display: 'flex',
+            height: '100vh',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <div className="spinner" />
+        </div>
+      );
     }
     const loginNode = <LoginPage googleEnabled={!!googleClientId} />;
     return googleClientId ? (
-      <GoogleOAuthProvider clientId={googleClientId}>
-        {loginNode}
-      </GoogleOAuthProvider>
-    ) : loginNode;
+      <GoogleOAuthProvider clientId={googleClientId}>{loginNode}</GoogleOAuthProvider>
+    ) : (
+      loginNode
+    );
   }
 
   // Si hay token, renderizamos la app directamente
@@ -131,16 +160,29 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
         toastOptions={{
           duration: 3000,
           style: {
-            background: 'var(--bg-glass-strong, rgba(17, 24, 39, 0.95))',
+            background: 'var(--paper)',
             color: 'var(--text-primary, #f1f5f9)',
             border: '1px solid var(--border-medium, rgba(255,255,255,0.1))',
-            borderRadius: '12px',
-            backdropFilter: 'blur(12px)',
+            borderRadius: '4px',
+            boxShadow: '3px 4px 0 #0003',
           },
         }}
       />
       <Routes>
-        <Route path="/" element={<Suspense fallback={<div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center"><div className="spinner" /></div>}><Layout /></Suspense>}>
+        <Route
+          path="/"
+          element={
+            <Suspense
+              fallback={
+                <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+                  <div className="spinner" />
+                </div>
+              }
+            >
+              <Layout />
+            </Suspense>
+          }
+        >
           <Route index element={<Dashboard />} />
           <Route path="hub" element={<GlobalStudy />} />
           <Route path="study/:deckId" element={<Study />} />
@@ -164,26 +206,35 @@ function AppContent({ googleClientId, configLoaded }: { googleClientId: string |
 }
 
 export default function App() {
+  usePaperTapeAngles();
   useEffect(() => {
     const savedTheme = localStorage.getItem('loopdeck_theme') || 'dark';
     document.body.classList.remove('dark-mode', 'light-mode');
     document.body.classList.add(savedTheme === 'light' ? 'light-mode' : 'dark-mode');
 
     const handleFocusIn = (e: FocusEvent) => {
-      if (e.target && ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA')) {
+      if (
+        e.target &&
+        ((e.target as HTMLElement).tagName === 'INPUT' ||
+          (e.target as HTMLElement).tagName === 'TEXTAREA')
+      ) {
         document.body.classList.add('keyboard-open');
       }
     };
-    
+
     const handleFocusOut = (e: FocusEvent) => {
-      if (e.target && ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA')) {
+      if (
+        e.target &&
+        ((e.target as HTMLElement).tagName === 'INPUT' ||
+          (e.target as HTMLElement).tagName === 'TEXTAREA')
+      ) {
         document.body.classList.remove('keyboard-open');
       }
     };
 
     document.addEventListener('focusin', handleFocusIn);
     document.addEventListener('focusout', handleFocusOut);
-    
+
     return () => {
       document.removeEventListener('focusin', handleFocusIn);
       document.removeEventListener('focusout', handleFocusOut);
@@ -191,8 +242,10 @@ export default function App() {
   }, []);
 
   const envClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const fallbackClientId = '498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com';
-  const initialClientId = (envClientId && envClientId !== 'CHANGE_ME') ? envClientId : fallbackClientId;
+  const fallbackClientId =
+    '498045926443-f4bjit64ge5b2uqcfbismjkuf61uob13.apps.googleusercontent.com';
+  const initialClientId =
+    envClientId && envClientId !== 'CHANGE_ME' ? envClientId : fallbackClientId;
 
   const [googleClientId, setGoogleClientId] = useState<string | null>(initialClientId);
   const [configLoaded, setConfigLoaded] = useState(!!initialClientId);
@@ -201,18 +254,18 @@ export default function App() {
     if (!configLoaded) {
       // Usar ruta relativa para que funcione el proxy de vite
       fetch('/api/auth/config')
-        .then(res => {
+        .then((res) => {
           if (!res.ok) throw new Error('Failed config fetch');
           return res.json();
         })
-        .then(data => {
+        .then((data) => {
           if (data.googleClientId && data.googleClientId !== 'CHANGE_ME') {
             setGoogleClientId(data.googleClientId);
           }
           setConfigLoaded(true);
         })
-        .catch(err => {
-          console.error("Error al cargar la config de auth:", err);
+        .catch((err) => {
+          console.error('Error al cargar la config de auth:', err);
           setConfigLoaded(true); // Always unblock even if it fails
         });
     }
