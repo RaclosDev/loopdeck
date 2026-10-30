@@ -1,5 +1,5 @@
 ﻿<p align="center">
-  <img src="frontend/public/icon-512x512.png" alt="Loopdeck" width="128">
+  <img src="frontend/public/loopdeck-icon-paper-512.png" alt="Loopdeck" width="128">
 </p>
 
 <p align="center">
