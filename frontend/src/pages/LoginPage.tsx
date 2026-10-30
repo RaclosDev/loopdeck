@@ -1,28 +1,7 @@
 import { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import GoogleSignInButton from '../components/GoogleSignInButton';
 import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
-
-function GoogleLoginSection({
-  onSuccess,
-  onError,
-}: {
-  onSuccess: (token: string) => void;
-  onError: (message: string) => void;
-}) {
-  const googleLogin = useGoogleLogin({
-    onSuccess: (response) => onSuccess(response.access_token),
-    onError: () => onError('No se ha podido iniciar sesión con Google.'),
-  });
-  return (
-    <>
-      <button type="button" className="btn btn-secondary auth-google" onClick={() => googleLogin()}>
-        Continuar con Google
-      </button>
-      <div className="auth-divider">o con tu email</div>
-    </>
-  );
-}
 
 export default function LoginPage({
   googleEnabled = false,
@@ -37,14 +16,13 @@ export default function LoginPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
-  const handleGoogleSuccess = async (accessToken: string) => {
+  const handleGoogleSuccess = async (credential: string) => {
     setError('');
     setLoading(true);
     try {
-      const res = await api.post('/auth/google', { credential: accessToken, token: accessToken });
+      const res = await api.post<{ token?: string }>('/auth/google', { credential });
+      if (!res.data.token) throw new Error('Invalid authentication response');
       login(res.data.token);
-    } catch {
-      setError('No se ha podido iniciar sesión con Google. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -101,7 +79,14 @@ export default function LoginPage({
             Crear cuenta
           </button>
         </div>
-        {googleEnabled && <GoogleLoginSection onSuccess={handleGoogleSuccess} onError={setError} />}
+        {googleEnabled && (
+          <>
+            <div className="auth-google">
+              <GoogleSignInButton onCredential={handleGoogleSuccess} />
+            </div>
+            <div className="auth-divider">o con tu email</div>
+          </>
+        )}
         <form onSubmit={handleSubmit} aria-busy={loading}>
           {mode === 'register' && (
             <label>
