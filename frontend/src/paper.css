@@ -329,9 +329,6 @@ body.light-mode .sidebar .nav-item.text-destructive {
   gap: 20px;
   align-items: center;
 }
-.study-container .card {
-  border-radius: 5px !important;
-}
 .main-content-inner img {
   max-width: 100%;
 }

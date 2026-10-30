@@ -322,11 +322,11 @@ function StudyChunkedQuiz() {
 
             if (selectedOption !== null) {
               if (option.isCorrect) {
-                bgColor = 'rgba(16, 185, 129, 0.15)';
-                borderColor = '#10b981';
+                bgColor = 'var(--color-success-bg)';
+                borderColor = 'var(--color-success)';
               } else if (selectedOption === option && !option.isCorrect) {
-                bgColor = 'rgba(239, 68, 68, 0.15)';
-                borderColor = '#ef4444';
+                bgColor = 'var(--color-danger-bg)';
+                borderColor = 'var(--color-danger)';
               }
             }
 
