@@ -1,0 +1,222 @@
+.landing-page {
+  color: var(--paper);
+  max-width: 1280px;
+  margin: auto;
+  padding: 0 40px;
+}
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 30px 0 50px;
+}
+.landing-header .brand {
+  font-size: 2rem;
+  text-decoration: none;
+}
+.landing-access {
+  color: inherit;
+  text-underline-offset: 5px;
+  font-weight: 600;
+}
+.landing-intro {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 64px;
+  align-items: center;
+  padding-bottom: 90px;
+}
+.landing-copy {
+  background-color: var(--paper);
+  color: var(--ink);
+  padding: 44px;
+  position: relative;
+  border-radius: 4px;
+  box-shadow: 6px 8px 0 #0003;
+}
+.landing-copy h1 {
+  font-size: clamp(3.5rem, 6vw, 5.8rem);
+  line-height: 1.05;
+  margin: 24px 0;
+}
+.landing-copy h1 span {
+  color: #0b5f74;
+}
+.landing-description {
+  line-height: 1.8;
+  max-width: 36ch;
+  margin-bottom: 26px;
+}
+.landing-copy .btn {
+  min-height: 50px;
+  padding-inline: 24px;
+}
+.landing-text-link {
+  display: block;
+  margin-top: 22px;
+  color: #0b5f74;
+  text-underline-offset: 4px;
+  font-size: 0.9rem;
+}
+.landing-sample > .marker-ink,
+.landing-account-copy > .marker-ink {
+  color: #ffe68c;
+  margin-bottom: 30px;
+}
+.landing-example {
+  background-color: #fffdf7;
+  color: var(--ink);
+  position: relative;
+  width: 100%;
+  padding: 32px;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  border: 6px solid white;
+  outline: 1px solid #11182755;
+  border-radius: 4px;
+  box-shadow: 5px 7px 0 #0003;
+  cursor: pointer;
+  text-align: left;
+}
+.landing-example-label {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.landing-example-content {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  line-height: 1.45;
+}
+.landing-example-action {
+  font-weight: 700;
+  color: #0b5f74;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+  font-size: 0.9rem;
+}
+.landing-sample-note {
+  color: #d9d6ce;
+  margin-top: 24px;
+  font-size: 0.85rem;
+}
+.landing-notes {
+  position: relative;
+  color: var(--ink);
+  background-color: var(--paper);
+  padding: 40px;
+  border-radius: 4px;
+  margin-bottom: 90px;
+}
+.landing-notes h2 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin: 12px 0 30px;
+}
+.landing-notes dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.landing-notes dt {
+  font-weight: 700;
+  border-top: 2px solid var(--ink);
+  padding-top: 18px;
+  margin-bottom: 10px;
+}
+.landing-notes dd {
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+.landing-account {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+  scroll-margin-top: 30px;
+  padding-bottom: 60px;
+}
+.landing-account-copy h2 {
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+.landing-account-copy > p:last-child {
+  color: #d9d6ce;
+  max-width: 32ch;
+  line-height: 1.7;
+}
+.landing-account .auth-stage {
+  min-height: 0;
+  padding: 20px 0;
+}
+.landing-account .auth-paper {
+  justify-self: end;
+}
+.landing-footer {
+  border-top: 1px solid #ffffff40;
+  padding: 28px 0;
+  color: #d9d6ce;
+  font-size: 0.85rem;
+}
+.landing-page :focus-visible {
+  outline-color: #ffe68c;
+}
+.landing-copy :focus-visible,
+.landing-account .auth-paper :focus-visible {
+  outline-color: #0b5f74;
+}
+body.light-mode .landing-page {
+  color: var(--ink);
+}
+body.light-mode .landing-sample > .marker-ink,
+body.light-mode .landing-account-copy > .marker-ink {
+  color: #0b5f74;
+}
+body.light-mode .landing-sample-note,
+body.light-mode .landing-account-copy > p:last-child,
+body.light-mode .landing-footer {
+  color: #48505c;
+}
+@media (max-width: 760px) {
+  .landing-page {
+    padding: 0 20px;
+  }
+  .landing-header {
+    padding: 24px 0 40px;
+    gap: 12px;
+  }
+  .landing-header .brand {
+    font-size: 1.6rem;
+  }
+  .landing-access {
+    font-size: 0.85rem;
+  }
+  .landing-intro,
+  .landing-account {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .landing-intro {
+    padding-bottom: 60px;
+  }
+  .landing-copy {
+    padding: 30px 24px;
+  }
+  .landing-example {
+    min-height: 300px;
+    padding: 24px;
+  }
+  .landing-notes {
+    padding: 30px 24px;
+    margin-bottom: 60px;
+  }
+  .landing-notes dl {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .landing-account .auth-paper {
+    justify-self: center;
+  }
+}

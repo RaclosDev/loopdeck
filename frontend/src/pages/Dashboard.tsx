@@ -136,7 +136,22 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="fade-in pb-12">
+    <div className="fade-in pb-12 dashboard-page">
+      <header className="dashboard-heading">
+        <div>
+          <h1>Mis mazos</h1>
+          <p className="marker-ink">Organiza tus tarjetas y mantén el ritmo de estudio.</p>
+        </div>
+        <Button
+          aria-label="Crear un mazo"
+          onClick={() => {
+            setModalInputValue('');
+            setCreateModalOpen(true);
+          }}
+        >
+          <Plus className="w-4 h-4" /> Nuevo mazo
+        </Button>
+      </header>
       {decks.length > 0 && totalNew + totalLearning + totalReview > 0 && (
         <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
           <div className="kpi-card accent">
@@ -168,7 +183,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="flex flex-col gap-6">
+      <div className="deck-grid">
         {decks.map((deck) => {
           const counts = deckCounts[deck.id] || {
             newCount: 0,

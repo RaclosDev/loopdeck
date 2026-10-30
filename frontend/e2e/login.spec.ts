@@ -5,7 +5,7 @@ test('Login -> Acceder a Dashboard', async ({ page }) => {
   await page.goto('/');
 
   // Esperar a que la página de login cargue (ajustar selector según la app real)
-  await expect(page.getByText('LoopDeck', { exact: false })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
 
   // Asumiendo que hay un formulario de login o al menos verificamos que redirige correctamente
   // En un caso real haríamos:

@@ -24,7 +24,14 @@ function GoogleLoginSection({
   );
 }
 
-export default function LoginPage({ googleEnabled = false }: { googleEnabled?: boolean }) {
+export default function LoginPage({
+  googleEnabled = false,
+  embedded = false,
+}: {
+  googleEnabled?: boolean;
+  embedded?: boolean;
+}) {
+  const Heading = embedded ? 'h2' : 'h1';
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -70,7 +77,7 @@ export default function LoginPage({ googleEnabled = false }: { googleEnabled?: b
   return (
     <main className="auth-stage">
       <section className="auth-paper paper-panel landing-tape" aria-label="Acceso a LoopDeck">
-        <h1>LoopDeck</h1>
+        <Heading>LoopDeck</Heading>
         <p className="marker-ink">Un repaso más. Un poco más lejos.</p>
         <div className="paper-tabs" aria-label="Tipo de acceso">
           <button

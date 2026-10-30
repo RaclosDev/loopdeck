@@ -215,7 +215,7 @@ export default function Layout() {
 
         <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}>
           <div className="main-content-inner paper-panel landing-tape">
-            {pageTitle && (
+            {pageTitle && location.pathname !== '/' && (
               <header className="page-heading">
                 <h1>{pageTitle}</h1>
                 <p>

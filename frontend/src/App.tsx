@@ -5,7 +5,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { usePaperTapeAngles } from './hooks/usePaperTapeAngles';
 
-import LoginPage from './pages/LoginPage';
+import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
@@ -139,7 +139,7 @@ function AppContent({
         </div>
       );
     }
-    const loginNode = <LoginPage googleEnabled={!!googleClientId} />;
+    const loginNode = <LandingPage googleEnabled={!!googleClientId} />;
     return googleClientId ? (
       <GoogleOAuthProvider clientId={googleClientId}>{loginNode}</GoogleOAuthProvider>
     ) : (

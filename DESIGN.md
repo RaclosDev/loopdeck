@@ -2,6 +2,8 @@
 
 La interfaz comparte la familia visual de PorrApp, conservando los flujos y la marca de LoopDeck. Energía 2, ritmo 2, movimiento 1.
 
+La portada pública presenta el producto con un cartel, una tarjeta de ejemplo interactiva identificada como tal y el acceso integrado. Los enlaces llevan al cuaderno explicativo o al formulario, sin navegación ficticia. La cuadrícula de mazos y la creación rápida incorporadas en `main` se conservan dentro de la identidad de papel.
+
 ## Decisiones
 
 - Fondo azul oscuro `#0f172a`: separa la navegación del cuaderno de trabajo. El tema claro conserva el papel y utiliza una pared gris cálida.
