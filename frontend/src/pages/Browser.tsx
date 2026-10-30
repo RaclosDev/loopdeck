@@ -8,27 +8,33 @@ import { Note } from '../types';
 import { useDecks } from '../hooks/useDecks';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '../components/ui/dialog';
 import { Skeleton } from '../components/ui/skeleton';
 import { Pencil, Trash2, Search, Loader2, AlertCircle } from 'lucide-react';
 
-type BrowserNote = Note & { parsedFields: Record<string, string>, state: string };
+type BrowserNote = Note & { parsedFields: Record<string, string>; state: string };
 
 const getStateColor = (state: string) => {
   if (state === 'new') return 'var(--accent-primary)';
-  if (state.includes('learn')) return '#F59E0B';
-  return '#10B981'; // review
+  if (state.includes('learn')) return 'var(--srs-learning)';
+  return 'var(--srs-review)';
 };
 
 export default function Browser() {
   const [searchParams] = useSearchParams();
   const initialDeck = searchParams.get('deck');
-  
+
   const { data: decks = [], isLoading: loadingDecks } = useDecks();
   const [selectedDeckId, setSelectedDeckId] = useState<string>(initialDeck || '');
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const [editingNote, setEditingNote] = useState<BrowserNote | null>(null);
   const [editFront, setEditFront] = useState('');
   const [editBack, setEditBack] = useState('');
@@ -42,30 +48,29 @@ export default function Browser() {
     }
   }, [decks, initialDeck, selectedDeckId]);
 
-  const { data: browserData, isLoading: loadingNotes, isError: isErrorNotes, refetch: refetchNotes } = useQuery({
+  const {
+    data: browserData,
+    isLoading: loadingNotes,
+    isError: isErrorNotes,
+    refetch: refetchNotes,
+  } = useQuery({
     queryKey: ['browserNotes', selectedDeckId],
     queryFn: async () => {
       const data = await notesApi.getByDeck(selectedDeckId);
       const cardStateMap = await decksApi.getCardStates(selectedDeckId);
-      
+
       const allTags = new Set<string>();
 
-      
-
-
-
-
-      const processed: BrowserNote[] = data.map(n => {
-        if (n.tags) n.tags.split(',').forEach(t => allTags.add(t.trim()));
+      const processed: BrowserNote[] = data.map((n) => {
+        if (n.tags) n.tags.split(',').forEach((t) => allTags.add(t.trim()));
         return {
           ...n,
           parsedFields: JSON.parse(n.fieldsJson || '{}'),
-          state: cardStateMap[n.id] || 'new'
+          state: cardStateMap[n.id] || 'new',
         };
       });
 
-
-      return { notes: processed, tags: Array.from(allTags).filter(t => t) };
+      return { notes: processed, tags: Array.from(allTags).filter((t) => t) };
     },
     enabled: !!selectedDeckId,
     staleTime: 60 * 1000, // 1 minute
@@ -79,10 +84,11 @@ export default function Browser() {
 
   const filteredNotes = useMemo(() => {
     const q = deferredSearch.toLowerCase();
-    return notes.filter(n => {
-      const matchSearch = (n.parsedFields.front || '').toLowerCase().includes(q) || 
-                          (n.parsedFields.back || '').toLowerCase().includes(q);
-      const matchTag = selectedTag ? (n.tags && n.tags.includes(selectedTag)) : true;
+    return notes.filter((n) => {
+      const matchSearch =
+        (n.parsedFields.front || '').toLowerCase().includes(q) ||
+        (n.parsedFields.back || '').toLowerCase().includes(q);
+      const matchTag = selectedTag ? n.tags && n.tags.includes(selectedTag) : true;
       return matchSearch && matchTag;
     });
   }, [notes, deferredSearch, selectedTag]);
@@ -102,7 +108,7 @@ export default function Browser() {
       await refetchNotes();
       setEditingNote(null);
       toast.success('Nota actualizada');
-    } catch (e) {
+    } catch {
       toast.error('Error guardando');
     } finally {
       setSaving(false);
@@ -115,7 +121,7 @@ export default function Browser() {
       await notesApi.delete(deletingNoteId);
       await refetchNotes();
       toast.success('Nota eliminada');
-    } catch (e) {
+    } catch {
       toast.error('Error al eliminar nota');
     } finally {
       setDeletingNoteId(null);
@@ -128,20 +134,85 @@ export default function Browser() {
         <div>
           <label className="form-label mb-2 block uppercase tracking-wide text-xs">Mazo</label>
           <div className="flex flex-wrap gap-2">
-            {decks.length === 0 && <div style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)' }}>Sin mazos</div>}
-            {decks.map(d => (
-              <button key={d.id} onClick={() => setSelectedDeckId(d.id)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedDeckId === d.id ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedDeckId === d.id ? 'white' : 'var(--text-secondary)', fontWeight: selectedDeckId === d.id ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{d.name}</button>
+            {decks.length === 0 && (
+              <div
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  fontSize: '0.8rem',
+                  borderRadius: '8px',
+                  background: 'var(--bg-secondary)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                Sin mazos
+              </div>
+            )}
+            {decks.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => setSelectedDeckId(d.id)}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  fontSize: '0.8rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background:
+                    selectedDeckId === d.id ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                  color: selectedDeckId === d.id ? 'white' : 'var(--text-secondary)',
+                  fontWeight: selectedDeckId === d.id ? 600 : 400,
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {d.name}
+              </button>
             ))}
           </div>
         </div>
 
         {tags.length > 0 && (
           <div>
-            <label className="form-label mb-2 block uppercase tracking-wide text-xs">Etiqueta</label>
+            <label className="form-label mb-2 block uppercase tracking-wide text-xs">
+              Etiqueta
+            </label>
             <div className="flex flex-wrap gap-2">
-              <button onClick={() => setSelectedTag('')} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === '' ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === '' ? 'white' : 'var(--text-secondary)', fontWeight: selectedTag === '' ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>Todas</button>
-              {tags.map(t => (
-                <button key={t} onClick={() => setSelectedTag(t)} style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: selectedTag === t ? 'var(--accent-primary)' : 'var(--bg-secondary)', color: selectedTag === t ? 'white' : 'var(--text-secondary)', fontWeight: selectedTag === t ? 600 : 400, transition: 'all 0.2s ease', whiteSpace: 'nowrap' }}>{t}</button>
+              <button
+                onClick={() => setSelectedTag('')}
+                style={{
+                  padding: '0.4rem 0.8rem',
+                  fontSize: '0.8rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: selectedTag === '' ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                  color: selectedTag === '' ? 'white' : 'var(--text-secondary)',
+                  fontWeight: selectedTag === '' ? 600 : 400,
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Todas
+              </button>
+              {tags.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setSelectedTag(t)}
+                  style={{
+                    padding: '0.4rem 0.8rem',
+                    fontSize: '0.8rem',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    border: 'none',
+                    background: selectedTag === t ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                    color: selectedTag === t ? 'white' : 'var(--text-secondary)',
+                    fontWeight: selectedTag === t ? 600 : 400,
+                    transition: 'all 0.2s ease',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {t}
+                </button>
               ))}
             </div>
           </div>
@@ -169,7 +240,7 @@ export default function Browser() {
           </div>
         ) : loading ? (
           <div className="flex flex-col gap-4">
-            {[1, 2, 3, 4, 5].map(i => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="card p-4 flex gap-4 items-center flex-row">
                 <div className="flex-1 min-w-0">
                   <div className="flex gap-2 mb-3 items-center">
@@ -192,25 +263,59 @@ export default function Browser() {
             <p>No se encontraron tarjetas</p>
           </div>
         ) : (
-          filteredNotes.map(note => (
+          filteredNotes.map((note) => (
             <div key={note.id} className="card p-4 flex gap-4 items-center flex-row">
               <div className="flex-1 min-w-0">
                 <div className="flex gap-2 mb-3 items-center flex-wrap">
-                  <Badge variant="outline" style={{ color: getStateColor(note.state), borderColor: getStateColor(note.state), backgroundColor: `${getStateColor(note.state)}15` }}>
-                    {note.state === 'new' ? 'NUEVA' : note.state.includes('learn') ? 'APRENDIENDO' : 'REVISIÓN'}
+                  <Badge
+                    variant="outline"
+                    style={{
+                      color: getStateColor(note.state),
+                      borderColor: getStateColor(note.state),
+                      backgroundColor: `${getStateColor(note.state)}15`,
+                    }}
+                  >
+                    {note.state === 'new'
+                      ? 'NUEVA'
+                      : note.state.includes('learn')
+                        ? 'APRENDIENDO'
+                        : 'REVISIÓN'}
                   </Badge>
-                  {note.tags && note.tags.split(',').map(t => (
-                    <Badge key={t} variant="outline">{t.trim()}</Badge>
-                  ))}
+                  {note.tags &&
+                    note.tags.split(',').map((t) => (
+                      <Badge key={t} variant="outline">
+                        {t.trim()}
+                      </Badge>
+                    ))}
                 </div>
-                <div className="text-[0.95rem] font-semibold mb-1 truncate text-foreground" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.parsedFields.front || '(Vacío)') }} />
-                <div className="text-[0.85rem] text-muted-foreground truncate" dangerouslySetInnerHTML={{ __html: sanitizeHtml(note.parsedFields.back || '(Vacío)') }} />
+                <div
+                  className="text-[0.95rem] font-semibold mb-1 truncate text-foreground"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(note.parsedFields.front || '(Vacío)'),
+                  }}
+                />
+                <div
+                  className="text-[0.85rem] text-muted-foreground truncate"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(note.parsedFields.back || '(Vacío)'),
+                  }}
+                />
               </div>
               <div className="flex flex-col gap-2">
-                <Button variant="secondary" size="icon" aria-label="Editar tarjeta" onClick={() => handleEditClick(note)}>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  aria-label="Editar tarjeta"
+                  onClick={() => handleEditClick(note)}
+                >
                   <Pencil className="w-4 h-4" />
                 </Button>
-                <Button variant="destructive" size="icon" aria-label="Eliminar tarjeta" onClick={() => setDeletingNoteId(note.id)}>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  aria-label="Eliminar tarjeta"
+                  onClick={() => setDeletingNoteId(note.id)}
+                >
                   <Trash2 className="w-4 h-4" />
                 </Button>
               </div>
@@ -226,26 +331,38 @@ export default function Browser() {
           </DialogHeader>
           <div className="flex flex-col gap-4 my-4">
             <div>
-              <label className="form-label mb-2 block uppercase tracking-wide text-xs">Frente</label>
-              <div 
-                className="form-input min-h-[80px] p-3" 
-                contentEditable 
-                role="textbox" aria-multiline="true" aria-label="Frente de la tarjeta" tabIndex={0} dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
-                onInput={e => setEditFront(e.currentTarget.innerHTML)} 
+              <label className="form-label mb-2 block uppercase tracking-wide text-xs">
+                Frente
+              </label>
+              <div
+                className="form-input min-h-[80px] p-3"
+                contentEditable
+                role="textbox"
+                aria-multiline="true"
+                aria-label="Frente de la tarjeta"
+                tabIndex={0}
+                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
+                onInput={(e) => setEditFront(e.currentTarget.innerHTML)}
               />
             </div>
             <div>
               <label className="form-label mb-2 block uppercase tracking-wide text-xs">Dorso</label>
-              <div 
-                className="form-input min-h-[80px] p-3" 
-                contentEditable 
-                role="textbox" aria-multiline="true" aria-label="Dorso de la tarjeta" tabIndex={0} dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
-                onInput={e => setEditBack(e.currentTarget.innerHTML)} 
+              <div
+                className="form-input min-h-[80px] p-3"
+                contentEditable
+                role="textbox"
+                aria-multiline="true"
+                aria-label="Dorso de la tarjeta"
+                tabIndex={0}
+                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
+                onInput={(e) => setEditBack(e.currentTarget.innerHTML)}
               />
             </div>
           </div>
           <DialogFooter className="flex gap-3 mt-4">
-            <Button variant="secondary" className="flex-1" onClick={() => setEditingNote(null)}>Cancelar</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setEditingNote(null)}>
+              Cancelar
+            </Button>
             <Button className="flex-1" onClick={handleSaveEdit} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Guardar'}
             </Button>
@@ -258,10 +375,16 @@ export default function Browser() {
           <DialogHeader>
             <DialogTitle>Eliminar Tarjeta</DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground text-sm my-2">¿Seguro que quieres eliminar esta tarjeta? Se perderá todo su historial de repasos.</p>
+          <p className="text-muted-foreground text-sm my-2">
+            ¿Seguro que quieres eliminar esta tarjeta? Se perderá todo su historial de repasos.
+          </p>
           <DialogFooter className="mt-4 flex gap-3">
-            <Button variant="secondary" className="flex-1" onClick={() => setDeletingNoteId(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={confirmDelete}>Eliminar</Button>
+            <Button variant="secondary" className="flex-1" onClick={() => setDeletingNoteId(null)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" className="flex-1" onClick={confirmDelete}>
+              Eliminar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -31,13 +31,15 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('loopdeck_jwt_token'));
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem('loopdeck_jwt_token'),
+  );
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-    
+
     const initializeAuth = async () => {
       let currentToken = localStorage.getItem('loopdeck_jwt_token');
       let needsRefresh = false;
@@ -46,18 +48,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           const decoded = jwtDecode<CustomJwtPayload>(currentToken);
           // Check if expired (with 10 seconds leeway)
-          if (decoded.exp && (decoded.exp * 1000) < Date.now() + 10000) {
+          if (decoded.exp && decoded.exp * 1000 < Date.now() + 10000) {
             needsRefresh = true;
           } else {
             setUser({
               id: decoded.sub || '',
               email: decoded.email || '',
               name: decoded.name || 'User',
-              picture: decoded.picture || undefined
+              picture: decoded.picture || undefined,
             });
           }
         } catch (err) {
-          console.error("Token inválido", err);
+          console.error('Token inválido', err);
           needsRefresh = true; // Try refreshing before giving up completely
         }
       } else {
@@ -75,36 +77,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               currentToken = data.token;
               localStorage.setItem('loopdeck_jwt_token', currentToken!);
               setToken(currentToken);
-              
+
               const decoded = jwtDecode<CustomJwtPayload>(currentToken!);
               setUser({
                 id: decoded.sub || '',
                 email: decoded.email || '',
                 name: decoded.name || 'User',
-                picture: decoded.picture || undefined
+                picture: decoded.picture || undefined,
               });
             } else {
-              throw new Error("No token in response");
+              throw new Error('No token in response');
             }
           } else {
-            throw new Error("Refresh failed");
+            throw new Error('Refresh failed');
           }
-        } catch (err) {
+        } catch {
           // Clean up if refresh failed
           if (currentToken) {
-             localStorage.removeItem('loopdeck_jwt_token');
-             setToken(null);
-             setUser(null);
+            localStorage.removeItem('loopdeck_jwt_token');
+            setToken(null);
+            setUser(null);
           }
         }
       }
-      
+
       if (isMounted) setIsLoading(false);
     };
 
     initializeAuth();
-    
-    return () => { isMounted = false; };
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Sync token state for subsequent changes (e.g. login/logout)
@@ -116,9 +120,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: decoded.sub || '',
           email: decoded.email || '',
           name: decoded.name || 'User',
-          picture: decoded.picture || undefined
+          picture: decoded.picture || undefined,
         });
-      } catch (err) {
+      } catch {
         logout();
       }
     } else if (!token && !isLoading) {
@@ -142,8 +146,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     try {
       googleLogout();
-    } catch (e) {
-
+    } catch {
+      // Local authentication is already cleared if the Google SDK is unavailable.
     }
   };
 
@@ -153,11 +157,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = (updates: Partial<User>) => {
-    setUser(prev => prev ? { ...prev, ...updates } : null);
+    setUser((prev) => (prev ? { ...prev, ...updates } : null));
   };
 
   return (
-    <AuthContext.Provider value={{ token, user, isLoading, login, logout, updateToken, updateUser }}>
+    <AuthContext.Provider
+      value={{ token, user, isLoading, login, logout, updateToken, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -1,9 +1,15 @@
-import { Clock } from 'lucide-react';
-
 const RATING_STYLES = {
   again: { color: 'text-red-500', bgHover: 'hover:bg-red-500/10', border: 'border-red-500/20' },
-  hard: { color: 'text-orange-500', bgHover: 'hover:bg-orange-500/10', border: 'border-orange-500/20' },
-  good: { color: 'text-emerald-500', bgHover: 'hover:bg-emerald-500/10', border: 'border-emerald-500/20' },
+  hard: {
+    color: 'text-orange-500',
+    bgHover: 'hover:bg-orange-500/10',
+    border: 'border-orange-500/20',
+  },
+  good: {
+    color: 'text-emerald-500',
+    bgHover: 'hover:bg-emerald-500/10',
+    border: 'border-emerald-500/20',
+  },
   easy: { color: 'text-blue-500', bgHover: 'hover:bg-blue-500/10', border: 'border-blue-500/20' },
 };
 
@@ -36,23 +42,24 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
               onRate(btn.rating);
             }}
             className={`
-              relative flex flex-col items-center justify-center h-24 sm:h-32 px-2 rounded-[24px] shadow-sm
+              relative flex flex-col items-center justify-center h-24 sm:h-32 px-2 rounded-md shadow-sm
               bg-card border ${style.border} ${style.bgHover}
               transition-all duration-200 cursor-pointer
               disabled:opacity-50 disabled:cursor-not-allowed
               group overflow-hidden active:scale-95
             `}
           >
-
-            <div className={`flex items-center gap-1.5 font-bold text-2xl sm:text-3xl ${style.color}`}>
+            <div
+              className={`flex items-center gap-1.5 font-bold text-2xl sm:text-3xl ${style.color}`}
+            >
               <span>{btn.interval || '...'}</span>
             </div>
-            
 
-            <div className={`flex items-center gap-1 text-sm sm:text-base opacity-80 mt-2 font-medium ${style.color}`}>
+            <div
+              className={`flex items-center gap-1 text-sm sm:text-base opacity-80 mt-2 font-medium ${style.color}`}
+            >
               <span>{btn.label}</span>
             </div>
-
 
             <span className="hidden sm:flex absolute top-2 right-2 items-center justify-center w-5 h-5 rounded text-xs font-mono text-muted-foreground bg-[var(--bg-glass-strong)] border border-[var(--border-subtle)] opacity-0 group-hover:opacity-100 transition-opacity">
               {btn.rating}
@@ -65,4 +72,3 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
 }
 
 export default RatingButtons;
-
