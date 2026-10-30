@@ -6,6 +6,8 @@ La portada pública presenta el producto con un cartel, una tarjeta de ejemplo i
 
 ## Decisiones
 
+- Icono: fichas de papel, flecha gruesa de repaso y cinta centrada, en tres colores. El SVG es el original editable; el trazo vectorial mantiene extremos redondeados. Los PNG tienen fondo opaco deliberadamente para iOS y la máscara de Android, con el símbolo dentro de la zona central segura. Los nombres nuevos evitan reutilizar la caché del icono anterior. El manifest público es la única fuente de instalación; se desactiva el manifest genérico adicional de VitePWA.
+
 - Fondo azul oscuro `#0f172a`: separa la navegación del cuaderno de trabajo. El tema claro conserva el papel y utiliza una pared gris cálida.
 - Papel `#f3ecdc`, tinta `#111827` y acento `#0b5f74`: reutilizan la identidad de la referencia y permiten leer durante sesiones largas.
 - Anton para títulos y Permanent Marker para anotaciones: distinguen cartel y rotulador; Inter mantiene legibles las preguntas, respuestas y formularios.

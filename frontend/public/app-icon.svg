@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title">
+  <title id="title">LoopDeck: una tarjeta, un repaso más</title>
+  <path fill="#0f172a" d="M0 0h1024v1024H0z"/>
+  <rect x="268" y="254" width="488" height="548" rx="40" fill="#ffe68c" transform="rotate(-10 512 528)"/>
+  <rect x="256" y="240" width="512" height="552" rx="36" fill="#f3ecdc"/>
+  <path d="M615 428a140 140 0 1 0 34 136" fill="none" stroke="#0f172a" stroke-width="68" stroke-linecap="round"/>
+  <path fill="#0f172a" d="M648 356v116H532Z"/>
+  <path fill="#ffe68c" d="M410 212h204v72H410z" transform="rotate(-5 512 248)"/>
+</svg>
