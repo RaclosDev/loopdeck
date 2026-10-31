@@ -1,5 +1,7 @@
+import { parseNoteFields } from '../lib/noteFields';
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
@@ -26,29 +28,31 @@ interface QuizOption {
 function StudyChunkedQuiz() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-    
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  const [showChunkSheet, setShowChunkSheet] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
   const [chunkSize, setChunkSize] = useState(10);
   const [currentChunkStart, setCurrentChunkStart] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [options, setOptions] = useState<QuizOption[]>([]);
   const [selectedOption, setSelectedOption] = useState<QuizOption | null>(null);
-  
+
   // Track scores for the current chunk
   const [chunkScore, setChunkScore] = useState(0);
-  
+
   const [isChunkFinished, setIsChunkFinished] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
-        const d = decks.find(d => d.id === deckId);
+        const d = decks.find((d) => d.id === deckId);
         if (!d) {
           toast.error('Mazo no encontrado');
           navigate('/');
@@ -57,23 +61,22 @@ function StudyChunkedQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Test');
-           navigate(`/hub/${deckId}`);
-           return;
+          toast('Necesitas al menos 2 tarjetas para el modo Test');
+          navigate(`/hub/${deckId}`);
+          return;
         }
-        
+
         // Progressive, so we DO NOT shuffle the main notes array. We keep it in order.
         setNotes(allNotes);
         generateOptions(allNotes, 0);
-
-      } catch (e) {
-        toast.error('Error cargando mazo');
+      } catch {
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
@@ -85,25 +88,25 @@ function StudyChunkedQuiz() {
     // Pick 3 random wrong answers
     const otherNotes = allNotes.filter((_, idx) => idx !== targetIndex);
     const shuffledOthers = shuffleArray(otherNotes);
-    
+
     // Take up to 3 wrong answers
-    const wrongAnswers = shuffledOthers.slice(0, 3).map(n => {
-      const f = JSON.parse(n.fieldsJson || '{}');
+    const wrongAnswers = shuffledOthers.slice(0, 3).map((n) => {
+      const f = parseNoteFields(n.fieldsJson || '{}');
       return f.back || '';
     });
 
     // Combine and shuffle
     const correctHtml = sanitizeHtml(marked.parse(correctBack) as string);
-    const wrongOptions = wrongAnswers.map(text => ({
+    const wrongOptions = wrongAnswers.map((text) => ({
       text,
       html: sanitizeHtml(marked.parse(text) as string),
-      isCorrect: false
+      isCorrect: false,
     }));
     const allOptions = shuffleArray([
       { text: correctBack, html: correctHtml, isCorrect: true },
-      ...wrongOptions
+      ...wrongOptions,
     ]);
-    
+
     setOptions(allOptions);
     setSelectedOption(null);
   };
@@ -111,20 +114,20 @@ function StudyChunkedQuiz() {
   const handleOptionClick = (option: QuizOption) => {
     if (selectedOption !== null) return; // already answered
     setSelectedOption(option);
-    
+
     if (option.isCorrect) {
-      setChunkScore(prev => prev + 1);
+      setChunkScore((prev) => prev + 1);
     }
   };
 
   const handleNext = () => {
     const nextIndex = currentIndex + 1;
-    
+
     if (nextIndex >= notes.length || nextIndex >= currentChunkStart + chunkSize) {
       // Reached the end of the chunk OR end of the deck
       setIsChunkFinished(true);
       if (nextIndex >= notes.length) {
-         setIsFinished(true);
+        setIsFinished(true);
       }
     } else {
       setCurrentIndex(nextIndex);
@@ -153,9 +156,15 @@ function StudyChunkedQuiz() {
     setChunkSize(newSize);
   };
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
   if (loading) {
     return (
-      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        className="study-container"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <div className="spinner" />
       </div>
     );
@@ -166,27 +175,59 @@ function StudyChunkedQuiz() {
 
   if (isChunkFinished) {
     return (
-      <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4"><CheckCircle2 className="w-8 h-8" /></div>
+      <div
+        className="study-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px',
+        }}
+      >
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem', textAlign: 'center' }}>
           {isFinished ? '¡Mazo Completado!' : '¡Bloque Completado!'}
         </h2>
-        
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem', textAlign: 'center' }}>
-          Aciertos en este bloque: <strong style={{ color: 'var(--accent-primary)' }}>{chunkScore}</strong> de {currentChunkLength}
+
+        <p
+          style={{
+            color: 'var(--text-muted)',
+            fontSize: '1.2rem',
+            marginBottom: '2rem',
+            textAlign: 'center',
+          }}
+        >
+          Aciertos en este bloque:{' '}
+          <strong style={{ color: 'var(--accent-primary)' }}>{chunkScore}</strong> de{' '}
+          {currentChunkLength}
         </p>
-        
+
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button className="icon-btn" onClick={handleRepeatChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
+          <button
+            className="icon-btn"
+            onClick={handleRepeatChunk}
+            style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
+          >
             Repetir estas {currentChunkLength}
           </button>
-          
+
           {isFinished ? (
-            <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate(`/hub/${deckId}`)}
+              style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
+            >
               Volver al Centro
             </button>
           ) : (
-            <button className="btn btn-primary" onClick={handleNextChunk} style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}>
+            <button
+              className="btn btn-primary"
+              onClick={handleNextChunk}
+              style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
+            >
               Siguiente Bloque
             </button>
           )}
@@ -196,28 +237,46 @@ function StudyChunkedQuiz() {
   }
 
   const currentNote = notes[currentIndex];
-  const fields = useMemo(() => JSON.parse(currentNote?.fieldsJson || '{}'), [currentNote?.fieldsJson]);
-  const questionHtml = useMemo(() => sanitizeHtml(marked.parse(fields.front || '') as string), [fields.front]);
+  const fields = parseNoteFields(currentNote?.fieldsJson || '{}');
+  const questionHtml = sanitizeHtml(marked.parse(fields.front || '') as string);
 
   return (
     <div className="study-container">
+      <h1 className="study-title">Test por bloques</h1>
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
-        
-        <div className="study-progress" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--bg-glass-strong)', border: '1px solid var(--border-subtle)', padding: '4px 12px', borderRadius: '16px' }}>
+
+        <div
+          className="study-progress"
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'var(--bg-glass-strong)',
+              border: '1px solid var(--border-subtle)',
+              padding: '4px 12px',
+              borderRadius: '16px',
+            }}
+          >
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bloque:</span>
-            <button 
-              type="button"
-              onClick={() => setShowChunkSheet(true)}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+            <select
+              aria-label="Tamaño del bloque"
+              value={chunkSize}
+              onChange={handleChunkSizeChange}
             >
-              {chunkSize} ▼
-            </button>
+              {[5, 10, 20, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
           </div>
-          
+
           <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>
             {currentIndex - currentChunkStart + 1} / {currentChunkLength}
           </span>
@@ -227,12 +286,40 @@ function StudyChunkedQuiz() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '800px', margin: '0 auto', padding: '0 20px', paddingTop: '20px' }}>
-        
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '800px',
+          margin: '0 auto',
+          padding: '0 20px',
+          paddingTop: '20px',
+        }}
+      >
         {/* Question Card */}
-        <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: questionHtml }} />
+        <div
+          className="card"
+          style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}
+        >
+          <div
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--text-muted)',
+              marginBottom: '1rem',
+              fontWeight: 600,
+              letterSpacing: '1px',
+            }}
+          >
+            PREGUNTA
+          </div>
+          <div
+            className="flashcard-content"
+            style={{ fontSize: '1.2rem' }}
+            dangerouslySetInnerHTML={{ __html: questionHtml }}
+          />
         </div>
 
         {/* Options Grid */}
@@ -244,16 +331,16 @@ function StudyChunkedQuiz() {
 
             if (selectedOption !== null) {
               if (option.isCorrect) {
-                bgColor = 'rgba(16, 185, 129, 0.15)';
-                borderColor = '#10b981';
+                bgColor = 'var(--color-success-bg)';
+                borderColor = 'var(--color-success)';
               } else if (selectedOption === option && !option.isCorrect) {
-                bgColor = 'rgba(239, 68, 68, 0.15)';
-                borderColor = '#ef4444';
+                bgColor = 'var(--color-danger-bg)';
+                borderColor = 'var(--color-danger)';
               }
             }
 
             return (
-              <button 
+              <button
                 key={idx}
                 className="quiz-option-btn"
                 style={{
@@ -265,12 +352,19 @@ function StudyChunkedQuiz() {
                   color: textColor,
                   cursor: selectedOption === null ? 'pointer' : 'default',
                   transition: 'all 0.2s',
-                  opacity: (selectedOption !== null && !option.isCorrect && selectedOption !== option) ? 0.4 : 1
+                  opacity:
+                    selectedOption !== null && !option.isCorrect && selectedOption !== option
+                      ? 0.4
+                      : 1,
                 }}
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: option.html }} />
+                <div
+                  className="flashcard-content"
+                  style={{ fontSize: '1rem', margin: 0 }}
+                  dangerouslySetInnerHTML={{ __html: option.html }}
+                />
               </button>
             );
           })}
@@ -279,17 +373,20 @@ function StudyChunkedQuiz() {
         {/* Next Button */}
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
-            <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
-              {currentIndex + 1 >= currentChunkStart + chunkSize || currentIndex + 1 >= notes.length ? 'Finalizar Bloque' : 'Siguiente'}
+            <button
+              className="btn btn-primary"
+              onClick={handleNext}
+              style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}
+            >
+              {currentIndex + 1 >= currentChunkStart + chunkSize || currentIndex + 1 >= notes.length
+                ? 'Finalizar Bloque'
+                : 'Siguiente'}
             </button>
           </div>
         )}
-
       </div>
     </div>
   );
 }
 
 export default StudyChunkedQuiz;
-
-

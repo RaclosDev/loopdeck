@@ -2,11 +2,9 @@ package com.loopdeck.service;
 
 import com.loopdeck.model.Card;
 import com.loopdeck.model.Note;
-import com.loopdeck.model.Review;
 import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
-import com.loopdeck.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +20,6 @@ public class CardService {
     private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
-    private final ReviewRepository reviewRepository;
 
 
     public record CreateNoteRequest(String deckId, String noteType, String fieldsJson, String tags) {}
@@ -30,6 +27,7 @@ public class CardService {
     public record ReviewRequest(int rating, int timeTakenMs) {}
 
 
+    @Transactional(readOnly = true)
     public List<Note> getNotesByDeck(String userId, String deckId) {
         deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
@@ -41,62 +39,46 @@ public class CardService {
         deckRepository.findByIdAndUserId(req.deckId(), userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
+        NoteContent content = NoteContent.validate(req.noteType(), req.fieldsJson(), req.tags());
         Note note = Note.builder()
                 .userId(userId)
                 .deckId(req.deckId())
-                .noteType(req.noteType() != null ? req.noteType() : "basic")
-                .fieldsJson(req.fieldsJson())
-                .tags(req.tags() != null ? req.tags() : "")
+                .noteType(content.type())
+                .fieldsJson(content.fieldsJson())
+                .tags(content.tags())
                 .build();
         noteRepository.save(note);
 
 
-        int numCards = "cloze".equals(note.getNoteType()) ? 1 : ("reverse".equals(note.getNoteType()) ? 2 : 1);
-        for (int i = 0; i < numCards; i++) {
-            Card card = Card.builder()
-                    .noteId(note.getId())
-                    .deckId(req.deckId())
-                    .cardOrdinal(i)
-                    .build();
-            cardRepository.save(card);
+        for (int ordinal : content.ordinals()) {
+            cardRepository.save(Card.builder().noteId(note.getId()).deckId(req.deckId()).cardOrdinal(ordinal).build());
         }
 
         return note;
     }
 
     @Transactional
-    public void importNotes(String userId, String deckId, List<CreateNoteRequest> requests) {
-        deckRepository.findByIdAndUserId(deckId, userId)
-                .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
-
-        for (CreateNoteRequest req : requests) {
-            Note note = Note.builder()
-                    .userId(userId)
-                    .deckId(deckId)
-                    .noteType(req.noteType() != null ? req.noteType() : "basic")
-                    .fieldsJson(req.fieldsJson())
-                    .tags(req.tags() != null ? req.tags() : "")
-                    .build();
-            noteRepository.save(note);
-
-            int numCards = "cloze".equals(note.getNoteType()) ? 1 : ("reverse".equals(note.getNoteType()) ? 2 : 1);
-            for (int i = 0; i < numCards; i++) {
-                Card card = Card.builder()
-                        .noteId(note.getId())
-                        .deckId(deckId)
-                        .cardOrdinal(i)
-                        .build();
-                cardRepository.save(card);
-            }
-        }
-    }
-
-    @Transactional
     public Note updateNote(String userId, String noteId, UpdateNoteRequest req) {
         Note note = noteRepository.findByIdAndUserId(noteId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Note not found"));
-        note.setFieldsJson(req.fieldsJson());
-        if (req.tags() != null) note.setTags(req.tags());
+        NoteContent content = NoteContent.validate(note.getNoteType(), req.fieldsJson(), req.tags() == null ? note.getTags() : req.tags());
+        note.setFieldsJson(content.fieldsJson());
+        note.setTags(content.tags());
+        if ("cloze".equals(note.getNoteType())) {
+            List<Card> existing = cardRepository.findByNoteId(noteId);
+            var retained = new java.util.HashSet<Integer>();
+            var removed = new java.util.ArrayList<Card>();
+            for (Card card : existing) {
+                if (card.getCardOrdinal() == 0) card.setCardOrdinal(content.ordinals().get(0));
+                if (content.ordinals().contains(card.getCardOrdinal()) && retained.add(card.getCardOrdinal())) {
+                    cardRepository.save(card);
+                } else removed.add(card);
+            }
+            cardRepository.deleteAllInBatch(removed);
+            for (int ordinal : content.ordinals()) {
+                if (!retained.contains(ordinal)) cardRepository.save(Card.builder().noteId(noteId).deckId(note.getDeckId()).cardOrdinal(ordinal).build());
+            }
+        }
         return noteRepository.save(note);
     }
 
@@ -111,10 +93,12 @@ public class CardService {
 
     public record DueCardDto(Card card, Note note) {}
 
+    @Transactional(readOnly = true)
     public List<DueCardDto> getDueCards(String userId, String deckId, int limit) {
         deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
         
+        if (limit < 1 || limit > 1000) throw new com.loopdeck.exception.InvalidInputException("El tamaño de repaso debe estar entre 1 y 1000");
         List<Card> dueCards = cardRepository.findDueCardsByDeckId(deckId, Instant.now(), limit);
         
         // Fetch all related notes in a single batch query
@@ -128,70 +112,33 @@ public class CardService {
                 .toList();
     }
 
-    @Transactional
+    public record StudyBatch(List<DueCardDto> items, DeckService.DeckStats counts, boolean hasMore) {}
 
+    @Transactional(readOnly = true)
+    public StudyBatch getStudyBatch(String userId, String deckId, int limit, String order) {
+        deckRepository.findByIdAndUserId(deckId, userId).orElseThrow(() -> new IllegalArgumentException("Mazo no encontrado"));
+        if (limit < 1 || limit > 100 || !List.of("new_first", "review_first", "mixed").contains(order))
+            throw new com.loopdeck.exception.InvalidInputException("Configuración de repaso no válida");
+        Instant now = Instant.now();
+        var dueCards = cardRepository.findStudyBatch(deckId, now, limit, order);
+        var noteIds = dueCards.stream().map(Card::getNoteId).distinct().toList();
+        var notes = noteIds.isEmpty() ? Map.<String,Note>of() : noteRepository.findAllById(noteIds).stream().collect(java.util.stream.Collectors.toMap(Note::getId, note -> note));
+        var items = dueCards.stream().map(card -> new DueCardDto(card, notes.get(card.getNoteId()))).toList();
+        var raw = cardRepository.getStatsForDecks(List.of(deckId), now);
+        var counts = raw.isEmpty() ? new DeckService.DeckStats(deckId,0,0,0,0,0) : new DeckService.DeckStats(deckId,
+            count(raw.get(0).getNewCount()), count(raw.get(0).getLearningCount()), count(raw.get(0).getReviewCount()),
+            count(raw.get(0).getTotalCount()), count(raw.get(0).getNoteCount()));
+        return new StudyBatch(items, counts, counts.newCount() + counts.learningCount() + counts.reviewCount() > items.size());
+    }
+    private static long count(Long value) { return value == null ? 0 : value; }
+
+    @Transactional(readOnly = true)
     public Map<String, String> getCardStatesByDeck(String userId, String deckId) {
         deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
-        List<CardRepository.CardStateProjection> list = cardRepository.findCardStatesByDeckId(deckId);
-        Map<String, String> map = new java.util.HashMap<>();
-        for (CardRepository.CardStateProjection p : list) {
-            map.put(p.getNoteId(), p.getState());
-        }
-        return map;
+        return NoteStates.aggregate(cardRepository.findCardStatesByDeckId(deckId));
     }
-
-    @Transactional
-    public Card reviewCard(String userId, String cardId, ReviewRequest req) {
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
-
-        // Verify ownership via note → deck → user
-        Note note = noteRepository.findById(card.getNoteId())
-                .orElseThrow(() -> new IllegalArgumentException("Note not found"));
-        deckRepository.findByIdAndUserId(note.getDeckId(), userId)
-                .orElseThrow(() -> new IllegalArgumentException("Not authorized"));
-
-        applySmTwo(card, req.rating());
-        card = cardRepository.save(card);
-
-        Review review = new Review(
-                java.util.UUID.randomUUID().toString(),
-                card.getId(),
-                req.rating(),
-                card.getIntervalDays(),
-                card.getEaseFactor(),
-                req.timeTakenMs() > 0 ? req.timeTakenMs() : null,
-                Instant.now()
-        );
-        reviewRepository.save(review);
-
-        return card;
-    }
-
-    @Transactional
-    public Card restoreCard(String userId, String cardId, Card oldState) {
-        Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new IllegalArgumentException("Card not found"));
-
-        Note note = noteRepository.findById(card.getNoteId())
-                .orElseThrow(() -> new IllegalArgumentException("Note not found"));
-        deckRepository.findByIdAndUserId(note.getDeckId(), userId)
-                .orElseThrow(() -> new IllegalArgumentException("Not authorized"));
-
-        card.setState(oldState.getState());
-        card.setDue(oldState.getDue());
-        card.setIntervalDays(oldState.getIntervalDays());
-        card.setEaseFactor(oldState.getEaseFactor());
-        card.setLearningStep(oldState.getLearningStep());
-        card.setRepetitions(oldState.getRepetitions());
-        card.setLapses(oldState.getLapses());
-        card.setLeech(oldState.isLeech());
-
-        return cardRepository.save(card);
-    }
-
 
     private static final int[] LEARNING_STEPS_MINUTES = {1, 10};
     private static final int GRADUATING_INTERVAL_DAYS = 1;
@@ -216,7 +163,14 @@ public class CardService {
             card.setEaseFactor(2.5);
             card.setRepetitions(1);
             card.setDue(Instant.now().plusSeconds((long)(EASY_INTERVAL_DAYS * 86400)));
-        } else { // Good / Hard → advance steps
+        } else if (rating == 2) {
+            int step = Math.max(0, Math.min(card.getLearningStep(), LEARNING_STEPS_MINUTES.length - 1));
+            int current = LEARNING_STEPS_MINUTES[step];
+            int next = step + 1 < LEARNING_STEPS_MINUTES.length ? LEARNING_STEPS_MINUTES[step + 1] : current * 2;
+            card.setLearningStep(step);
+            card.setState("learning");
+            card.setDue(Instant.now().plusSeconds(Math.round((current + next) / 2.0) * 60L));
+        } else {
             int nextStep = card.getLearningStep() + 1;
             if (nextStep >= LEARNING_STEPS_MINUTES.length) {
 
@@ -272,11 +226,11 @@ public class CardService {
     }
 
     private void applyRelearning(Card card, int rating) {
-        if (rating == 1) {
+        if (rating <= 2) {
             card.setDue(Instant.now().plusSeconds(10 * 60L));
         } else {
             card.setState("review");
-            card.setIntervalDays(Math.max(1, card.getIntervalDays() * 0.5));
+            card.setIntervalDays(Math.max(1, card.getIntervalDays() * (rating == 3 ? 0.7 : 1.0)));
             card.setDue(Instant.now().plusSeconds((long)(card.getIntervalDays() * 86400)));
         }
     }

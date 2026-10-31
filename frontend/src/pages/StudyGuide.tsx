@@ -1,3 +1,5 @@
+import { parseNoteFields } from '../lib/noteFields';
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -10,16 +12,19 @@ import { sanitizeHtml } from '../lib/utils';
 function StudyGuide() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-    const [deck, setDeck] = useState<Deck | null>(null);
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
-        const d = decks.find(d => d.id === deckId);
+        const d = decks.find((d) => d.id === deckId);
         if (!d) {
           toast.error('Mazo no encontrado');
           navigate('/');
@@ -29,28 +34,19 @@ function StudyGuide() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
-
       } catch (e) {
-        toast.error('Error cargando mazo');
+        setLoadError(true);
         console.error(e);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
-
-  if (loading) {
-    return (
-      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="spinner" />
-      </div>
-    );
-  }
+  }, [deckId, navigate, reloadKey]);
 
   const parsedNotes = useMemo(() => {
     return notes.map((note, index) => {
-      const fields = JSON.parse(note.fieldsJson || '{}');
+      const fields = parseNoteFields(note.fieldsJson || '{}');
       return {
         id: note.id,
         index,
@@ -60,20 +56,49 @@ function StudyGuide() {
     });
   }, [notes]);
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
+  if (loading)
+    return (
+      <div className="study-container">
+        <div className="spinner" />
+      </div>
+    );
+
   if (!deck) return null;
 
   return (
-    <div className="animate-fade-in" style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}>
-      
-      <div className="study-header" style={{ position: 'sticky', top: 0, zIndex: 10,  padding: '15px 20px',  margin: '-20px -20px 20px -20px' }}>
+    <div className="animate-fade-in study-guide-page">
+      <div
+        className="study-header"
+        style={{
+          padding: '0 0 12px',
+          margin: '0 0 20px',
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)} style={{ padding: '4px 12px' }}>
+          <button
+            className="icon-btn"
+            onClick={() => navigate(`/hub/${deckId}`)}
+            style={{ padding: '4px 12px' }}
+          >
             <ArrowLeft className="w-4 h-4 mr-1" /> Volver
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flex: 1,
+            }}
+          >
+            <h1
+              className="study-title"
+              style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}
+            >
               {deck.name} (Guía)
-            </div>
+            </h1>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
               {notes.length} conceptos
             </div>
@@ -88,37 +113,75 @@ function StudyGuide() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           {parsedNotes.map((item) => {
-
-            
             return (
-              <div key={item.id} style={{ 
-                background: 'var(--bg-glass-strong)',
-                border: '1px solid var(--border-subtle)',
-                 
-                borderRadius: 'var(--radius-lg)',
-                overflow: 'hidden'
-              }}>
-                <div style={{ 
-                  background: 'var(--bg-glass)', 
-                  padding: '4px 12px', 
-                  fontSize: '0.75rem', 
-                  color: 'var(--text-muted)', 
-                  fontWeight: 600,
-                  borderBottom: '1px solid var(--border-subtle)'
-                }}>
+              <div
+                key={item.id}
+                style={{
+                  background: 'var(--bg-glass-strong)',
+                  border: '1px solid var(--border-subtle)',
+
+                  borderRadius: 'var(--radius-lg)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    background: 'var(--bg-glass)',
+                    padding: '4px 12px',
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    fontWeight: 600,
+                    borderBottom: '1px solid var(--border-subtle)',
+                  }}
+                >
                   #{item.index + 1}
                 </div>
                 <div style={{ padding: '20px' }}>
                   <div style={{ marginBottom: '16px' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-                    <div className="flashcard-content" style={{ fontSize: '1.1rem' }} dangerouslySetInnerHTML={{ __html: item.frontHtml }} />
+                    <div
+                      style={{
+                        fontSize: '0.7rem',
+                        color: 'var(--text-muted)',
+                        marginBottom: '8px',
+                        fontWeight: 600,
+                        letterSpacing: '1px',
+                      }}
+                    >
+                      PREGUNTA
+                    </div>
+                    <div
+                      className="flashcard-content"
+                      style={{ fontSize: '1.1rem' }}
+                      dangerouslySetInnerHTML={{ __html: item.frontHtml }}
+                    />
                   </div>
-                  
-                  <div style={{ width: '40%', height: '1px', background: 'var(--border-subtle)', margin: '0 auto 16px auto' }} />
-                  
+
+                  <div
+                    style={{
+                      width: '40%',
+                      height: '1px',
+                      background: 'var(--border-subtle)',
+                      margin: '0 auto 16px auto',
+                    }}
+                  />
+
                   <div>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--accent-primary-light)', marginBottom: '8px', fontWeight: 600, letterSpacing: '1px' }}>RESPUESTA</div>
-                    <div className="flashcard-content" dangerouslySetInnerHTML={{ __html: item.backHtml }} style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }} />
+                    <div
+                      style={{
+                        fontSize: '0.7rem',
+                        color: 'var(--accent-primary-light)',
+                        marginBottom: '8px',
+                        fontWeight: 600,
+                        letterSpacing: '1px',
+                      }}
+                    >
+                      RESPUESTA
+                    </div>
+                    <div
+                      className="flashcard-content"
+                      dangerouslySetInnerHTML={{ __html: item.backHtml }}
+                      style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -126,17 +189,17 @@ function StudyGuide() {
           })}
         </div>
       )}
-      
+
       <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>¿Ya te suenan los conceptos?</p>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
+          ¿Ya te suenan los conceptos?
+        </p>
         <button className="btn btn-primary" onClick={() => navigate(`/study/${deckId}`)}>
           Empezar a Memorizar
         </button>
       </div>
-
     </div>
   );
 }
 
 export default StudyGuide;
-

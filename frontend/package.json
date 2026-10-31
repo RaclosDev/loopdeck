@@ -40,6 +40,8 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.29.9",
+    "@babel/plugin-syntax-typescript": "^7.29.7",
     "@playwright/test": "^1.63.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

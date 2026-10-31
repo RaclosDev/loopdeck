@@ -1,10 +1,10 @@
-@import "tailwindcss";
-@import "tailwindcss/theme" theme(reference);
+@import 'tailwindcss';
+@import 'tailwindcss/theme' theme(reference);
 @source "./components";
 
 @theme {
-  --font-display: "Clash Display", sans-serif;
-  --font-main: "Satoshi", sans-serif;
+  --font-display: 'Anton', 'Arial Narrow', sans-serif;
+  --font-main: 'Inter', sans-serif;
 
   --color-background: var(--bg-main);
   --color-foreground: var(--text-main);

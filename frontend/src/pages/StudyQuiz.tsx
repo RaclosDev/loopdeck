@@ -1,5 +1,7 @@
+import { parseNoteFields } from '../lib/noteFields';
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi } from '../services/api';
 import { marked } from 'marked';
@@ -25,10 +27,12 @@ interface QuizOption {
 function StudyQuiz() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
-    
+
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
-  
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [options, setOptions] = useState<QuizOption[]>([]);
   const [selectedOption, setSelectedOption] = useState<QuizOption | null>(null);
@@ -38,9 +42,10 @@ function StudyQuiz() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
-        const d = decks.find(d => d.id === deckId);
+        const d = decks.find((d) => d.id === deckId);
         if (!d) {
           toast.error('Mazo no encontrado');
           navigate('/');
@@ -49,23 +54,22 @@ function StudyQuiz() {
 
         const allNotes = await notesApi.getByDeck(deckId!);
         if (allNotes.length < 2) {
-           toast('Necesitas al menos 2 tarjetas para el modo Quiz');
-           navigate(`/hub/${deckId}`);
-           return;
+          toast('Necesitas al menos 2 tarjetas para el modo Quiz');
+          navigate(`/hub/${deckId}`);
+          return;
         }
-        
+
         const shuffledNotes = shuffleArray(allNotes);
         setNotes(shuffledNotes);
         generateOptions(shuffledNotes, 0);
-
-      } catch (e) {
-        toast.error('Error cargando mazo');
+      } catch {
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
@@ -75,25 +79,25 @@ function StudyQuiz() {
     // Pick 3 random wrong answers
     const otherNotes = allNotes.filter((_, idx) => idx !== targetIndex);
     const shuffledOthers = shuffleArray(otherNotes);
-    
+
     // Take up to 3 wrong answers
-    const wrongAnswers = shuffledOthers.slice(0, 3).map(n => {
-      const f = JSON.parse(n.fieldsJson || '{}');
+    const wrongAnswers = shuffledOthers.slice(0, 3).map((n) => {
+      const f = parseNoteFields(n.fieldsJson || '{}');
       return f.back || '';
     });
 
     // Combine and shuffle
     const correctHtml = sanitizeHtml(marked.parse(correctBack) as string);
-    const wrongOptions = wrongAnswers.map(text => ({
+    const wrongOptions = wrongAnswers.map((text) => ({
       text,
       html: sanitizeHtml(marked.parse(text) as string),
-      isCorrect: false
+      isCorrect: false,
     }));
     const allOptions = shuffleArray([
       { text: correctBack, html: correctHtml, isCorrect: true },
-      ...wrongOptions
+      ...wrongOptions,
     ]);
-    
+
     setOptions(allOptions);
     setSelectedOption(null);
   };
@@ -101,9 +105,9 @@ function StudyQuiz() {
   const handleOptionClick = (option: QuizOption) => {
     if (selectedOption !== null) return; // already answered
     setSelectedOption(option);
-    
+
     if (option.isCorrect) {
-      setScore(prev => prev + 1);
+      setScore((prev) => prev + 1);
     }
   };
 
@@ -117,9 +121,15 @@ function StudyQuiz() {
     }
   };
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
   if (loading) {
     return (
-      <div className="study-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        className="study-container"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <div className="spinner" />
       </div>
     );
@@ -127,8 +137,18 @@ function StudyQuiz() {
 
   if (isFinished) {
     return (
-      <div className="study-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4"><CheckCircle2 className="w-8 h-8" /></div>
+      <div
+        className="study-container"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-4">
+          <CheckCircle2 className="w-8 h-8" />
+        </div>
         <h2 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>¡Quiz Terminado!</h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '2rem' }}>
           Has acertado <strong>{score}</strong> de {notes.length}
@@ -141,8 +161,8 @@ function StudyQuiz() {
   }
 
   const currentNote = notes[currentIndex];
-  const fields = useMemo(() => JSON.parse(currentNote?.fieldsJson || '{}'), [currentNote?.fieldsJson]);
-  const questionHtml = useMemo(() => sanitizeHtml(marked.parse(fields.front || '') as string), [fields.front]);
+  const fields = parseNoteFields(currentNote?.fieldsJson || '{}');
+  const questionHtml = sanitizeHtml(marked.parse(fields.front || '') as string);
 
   return (
     <div className="study-container">
@@ -151,19 +171,47 @@ function StudyQuiz() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         <div className="study-progress">
-          <span>Test de Opciones</span>
+          <h1 className="study-title">Test de opciones</h1>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '12px' }}>
             {currentIndex + 1} / {notes.length}
           </span>
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '800px', margin: '0 auto', padding: '0 20px', paddingTop: '20px' }}>
-        
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '800px',
+          margin: '0 auto',
+          padding: '0 20px',
+          paddingTop: '20px',
+        }}
+      >
         {/* Question Card */}
-        <div className="card" style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1rem', fontWeight: 600, letterSpacing: '1px' }}>PREGUNTA</div>
-          <div className="flashcard-content" style={{ fontSize: '1.2rem' }} dangerouslySetInnerHTML={{ __html: questionHtml }} />
+        <div
+          className="card"
+          style={{ width: '100%', padding: '2rem', marginBottom: '2rem', textAlign: 'center' }}
+        >
+          <div
+            style={{
+              fontSize: '0.8rem',
+              color: 'var(--text-muted)',
+              marginBottom: '1rem',
+              fontWeight: 600,
+              letterSpacing: '1px',
+            }}
+          >
+            PREGUNTA
+          </div>
+          <div
+            className="flashcard-content"
+            style={{ fontSize: '1.2rem' }}
+            dangerouslySetInnerHTML={{ __html: questionHtml }}
+          />
         </div>
 
         {/* Options Grid */}
@@ -175,16 +223,16 @@ function StudyQuiz() {
 
             if (selectedOption !== null) {
               if (option.isCorrect) {
-                bgColor = 'rgba(16, 185, 129, 0.15)';
-                borderColor = '#10b981';
+                bgColor = 'var(--color-success-bg)';
+                borderColor = 'var(--color-success)';
               } else if (selectedOption === option && !option.isCorrect) {
-                bgColor = 'rgba(239, 68, 68, 0.15)';
-                borderColor = '#ef4444';
+                bgColor = 'var(--color-danger-bg)';
+                borderColor = 'var(--color-danger)';
               }
             }
 
             return (
-              <button 
+              <button
                 key={idx}
                 className="quiz-option-btn"
                 style={{
@@ -196,12 +244,19 @@ function StudyQuiz() {
                   color: textColor,
                   cursor: selectedOption === null ? 'pointer' : 'default',
                   transition: 'all 0.2s',
-                  opacity: (selectedOption !== null && !option.isCorrect && selectedOption !== option) ? 0.4 : 1
+                  opacity:
+                    selectedOption !== null && !option.isCorrect && selectedOption !== option
+                      ? 0.4
+                      : 1,
                 }}
                 onClick={() => handleOptionClick(option)}
                 disabled={selectedOption !== null}
               >
-                <div className="flashcard-content" style={{ fontSize: '1rem', margin: 0 }} dangerouslySetInnerHTML={{ __html: option.html }} />
+                <div
+                  className="flashcard-content"
+                  style={{ fontSize: '1rem', margin: 0 }}
+                  dangerouslySetInnerHTML={{ __html: option.html }}
+                />
               </button>
             );
           })}
@@ -210,17 +265,18 @@ function StudyQuiz() {
         {/* Next Button */}
         {selectedOption !== null && (
           <div style={{ marginTop: '2rem', animation: 'fadeIn 0.3s' }}>
-            <button className="btn btn-primary" onClick={handleNext} style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}>
+            <button
+              className="btn btn-primary"
+              onClick={handleNext}
+              style={{ padding: '0.8rem 3rem', fontSize: '1.1rem' }}
+            >
               Siguiente
             </button>
           </div>
         )}
-
       </div>
     </div>
   );
 }
 
 export default StudyQuiz;
-
-

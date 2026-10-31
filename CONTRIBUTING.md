@@ -1,25 +1,22 @@
-﻿# Contributing to Loopdeck
+# Desarrollo de LoopDeck
 
-¡Gracias por tu interés en contribuir a Loopdeck!
+Requisitos: Node.js 22+, Java 17 y Docker en ejecución para PostgreSQL y los tests de integración.
 
-## Cómo levantar el proyecto
+## Configuración
 
-### Requisitos previos
-- Docker y Docker Compose
-- Node.js (v22 o superior)
-- Java 17
+1. Copia `.env.example` a `.env` y sustituye los placeholders. `JWT_SECRET` es obligatorio, debe tener al menos 32 bytes y no puede comenzar por `CHANGE_ME`. Genera un valor aleatorio propio; no reutilices el de las pruebas.
+2. `docker compose up -d` construye backend y frontend y arranca PostgreSQL. Para desarrollo nativo puedes arrancar solo `docker compose up -d postgres`.
+3. Si ejecutas Java fuera de Compose, exporta las variables de `.env` a tu terminal: Spring no carga ese archivo automáticamente. Configura `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` y `SPRING_DATASOURCE_PASSWORD` para la base local.
+4. En `backend`, ejecuta `./mvnw spring-boot:run` (`.\mvnw.cmd spring-boot:run` en Windows).
+5. En `frontend`, ejecuta `npm ci` y `npm run dev`. Configura las variables de `frontend/.env.example` y permite ese origen en `CORS_ALLOWED_ORIGINS`.
 
-### Paso a paso
-1. Clona el repositorio: git clone https://github.com/RaclosDev/loopdeck.git
-2. Copia .env.example a .env y rellena las variables de entorno. Necesitarás una API Key de Gemini.
-3. Puedes usar docker-compose up -d postgres para levantar la base de datos de desarrollo.
-4. Para el frontend, ve a rontend, ejecuta 
-pm install y luego 
-pm run dev. El backend se puede ejecutar con ./mvnw spring-boot:run (se conectará a la base de datos Dockerizada).
+Google requiere un client ID con los orígenes configurados. Gemini es necesario para las funciones de IA; no lo es para crear y repasar tarjetas manualmente.
 
-## Reglas Básicas
-- **Commits:** Sigue la convención de [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (feat:, fix:, chore:, refactor:, etc.).
-- **Tests:** El proyecto usa Testcontainers para backend y Vitest/Playwright para frontend. Asegúrate de pasar la suite con ./mvnw verify y 
-pm run test.
-- **Formato:** El proyecto de frontend usa eslint y prettier. Al hacer commit, el hook pre-commit de Husky aplicará el formateo automáticamente.
-- **Idioma:** Por coherencia, los mensajes de la UI y los endpoints deben mantenerse en español.
+## Verificación antes del commit
+
+- Backend: `./mvnw clean verify`. Los tests de integración arrancan PostgreSQL con Testcontainers. En Docker Desktop que requiera API 1.44: `.\mvnw.cmd '-DargLine=-Dapi.version=1.44' clean verify`.
+- Frontend: `npm run lint`, `npm test`, `npm run build` y `npm run e2e` (instala Chromium con `npx playwright install chromium`).
+- Imagen de producción: `docker build -t loopdeck:local .` desde la raíz.
+- No incluyas secretos, `.env`, artefactos compilados ni cambios ajenos. Usa ramas, PR y Conventional Commits.
+
+Las migraciones compartidas se conservan: cualquier reparación del esquema o de los datos necesita una migración nueva.

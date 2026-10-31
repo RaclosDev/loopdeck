@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { templatesApi } from '../services/api';
 import { TemplateDeck } from '../types';
 import { Button } from '../components/ui/button';
@@ -10,7 +10,7 @@ import { Skeleton } from '../components/ui/skeleton';
 import { Loader2, Library, Download, Map, Globe, Flag, BookOpen, AlertCircle } from 'lucide-react';
 
 function getCategoryIcon(icon?: string, category?: string) {
-  switch (icon?.toLowerCase()) {
+  switch ((icon || category)?.toLowerCase()) {
     case 'map':
       return <Map className="w-5 h-5 text-[var(--accent-primary)]" />;
     case 'globe':
@@ -24,9 +24,15 @@ function getCategoryIcon(icon?: string, category?: string) {
 
 export default function Templates() {
   const navigate = useNavigate();
+  const client = useQueryClient();
   const [importingId, setImportingId] = useState<string | null>(null);
 
-  const { data: templates = [], isLoading: loading, isError, refetch } = useQuery<TemplateDeck[]>({
+  const {
+    data: templates = [],
+    isLoading: loading,
+    isError,
+    refetch,
+  } = useQuery<TemplateDeck[]>({
     queryKey: ['templates'],
     queryFn: () => templatesApi.getAll(),
     staleTime: 10 * 60 * 1000,
@@ -37,9 +43,13 @@ export default function Templates() {
     setImportingId(templateId);
     try {
       const newDeck = await templatesApi.import(templateId);
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['decks'] }),
+        client.invalidateQueries({ queryKey: ['deckStats'] }),
+      ]);
       toast.success(`¡Mazo "${newDeck.name}" importado con éxito!`);
       navigate('/');
-    } catch (e) {
+    } catch {
       toast.error('Error al importar la plantilla');
     } finally {
       setImportingId(null);
@@ -58,7 +68,7 @@ export default function Templates() {
         </div>
       ) : loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map(i => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="card p-6 flex flex-col gap-4 border-dashed">
               <Skeleton className="h-6 w-3/4 rounded-md" />
               <Skeleton className="h-16 w-full rounded-md" />
@@ -72,15 +82,20 @@ export default function Templates() {
       ) : templates.length === 0 ? (
         <div className="card border-dashed flex flex-col items-center justify-center text-center p-12">
           <Library className="w-12 h-12 mb-4 opacity-50" />
-          <h3 className="m-0 mb-2 text-xl font-bold">No hay plantillas disponibles</h3>
+          <h2 className="m-0 mb-2 text-xl font-bold">No hay plantillas disponibles</h2>
           <p className="text-muted-foreground m-0">Vuelve más tarde para ver nuevos mazos.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template) => (
-            <div key={template.id} className="card flex flex-col border-dashed p-6 hover:border-[var(--accent-primary)] transition-colors">
+            <div
+              key={template.id}
+              className="card flex flex-col border-dashed p-6 hover:border-[var(--accent-primary)] transition-colors"
+            >
               <div className="flex justify-between items-start mb-4 gap-3">
-                <h3 className="m-0 text-xl font-bold break-words flex items-center gap-2">{getCategoryIcon(template.icon, template.category)} <span>{template.name}</span></h3>
+                <h2 className="m-0 text-xl font-bold break-words flex items-center gap-2">
+                  {getCategoryIcon(template.icon, template.category)} <span>{template.name}</span>
+                </h2>
                 <Badge variant="outline" className="shrink-0">
                   {template.category}
                 </Badge>
@@ -92,12 +107,16 @@ export default function Templates() {
                 <span className="text-sm font-semibold text-muted-foreground">
                   {template.cardCount} tarjetas
                 </span>
-                <Button 
+                <Button
                   onClick={() => handleImportTemplate(template.id)}
                   disabled={importingId === template.id}
                   size="sm"
                 >
-                  {importingId === template.id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />}
+                  {importingId === template.id ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <Download className="w-4 h-4 mr-2" />
+                  )}
                   {importingId === template.id ? 'Importando...' : 'Descargar'}
                 </Button>
               </div>
