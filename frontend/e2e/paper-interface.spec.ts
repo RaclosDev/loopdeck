@@ -814,3 +814,49 @@ for (const width of [320, 390]) {
     await expect(page.getByRole('navigation', { name: 'Navegación inferior' })).toHaveCount(0);
   });
 }
+
+test('prepares study while choosing a mode and avoids a second wait after clicking', async ({
+  page,
+}, testInfo) => {
+  await fixture(page);
+  let requests = 0;
+  await page.route('**/api/decks/paper-deck/study/batch?**', async (route) => {
+    requests++;
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await route.fulfill({
+      json: {
+        items: [
+          {
+            note: notes[0],
+            card: { id: 'prepared', state: 'new', cardOrdinal: 0, easeFactor: 2.5 },
+          },
+        ],
+        counts: { newCount: 1, learningCount: 0, reviewCount: 0 },
+        hasMore: false,
+      },
+    });
+  });
+  const directStart = Date.now();
+  await page.goto('/study/paper-deck');
+  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeVisible();
+  const directMs = Date.now() - directStart;
+  const preparedResponse = page.waitForResponse(
+    (response) => response.url().includes('/study/batch?') && response.status() === 200,
+  );
+  await page.goto('/hub/paper-deck');
+  await expect.poll(() => requests).toBe(2);
+  await preparedResponse;
+  const beforeClick = requests;
+  const preparedStart = Date.now();
+  await page.getByRole('link', { name: /Repaso espaciado/ }).click();
+  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeVisible();
+  expect(requests).toBe(beforeClick);
+  await testInfo.attach('study-start-timing', {
+    body: JSON.stringify({
+      directMs,
+      preparedMs: Date.now() - preparedStart,
+      simulatedApiDelayMs: 400,
+    }),
+    contentType: 'application/json',
+  });
+});

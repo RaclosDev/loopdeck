@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { studyApi } from '../services/api';
 import { invalidateStudyData } from '../lib/queryInvalidation';
 import type { DueCardDto, ReviewBody } from '../types';
+import { studyBatchOptions } from '../lib/studyQuery';
 
 type UndoAction = { pair: DueCardDto; reviewId: string; rating: number };
 type PendingReview = { pair: DueCardDto; body: ReviewBody };
@@ -32,18 +33,20 @@ export function useStudySession(deckId: string | undefined, order: string, accou
   const generation = useRef(0);
 
   const loadNext = useCallback(
-    async (version = generation.current) => {
+    async (version = generation.current, allowPrepared = false) => {
       if (!deckId) return;
       setLoading(true);
       setLoadError(false);
       try {
         const batch = await client.fetchQuery({
-          queryKey: ['studyBatch', deckId, account, order],
-          queryFn: ({ signal }) => studyApi.getBatch(deckId, order, signal),
-          staleTime: 0,
-          retry: false,
+          ...studyBatchOptions(deckId, account, order),
+          staleTime: allowPrepared ? 10_000 : 0,
         });
         if (version !== generation.current) return;
+        void client.invalidateQueries({
+          queryKey: ['studyBatch', deckId, account, order],
+          refetchType: 'none',
+        });
         const items = restored.current
           ? [
               restored.current,
@@ -80,7 +83,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     setIsFlipped(false);
     setIsComplete(false);
     setSessionStats({ reviewed: 0, correct: 0, startTime: Date.now() });
-    void loadNext(version);
+    void loadNext(version, true);
     return () => {
       generation.current++;
     };
