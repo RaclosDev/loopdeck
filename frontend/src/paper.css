@@ -51,7 +51,7 @@ textarea::placeholder {
   opacity: 1;
 }
 .paper-panel {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23111827' opacity='.035' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+  background-image: url('./assets/paper-grain.png');
 }
 .landing-tape::after {
   content: '';
@@ -157,14 +157,14 @@ body.light-mode .sidebar .nav-item.text-destructive {
   color: #991b1b;
 }
 .mobile-bottom-nav {
-  height: calc(68px + env(safe-area-inset-bottom));
-  border-top: 2px solid var(--ink);
+  height: var(--mobile-nav-height);
+  border: 2px solid var(--ink);
 }
 .mobile-bottom-item {
   flex: 1;
-  min-height: 52px;
-  margin: 4px 2px;
-  border-radius: 3px;
+  min-height: 48px;
+  margin: 0;
+  border-radius: 12px;
 }
 .mobile-bottom-indicator {
   display: none;
@@ -250,7 +250,7 @@ body.light-mode .sidebar .nav-item.text-destructive {
 }
 .bottom-sheet-content {
   position: relative;
-  max-height: 85dvh;
+  max-height: min(85dvh, calc(100dvh - var(--safe-top) - 12px));
   overflow-y: auto;
 }
 .sheet-close {

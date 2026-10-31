@@ -70,7 +70,7 @@ function AppContent({
   googleClientId: string | null;
   configLoaded: boolean;
 }) {
-  const { token, isLoading } = useAuth();
+  const { token, user, isLoading } = useAuth();
   const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
 
   useEffect(() => {
@@ -168,7 +168,7 @@ function AppContent({
           },
         }}
       />
-      <Routes>
+      <Routes key={user?.id || 'anonymous'}>
         <Route
           path="/"
           element={

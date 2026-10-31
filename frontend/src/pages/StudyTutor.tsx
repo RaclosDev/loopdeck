@@ -1,3 +1,5 @@
+import { parseNoteFields } from '../lib/noteFields';
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useRef, FormEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -19,6 +21,8 @@ function StudyTutor() {
   const [deck, setDeck] = useState<Deck | null>(null);
   const [contextString, setContextString] = useState('');
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -33,6 +37,7 @@ function StudyTutor() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
         const d = decks.find((d) => d.id === deckId);
@@ -49,7 +54,7 @@ function StudyTutor() {
         let context = `Mazo: ${d.name}\n\n`;
         const reversedNotes = [...allNotes].reverse();
         reversedNotes.forEach((n) => {
-          const f = JSON.parse(n.fieldsJson || '{}');
+          const f = parseNoteFields(n.fieldsJson || '{}');
           const front = f.front ? f.front.replace(/<[^>]+>/g, '') : '';
           const back = f.back ? f.back.replace(/<[^>]+>/g, '') : '';
           context += `Pregunta: ${front}\nRespuesta: ${back}\n\n`;
@@ -62,13 +67,13 @@ function StudyTutor() {
 
         setContextString(context);
       } catch {
-        toast.error('Error cargando mazo');
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -101,6 +106,9 @@ function StudyTutor() {
     }
   };
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
   if (loading) {
     return (
       <div
@@ -119,11 +127,10 @@ function StudyTutor() {
 
   return (
     <div
-      className="study-container"
+      className="study-container tutor-session"
       style={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
         padding: 0,
         borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
@@ -137,7 +144,9 @@ function StudyTutor() {
         >
           <ArrowLeft className="w-4 h-4 mr-1" /> Volver
         </button>
-        <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Tutor IA - {deck?.name}</div>
+        <h1 className="study-title" style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+          Tutor IA · {deck?.name}
+        </h1>
       </div>
 
       <div

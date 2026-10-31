@@ -8,6 +8,10 @@ import java.time.Instant;
 import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, String> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Card c WHERE c.id = :id")
+    java.util.Optional<Card> findLockedById(@Param("id") String id);
+
     List<Card> findByNoteId(String noteId);
 
     List<Card> findByDeckId(String deckId);
@@ -17,6 +21,13 @@ public interface CardRepository extends JpaRepository<Card, String> {
            "AND ((c.state = 'new') OR (c.due <= :now)) " +
            "ORDER BY c.due ASC LIMIT :limit")
     List<Card> findDueCardsByDeckId(@Param("deckId") String deckId, @Param("now") Instant now, @Param("limit") int limit);
+
+    @Query(value = "SELECT c.* FROM cards c WHERE c.deck_id = :deckId AND c.suspended = false AND c.buried = false " +
+        "AND (c.state = 'new' OR c.due <= :now) " +
+        "ORDER BY CASE WHEN :studyOrder = 'new_first' AND c.state = 'new' THEN 0 WHEN :studyOrder = 'review_first' AND c.state = 'review' THEN 0 " +
+        "WHEN :studyOrder IN ('new_first','review_first') THEN 1 ELSE 0 END, " +
+        "CASE WHEN :studyOrder = 'mixed' THEN random() ELSE 0 END, c.due ASC, c.id ASC LIMIT :limit", nativeQuery = true)
+    List<Card> findStudyBatch(@Param("deckId") String deckId, @Param("now") Instant now, @Param("limit") int limit, @Param("studyOrder") String studyOrder);
 
     void deleteByNoteId(String noteId);
 
@@ -29,6 +40,9 @@ public interface CardRepository extends JpaRepository<Card, String> {
 
     @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId")
     List<CardStateProjection> findCardStatesByDeckId(@Param("deckId") String deckId);
+
+    @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId AND c.noteId IN :noteIds")
+    List<CardStateProjection> findCardStatesForNotes(@Param("deckId") String deckId, @Param("noteIds") List<String> noteIds);
 
     interface DeckStatsProjection {
         String getDeckId();

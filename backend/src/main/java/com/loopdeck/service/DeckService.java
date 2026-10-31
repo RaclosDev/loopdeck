@@ -3,8 +3,6 @@ package com.loopdeck.service;
 import com.loopdeck.model.Deck;
 import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
-import com.loopdeck.repository.NoteRepository;
-import com.loopdeck.repository.DeckDocumentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +16,7 @@ import jakarta.validation.constraints.NotBlank;
 public class DeckService {
 
     private final DeckRepository deckRepository;
-    private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
-    private final DeckDocumentRepository deckDocumentRepository;
     private final com.loopdeck.mapper.DeckMapper deckMapper;
 
     public record CreateDeckRequest(@NotBlank String name, String description, String parentId) {}
@@ -35,12 +31,16 @@ public class DeckService {
         return deckRepository.findByUserIdOrderByNameAsc(userId);
     }
 
+    @Transactional
     public Deck createDeck(String userId, CreateDeckRequest req) {
+        if (req.parentId() != null && !req.parentId().isBlank()) verifyOwnership(userId, req.parentId());
         Deck deck = deckMapper.toEntity(req);
+        if (req.parentId() == null || req.parentId().isBlank()) deck.setParentId(null);
         deck.setUserId(userId);
         return deckRepository.save(deck);
     }
 
+    @Transactional
     public Deck updateDeck(String userId, String deckId, UpdateDeckRequest req) {
         Deck deck = deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
@@ -52,9 +52,6 @@ public class DeckService {
     public void deleteDeck(String userId, String deckId) {
         Deck deck = deckRepository.findByIdAndUserId(deckId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
-        deckDocumentRepository.deleteById(deckId); // Prevents orphaned documents
-        cardRepository.deleteByDeckId(deckId); // Prevents orphaned cards!
-        noteRepository.deleteByDeckId(deckId);
         deckRepository.delete(deck);
     }
 

@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { templatesApi } from '../services/api';
 import { TemplateDeck } from '../types';
 import { Button } from '../components/ui/button';
@@ -24,6 +24,7 @@ function getCategoryIcon(icon?: string, category?: string) {
 
 export default function Templates() {
   const navigate = useNavigate();
+  const client = useQueryClient();
   const [importingId, setImportingId] = useState<string | null>(null);
 
   const {
@@ -42,6 +43,10 @@ export default function Templates() {
     setImportingId(templateId);
     try {
       const newDeck = await templatesApi.import(templateId);
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['decks'] }),
+        client.invalidateQueries({ queryKey: ['deckStats'] }),
+      ]);
       toast.success(`¡Mazo "${newDeck.name}" importado con éxito!`);
       navigate('/');
     } catch {
@@ -77,7 +82,7 @@ export default function Templates() {
       ) : templates.length === 0 ? (
         <div className="card border-dashed flex flex-col items-center justify-center text-center p-12">
           <Library className="w-12 h-12 mb-4 opacity-50" />
-          <h3 className="m-0 mb-2 text-xl font-bold">No hay plantillas disponibles</h3>
+          <h2 className="m-0 mb-2 text-xl font-bold">No hay plantillas disponibles</h2>
           <p className="text-muted-foreground m-0">Vuelve más tarde para ver nuevos mazos.</p>
         </div>
       ) : (
@@ -88,9 +93,9 @@ export default function Templates() {
               className="card flex flex-col border-dashed p-6 hover:border-[var(--accent-primary)] transition-colors"
             >
               <div className="flex justify-between items-start mb-4 gap-3">
-                <h3 className="m-0 text-xl font-bold break-words flex items-center gap-2">
+                <h2 className="m-0 text-xl font-bold break-words flex items-center gap-2">
                   {getCategoryIcon(template.icon, template.category)} <span>{template.name}</span>
-                </h3>
+                </h2>
                 <Badge variant="outline" className="shrink-0">
                   {template.category}
                 </Badge>
