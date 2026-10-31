@@ -317,7 +317,10 @@ export default function Browser() {
       </div>
 
       {total > 25 && (
-        <nav className="flex items-center justify-between gap-3 my-6" aria-label="Páginas de notas">
+        <nav
+          className="flex flex-wrap items-center justify-between gap-3 my-6"
+          aria-label="Páginas de notas"
+        >
           <Button
             variant="secondary"
             disabled={page === 0 || loading}
@@ -325,7 +328,10 @@ export default function Browser() {
           >
             Anterior
           </Button>
-          <span role="status">
+          <span
+            role="status"
+            className="order-first w-full text-center whitespace-nowrap sm:order-none sm:w-auto"
+          >
             Página {page + 1} de {Math.ceil(total / 25)}
           </span>
           <Button

@@ -688,6 +688,7 @@ test('document dialog has paper, fullscreen and a recoverable local error', asyn
 test('browser requests bounded pages and searches the whole deck on the server', async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 320, height: 900 });
   await fixture(page);
   const rows = Array.from({ length: 68 }, (_, i) => ({
     ...notes[0],
@@ -711,6 +712,9 @@ test('browser requests bounded pages and searches the whole deck on the server',
   });
   await page.goto('/browser?deck=paper-deck');
   await expect(page.getByRole('button', { name: 'Editar tarjeta', exact: true })).toHaveCount(25);
+  const pagination = page.getByRole('navigation', { name: 'Páginas de notas' });
+  expect((await pagination.getByRole('status').boundingBox())!.height).toBeLessThan(40);
+  await noOverflow(page);
   await page.getByRole('button', { name: 'Siguiente', exact: true }).click();
   await expect(page.getByText('Pregunta 26', { exact: true })).toBeVisible();
   await expect(page).toHaveURL(/page=1/);
