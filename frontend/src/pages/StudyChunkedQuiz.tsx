@@ -1,3 +1,4 @@
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -29,6 +30,8 @@ function StudyChunkedQuiz() {
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [chunkSize, setChunkSize] = useState(10);
   const [currentChunkStart, setCurrentChunkStart] = useState(0);
@@ -45,6 +48,7 @@ function StudyChunkedQuiz() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
         const d = decks.find((d) => d.id === deckId);
@@ -65,13 +69,13 @@ function StudyChunkedQuiz() {
         setNotes(allNotes);
         generateOptions(allNotes, 0);
       } catch {
-        toast.error('Error cargando mazo');
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
@@ -150,6 +154,9 @@ function StudyChunkedQuiz() {
     const newSize = parseInt(e.target.value, 10);
     setChunkSize(newSize);
   };
+
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
 
   if (loading) {
     return (
@@ -234,6 +241,7 @@ function StudyChunkedQuiz() {
 
   return (
     <div className="study-container">
+      <h1 className="study-title">Test por bloques</h1>
       <div className="study-header">
         <button className="icon-btn" onClick={() => navigate(`/hub/${deckId}`)}>
           <ArrowLeft className="w-4 h-4 mr-1" /> Salir

@@ -1,11 +1,11 @@
 import toast from 'react-hot-toast';
 import { useState, useEffect, useRef, KeyboardEvent } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { decksApi, notesApi, aiApi } from '../services/api';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { notesApi, aiApi } from '../services/api';
 import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
 import { lookupDefinition, lookupImage } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
-import { Deck } from '../types';
+import { useDecks } from '../hooks/useDecks';
 import { SegmentedControl } from '../components/ui/segmented-control';
 import { BookA, ListPlus, Image, Folder, Search, ChevronDown, X } from 'lucide-react';
 import { sanitizeHtml } from '../lib/utils';
@@ -35,7 +35,12 @@ export default function AddCard() {
   const { deckId: paramDeckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
 
-  const [decks, setDecks] = useState<Deck[]>([]);
+  const {
+    data: decks = [],
+    isLoading: loadingDecks,
+    isError: errorDecks,
+    refetch: retryDecks,
+  } = useDecks();
   const [selectedDeckId, setSelectedDeckId] = useState<string>(paramDeckId || '');
   const [selectedType, setSelectedType] = useState<string>('basic');
   const [addMode, setAddMode] = useState<'single' | 'mass'>('single');
@@ -63,11 +68,9 @@ export default function AddCard() {
   const backContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    decksApi.getAll().then((data) => {
-      setDecks(data);
-      if (!selectedDeckId && data.length > 0) setSelectedDeckId(data[0].id);
-    });
-  }, [selectedDeckId]);
+    if (decks.length > 0 && !decks.some((deck) => deck.id === selectedDeckId))
+      setSelectedDeckId(decks[0].id);
+  }, [decks, selectedDeckId]);
 
   const clearEditor = () => {
     setFields({ front: '', back: '' });
@@ -323,8 +326,35 @@ export default function AddCard() {
     return () => window.removeEventListener('keydown', handler);
   }, [fields, selectedDeckId, selectedType, tags, massInput, addMode]);
 
+  if (errorDecks)
+    return (
+      <div className="card page-state" role="alert">
+        <h2>No se han podido cargar tus mazos</h2>
+        <button className="sheet-action" onClick={() => void retryDecks()}>
+          Reintentar
+        </button>
+      </div>
+    );
+  if (loadingDecks)
+    return (
+      <div className="page-state" role="status">
+        <div className="spinner" />
+        <p>Cargando mazos…</p>
+      </div>
+    );
+  if (decks.length === 0)
+    return (
+      <div className="card page-state">
+        <h2>Todavía no tienes mazos</h2>
+        <p>Crea un mazo antes de añadir tarjetas.</p>
+        <Link className="sheet-action" to="/">
+          Ir a Mis Mazos
+        </Link>
+      </div>
+    );
+
   return (
-    <div className="fade-in pb-12">
+    <div className="fade-in add-card-page">
       <SegmentedControl
         options={[
           { label: 'Una a una', value: 'single' },
@@ -367,10 +397,11 @@ export default function AddCard() {
             <button
               type="button"
               className="form-input"
+              aria-label="Seleccionar mazo"
               onClick={() => setShowDeckSelector(true)}
               style={{
                 width: '100%',
-                height: '42px',
+                minHeight: '44px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -400,10 +431,11 @@ export default function AddCard() {
               <button
                 type="button"
                 className="form-input"
+                aria-label="Seleccionar tipo de nota"
                 onClick={() => setShowTypeSelector(true)}
                 style={{
                   width: '100%',
-                  height: '42px',
+                  minHeight: '44px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -436,12 +468,14 @@ export default function AddCard() {
             style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}
           >
             <label
+              htmlFor="mass-concepts"
               className="form-label"
               style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}
             >
               Lista de Conceptos
             </label>
             <textarea
+              id="mass-concepts"
               className="form-input"
               style={{ minHeight: '200px', padding: '12px', resize: 'vertical' }}
               value={massInput}
@@ -469,7 +503,7 @@ export default function AddCard() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))',
             gap: '1.5rem',
           }}
         >
@@ -495,12 +529,12 @@ export default function AddCard() {
                 >
                   Frente
                 </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="editor-tools">
                   <button
                     type="button"
                     className="btn"
                     style={{
-                      padding: '6px 8px',
+                      padding: '6px 4px',
                       fontSize: '0.75rem',
                       background: 'var(--bg-secondary)',
                       border: '1px solid var(--border-medium)',
@@ -510,7 +544,7 @@ export default function AddCard() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minWidth: '60px',
+                      minWidth: 0,
                     }}
                     onClick={handleDefinition}
                     disabled={lookingUpDef}
@@ -524,7 +558,7 @@ export default function AddCard() {
                     type="button"
                     className="btn"
                     style={{
-                      padding: '6px 8px',
+                      padding: '6px 4px',
                       fontSize: '0.75rem',
                       background: 'var(--bg-secondary)',
                       border: '1px solid var(--border-medium)',
@@ -534,7 +568,7 @@ export default function AddCard() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minWidth: '60px',
+                      minWidth: 0,
                     }}
                     onClick={handleAutoImage}
                     disabled={lookingUpImage}
@@ -548,7 +582,7 @@ export default function AddCard() {
                     type="button"
                     className="btn"
                     style={{
-                      padding: '6px 8px',
+                      padding: '6px 4px',
                       fontSize: '0.75rem',
                       background: 'var(--bg-secondary)',
                       border: '1px solid var(--border-medium)',
@@ -558,7 +592,7 @@ export default function AddCard() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minWidth: '60px',
+                      minWidth: 0,
                     }}
                     onClick={() => handleGalleryPick('front')}
                     title="Galería"
@@ -570,7 +604,7 @@ export default function AddCard() {
                     type="button"
                     className="btn"
                     style={{
-                      padding: '6px 8px',
+                      padding: '6px 4px',
                       fontSize: '0.75rem',
                       background: 'var(--bg-secondary)',
                       border: '1px solid var(--border-medium)',
@@ -580,7 +614,7 @@ export default function AddCard() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minWidth: '60px',
+                      minWidth: 0,
                     }}
                     onClick={() => handleOpenImageSearch('front')}
                     title="Wikipedia"
@@ -622,12 +656,12 @@ export default function AddCard() {
                 >
                   Dorso
                 </label>
-                <div style={{ display: 'flex', gap: '8px' }}>
+                <div className="editor-tools">
                   <button
                     type="button"
                     className="btn"
                     style={{
-                      padding: '6px 8px',
+                      padding: '6px 4px',
                       fontSize: '0.75rem',
                       background: 'var(--bg-secondary)',
                       border: '1px solid var(--border-medium)',
@@ -637,7 +671,7 @@ export default function AddCard() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minWidth: '60px',
+                      minWidth: 0,
                     }}
                     onClick={() => handleGalleryPick('back')}
                     title="Galería"
@@ -649,7 +683,7 @@ export default function AddCard() {
                     type="button"
                     className="btn"
                     style={{
-                      padding: '6px 8px',
+                      padding: '6px 4px',
                       fontSize: '0.75rem',
                       background: 'var(--bg-secondary)',
                       border: '1px solid var(--border-medium)',
@@ -659,7 +693,7 @@ export default function AddCard() {
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '4px',
-                      minWidth: '60px',
+                      minWidth: 0,
                     }}
                     onClick={() => handleOpenImageSearch('back')}
                     title="Wikipedia"
@@ -744,6 +778,7 @@ export default function AddCard() {
                     outline: 'none',
                     color: 'inherit',
                   }}
+                  aria-label="Añadir etiquetas"
                   placeholder={tags.length === 0 ? 'Añadir etiquetas...' : ''}
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
@@ -792,7 +827,7 @@ export default function AddCard() {
                 padding: '1.5rem',
                 display: 'flex',
                 flexDirection: 'column',
-                minHeight: '400px',
+                minHeight: '180px',
               }}
             >
               <div

@@ -7,6 +7,7 @@ import './tailwind.css';
 import './index.css';
 import './paper.css';
 import './study-sheets.css';
+import './ux-polish.css';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary';
 

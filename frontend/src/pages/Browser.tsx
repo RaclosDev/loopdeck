@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
-import { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import { useState, useMemo, useDeferredValue } from 'react';
 import { sanitizeHtml } from '../lib/utils';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { notesApi, decksApi } from '../services/api';
 import { Note } from '../types';
@@ -27,11 +27,16 @@ const getStateColor = (state: string) => {
 };
 
 export default function Browser() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialDeck = searchParams.get('deck');
 
-  const { data: decks = [], isLoading: loadingDecks } = useDecks();
-  const [selectedDeckId, setSelectedDeckId] = useState<string>(initialDeck || '');
+  const {
+    data: decks = [],
+    isLoading: loadingDecks,
+    isError: errorDecks,
+    refetch: retryDecks,
+  } = useDecks();
+  const selectedDeckId = decks.find((deck) => deck.id === initialDeck)?.id || decks[0]?.id || '';
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -40,13 +45,6 @@ export default function Browser() {
   const [editBack, setEditBack] = useState('');
   const [saving, setSaving] = useState(false);
   const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
-
-  // Sync selected deck when decks load
-  useEffect(() => {
-    if (decks.length > 0 && !selectedDeckId) {
-      setSelectedDeckId(initialDeck || decks[0].id);
-    }
-  }, [decks, initialDeck, selectedDeckId]);
 
   const {
     data: browserData,
@@ -88,7 +86,9 @@ export default function Browser() {
       const matchSearch =
         (n.parsedFields.front || '').toLowerCase().includes(q) ||
         (n.parsedFields.back || '').toLowerCase().includes(q);
-      const matchTag = selectedTag ? n.tags && n.tags.includes(selectedTag) : true;
+      const matchTag = selectedTag
+        ? n.tags && n.tags.split(',').some((tag) => tag.trim() === selectedTag)
+        : true;
       return matchSearch && matchTag;
     });
   }, [notes, deferredSearch, selectedTag]);
@@ -128,106 +128,83 @@ export default function Browser() {
     }
   };
 
+  if (errorDecks)
+    return (
+      <div className="card page-state" role="alert">
+        <h2>No se han podido cargar tus mazos</h2>
+        <button className="sheet-action" onClick={() => void retryDecks()}>
+          Reintentar
+        </button>
+      </div>
+    );
+  if (!loadingDecks && decks.length === 0)
+    return (
+      <div className="card page-state">
+        <h2>Todavía no tienes mazos</h2>
+        <p>Crea un mazo para añadir y organizar tus tarjetas.</p>
+        <Link className="sheet-action" to="/">
+          Ir a Mis Mazos
+        </Link>
+      </div>
+    );
+
   return (
-    <div className="fade-in pb-12">
-      <div className="card mb-6 p-5 flex flex-col gap-5">
-        <div>
-          <label className="form-label mb-2 block uppercase tracking-wide text-xs">Mazo</label>
-          <div className="flex flex-wrap gap-2">
-            {decks.length === 0 && (
-              <div
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  fontSize: '0.8rem',
-                  borderRadius: '8px',
-                  background: 'var(--bg-secondary)',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                Sin mazos
-              </div>
-            )}
-            {decks.map((d) => (
-              <button
-                key={d.id}
-                onClick={() => setSelectedDeckId(d.id)}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  fontSize: '0.8rem',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  border: 'none',
-                  background:
-                    selectedDeckId === d.id ? 'var(--accent-primary)' : 'var(--bg-secondary)',
-                  color: selectedDeckId === d.id ? 'white' : 'var(--text-secondary)',
-                  fontWeight: selectedDeckId === d.id ? 600 : 400,
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {d.name}
-              </button>
+    <div className="fade-in browser-page">
+      <div className="card browser-filters">
+        <div className="browser-filter-field">
+          <label htmlFor="browser-deck">Mazo</label>
+          <select
+            id="browser-deck"
+            className="form-input"
+            value={selectedDeckId}
+            onChange={(e) => {
+              setSearchParams({ deck: e.target.value }, { replace: true });
+              setSelectedTag('');
+            }}
+          >
+            {decks.map((deck) => (
+              <option key={deck.id} value={deck.id}>
+                {deck.name}
+              </option>
             ))}
-          </div>
+          </select>
         </div>
-
-        {tags.length > 0 && (
-          <div>
-            <label className="form-label mb-2 block uppercase tracking-wide text-xs">
-              Etiqueta
-            </label>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedTag('')}
-                style={{
-                  padding: '0.4rem 0.8rem',
-                  fontSize: '0.8rem',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  border: 'none',
-                  background: selectedTag === '' ? 'var(--accent-primary)' : 'var(--bg-secondary)',
-                  color: selectedTag === '' ? 'white' : 'var(--text-secondary)',
-                  fontWeight: selectedTag === '' ? 600 : 400,
-                  transition: 'all 0.2s ease',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Todas
-              </button>
-              {tags.map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setSelectedTag(t)}
-                  style={{
-                    padding: '0.4rem 0.8rem',
-                    fontSize: '0.8rem',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    border: 'none',
-                    background: selectedTag === t ? 'var(--accent-primary)' : 'var(--bg-secondary)',
-                    color: selectedTag === t ? 'white' : 'var(--text-secondary)',
-                    fontWeight: selectedTag === t ? 600 : 400,
-                    transition: 'all 0.2s ease',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <input
-            className="form-input w-full pl-9 h-11"
-            placeholder="Buscar en tarjetas..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        <div className="browser-filter-field">
+          <label htmlFor="browser-tag">Etiqueta</label>
+          <select
+            id="browser-tag"
+            className="form-input"
+            value={selectedTag}
+            onChange={(e) => setSelectedTag(e.target.value)}
+          >
+            <option value="">Todas</option>
+            {tags.map((tag) => (
+              <option key={tag} value={tag}>
+                {tag}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="browser-filter-field">
+          <label htmlFor="browser-search">Buscar</label>
+          <span className="browser-search">
+            <Search size={18} aria-hidden="true" />
+            <input
+              id="browser-search"
+              type="search"
+              className="form-input browser-search-input"
+              placeholder="Pregunta o respuesta"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </span>
         </div>
       </div>
+      {!loading && !isErrorNotes && (
+        <p className="results-count" role="status">
+          {filteredNotes.length} {filteredNotes.length === 1 ? 'tarjeta' : 'tarjetas'}
+        </p>
+      )}
 
       <div className="flex flex-col gap-4">
         {isErrorNotes ? (
@@ -272,7 +249,7 @@ export default function Browser() {
                     style={{
                       color: getStateColor(note.state),
                       borderColor: getStateColor(note.state),
-                      backgroundColor: `${getStateColor(note.state)}15`,
+                      backgroundColor: 'transparent',
                     }}
                   >
                     {note.state === 'new'
@@ -289,13 +266,13 @@ export default function Browser() {
                     ))}
                 </div>
                 <div
-                  className="text-[0.95rem] font-semibold mb-1 truncate text-foreground"
+                  className="text-[0.95rem] font-semibold mb-1 note-content text-foreground"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeHtml(note.parsedFields.front || '(Vacío)'),
                   }}
                 />
                 <div
-                  className="text-[0.85rem] text-muted-foreground truncate"
+                  className="text-[0.85rem] text-muted-foreground note-content"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeHtml(note.parsedFields.back || '(Vacío)'),
                   }}

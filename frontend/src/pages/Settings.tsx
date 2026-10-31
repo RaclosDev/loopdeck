@@ -68,9 +68,12 @@ export default function Settings() {
 
       {activeTab === 'study' && (
         <div className="card">
-          <h3 className="text-xl font-bold mb-6">Opciones de Estudio</h3>
+          <h2 className="text-xl font-bold mb-6">Opciones de Estudio</h2>
 
-          <div className="flex justify-between items-center bg-[var(--bg-glass-strong)] border border-[var(--border-subtle)] p-4 rounded-xl">
+          <label
+            htmlFor="timer-checkbox"
+            className="settings-toggle flex justify-between items-center bg-[var(--bg-glass-strong)] border border-[var(--border-subtle)] p-4 rounded-xl"
+          >
             <div>
               <div className="font-semibold text-foreground">Cronómetro de Sesión</div>
               <div className="text-sm text-muted-foreground mt-1">
@@ -85,13 +88,13 @@ export default function Settings() {
               checked={settings.showTimer}
               onChange={(e) => updateSettings({ showTimer: e.target.checked })}
             />
-          </div>
+          </label>
         </div>
       )}
 
       {activeTab === 'appearance' && (
         <div className="card">
-          <h3 className="text-xl font-bold mb-6">Apariencia</h3>
+          <h2 className="text-xl font-bold mb-6">Apariencia</h2>
 
           <div className="mb-8">
             <label className="form-label mb-3 block uppercase tracking-wide text-xs">Tema</label>
@@ -152,7 +155,10 @@ export default function Settings() {
             </p>
           </div>
 
-          <div className="flex justify-between items-center border-t border-[var(--border-subtle)] pt-6">
+          <label
+            htmlFor="animations-checkbox"
+            className="settings-toggle flex justify-between items-center border-t border-[var(--border-subtle)] pt-6"
+          >
             <div>
               <div className="font-semibold text-foreground">Animaciones 3D</div>
               <div className="text-sm text-muted-foreground mt-1">
@@ -167,13 +173,13 @@ export default function Settings() {
               checked={settings.animationsEnabled ?? true}
               onChange={(e) => updateSettings({ animationsEnabled: e.target.checked })}
             />
-          </div>
+          </label>
         </div>
       )}
 
       {activeTab === 'account' && (
         <div className="card">
-          <h3 className="text-xl font-bold mb-6">Tu Cuenta</h3>
+          <h2 className="text-xl font-bold mb-6">Tu Cuenta</h2>
 
           {user && (
             <div className="flex items-center gap-4 p-5 bg-[var(--bg-glass-strong)] rounded-xl mb-6 border border-[var(--border-subtle)]">

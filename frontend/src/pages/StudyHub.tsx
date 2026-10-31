@@ -135,7 +135,6 @@ function StudyHub() {
       </Link>
       <header className="canvas-heading">
         <div>
-          <p className="canvas-eyebrow">Tu mazo</p>
           <h1>{deck.name}</h1>
         </div>
       </header>
@@ -143,7 +142,7 @@ function StudyHub() {
       <section className="paper-sheet landing-tape deck-study-summary" aria-label="Estado del mazo">
         <div className="deck-study-summary-heading">
           <div>
-            <h2>Listo para repasar</h2>
+            <h2>{stats?.totalCount === 0 ? 'Tu mazo está vacío' : 'Listo para repasar'}</h2>
             <p>
               {stats
                 ? `${stats.totalCount.toLocaleString('es-ES')} tarjetas en este mazo`
@@ -160,7 +159,7 @@ function StudyHub() {
             </span>
           )}
         </div>
-        <StudyCounts stats={stats} />
+        <StudyCounts stats={stats} compact />
         <div className="deck-document-action">
           <FileText size={18} aria-hidden="true" />
           <span>Apuntes del mazo</span>
@@ -186,39 +185,52 @@ function StudyHub() {
           />
         </div>
       </section>
-      <section aria-labelledby="study-methods-title">
-        <div className="canvas-section-heading">
-          <h2 id="study-methods-title">Cómo quieres estudiar</h2>
-        </div>
-        <div className="study-method-grid">
-          <Link className="paper-sheet study-method study-method--primary" to={`/study/${deckId}`}>
-            <Repeat size={25} aria-hidden="true" />
-            <div>
-              <p className="sheet-eyebrow">Tu repaso de hoy</p>
-              <h3>Repaso espaciado</h3>
-              <p>Responde las tarjetas pendientes y programa tu siguiente repaso.</p>
-            </div>
-            <span className="method-link-label">
-              {stats
-                ? pendingCards(stats) > 0
-                  ? `Repasar ${pendingCards(stats).toLocaleString('es-ES')} tarjetas`
-                  : 'Abrir repaso'
-                : 'Abrir repaso'}
-              <ArrowUpRight size={20} aria-hidden="true" />
-            </span>
+      {stats?.totalCount === 0 ? (
+        <section className="paper-sheet page-state">
+          <h2>Añade tus primeras tarjetas</h2>
+          <p>Después podrás elegir cómo estudiarlas.</p>
+          <Link className="sheet-action sheet-action--primary" to={`/add/${deckId}`}>
+            Añadir tarjetas
           </Link>
-          {methods.map(({ title, description, path, icon: Icon }) => (
-            <Link className="paper-sheet study-method" key={path} to={`/hub/${deckId}/${path}`}>
-              <Icon size={24} aria-hidden="true" />
+        </section>
+      ) : (
+        <section aria-labelledby="study-methods-title">
+          <div className="canvas-section-heading">
+            <h2 id="study-methods-title">Cómo quieres estudiar</h2>
+          </div>
+          <div className="study-method-grid">
+            <Link
+              className="paper-sheet study-method study-method--primary"
+              to={`/study/${deckId}`}
+            >
+              <Repeat size={25} aria-hidden="true" />
               <div>
-                <h3>{title}</h3>
-                <p>{description}</p>
+                <p className="sheet-eyebrow">Tu repaso de hoy</p>
+                <h3>Repaso espaciado</h3>
+                <p>Responde las tarjetas pendientes y programa tu siguiente repaso.</p>
               </div>
-              <ArrowUpRight className="method-arrow" size={19} aria-hidden="true" />
+              <span className="method-link-label">
+                {stats
+                  ? pendingCards(stats) > 0
+                    ? `Repasar ${pendingCards(stats).toLocaleString('es-ES')} tarjetas`
+                    : 'Abrir repaso'
+                  : 'Abrir repaso'}
+                <ArrowUpRight size={20} aria-hidden="true" />
+              </span>
             </Link>
-          ))}
-        </div>
-      </section>
+            {methods.map(({ title, description, path, icon: Icon }) => (
+              <Link className="paper-sheet study-method" key={path} to={`/hub/${deckId}/${path}`}>
+                <Icon size={24} aria-hidden="true" />
+                <div>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                </div>
+                <ArrowUpRight className="method-arrow" size={19} aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
       <DocxViewerModal
         isOpen={showDocModal}
         onClose={() => setShowDocModal(false)}
