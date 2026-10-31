@@ -27,7 +27,7 @@ public class AuthController {
     }
 
     public record RegisterBody(
-        @Email @NotBlank String email,
+        @Email @NotBlank @Size(max = 255) String email,
         @NotBlank @Size(min = 2, max = 80) String name,
         @NotBlank @Size(min = 6, max = 100) String password
     ) {}
@@ -62,8 +62,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponseDto> register(@RequestBody AuthService.RegisterRequest req) {
-        return buildAuthCookieResponse(authService.register(req));
+    public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody RegisterBody req) {
+        return buildAuthCookieResponse(authService.register(new AuthService.RegisterRequest(req.email(), req.name(), req.password())));
     }
 
     @PostMapping("/login")

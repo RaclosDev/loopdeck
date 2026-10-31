@@ -1,3 +1,4 @@
+import { parseNoteFields } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
@@ -81,7 +82,7 @@ function StudyQuiz() {
 
     // Take up to 3 wrong answers
     const wrongAnswers = shuffledOthers.slice(0, 3).map((n) => {
-      const f = JSON.parse(n.fieldsJson || '{}');
+      const f = parseNoteFields(n.fieldsJson || '{}');
       return f.back || '';
     });
 
@@ -160,7 +161,7 @@ function StudyQuiz() {
   }
 
   const currentNote = notes[currentIndex];
-  const fields = JSON.parse(currentNote?.fieldsJson || '{}');
+  const fields = parseNoteFields(currentNote?.fieldsJson || '{}');
   const questionHtml = sanitizeHtml(marked.parse(fields.front || '') as string);
 
   return (

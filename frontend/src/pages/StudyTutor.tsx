@@ -1,3 +1,4 @@
+import { parseNoteFields } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useRef, FormEvent } from 'react';
@@ -53,7 +54,7 @@ function StudyTutor() {
         let context = `Mazo: ${d.name}\n\n`;
         const reversedNotes = [...allNotes].reverse();
         reversedNotes.forEach((n) => {
-          const f = JSON.parse(n.fieldsJson || '{}');
+          const f = parseNoteFields(n.fieldsJson || '{}');
           const front = f.front ? f.front.replace(/<[^>]+>/g, '') : '';
           const back = f.back ? f.back.replace(/<[^>]+>/g, '') : '';
           context += `Pregunta: ${front}\nRespuesta: ${back}\n\n`;

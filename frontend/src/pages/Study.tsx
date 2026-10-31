@@ -1,14 +1,16 @@
+import { parseNoteFields, renderCloze } from '../lib/noteFields';
 import useStore from '../store/useStore';
 import StudyLoadError from '../components/StudyLoadError';
-import toast from 'react-hot-toast';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { marked } from 'marked';
 import { ArrowLeft, Undo2, Eye, Timer, CheckCircle2, Trophy } from 'lucide-react';
 import FlashCard from '../components/FlashCard';
 import RatingButtons from '../components/RatingButtons';
-import { studyApi, decksApi } from '../services/api';
-import { Deck, DueCardDto, Card } from '../types';
+import { useDecks } from '../hooks/useDecks';
+import { useStudySession } from '../hooks/useStudySession';
+import { useAuth } from '../context/AuthContext';
+import { Card } from '../types';
 import { Skeleton } from '../components/ui/skeleton';
 import { sanitizeHtml } from '../lib/utils';
 
@@ -42,7 +44,7 @@ function getIntervalLabel(card: Card, rating: number) {
   if (rating === 1) return '10m';
   if (rating === 2) return `${Math.max(1, Math.round(interval * 1.2))}d`;
   if (rating === 3) return `${Math.max(1, Math.round(interval * ease))}d`;
-  return `${Math.max(1, Math.round(interval * ease * 1.3))}d`;
+  return `${Math.max(1, Math.round(interval * Math.min(ease + 0.15, 3.5) * 1.3))}d`;
 }
 
 function formatMinutes(m: number) {
@@ -54,106 +56,44 @@ export default function Study() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
   const settings = useStore((s) => s.settings);
+  const { user } = useAuth();
 
-  const [deck, setDeck] = useState<Deck | null>(null);
-  const [queue, setQueue] = useState<DueCardDto[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [undoStack, setUndoStack] = useState<{ pair: DueCardDto; index: number }[]>([]);
-  const [isComplete, setIsComplete] = useState(false);
-
-  const [counts, setCounts] = useState({ new: 0, learning: 0, review: 0 });
-  const [sessionStats, setSessionStats] = useState({
-    reviewed: 0,
-    correct: 0,
-    startTime: Date.now(),
-  });
+  const { data: decks = [], isError: deckError, refetch: retryDecks } = useDecks();
+  const deck = decks.find((item) => item.id === deckId);
+  const {
+    queue,
+    counts,
+    undoStack,
+    loading,
+    loadError,
+    saving,
+    saveError,
+    isComplete,
+    isFlipped,
+    sessionStats,
+    loadNext,
+    handleRate,
+    handleUndo,
+    handleFlip,
+  } = useStudySession(deckId, settings?.studyOrder || 'new_first', user?.id);
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [startMs, setStartMs] = useState(Date.now());
-
   useEffect(() => {
     if (!settings?.showTimer || isComplete) return;
-    const interval = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - sessionStats.startTime) / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
+    const timer = setInterval(
+      () => setElapsedTime(Math.floor((Date.now() - sessionStats.startTime) / 1000)),
+      1000,
+    );
+    return () => clearInterval(timer);
   }, [settings?.showTimer, isComplete, sessionStats.startTime]);
-
-  const loadSession = useCallback(async () => {
-    setLoading(true);
-    setLoadError(false);
-    try {
-      const decks = await decksApi.getAll();
-      const d = decks.find((x) => x.id === deckId);
-      if (!d) {
-        toast.error('Mazo no encontrado');
-        navigate('/');
-        return;
-      }
-      setDeck(d);
-
-      const pairs = await studyApi.getDueCards(deckId!, 1000);
-      if (pairs.length === 0) {
-        setIsComplete(true);
-        setLoading(false);
-        return;
-      }
-
-      const order = settings?.studyOrder || 'new_first';
-      if (order === 'new_first') {
-        pairs.sort((a, b) => {
-          if (a.card.state === 'new' && b.card.state !== 'new') return -1;
-          if (a.card.state !== 'new' && b.card.state === 'new') return 1;
-          return 0;
-        });
-      } else if (order === 'review_first') {
-        pairs.sort((a, b) => {
-          if (a.card.state === 'review' && b.card.state !== 'review') return -1;
-          if (a.card.state !== 'review' && b.card.state === 'review') return 1;
-          return 0;
-        });
-      } else if (order === 'mixed') {
-        pairs.sort(() => Math.random() - 0.5);
-      }
-
-      setQueue(pairs);
-
-      const c = { new: 0, learning: 0, review: 0 };
-      pairs.forEach((p) => {
-        if (p.card.state === 'new') c.new++;
-        else if (p.card.state === 'learning' || p.card.state === 'relearning') c.learning++;
-        else if (p.card.state === 'review') c.review++;
-      });
-      setCounts(c);
-      setStartMs(Date.now());
-      setSessionStats({ reviewed: 0, correct: 0, startTime: Date.now() });
-      setUndoStack([]);
-    } catch {
-      setLoadError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [deckId, navigate, settings?.studyOrder]);
-
-  useEffect(() => {
-    loadSession();
-  }, [loadSession]);
-
-  const currentPair = queue[currentIndex];
+  const currentPair = queue[0];
   const note = currentPair?.note;
   const card = currentPair?.card;
-  const fields = useMemo(() => (note ? JSON.parse(note.fieldsJson || '{}') : {}), [note]);
+  const fields = useMemo(() => (note ? parseNoteFields(note.fieldsJson || '{}') : {}), [note]);
 
   const intervals = useMemo(() => {
-    if (!card) return ['<10m', '<10m', '1d', '4d'];
-    return [
-      getIntervalLabel(card, 1),
-      getIntervalLabel(card, 2),
-      getIntervalLabel(card, 3),
-      getIntervalLabel(card, 4),
-    ];
+    return Object.fromEntries(
+      [1, 2, 3, 4].map((rating) => [rating, card ? getIntervalLabel(card, rating) : '…']),
+    );
   }, [card]);
 
   const frontHtml = useMemo(() => {
@@ -161,10 +101,7 @@ export default function Study() {
     if (note.noteType === 'cloze') {
       const idx = card.cardOrdinal;
       const html = sanitizeHtml(marked.parse(fields.text || '') as string);
-      return html.replace(/{{c(\d+)::(.*?)}}/g, (match, n, content) => {
-        if (parseInt(n) === idx) return '<span class="cloze">[...]</span>';
-        return content;
-      });
+      return renderCloze(html, idx, false);
     } else {
       if (card.cardOrdinal === 1) return sanitizeHtml(marked.parse(fields.back || '') as string);
       return sanitizeHtml(marked.parse(fields.front || '') as string);
@@ -176,92 +113,24 @@ export default function Study() {
     if (note.noteType === 'cloze') {
       const idx = card.cardOrdinal;
       const html = sanitizeHtml(marked.parse(fields.text || '') as string);
-      return html.replace(/{{c(\d+)::(.*?)}}/g, (match, n, content) => {
-        if (parseInt(n) === idx) return `<span class="cloze-revealed">${content}</span>`;
-        return content;
-      });
+      return renderCloze(html, idx, true);
     } else {
       if (card.cardOrdinal === 1) return sanitizeHtml(marked.parse(fields.front || '') as string);
       return sanitizeHtml(marked.parse(fields.back || '') as string);
     }
   }, [note?.id, note?.noteType, card?.id, card?.cardOrdinal, fields]);
 
-  const handleFlip = () => setIsFlipped(true);
-
-  const handleRate = async (rating: number) => {
-    if (!card) return;
-
-    setUndoStack((prev) => [...prev, { pair: currentPair, index: currentIndex }]);
-    setIsFlipped(false);
-    setSessionStats((prev) => ({
-      ...prev,
-      reviewed: prev.reviewed + 1,
-      correct: rating >= 3 ? prev.correct + 1 : prev.correct,
-    }));
-
-    setCounts((prev) => {
-      const n = { ...prev };
-      if (card.state === 'new') n.new = Math.max(0, n.new - 1);
-      else if (card.state === 'learning' || card.state === 'relearning')
-        n.learning = Math.max(0, n.learning - 1);
-      else if (card.state === 'review') n.review = Math.max(0, n.review - 1);
-      return n;
-    });
-
-    const remaining = queue.filter((_, i) => i !== currentIndex);
-    if (remaining.length === 0) {
-      setIsComplete(true);
-    } else {
-      setQueue(remaining);
-      setCurrentIndex(0);
-      setStartMs(Date.now());
-    }
-
-    try {
-      const timeTakenMs = Date.now() - startMs;
-      await studyApi.reviewCard(card.id, { rating, timeTakenMs });
-    } catch {
-      toast.error('Error guardando revisión');
-    }
-  };
-
-  const handleUndo = async () => {
-    if (undoStack.length === 0) return;
-    const last = undoStack[undoStack.length - 1];
-
-    try {
-      await studyApi.restoreCard(last.pair.card.id, last.pair.card);
-
-      const newQueue = [...queue];
-      newQueue.splice(last.index, 0, last.pair);
-      setQueue(newQueue);
-      setCurrentIndex(last.index);
-      setIsFlipped(false);
-      setUndoStack((prev) => prev.slice(0, -1));
-      setSessionStats((prev) => ({ ...prev, reviewed: Math.max(0, prev.reviewed - 1) }));
-      setCounts((prev) => {
-        const n = { ...prev };
-        const s = last.pair.card.state;
-        if (s === 'new') n.new++;
-        else if (s === 'learning' || s === 'relearning') n.learning++;
-        else if (s === 'review') n.review++;
-        return n;
-      });
-      setIsComplete(false);
-      toast('Deshecho');
-    } catch (e: unknown) {
-      const msg =
-        (e as { response?: { data?: { error?: string } } })?.response?.data?.error ||
-        (e instanceof Error ? e.message : 'Error desconocido');
-      toast.error('Error al deshacer: ' + msg);
-    }
-  };
-
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
       if (
-        (e.target as HTMLElement).tagName === 'INPUT' ||
-        (e.target as HTMLElement).tagName === 'TEXTAREA'
+        e.defaultPrevented ||
+        e.repeat ||
+        saving ||
+        saveError ||
+        loading ||
+        loadError ||
+        target.closest('input, textarea, select, button, a, [contenteditable="true"]')
       )
         return;
       if (e.key === ' ' || e.key === 'Enter') {
@@ -277,9 +146,30 @@ export default function Study() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [isFlipped, card, queue, currentIndex, undoStack, navigate]);
+  }, [
+    isFlipped,
+    card,
+    queue,
+    undoStack,
+    navigate,
+    saving,
+    saveError,
+    loading,
+    loadError,
+    handleRate,
+    handleUndo,
+  ]);
 
-  if (loadError) return <StudyLoadError deckId={deckId} onRetry={() => void loadSession()} />;
+  if (loadError || deckError)
+    return (
+      <StudyLoadError
+        deckId={deckId}
+        onRetry={() => {
+          void retryDecks();
+          void loadNext();
+        }}
+      />
+    );
 
   if (loading) {
     return (
@@ -372,6 +262,11 @@ export default function Study() {
           </div>
         </div>
 
+        {undoStack.length > 0 && (
+          <button className="sheet-action mb-4" disabled={saving} onClick={() => void handleUndo()}>
+            Deshacer última revisión
+          </button>
+        )}
         <button
           className="btn btn-primary"
           style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
@@ -531,13 +426,34 @@ export default function Study() {
               <Eye size={20} /> Mostrar Respuesta
             </button>
           ) : (
-            <RatingButtons intervals={intervals} onRate={handleRate} />
+            <>
+              {saveError && (
+                <div role="alert" className="card">
+                  <p>
+                    No se ha confirmado el guardado. Reintenta la misma respuesta para continuar.
+                  </p>
+                  <button
+                    className="sheet-action"
+                    disabled={saving}
+                    onClick={() => void handleRate(0)}
+                  >
+                    Reintentar guardado
+                  </button>
+                </div>
+              )}
+              <RatingButtons
+                intervals={intervals}
+                onRate={handleRate}
+                disabled={saving || saveError}
+              />
+              {saving && <p role="status">Guardando revisión…</p>}
+            </>
           )}
 
           <div className="flex justify-center mt-2">
             <button
               onClick={handleUndo}
-              disabled={undoStack.length === 0}
+              disabled={undoStack.length === 0 || saving || saveError}
               className={`
                 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
                 ${

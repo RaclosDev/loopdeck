@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <b>PWA full-stack de flashcards y spaced repetition con orquestación de IA y rendimiento O(1).</b>
+  <b>PWA full-stack de flashcards y spaced repetition con generación de tarjetas mediante IA.</b>
 </p>
 
 <p align="center">
@@ -18,14 +18,15 @@
 
 ## Descripción
 
-Loopdeck es una aplicación PWA (instalable en móvil y escritorio) de tarjetas de estudio inteligente. Utiliza el algoritmo SM-2 (Spaced Repetition) para planificar los repasos y garantizar la retención a largo plazo. Combina rendimiento empresarial (bases de datos desnormalizadas O(1), cachés locales con React Query) con orquestación de Inteligencia Artificial (Google Gemini) para generar tarjetas de estudio, buscar explicaciones y procesar documentos de texto.
+Loopdeck es una aplicación PWA (instalable en móvil y escritorio) de tarjetas de estudio inteligente. Utiliza el algoritmo SM-2 (Spaced Repetition) para planificar los repasos y garantizar la retención a largo plazo. Usa PostgreSQL, cachés locales con React Query e Inteligencia Artificial (Google Gemini) para generar tarjetas de estudio, buscar explicaciones y procesar documentos de texto.
 
-El proyecto cuenta con una arquitectura estandarizada con componentes UI modulares, flujos de seguridad JWT HttpOnly y despliegue dockerizado.
+El proyecto cuenta con una arquitectura estandarizada con componentes UI modulares, autenticación con JWT y renovación mediante cookies HttpOnly y despliegue dockerizado.
 
-## Arquitectura Empresarial (FAANG-Ready)
+## Arquitectura
 
-### 🚀 Rendimiento y Base de Datos (O(1))
-- Las tarjetas están desnormalizadas (inyectando \deck_id\) permitiendo que el motor de repasos diarios (CardRepository) calcule las tarjetas pendientes en coste computacional **O(1)**, eliminando JOINs masivos y garantizando escalabilidad a millones de registros.
+### Rendimiento y base de datos
+- Las tarjetas incluyen `deck_id` para consultar un mazo sin unir todas sus notas. Los índices ayudan a acotar las lecturas; el coste depende del volumen y de los filtros.
+- El explorador carga páginas de 25 notas con búsqueda en servidor; el repaso carga bloques de 50 en orden global. La importación valida cada bloque antes de escribirlo mediante JDBC batch.
 - \@Transactional(readOnly = true)\ en los servicios de lectura para evitar presión de memoria (*Dirty Checking*) en Hibernate.
 
 ### 🤖 Integración GenAI Robusta
@@ -48,7 +49,7 @@ El proyecto cuenta con una arquitectura estandarizada con componentes UI modular
 - Tarjetas Básicas, Reversibles y de tipo Cloze (Huecos).
 - Animaciones 3D nativas con CSS.
 - Navegación por teclado (Espacio para girar, 1-4 para evaluar el repaso).
-- **Optimistic Updates:** Experiencia de usuario (UX) a 0ms de latencia visual usando \onMutate\ en TanStack Query.
+- Los repasos avanzan después de confirmar el guardado. Cada acción lleva un identificador para que los reintentos no dupliquen revisiones; deshacer restaura una instantánea guardada por el servidor.
 
 ## Instalación y Desarrollo Local
 

@@ -1,5 +1,6 @@
 import api from '../api/client';
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { googleLogout } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 
@@ -31,11 +32,19 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(() =>
     localStorage.getItem('loopdeck_jwt_token'),
   );
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const identity = useRef<string | undefined>(undefined);
+
+  const synchronizeIdentity = (jwtToken: string) => {
+    const subject = jwtDecode<CustomJwtPayload>(jwtToken).sub;
+    if (identity.current !== undefined && identity.current !== subject) queryClient.clear();
+    identity.current = subject;
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -47,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentToken) {
         try {
           const decoded = jwtDecode<CustomJwtPayload>(currentToken);
+          synchronizeIdentity(currentToken);
           // Check if expired (with 10 seconds leeway)
           if (decoded.exp && decoded.exp * 1000 < Date.now() + 10000) {
             needsRefresh = true;
@@ -75,6 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await res.json();
             if (data.token) {
               currentToken = data.token;
+              synchronizeIdentity(currentToken!);
               localStorage.setItem('loopdeck_jwt_token', currentToken!);
               setToken(currentToken);
 
@@ -97,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem('loopdeck_jwt_token');
             setToken(null);
             setUser(null);
+            queryClient.clear();
           }
         }
       }
@@ -109,6 +121,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       isMounted = false;
     };
+  }, []);
+
+  useEffect(() => {
+    const handleTokenUpdate = () => {
+      const refreshed = localStorage.getItem('loopdeck_jwt_token');
+      if (refreshed) {
+        synchronizeIdentity(refreshed);
+        setToken(refreshed);
+      }
+    };
+    window.addEventListener('loopdeck:token-updated', handleTokenUpdate);
+    return () => window.removeEventListener('loopdeck:token-updated', handleTokenUpdate);
   }, []);
 
   // Sync token state for subsequent changes (e.g. login/logout)
@@ -131,19 +155,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token, isLoading]);
 
   const login = (jwtToken: string) => {
+    queryClient.clear();
+    synchronizeIdentity(jwtToken);
     localStorage.setItem('loopdeck_jwt_token', jwtToken);
     setToken(jwtToken);
   };
 
   const logout = async () => {
+    setIsLoading(true);
+    queryClient.clear();
     try {
-      await api.post('/auth/logout');
+      await api.post('/auth/logout', undefined, { timeout: 10000 });
     } catch {
       // Ignore network errors during logout
     }
     localStorage.removeItem('loopdeck_jwt_token');
     setToken(null);
     setUser(null);
+    identity.current = undefined;
+    setIsLoading(false);
     try {
       googleLogout();
     } catch {
@@ -152,6 +182,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateToken = (newToken: string) => {
+    synchronizeIdentity(newToken);
     localStorage.setItem('loopdeck_jwt_token', newToken);
     setToken(newToken);
   };

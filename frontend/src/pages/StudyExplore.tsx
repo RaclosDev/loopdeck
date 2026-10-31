@@ -1,3 +1,4 @@
+import { parseNoteFields } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
@@ -95,7 +96,7 @@ function StudyExplore() {
 
   const currentNote = notes[currentIndex];
   const fields = useMemo(
-    () => JSON.parse(currentNote?.fieldsJson || '{}'),
+    () => parseNoteFields(currentNote?.fieldsJson || '{}'),
     [currentNote?.fieldsJson],
   );
   const frontHtml = useMemo(

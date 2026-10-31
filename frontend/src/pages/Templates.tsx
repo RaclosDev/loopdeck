@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { templatesApi } from '../services/api';
 import { TemplateDeck } from '../types';
 import { Button } from '../components/ui/button';
@@ -24,6 +24,7 @@ function getCategoryIcon(icon?: string, category?: string) {
 
 export default function Templates() {
   const navigate = useNavigate();
+  const client = useQueryClient();
   const [importingId, setImportingId] = useState<string | null>(null);
 
   const {
@@ -42,6 +43,10 @@ export default function Templates() {
     setImportingId(templateId);
     try {
       const newDeck = await templatesApi.import(templateId);
+      await Promise.all([
+        client.invalidateQueries({ queryKey: ['decks'] }),
+        client.invalidateQueries({ queryKey: ['deckStats'] }),
+      ]);
       toast.success(`¡Mazo "${newDeck.name}" importado con éxito!`);
       navigate('/');
     } catch {
