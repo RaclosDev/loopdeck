@@ -4,14 +4,23 @@ export function pendingCards(stats: DeckStats) {
   return stats.newCount + stats.learningCount + stats.reviewCount;
 }
 
-export default function StudyCounts({ stats }: { stats?: DeckStats }) {
+export default function StudyCounts({
+  stats,
+  compact = false,
+}: {
+  stats?: DeckStats;
+  compact?: boolean;
+}) {
   const states = [
     { label: 'Nuevas', count: stats?.newCount, tone: 'new' },
     { label: 'Aprendiendo', count: stats?.learningCount, tone: 'learning' },
     { label: 'Revisión', count: stats?.reviewCount, tone: 'review' },
   ];
   return (
-    <dl className="study-counts" aria-label="Tarjetas disponibles para repasar">
+    <dl
+      className={`study-counts ${compact ? 'study-counts--compact' : ''}`}
+      aria-label="Tarjetas disponibles para repasar"
+    >
       {states.map(({ label, count, tone }) => (
         <div className={`study-count study-count--${tone}`} key={tone}>
           <dt>

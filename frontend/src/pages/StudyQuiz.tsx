@@ -1,3 +1,4 @@
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -28,6 +29,8 @@ function StudyQuiz() {
 
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [options, setOptions] = useState<QuizOption[]>([]);
@@ -38,6 +41,7 @@ function StudyQuiz() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
         const d = decks.find((d) => d.id === deckId);
@@ -58,13 +62,13 @@ function StudyQuiz() {
         setNotes(shuffledNotes);
         generateOptions(shuffledNotes, 0);
       } catch {
-        toast.error('Error cargando mazo');
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
@@ -116,6 +120,9 @@ function StudyQuiz() {
     }
   };
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
   if (loading) {
     return (
       <div
@@ -163,7 +170,7 @@ function StudyQuiz() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         <div className="study-progress">
-          <span>Test de Opciones</span>
+          <h1 className="study-title">Test de opciones</h1>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '12px' }}>
             {currentIndex + 1} / {notes.length}
           </span>

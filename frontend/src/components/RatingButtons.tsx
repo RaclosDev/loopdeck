@@ -42,7 +42,7 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
               onRate(btn.rating);
             }}
             className={`
-              relative flex flex-col items-center justify-center h-24 sm:h-32 px-2 rounded-md shadow-sm
+              relative flex flex-col items-center justify-center h-16 sm:h-20 px-2 rounded-md shadow-sm
               bg-card border ${style.border} ${style.bgHover}
               transition-all duration-200 cursor-pointer
               disabled:opacity-50 disabled:cursor-not-allowed
@@ -50,7 +50,7 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
             `}
           >
             <div
-              className={`flex items-center gap-1.5 font-bold text-2xl sm:text-3xl ${style.color}`}
+              className={`flex items-center gap-1.5 font-bold text-xl sm:text-2xl ${style.color}`}
             >
               <span>{btn.interval || '...'}</span>
             </div>

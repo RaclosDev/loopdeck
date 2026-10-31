@@ -1,3 +1,4 @@
+import StudyLoadError from '../components/StudyLoadError';
 import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useMemo } from 'react';
@@ -17,6 +18,8 @@ function StudyExplore() {
   const [deck, setDeck] = useState<Deck | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -24,6 +27,7 @@ function StudyExplore() {
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
         const d = decks.find((d) => d.id === deckId);
@@ -38,13 +42,13 @@ function StudyExplore() {
         const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
       } catch {
-        toast.error('Error cargando mazo');
+        setLoadError(true);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const handleNext = () => {
     setIsFlipped(false);
@@ -103,6 +107,9 @@ function StudyExplore() {
     [fields.back],
   );
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
   if (loading) {
     return (
       <div
@@ -127,7 +134,7 @@ function StudyExplore() {
       >
         <p style={{ color: 'var(--text-muted)' }}>No hay tarjetas en este mazo.</p>
         <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)}>
-          Volver al Hub
+          Volver al mazo
         </button>
       </div>
     );
@@ -140,7 +147,7 @@ function StudyExplore() {
           <ArrowLeft className="w-4 h-4 mr-1" /> Salir
         </button>
         <div className="study-progress">
-          <span>Paseo Libre</span>
+          <h1 className="study-title">Modo paseo</h1>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '12px' }}>
             {currentIndex + 1} / {notes.length}
           </span>

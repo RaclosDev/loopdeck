@@ -46,6 +46,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
       {/* Front */}
       <div
         className="card"
+        aria-hidden={isFlipped}
         style={{
           position: 'absolute',
           inset: 0,
@@ -111,6 +112,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
       {/* Back */}
       <div
         className="card"
+        aria-hidden={!isFlipped}
         style={{
           position: 'absolute',
           inset: 0,

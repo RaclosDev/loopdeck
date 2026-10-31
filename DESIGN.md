@@ -14,8 +14,8 @@ La portada pública presenta el producto con un cartel, una tarjeta de ejemplo i
 - Textura PNG tenue y reutilizable: conserva el grano sin recalcular filtros SVG durante el repintado.
 - Cinta amarilla: identifica cada hoja de mazo y el acceso; su centro permanece al 50%, con inclinación aleatoria de −6° a 6° estable durante la vida del elemento.
 - Bordes pequeños, sombras desplazadas y pestañas de tinta: representan papel y fichas, sin superficies de cristal.
-- Mazos y Centro de Estudio: hojas independientes sobre la pared, con 32 px entre mazos, cantos apilados y títulos de rotulador. Referencia concreta: la fase de grupos de PorrApp, donde cada grupo ocupa su propia hoja. El texto permanece recto.
-- Nuevas, Aprendiendo y Revisión mantienen el mismo orden, nombre completo y color en cada mazo y en su centro. Las filas tienen fondo, borde y espacio propios. «Para hoy» resume todos los mazos; el total del mazo cuenta tarjetas, incluidas las que todavía no toca repasar.
+- Mazos y Centro de Estudio: hojas compactas independientes sobre la pared, con 24 px entre mazos, cantos apilados y títulos de rotulador. Referencia concreta: la fase de grupos de PorrApp, donde cada grupo ocupa su propia hoja. El texto permanece recto.
+- Nuevas, Aprendiendo y Revisión mantienen el mismo orden, nombre completo y color en cada mazo y en su centro. Los tres estados ocupan columnas separadas, con fondo, borde y espacio propios. «Para hoy» resume todos los mazos; el total del mazo cuenta tarjetas, incluidas las que todavía no toca repasar.
 - Cada método de estudio ocupa una hoja enlazada con teclado y ratón. El repaso espaciado tiene prioridad; los apuntes pertenecen al resumen del mazo.
 - Los recuentos pendientes de cargar o fallidos nunca se convierten en cero ni en «Al día». Carga, error con reintento y mazo vacío tienen estados propios.
 - Movimiento limitado a los estados y al giro de estudio; `prefers-reduced-motion` elimina las transiciones perceptibles.
@@ -37,4 +37,6 @@ El parser Babel de ESLint permite analizar TypeScript 7 sin forzar peers incompa
 
 La revisión de navegador utiliza fixtures: no acredita la disponibilidad de Google OAuth, Gemini, búsquedas externas ni documentos reales del usuario.
 
-La separación se verifica con tres mazos, nombres largos, recuentos distintos y un mazo vacío, a 320, 390 y 1440 px. Se comprueban el espacio entre hojas, contraste, ausencia de desbordamiento, rutas por mazo y errores de recuentos. El resto de pantallas conserva su folio de trabajo y se incluye en la revisión de regresiones.
+La separación se verifica con tres mazos, nombres largos, recuentos distintos y un mazo vacío, a 320, 390, 820 y 1440 px. Se comprueban el espacio entre hojas, contraste, ausencia de desbordamiento, rutas por mazo y errores de recuentos. El resto de pantallas conserva su folio de trabajo y se incluye en la revisión de regresiones.
+
+Auditoría UX/UI: `docs/audits/2026-10-31-frontend-ux.md`. Objetivo del listado: menos de 300 px por mazo en la muestra de prueba, creación sin acciones duplicadas y lectura rápida sin perder nombres completos. Los folios cortos se ajustan al contenido.
