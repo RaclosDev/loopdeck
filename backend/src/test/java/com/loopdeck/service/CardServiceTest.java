@@ -6,7 +6,6 @@ import com.loopdeck.model.Note;
 import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
-import com.loopdeck.repository.ReviewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,7 +24,7 @@ class CardServiceTest {
 
     @BeforeEach
     void setUp() {
-        cardService = new CardService(null, null, null, null);
+        cardService = new CardService(null, null, null);
     }
 
     @Test
@@ -38,6 +37,27 @@ class CardServiceTest {
 
         assertEquals("learning", card.getState());
         assertEquals(0, card.getLearningStep());
+    }
+
+    @Test void hardLearningRepeatsTheCurrentStepInsteadOfGraduating() {
+        for (int step : List.of(0, 1)) {
+            Card card = new Card(); card.setState("learning"); card.setLearningStep(step);
+            var before = java.time.Instant.now();
+            cardService.applySmTwo(card, 2);
+            assertEquals("learning", card.getState());
+            assertEquals(step, card.getLearningStep());
+            long expected = (step == 0 ? 6 : 15) * 60L;
+            assertTrue(Math.abs(java.time.Duration.between(before, card.getDue()).getSeconds() - expected) <= 1);
+        }
+    }
+
+    @Test void relearningHardRepeatsAndGoodAndEasyUseTheirDisplayedIntervals() {
+        for (int rating : List.of(2, 3, 4)) {
+            Card card = new Card(); card.setState("relearning"); card.setIntervalDays(10.0);
+            cardService.applySmTwo(card, rating);
+            assertEquals(rating == 2 ? "relearning" : "review", card.getState());
+            assertEquals(rating == 3 ? 7.0 : 10.0, card.getIntervalDays());
+        }
     }
 
     @Test
@@ -106,8 +126,7 @@ class CardServiceTest {
         NoteRepository noteRepo = mock(NoteRepository.class);
         CardRepository cardRepo = mock(CardRepository.class);
         DeckRepository deckRepo = mock(DeckRepository.class);
-        ReviewRepository reviewRepo = mock(ReviewRepository.class);
-        CardService service = new CardService(noteRepo, cardRepo, deckRepo, reviewRepo);
+        CardService service = new CardService(noteRepo, cardRepo, deckRepo);
 
         String userId = "user-1";
         String deckId = "deck-123";
@@ -118,7 +137,7 @@ class CardServiceTest {
             return n;
         });
 
-        service.createNote(userId, new CardService.CreateNoteRequest(deckId, "basic", "{}", "tag"));
+        service.createNote(userId, new CardService.CreateNoteRequest(deckId, "basic", "{\"front\":\"f\",\"back\":\"b\"}", "tag"));
 
         ArgumentCaptor<Card> cardCaptor = ArgumentCaptor.forClass(Card.class);
         verify(cardRepo).save(cardCaptor.capture());
@@ -130,8 +149,7 @@ class CardServiceTest {
         NoteRepository noteRepo = mock(NoteRepository.class);
         CardRepository cardRepo = mock(CardRepository.class);
         DeckRepository deckRepo = mock(DeckRepository.class);
-        ReviewRepository reviewRepo = mock(ReviewRepository.class);
-        CardService service = new CardService(noteRepo, cardRepo, deckRepo, reviewRepo);
+        CardService service = new CardService(noteRepo, cardRepo, deckRepo);
 
         String userId = "user-1";
         String deckId = "deck-123";
@@ -144,5 +162,21 @@ class CardServiceTest {
 
         Map<String, String> states = service.getCardStatesByDeck(userId, deckId);
         assertEquals("review", states.get("note-abc"));
+    }
+
+    @Test void reversibleNotesHaveTheSameStateRegardlessOfRowOrder() {
+        NoteRepository notes = mock(NoteRepository.class);
+        CardRepository cards = mock(CardRepository.class);
+        DeckRepository decks = mock(DeckRepository.class);
+        CardService service = new CardService(notes, cards, decks);
+        when(decks.findByIdAndUserId("deck", "user")).thenReturn(Optional.of(new Deck()));
+        var learning = mock(CardRepository.CardStateProjection.class);
+        var review = mock(CardRepository.CardStateProjection.class);
+        when(learning.getNoteId()).thenReturn("note"); when(learning.getState()).thenReturn("learning");
+        when(review.getNoteId()).thenReturn("note"); when(review.getState()).thenReturn("review");
+        for (var rows : List.of(List.of(learning, review), List.of(review, learning))) {
+            when(cards.findCardStatesByDeckId("deck")).thenReturn(rows);
+            assertEquals("learning", service.getCardStatesByDeck("user", "deck").get("note"));
+        }
     }
 }

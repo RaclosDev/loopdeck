@@ -49,6 +49,36 @@ async function fixture(page: Page, authenticated = true) {
       body = {
         [deck.id]: { newCount: 4, learningCount: 2, reviewCount: 3, totalCount: 9, noteCount: 4 },
       };
+    else if (path.endsWith('/notes/page')) {
+      const url = new URL(route.request().url());
+      const q = (url.searchParams.get('search') || '').toLowerCase();
+      const tag = url.searchParams.get('tag');
+      const filtered = notes.filter(
+        (note) =>
+          note.fieldsJson.toLowerCase().includes(q) && (!tag || note.tags.split(',').includes(tag)),
+      );
+      body = {
+        items: filtered.map((note) => ({ note, state: 'new' })),
+        total: filtered.length,
+        page: 0,
+        size: 25,
+      };
+    } else if (path.endsWith('/notes/tags')) body = ['biología'];
+    else if (path.endsWith('/study/batch'))
+      body = {
+        items: notes.map((note, index) => ({
+          note,
+          card: {
+            id: `card-${index}`,
+            noteId: note.id,
+            state: 'new',
+            intervalDays: 0,
+            easeFactor: 2.5,
+          },
+        })),
+        counts: { newCount: 4, learningCount: 2, reviewCount: 3 },
+        hasMore: false,
+      };
     else if (path.endsWith('/notes')) body = notes;
     else if (path.endsWith('/card-states')) body = {};
     else if (path.endsWith('/study'))
@@ -414,14 +444,26 @@ test('browser filters exact tags and keeps the selected deck in its URL', async 
   await page.route('**/api/decks', (route) =>
     route.fulfill({ json: [deck, { ...deck, id: 'history', name: 'Historia' }] }),
   );
-  await page.route('**/api/decks/paper-deck/notes', (route) =>
-    route.fulfill({
-      json: notes.map((note, i) => ({ ...note, tags: i === 0 ? 'bio' : 'biología' })),
-    }),
+  await page.route('**/api/decks/paper-deck/notes/tags', (route) =>
+    route.fulfill({ json: ['bio', 'biología'] }),
   );
+  await page.route('**/api/decks/paper-deck/notes/page?**', (route) => {
+    const tag = new URL(route.request().url()).searchParams.get('tag');
+    const rows = notes
+      .map((note, i) => ({ ...note, tags: i === 0 ? 'bio' : 'biología' }))
+      .filter((note) => !tag || note.tags === tag);
+    return route.fulfill({
+      json: {
+        items: rows.map((note) => ({ note, state: 'new' })),
+        total: rows.length,
+        page: 0,
+        size: 25,
+      },
+    });
+  });
   await page.goto('/browser?deck=paper-deck');
   await page.getByLabel('Etiqueta', { exact: true }).selectOption('bio');
-  await expect(page.getByRole('status')).toHaveText('1 tarjeta');
+  await expect(page.getByRole('status')).toHaveText('1 nota');
   await expect(page.getByText('Concepto 1', { exact: true })).toBeVisible();
   await expect(page.getByText('Concepto 2', { exact: true })).toHaveCount(0);
   await page.getByLabel('Mazo', { exact: true }).selectOption('history');
@@ -641,4 +683,85 @@ test('document dialog has paper, fullscreen and a recoverable local error', asyn
   await noOverflow(page);
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
+});
+
+test('browser requests bounded pages and searches the whole deck on the server', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 900 });
+  await fixture(page);
+  const rows = Array.from({ length: 68 }, (_, i) => ({
+    ...notes[0],
+    id: `large-${i}`,
+    fieldsJson: JSON.stringify({ front: `Pregunta ${i + 1}`, back: `Respuesta ${i + 1}` }),
+  }));
+  await page.route('**/api/decks/paper-deck/notes/page?**', (route) => {
+    const url = new URL(route.request().url());
+    const p = Number(url.searchParams.get('page'));
+    expect(url.searchParams.get('size')).toBe('25');
+    const q = url.searchParams.get('search') || '';
+    const filtered = rows.filter((row) => row.fieldsJson.includes(q));
+    return route.fulfill({
+      json: {
+        items: filtered.slice(p * 25, (p + 1) * 25).map((note) => ({ note, state: 'new' })),
+        total: filtered.length,
+        page: p,
+        size: 25,
+      },
+    });
+  });
+  await page.goto('/browser?deck=paper-deck');
+  await expect(page.getByRole('button', { name: 'Editar tarjeta', exact: true })).toHaveCount(25);
+  const pagination = page.getByRole('navigation', { name: 'Páginas de notas' });
+  expect((await pagination.getByRole('status').boundingBox())!.height).toBeLessThan(40);
+  await noOverflow(page);
+  await page.getByRole('button', { name: 'Siguiente', exact: true }).click();
+  await expect(page.getByText('Pregunta 26', { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/page=1/);
+  await page.getByLabel('Buscar', { exact: true }).fill('Pregunta 68');
+  await expect(page.getByText('Pregunta 68', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Editar tarjeta', exact: true })).toHaveCount(1);
+  await expect(page).not.toHaveURL(/page=/);
+});
+
+test('study continues after fifty cards and completes only after the last confirmed write', async ({
+  page,
+}) => {
+  await fixture(page);
+  const pending = Array.from({ length: 51 }, (_, i) => ({
+    note: {
+      ...notes[0],
+      id: `large-${i}`,
+      fieldsJson: JSON.stringify({ front: `Pregunta ${i + 1}`, back: `Respuesta ${i + 1}` }),
+    },
+    card: { id: `large-card-${i}`, state: 'new', cardOrdinal: 0, intervalDays: 0, easeFactor: 2.5 },
+  }));
+  let batchRequests = 0;
+  const actions = new Set<string>();
+  await page.route('**/api/decks/paper-deck/study/batch?**', (route) => {
+    batchRequests++;
+    expect(new URL(route.request().url()).searchParams.get('limit')).toBe('50');
+    return route.fulfill({
+      json: {
+        items: pending.slice(0, 50),
+        counts: { newCount: pending.length, learningCount: 0, reviewCount: 0 },
+        hasMore: pending.length > 50,
+      },
+    });
+  });
+  await page.route('**/api/cards/*/review', async (route) => {
+    const body = route.request().postDataJSON();
+    expect(actions.has(body.requestId)).toBe(false);
+    actions.add(body.requestId);
+    const [reviewed] = pending.splice(0, 1);
+    await route.fulfill({ json: { card: reviewed.card, reviewId: body.requestId } });
+  });
+  await page.goto('/study/paper-deck');
+  for (let i = 0; i < 51; i++) {
+    await page.getByRole('button', { name: 'Mostrar Respuesta', exact: true }).click();
+    await page.getByRole('button', { name: /Fácil/ }).click();
+  }
+  await expect(page.getByRole('heading', { name: '¡Sesión Completada!' })).toBeVisible();
+  expect(actions.size).toBe(51);
+  expect(batchRequests).toBe(3);
 });

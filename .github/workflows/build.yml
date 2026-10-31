@@ -36,7 +36,7 @@ jobs:
           
       - name: Build and Test Backend
         working-directory: ./backend
-        run: ./mvnw clean verify
+        run: ./mvnw -DargLine=-Dapi.version=1.44 clean verify
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/loopdeck_test
           SPRING_DATASOURCE_USERNAME: loopdeck
@@ -59,6 +59,10 @@ jobs:
         working-directory: ./frontend
         run: npm ci
         
+      - name: Lint Frontend
+        working-directory: ./frontend
+        run: npm run lint
+
       - name: Run Unit Tests
         working-directory: ./frontend
         run: npm run test
@@ -66,3 +70,11 @@ jobs:
       - name: Build Production App
         working-directory: ./frontend
         run: npm run build
+
+      - name: Install Chromium
+        working-directory: ./frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser Regression Tests
+        working-directory: ./frontend
+        run: npm run e2e

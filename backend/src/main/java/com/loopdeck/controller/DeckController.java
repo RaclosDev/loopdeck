@@ -17,15 +17,20 @@ import java.util.List;
 public class DeckController {
 
     private final DeckService deckService;
+    private final com.loopdeck.repository.DeckDocumentRepository docRepo;
+    private static final long MAX_DOCUMENT_BYTES = 15L * 1024 * 1024;
+    private static final java.util.Map<String, String> DOCUMENT_TYPES = java.util.Map.of(
+        "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "pdf", "application/pdf", "txt", "text/plain", "md", "text/markdown");
 
     public record CreateBody(
-        @NotBlank String name,
+        @NotBlank @jakarta.validation.constraints.Size(max = 255) String name,
         String description,
         String parentId
     ) {}
 
     public record UpdateBody(
-        @NotBlank String name,
+        @NotBlank @jakarta.validation.constraints.Size(max = 255) String name,
         String description
     ) {}
 
@@ -61,32 +66,34 @@ public class DeckController {
         return ResponseEntity.noContent().build();
     }
 
-    @org.springframework.beans.factory.annotation.Autowired
-    private com.loopdeck.repository.DeckDocumentRepository docRepo;
-
     @PostMapping("/{id}/document")
-    public ResponseEntity<Void> uploadDocument(Authentication auth, 
+    public ResponseEntity<java.util.Map<String, Boolean>> uploadDocument(Authentication auth,
                                              @PathVariable String id, 
                                              @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         deckService.verifyOwnership(auth.getName(), id);
         
-        if (file.isEmpty() || file.getSize() > 15 * 1024 * 1024) {
-            throw new IllegalArgumentException("El archivo es inválido o excede el límite máximo de 15MB");
-        }
+        if (file.isEmpty()) throw new IllegalArgumentException("El archivo está vacío");
+        if (file.getSize() > MAX_DOCUMENT_BYTES) throw new org.springframework.web.multipart.MaxUploadSizeExceededException(MAX_DOCUMENT_BYTES);
         String originalName = file.getOriginalFilename();
-        if (originalName == null || !originalName.toLowerCase().matches(".*\\.(docx|pdf|txt|md)$")) {
-            throw new IllegalArgumentException("Formato de archivo no permitido. Solo se permiten .docx, .pdf, .txt o .md");
+        if (originalName == null) throw new IllegalArgumentException("El archivo debe tener un nombre");
+        StringBuilder safeName = new StringBuilder();
+        for (char character : originalName.toCharArray()) {
+            safeName.append(Character.isISOControl(character) || character == '\\' || character == '/' || character == '"' ? '_' : character);
         }
+        String fileName = safeName.toString().strip();
+        if (fileName.length() > 255) throw new IllegalArgumentException("El nombre del archivo es demasiado largo");
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase(java.util.Locale.ROOT);
+        String contentType = DOCUMENT_TYPES.get(extension);
+        if (contentType == null) throw new IllegalArgumentException("Formato de archivo no permitido");
 
         try {
             com.loopdeck.model.DeckDocument doc = new com.loopdeck.model.DeckDocument();
             doc.setDeckId(id);
             doc.setFileData(file.getBytes());
-            // Sanitize filename to prevent header injection
-            doc.setFileName(originalName.replaceAll("[\r\n\"\\]", "_"));
-            doc.setContentType(file.getContentType());
+            doc.setFileName(fileName);
+            doc.setContentType(contentType);
             docRepo.save(doc);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(java.util.Map.of("hasDocument", true));
         } catch (java.io.IOException e) {
             throw new RuntimeException("Error reading document file", e);
         }

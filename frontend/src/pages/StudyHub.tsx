@@ -64,7 +64,7 @@ function StudyHub() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.name.endsWith('.docx')) {
+    if (!file.name.toLowerCase().endsWith('.docx')) {
       toast.error('Solo se permiten archivos .docx');
       return;
     }
