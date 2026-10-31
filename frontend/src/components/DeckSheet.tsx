@@ -17,7 +17,11 @@ export default function DeckSheet({
 }) {
   const due = stats && pendingCards(stats);
   return (
-    <article className="paper-sheet landing-tape deck-sheet" aria-labelledby={`deck-${deck.id}`}>
+    <article
+      className="paper-sheet landing-tape deck-sheet"
+      aria-labelledby={`deck-${deck.id}`}
+      data-deck-id={deck.id}
+    >
       <header className="deck-sheet-heading">
         <div>
           <h2 id={`deck-${deck.id}`}>

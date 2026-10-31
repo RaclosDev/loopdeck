@@ -31,6 +31,25 @@ public interface CardRepository extends JpaRepository<Card, String> {
 
     void deleteByNoteId(String noteId);
 
+    @Query(value = "SELECT c.* FROM decks d CROSS JOIN LATERAL (SELECT c.* FROM cards c " +
+        "WHERE c.deck_id=d.id AND c.suspended=false AND c.buried=false AND (c.state='new' OR c.due<=:now) " +
+        "ORDER BY CASE WHEN :studyOrder='new_first' AND c.state='new' THEN 0 " +
+        "WHEN :studyOrder='review_first' AND c.state='review' THEN 0 " +
+        "WHEN :studyOrder IN ('new_first','review_first') THEN 1 ELSE 0 END, " +
+        "CASE WHEN :studyOrder='mixed' THEN random() ELSE 0 END, c.due,c.id LIMIT 2) c " +
+        "WHERE d.user_id=:userId AND d.id IN (:deckIds) ORDER BY d.id, " +
+        "CASE WHEN :studyOrder='new_first' AND c.state='new' THEN 0 " +
+        "WHEN :studyOrder='review_first' AND c.state='review' THEN 0 " +
+        "WHEN :studyOrder IN ('new_first','review_first') THEN 1 ELSE 0 END, " +
+        "CASE WHEN :studyOrder='mixed' THEN random() ELSE 0 END, c.due,c.id", nativeQuery = true)
+    List<Card> findPreparedCards(@Param("userId") String userId, @Param("deckIds") List<String> deckIds,
+        @Param("now") Instant now, @Param("studyOrder") String studyOrder);
+
+    interface NextDueProjection { String getDeckId(); Instant getNextDue(); }
+    @Query("SELECT c.deckId as deckId, MIN(c.due) as nextDue FROM Card c WHERE c.deckId IN :deckIds " +
+        "AND c.suspended=false AND c.buried=false AND c.state <> 'new' AND c.due > :now GROUP BY c.deckId")
+    List<NextDueProjection> findNextDue(@Param("deckIds") List<String> deckIds, @Param("now") Instant now);
+
     void deleteByDeckId(String deckId);
 
     interface CardStateProjection {

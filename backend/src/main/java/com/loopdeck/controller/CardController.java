@@ -23,6 +23,15 @@ public class CardController {
     private final com.loopdeck.service.NoteQueryService noteQueries;
     private final com.loopdeck.service.NoteImportService imports;
     private final com.loopdeck.service.StudyReviewService reviewService;
+    private final com.loopdeck.service.StudyPreparationService preparation;
+
+    public record PrepareBody(List<String> deckIds, String order) {}
+    @PostMapping("/study/prepare")
+    public ResponseEntity<Map<String, com.loopdeck.service.StudyPreparationService.PreparedStudy>> prepare(
+            Authentication auth, @RequestBody PrepareBody body) {
+        if (body == null) throw new com.loopdeck.exception.InvalidInputException("Preparación no válida");
+        return ResponseEntity.ok(preparation.prepare(auth.getName(), body.deckIds(), body.order()));
+    }
 
     public record CreateNoteBody(
         @NotBlank String deckId,

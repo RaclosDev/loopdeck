@@ -792,10 +792,11 @@ for (const width of [320, 390]) {
       expect((await page.locator('.mobile-top-logo').boundingBox())!.y).toBeGreaterThanOrEqual(47);
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await expect
-        .poll(
-          async () =>
-            (await page.locator('.main-content-inner').boundingBox())!.y +
-            (await page.locator('.main-content-inner').boundingBox())!.height,
+        .poll(() =>
+          page.evaluate(() => {
+            window.scrollTo(0, document.documentElement.scrollHeight);
+            return document.querySelector('.main-content-inner')!.getBoundingClientRect().bottom;
+          }),
         )
         .toBeLessThanOrEqual(bounds.y - 16);
       await noOverflow(page);
@@ -815,48 +816,113 @@ for (const width of [320, 390]) {
   });
 }
 
-test('prepares study while choosing a mode and avoids a second wait after clicking', async ({
+test('prepares two cards after the collection paints and fills the rest without blocking study', async ({
   page,
-}, testInfo) => {
+}) => {
   await fixture(page);
-  let requests = 0;
-  await page.route('**/api/decks/paper-deck/study/batch?**', async (route) => {
-    requests++;
-    await new Promise((resolve) => setTimeout(resolve, 400));
+  let preparations = 0;
+  let release!: () => void;
+  const remaining = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/api/study/prepare', async (route) => {
+    preparations++;
+    expect(route.request().postDataJSON().deckIds).toEqual([deck.id]);
     await route.fulfill({
       json: {
-        items: [
-          {
-            note: notes[0],
-            card: { id: 'prepared', state: 'new', cardOrdinal: 0, easeFactor: 2.5 },
+        [deck.id]: {
+          batch: {
+            items: notes.slice(0, 2).map((note, i) => ({
+              note,
+              card: { id: `prepared-${i}`, state: 'new', cardOrdinal: 0 },
+            })),
+            counts: { newCount: 4, learningCount: 0, reviewCount: 0 },
+            hasMore: true,
           },
-        ],
-        counts: { newCount: 1, learningCount: 0, reviewCount: 0 },
+          validForMs: 60_000,
+        },
+      },
+    });
+  });
+  await page.route('**/api/decks/paper-deck/study/batch?**', async (route) => {
+    await remaining;
+    await route.fulfill({
+      json: {
+        items: notes.map((note, i) => ({
+          note,
+          card: { id: `prepared-${i}`, state: 'new', cardOrdinal: 0 },
+        })),
+        counts: { newCount: 4, learningCount: 0, reviewCount: 0 },
         hasMore: false,
       },
     });
   });
-  const directStart = Date.now();
-  await page.goto('/study/paper-deck');
+  const prepared = page.waitForResponse((response) => response.url().endsWith('/study/prepare'));
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: deck.name, exact: true })).toBeVisible();
+  await prepared;
+  await page
+    .getByRole('article')
+    .first()
+    .getByRole('link', { name: /Repasar/ })
+    .click();
   await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeVisible();
-  const directMs = Date.now() - directStart;
-  const preparedResponse = page.waitForResponse(
-    (response) => response.url().includes('/study/batch?') && response.status() === 200,
-  );
-  await page.goto('/hub/paper-deck');
-  await expect.poll(() => requests).toBe(2);
-  await preparedResponse;
-  const beforeClick = requests;
-  const preparedStart = Date.now();
-  await page.getByRole('link', { name: /Repaso espaciado/ }).click();
-  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeVisible();
-  expect(requests).toBe(beforeClick);
-  await testInfo.attach('study-start-timing', {
-    body: JSON.stringify({
-      directMs,
-      preparedMs: Date.now() - preparedStart,
-      simulatedApiDelayMs: 400,
+  await expect(page.getByText('Concepto 1', { exact: true })).toBeVisible();
+  expect(preparations).toBe(1);
+  const restResponse = page.waitForResponse((response) => response.url().includes('/study/batch?'));
+  release();
+  await restResponse;
+});
+
+test('background preparation groups many decks instead of downloading full study queues', async ({
+  page,
+}) => {
+  await fixture(page);
+  const collection = Array.from({ length: 25 }, (_, i) => ({
+    ...deck,
+    id: `group-${i}`,
+    name: `Mazo ${i}`,
+  }));
+  await page.route('**/api/decks', (route) => route.fulfill({ json: collection }));
+  await page.route('**/api/decks/stats', (route) =>
+    route.fulfill({
+      json: Object.fromEntries(
+        collection.map((item) => [
+          item.id,
+          { newCount: 4, learningCount: 0, reviewCount: 0, totalCount: 4 },
+        ]),
+      ),
     }),
-    contentType: 'application/json',
+  );
+  const sizes: number[] = [];
+  const ids = new Set<string>();
+  let fullQueues = 0;
+  page.on('request', (request) => {
+    if (request.url().includes('/study/batch?')) fullQueues++;
   });
+  await page.route('**/api/study/prepare', (route) => {
+    const body = route.request().postDataJSON();
+    sizes.push(body.deckIds.length);
+    for (const id of body.deckIds) ids.add(id);
+    return route.fulfill({
+      json: Object.fromEntries(
+        body.deckIds.map((id: string) => [
+          id,
+          {
+            batch: {
+              items: [],
+              counts: { newCount: 0, learningCount: 0, reviewCount: 0, totalCount: 4 },
+              hasMore: false,
+            },
+            validForMs: 60_000,
+          },
+        ]),
+      ),
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('article')).toHaveCount(25);
+  await expect.poll(() => sizes).toEqual([12, 12, 1]);
+  expect(ids.size).toBe(25);
+  expect(fullQueues).toBe(0);
 });
