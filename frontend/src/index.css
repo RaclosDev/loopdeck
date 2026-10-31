@@ -157,6 +157,21 @@ body {
   overscroll-behavior-x: none;
 }
 
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --mobile-nav-height: 64px;
+  --mobile-nav-gap: 12px;
+}
+
+html {
+  scroll-padding-bottom: calc(
+    var(--mobile-nav-height) + var(--mobile-nav-gap) + var(--safe-bottom) + 24px
+  );
+}
+
 *:focus:not(:focus-visible) {
   outline: none;
 }
@@ -182,13 +197,15 @@ textarea,
    ========================================================================== */
 .app-root {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 
 .app-container {
   display: flex;
-  min-height: 100vh;
+  flex: 1;
+  min-height: 0;
 }
 
 .sidebar {
@@ -304,7 +321,7 @@ textarea,
 .main-content {
   flex: 1;
   margin-left: var(--sidebar-width);
-  min-height: 100vh;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -333,12 +350,14 @@ textarea,
 /* Mobile Top / Bottom Navigation */
 .mobile-top-bar {
   display: none;
-  height: 56px;
+  min-height: calc(56px + var(--safe-top));
+  flex-shrink: 0;
   background: var(--wall);
   border-bottom: 1px solid var(--border-subtle);
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-md);
+  padding: var(--safe-top) max(var(--space-md), var(--safe-right)) 0
+    max(var(--space-md), var(--safe-left));
   position: sticky;
   top: 0;
   z-index: 50;
@@ -354,16 +373,20 @@ textarea,
 .mobile-bottom-nav {
   display: none;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
+  bottom: calc(var(--mobile-nav-gap) + var(--safe-bottom));
+  left: max(12px, var(--safe-left));
+  right: max(12px, var(--safe-right));
+  max-width: 480px;
+  margin-inline: auto;
+  height: var(--mobile-nav-height);
   background: var(--paper);
-  border-top: 1px solid var(--border-subtle);
+  border: 1px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 0 6px 20px #0004;
   z-index: 50;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding: 6px;
 }
 
 .mobile-bottom-item {
@@ -381,6 +404,8 @@ textarea,
   min-width: 44px;
   min-height: 44px;
   padding: 4px 8px;
+  flex: 1;
+  border-radius: 12px;
 }
 
 .mobile-bottom-item.active {
@@ -420,10 +445,14 @@ textarea,
   }
   .main-content {
     margin-left: 0;
-    padding: 28px 12px calc(84px + env(safe-area-inset-bottom));
+    padding: 28px max(12px, var(--safe-right))
+      calc(var(--mobile-nav-height) + var(--mobile-nav-gap) + var(--safe-bottom) + 24px)
+      max(12px, var(--safe-left));
   }
   .main-content.study-mode {
     margin-left: 0;
+    padding-top: calc(28px + var(--safe-top));
+    padding-bottom: calc(24px + var(--safe-bottom));
   }
   .main-content-inner {
     padding: var(--space-md);
@@ -747,7 +776,10 @@ textarea,
   background: var(--bg-secondary);
   border-top: 1px solid var(--border-medium);
   border-radius: 24px 24px 0 0;
-  padding: 1rem 1.25rem calc(2rem + env(safe-area-inset-bottom));
+  padding: 1rem max(1.25rem, var(--safe-right)) calc(2rem + var(--safe-bottom))
+    max(1.25rem, var(--safe-left));
+  max-height: calc(100dvh - var(--safe-top) - 12px);
+  overflow-y: auto;
   animation: slideUpSheet 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
 }
@@ -918,8 +950,9 @@ textarea,
 
 .fullscreen-overlay .docx-modal-content {
   max-width: 100%;
-  max-height: 100vh;
-  height: 100vh;
+  max-height: 100dvh;
+  height: 100dvh;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
   border-radius: 0;
 }
 
@@ -936,7 +969,7 @@ textarea,
     position: fixed;
     left: 1rem;
     right: 1rem;
-    bottom: calc(70px + env(safe-area-inset-bottom));
+    bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-gap) + var(--safe-bottom) + 12px);
   }
 }
 
@@ -1014,14 +1047,4 @@ textarea,
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--border-medium) var(--bg-primary);
-}
-
-@media all and (display-mode: standalone) {
-  html,
-  body,
-  .app-root,
-  .app-container {
-    height: 100vh !important;
-    min-height: 100vh !important;
-  }
 }

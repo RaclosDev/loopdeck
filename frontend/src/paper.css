@@ -157,14 +157,14 @@ body.light-mode .sidebar .nav-item.text-destructive {
   color: #991b1b;
 }
 .mobile-bottom-nav {
-  height: calc(68px + env(safe-area-inset-bottom));
-  border-top: 2px solid var(--ink);
+  height: var(--mobile-nav-height);
+  border: 2px solid var(--ink);
 }
 .mobile-bottom-item {
   flex: 1;
-  min-height: 52px;
-  margin: 4px 2px;
-  border-radius: 3px;
+  min-height: 48px;
+  margin: 0;
+  border-radius: 12px;
 }
 .mobile-bottom-indicator {
   display: none;
@@ -250,7 +250,7 @@ body.light-mode .sidebar .nav-item.text-destructive {
 }
 .bottom-sheet-content {
   position: relative;
-  max-height: 85dvh;
+  max-height: min(85dvh, calc(100dvh - var(--safe-top) - 12px));
   overflow-y: auto;
 }
 .sheet-close {
