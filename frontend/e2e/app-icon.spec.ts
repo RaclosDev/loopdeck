@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('installation uses one manifest and correctly sized paper icons', async ({
+test('installation uses one manifest and correctly sized brush icons', async ({
   page,
   request,
 }) => {
@@ -21,10 +21,10 @@ test('installation uses one manifest and correctly sized paper icons', async ({
   }
   await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
     'href',
-    '/apple-touch-icon-paper.png',
+    '/apple-touch-icon-brush.png',
   );
-  await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute(
+  await expect(page.locator('link[rel="icon"][type="image/x-icon"]')).toHaveAttribute(
     'href',
-    '/app-icon.svg',
+    '/favicon-brush.ico',
   );
 });
