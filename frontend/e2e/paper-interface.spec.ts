@@ -765,3 +765,52 @@ test('study continues after fifty cards and completes only after the last confir
   expect(actions.size).toBe(51);
   expect(batchRequests).toBe(3);
 });
+
+for (const width of [320, 390]) {
+  test(`iPhone safe areas keep the floating navigation clear of content at ${width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await fixture(page);
+    for (const path of [
+      '/',
+      '/hub',
+      '/hub/paper-deck',
+      '/browser?deck=paper-deck',
+      '/add/paper-deck',
+      '/settings',
+      '/stats',
+      '/templates',
+    ]) {
+      await page.goto(path);
+      await page.addStyleTag({ content: ':root { --safe-top: 47px; --safe-bottom: 34px; }' });
+      const nav = page.getByRole('navigation', { name: 'Navegación inferior' });
+      await expect(nav).toBeVisible();
+      const bounds = (await nav.boundingBox())!;
+      expect(bounds.x).toBeGreaterThanOrEqual(12);
+      expect(bounds.y + bounds.height).toBeLessThanOrEqual(844 - 34 - 12);
+      expect((await page.locator('.mobile-top-logo').boundingBox())!.y).toBeGreaterThanOrEqual(47);
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await expect
+        .poll(
+          async () =>
+            (await page.locator('.main-content-inner').boundingBox())!.y +
+            (await page.locator('.main-content-inner').boundingBox())!.height,
+        )
+        .toBeLessThanOrEqual(bounds.y - 16);
+      await noOverflow(page);
+      if (path === '/' && process.env.LOOPDECK_SCREENSHOTS)
+        await page.screenshot({
+          path: `${process.env.LOOPDECK_SCREENSHOTS}/iphone-safe-${width}.png`,
+          fullPage: true,
+        });
+    }
+    await page.goto('/study/paper-deck');
+    await page.addStyleTag({ content: ':root { --safe-top: 47px; --safe-bottom: 34px; }' });
+    await expect(
+      page.getByRole('button', { name: 'Mostrar Respuesta', exact: true }),
+    ).toBeVisible();
+    expect((await page.locator('.study-title').boundingBox())!.y).toBeGreaterThanOrEqual(47);
+    await expect(page.getByRole('navigation', { name: 'Navegación inferior' })).toHaveCount(0);
+  });
+}

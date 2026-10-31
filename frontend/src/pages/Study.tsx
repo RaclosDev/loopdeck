@@ -301,8 +301,8 @@ export default function Study() {
     <div
       className="fade-in study-session flex flex-col overflow-hidden max-w-3xl mx-auto w-full"
       style={{
-        paddingTop: 'max(1rem, env(safe-area-inset-top))',
-        paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
+        paddingTop: '1rem',
+        paddingBottom: '1rem',
       }}
     >
       {/* Header */}
