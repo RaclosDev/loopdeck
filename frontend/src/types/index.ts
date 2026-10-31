@@ -124,6 +124,11 @@ export interface StudyBatch {
   hasMore: boolean;
 }
 
+export interface PreparedStudy {
+  batch: StudyBatch;
+  validForMs: number;
+}
+
 export interface NotePage {
   items: { note: Note; state: string }[];
   total: number;
