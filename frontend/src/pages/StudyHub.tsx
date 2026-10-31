@@ -1,9 +1,12 @@
 import toast from 'react-hot-toast';
-import { useState, useRef, ChangeEvent, useEffect } from 'react';
+import { useState, useRef, ChangeEvent, useEffect, lazy, Suspense } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { decksApi } from '../services/api';
-import DocxViewerModal from '../components/DocxViewerModal';
+import { useAuth } from '../context/AuthContext';
+import useStore from '../store/useStore';
+import { loadStudy, studyBatchOptions } from '../lib/studyQuery';
+const DocxViewerModal = lazy(() => import('../components/DocxViewerModal'));
 import StudyCounts, { CountsNotice, pendingCards } from '../components/StudyCounts';
 import { DeckSheetsLoading } from '../components/DeckSheet';
 import {
@@ -59,6 +62,14 @@ function StudyHub() {
   }, [loadingDecks, errorDecks, deck, navigate]);
 
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const order = useStore((state) => state.settings?.studyOrder || 'new_first');
+  useEffect(() => {
+    if (!deckId || !deck || !user?.id || (stats && pendingCards(stats) === 0)) return;
+    // Speculative loading must not block the hub; the study route handles a failed load on entry.
+    void loadStudy().catch(() => undefined);
+    void queryClient.prefetchQuery(studyBatchOptions(deckId, user.id, order));
+  }, [deckId, deck, user?.id, order, stats, queryClient]);
 
   const handleUploadDocument = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -231,11 +242,15 @@ function StudyHub() {
           </div>
         </section>
       )}
-      <DocxViewerModal
-        isOpen={showDocModal}
-        onClose={() => setShowDocModal(false)}
-        deckId={deckId || null}
-      />
+      {showDocModal && (
+        <Suspense fallback={<p role="status">Cargando documento…</p>}>
+          <DocxViewerModal
+            isOpen={showDocModal}
+            onClose={() => setShowDocModal(false)}
+            deckId={deckId || null}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

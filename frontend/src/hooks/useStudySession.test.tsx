@@ -1,3 +1,5 @@
+import { studyBatchOptions } from '../lib/studyQuery';
+import { invalidateStudyData } from '../lib/queryInvalidation';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { beforeEach, expect, it, vi } from 'vitest';
@@ -14,8 +16,7 @@ const batch = (items = [pair]): StudyBatch => ({
   counts: { newCount: items.length, learningCount: 0, reviewCount: 0, totalCount: items.length },
   hasMore: false,
 });
-function session() {
-  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+function session(client = new QueryClient({ defaultOptions: { queries: { retry: false } } })) {
   return renderHook(() => useStudySession('deck', 'new_first'), {
     wrapper: ({ children }) => (
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
@@ -138,4 +139,62 @@ it('returns to the restored card first even when a mixed batch omits it', async 
   await act(() => result.current.handleUndo());
   expect(result.current.queue.map((item) => item.card.id)).toEqual(['one', 'other']);
   expect(result.current.counts.new).toBe(2);
+});
+
+it('consumes a recent prepared batch once and still refreshes the next block', async () => {
+  const client = new QueryClient();
+  client.setQueryData(['studyBatch', 'deck', undefined, 'new_first'], batch());
+  vi.mocked(studyApi.getBatch).mockResolvedValue(batch([]));
+  vi.mocked(studyApi.reviewCard).mockResolvedValue({ card: pair.card, reviewId: 'action' });
+  const { result } = session(client);
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(studyApi.getBatch).not.toHaveBeenCalled();
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(4));
+  expect(studyApi.getBatch).toHaveBeenCalledTimes(1);
+  expect(result.current.isComplete).toBe(true);
+});
+
+it('does not reuse an expired prepared batch', async () => {
+  const client = new QueryClient();
+  client.setQueryData(['studyBatch', 'deck', undefined, 'new_first'], batch(), {
+    updatedAt: Date.now() - 11_000,
+  });
+  vi.mocked(studyApi.getBatch).mockResolvedValue(batch([]));
+  const { result } = session(client);
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(studyApi.getBatch).toHaveBeenCalledTimes(1);
+  expect(result.current.queue).toHaveLength(0);
+});
+
+it('discards prepared notes after an edit invalidates the deck data', async () => {
+  const client = new QueryClient();
+  client.setQueryData(['studyBatch', 'deck', undefined, 'new_first'], batch());
+  await invalidateStudyData(client, 'deck');
+  vi.mocked(studyApi.getBatch).mockResolvedValue(batch([]));
+  const { result } = session(client);
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(studyApi.getBatch).toHaveBeenCalledTimes(1);
+  expect(result.current.queue).toHaveLength(0);
+});
+
+it('cancels an in-flight preparation before edits invalidate its data', async () => {
+  const client = new QueryClient();
+  let resolve!: (value: StudyBatch) => void;
+  vi.mocked(studyApi.getBatch)
+    .mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    )
+    .mockResolvedValue(batch([]));
+  const preparing = client.prefetchQuery(studyBatchOptions('deck', undefined, 'new_first'));
+  await waitFor(() => expect(studyApi.getBatch).toHaveBeenCalledTimes(1));
+  await invalidateStudyData(client, 'deck');
+  resolve(batch());
+  await preparing;
+  const { result } = session(client);
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  expect(studyApi.getBatch).toHaveBeenCalledTimes(2);
+  expect(result.current.queue).toHaveLength(0);
 });
