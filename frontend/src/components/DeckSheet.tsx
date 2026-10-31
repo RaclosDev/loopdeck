@@ -20,7 +20,6 @@ export default function DeckSheet({
     <article className="paper-sheet landing-tape deck-sheet" aria-labelledby={`deck-${deck.id}`}>
       <header className="deck-sheet-heading">
         <div>
-          <p className="sheet-eyebrow">Mazo</p>
           <h2 id={`deck-${deck.id}`}>
             <Link to={`/hub/${deck.id}`}>{deck.name}</Link>
           </h2>
@@ -47,7 +46,7 @@ export default function DeckSheet({
           </span>
         )}
       </div>
-      <StudyCounts stats={stats} />
+      <StudyCounts stats={stats} compact />
       <footer className="deck-sheet-actions">{children}</footer>
     </article>
   );

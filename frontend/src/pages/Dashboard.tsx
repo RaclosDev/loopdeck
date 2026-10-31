@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '../components/ui/dialog';
-import { Play, Plus, Search, MoreVertical, Trash2, Edit3, FolderPlus } from 'lucide-react';
+import { Play, Plus, Search, MoreVertical, Trash2, Edit3 } from 'lucide-react';
 
 export default function Dashboard() {
   const {
@@ -101,9 +101,7 @@ export default function Dashboard() {
     <div className="fade-in study-canvas-page">
       <header className="canvas-heading">
         <div>
-          <p className="canvas-eyebrow">Tu colección</p>
           <h1>Mis mazos</h1>
-          <p>Cada materia, en su sitio. Elige un mazo para empezar.</p>
         </div>
         <Button
           className="canvas-create"
@@ -113,7 +111,9 @@ export default function Dashboard() {
             setCreateModalOpen(true);
           }}
         >
-          <Plus size={18} aria-hidden="true" /> Nuevo mazo
+          <Plus size={18} aria-hidden="true" />{' '}
+          <span className="create-label-wide">Nuevo mazo</span>
+          <span className="create-label-narrow">Nuevo</span>
         </Button>
       </header>
 
@@ -178,13 +178,15 @@ export default function Dashboard() {
                       {due ? `Repasar (${due.toLocaleString('es-ES')})` : 'Abrir mazo'}
                     </Link>
                   )}
-                  <Link
-                    className="sheet-action sheet-action--icon"
-                    aria-label={`Añadir tarjeta a ${deck.name}`}
-                    to={`/add/${deck.id}`}
-                  >
-                    <Plus size={20} aria-hidden="true" />
-                  </Link>
+                  {counts?.totalCount !== 0 && (
+                    <Link
+                      className="sheet-action sheet-action--icon"
+                      aria-label={`Añadir tarjeta a ${deck.name}`}
+                      to={`/add/${deck.id}`}
+                    >
+                      <Plus size={20} aria-hidden="true" />
+                    </Link>
+                  )}
                   <Link
                     className="sheet-action sheet-action--icon"
                     aria-label={`Explorar tarjetas de ${deck.name}`}
@@ -207,15 +209,6 @@ export default function Dashboard() {
           </div>
         </>
       )}
-      <button
-        className="add-deck-sheet"
-        onClick={() => {
-          setModalInputValue('');
-          setCreateModalOpen(true);
-        }}
-      >
-        <FolderPlus size={22} aria-hidden="true" /> Nuevo Mazo
-      </button>
       {decks.map((deck) => (
         <BottomSheet
           key={deck.id}

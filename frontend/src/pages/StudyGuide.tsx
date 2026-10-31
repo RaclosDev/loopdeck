@@ -1,3 +1,4 @@
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -13,10 +14,13 @@ function StudyGuide() {
   const [deck, setDeck] = useState<Deck | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
+      setLoadError(false);
       try {
         const decks = await decksApi.getAll();
         const d = decks.find((d) => d.id === deckId);
@@ -30,14 +34,14 @@ function StudyGuide() {
         const allNotes = await notesApi.getByDeck(deckId!);
         setNotes(allNotes.reverse());
       } catch (e) {
-        toast.error('Error cargando mazo');
+        setLoadError(true);
         console.error(e);
       } finally {
         setLoading(false);
       }
     };
     loadData();
-  }, [deckId, navigate]);
+  }, [deckId, navigate, reloadKey]);
 
   const parsedNotes = useMemo(() => {
     return notes.map((note, index) => {
@@ -51,6 +55,9 @@ function StudyGuide() {
     });
   }, [notes]);
 
+  if (loadError)
+    return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
+
   if (loading)
     return (
       <div className="study-container">
@@ -61,18 +68,12 @@ function StudyGuide() {
   if (!deck) return null;
 
   return (
-    <div
-      className="animate-fade-in"
-      style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', paddingBottom: '100px' }}
-    >
+    <div className="animate-fade-in study-guide-page">
       <div
         className="study-header"
         style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          padding: '15px 20px',
-          margin: '-20px -20px 20px -20px',
+          padding: '0 0 12px',
+          margin: '0 0 20px',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -91,9 +92,12 @@ function StudyGuide() {
               flex: 1,
             }}
           >
-            <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}>
+            <h1
+              className="study-title"
+              style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1.2rem' }}
+            >
               {deck.name} (Guía)
-            </div>
+            </h1>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>
               {notes.length} conceptos
             </div>

@@ -1,4 +1,5 @@
 import useStore from '../store/useStore';
+import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -58,6 +59,7 @@ export default function Study() {
   const [queue, setQueue] = useState<DueCardDto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
   const [undoStack, setUndoStack] = useState<{ pair: DueCardDto; index: number }[]>([]);
   const [isComplete, setIsComplete] = useState(false);
@@ -81,6 +83,7 @@ export default function Study() {
 
   const loadSession = useCallback(async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       const decks = await decksApi.getAll();
       const d = decks.find((x) => x.id === deckId);
@@ -128,7 +131,7 @@ export default function Study() {
       setSessionStats({ reviewed: 0, correct: 0, startTime: Date.now() });
       setUndoStack([]);
     } catch {
-      toast.error('Error al cargar la sesión');
+      setLoadError(true);
     } finally {
       setLoading(false);
     }
@@ -276,6 +279,8 @@ export default function Study() {
     return () => window.removeEventListener('keydown', handler);
   }, [isFlipped, card, queue, currentIndex, undoStack, navigate]);
 
+  if (loadError) return <StudyLoadError deckId={deckId} onRetry={() => void loadSession()} />;
+
   if (loading) {
     return (
       <div className="study-container">
@@ -399,9 +404,8 @@ export default function Study() {
 
   return (
     <div
-      className="fade-in flex flex-col p-4 overflow-hidden max-w-3xl mx-auto w-full"
+      className="fade-in study-session flex flex-col overflow-hidden max-w-3xl mx-auto w-full"
       style={{
-        height: '100dvh',
         paddingTop: 'max(1rem, env(safe-area-inset-top))',
         paddingBottom: 'max(1rem, env(safe-area-inset-bottom))',
       }}
@@ -418,7 +422,8 @@ export default function Study() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate(`/hub/${deckId}`)}
+            aria-label="Volver al centro del mazo"
             style={{
               padding: '0.5rem',
               marginLeft: '-0.5rem',
@@ -430,7 +435,9 @@ export default function Study() {
             <ArrowLeft size={24} />
           </button>
           <div>
-            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>{deck?.name}</h2>
+            <h1 className="study-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
+              {deck?.name}
+            </h1>
             {settings?.showTimer && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground font-mono">
                 <Timer size={12} />
@@ -441,6 +448,7 @@ export default function Study() {
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}>
           <div
+            aria-label={`Nuevas: ${counts.new}`}
             className="px-2 py-0.5 rounded-full border"
             style={{
               color: 'var(--accent-primary-light)',
@@ -451,12 +459,14 @@ export default function Study() {
             {counts.new}
           </div>
           <div
+            aria-label={`Aprendiendo: ${counts.learning}`}
             className="px-2 py-0.5 rounded border"
             style={{ color: 'var(--srs-learning)', borderColor: 'currentColor' }}
           >
             {counts.learning}
           </div>
           <div
+            aria-label={`Revisión: ${counts.review}`}
             className="px-2 py-0.5 rounded border"
             style={{ color: 'var(--srs-review)', borderColor: 'currentColor' }}
           >

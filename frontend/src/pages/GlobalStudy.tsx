@@ -15,7 +15,6 @@ export default function GlobalStudy() {
     <div className="fade-in study-canvas-page">
       <header className="canvas-heading">
         <div>
-          <p className="canvas-eyebrow">Tu sesión de hoy</p>
           <h1>Centro de estudio</h1>
           <p>Primero el mazo. Después, la forma de estudiarlo.</p>
         </div>

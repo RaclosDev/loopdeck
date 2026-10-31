@@ -71,10 +71,7 @@ export default function Layout() {
   const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
 
   const isStudyPage =
-    location.pathname.startsWith('/study') ||
-    location.pathname.includes('/quiz') ||
-    location.pathname.includes('/chunked') ||
-    location.pathname.includes('/tutor');
+    location.pathname.startsWith('/study') || /^\/hub\/[^/]+\/[^/]+/.test(location.pathname);
 
   const isSheetOverview =
     location.pathname === '/' || /^\/hub(?:\/[^/]+)?\/?$/.test(location.pathname);
@@ -88,9 +85,11 @@ export default function Layout() {
   // Interceptar PWA
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey)
+        return;
       const target = e.target as HTMLElement;
       const anchor = target.closest('a');
-      if (!anchor) return;
+      if (!anchor || anchor.hasAttribute('download')) return;
       const href = anchor.getAttribute('href');
       if (href && href.startsWith('/') && !href.startsWith('//') && anchor.target !== '_blank') {
         e.preventDefault();
@@ -104,7 +103,9 @@ export default function Layout() {
 
   const closeSidebar = () => setSidebarOpen(false);
   const isMoreActive = moreMenuPaths.some((p) => location.pathname.startsWith(p));
-  const pageTitle = navItems.find((item) => item.path === location.pathname)?.label;
+  const pageTitle = location.pathname.startsWith('/add')
+    ? 'Añadir tarjeta'
+    : navItems.find((item) => item.path === location.pathname)?.label;
 
   const isIos = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -223,11 +224,6 @@ export default function Layout() {
             {pageTitle && !isSheetOverview && (
               <header className="page-heading">
                 <h1>{pageTitle}</h1>
-                <p>
-                  {location.pathname === '/'
-                    ? 'Lo que aprendes se queda contigo.'
-                    : 'Tu cuaderno de estudio.'}
-                </p>
               </header>
             )}
             <Suspense

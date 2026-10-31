@@ -2,9 +2,9 @@ import type { DeckStats } from '../types';
 
 export default function StudySummary({ stats }: { stats: DeckStats[] }) {
   const states = [
-    { label: 'Nuevas', key: 'newCount', tone: 'new', detail: 'Primer contacto' },
-    { label: 'Aprendiendo', key: 'learningCount', tone: 'learning', detail: 'Para afianzar hoy' },
-    { label: 'Revisión', key: 'reviewCount', tone: 'review', detail: 'Repasos programados' },
+    { label: 'Nuevas', key: 'newCount', tone: 'new' },
+    { label: 'Aprendiendo', key: 'learningCount', tone: 'learning' },
+    { label: 'Revisión', key: 'reviewCount', tone: 'review' },
   ] as const;
   return (
     <section className="study-summary" aria-labelledby="study-summary-title">
@@ -13,14 +13,13 @@ export default function StudySummary({ stats }: { stats: DeckStats[] }) {
         <span>Todos tus mazos</span>
       </div>
       <dl className="study-summary-grid">
-        {states.map(({ label, key, tone, detail }) => (
+        {states.map(({ label, key, tone }) => (
           <div className={`paper-sheet summary-sheet study-count--${tone}`} key={key}>
             <dt>{label}</dt>
             <dd>
               <span className="summary-value">
                 {stats.reduce((sum, deck) => sum + deck[key], 0).toLocaleString('es-ES')}
               </span>
-              <span className="summary-detail">{detail}</span>
             </dd>
           </div>
         ))}
