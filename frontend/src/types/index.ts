@@ -109,12 +109,26 @@ export interface ImportNoteBody {
 export interface ReviewBody {
   rating: number;
   timeTakenMs: number;
+  requestId?: string;
 }
 
 // DTOs from CardService.DueCardDto
 export interface DueCardDto {
   card: Card;
   note: Note;
+}
+
+export interface StudyBatch {
+  items: DueCardDto[];
+  counts: DeckStats;
+  hasMore: boolean;
+}
+
+export interface NotePage {
+  items: { note: Note; state: string }[];
+  total: number;
+  page: number;
+  size: number;
 }
 
 export interface TemplateDeck {

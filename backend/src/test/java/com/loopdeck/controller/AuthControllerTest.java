@@ -94,5 +94,14 @@ public class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath("$.user.name").value("Sesi\u00f3n"));
     }
+    @Test void invalidRegistrationAndLoginNeverReachTheService() throws Exception {
+        mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"invalid\",\"name\":\"\",\"password\":\"x\"}"))
+            .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"email\":\"invalid\",\"password\":\"\"}"))
+            .andExpect(status().isBadRequest());
+        org.mockito.Mockito.verifyNoInteractions(authService);
+    }
 }
 

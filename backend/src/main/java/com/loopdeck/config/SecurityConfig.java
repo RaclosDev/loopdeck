@@ -32,7 +32,7 @@ public class SecurityConfig {
 
     @jakarta.annotation.PostConstruct
     public void validateJwtSecret() {
-        if (jwtSecret == null || jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+        if (jwtSecret == null || jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32 || jwtSecret.startsWith("CHANGE_ME")) {
             throw new IllegalArgumentException("JWT_SECRET must be at least 32 bytes for HS256");
         }
     }

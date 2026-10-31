@@ -1,106 +1,74 @@
 package com.loopdeck.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.loopdeck.model.Card;
+import com.loopdeck.exception.InvalidInputException;
 import com.loopdeck.model.Deck;
-import com.loopdeck.model.Note;
 import com.loopdeck.model.User;
-import com.loopdeck.repository.CardRepository;
 import com.loopdeck.repository.DeckRepository;
-import com.loopdeck.repository.NoteRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
 
 @Service
 public class TemplateService {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TemplateService.class);
+    private final DeckRepository decks;
+    private final NoteImportService imports;
+    private final ObjectMapper mapper;
+    private final List<Map<String, Object>> registry;
+    private final Map<String, TemplateFile> templates;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record TemplateFile(String name, String description, String category, List<TemplateCard> cards) {}
+    public record TemplateCard(String front, String back) {}
 
-    private final DeckRepository deckRepository;
-    private final NoteRepository noteRepository;
-    private final CardRepository cardRepository;
-    private final ObjectMapper objectMapper;
-
-    public TemplateService(DeckRepository deckRepository, NoteRepository noteRepository, CardRepository cardRepository, ObjectMapper objectMapper) {
-        this.deckRepository = deckRepository;
-        this.noteRepository = noteRepository;
-        this.cardRepository = cardRepository;
-        this.objectMapper = objectMapper;
+    public TemplateService(DeckRepository decks, NoteImportService imports, ObjectMapper mapper) {
+        this.decks = decks; this.imports = imports; this.mapper = mapper;
+        try (var input = new ClassPathResource("templates/registry.json").getInputStream()) {
+            List<Map<String, Object>> entries = mapper.readValue(input, new TypeReference<>() {});
+            registry = entries.stream().map(Map::copyOf).toList();
+            Map<String, TemplateFile> loaded = new HashMap<>();
+            for (var entry : registry) {
+                String id = (String) entry.get("id");
+                try (var file = new ClassPathResource("templates/" + id + ".json").getInputStream()) {
+                    loaded.put(id, mapper.readValue(file, TemplateFile.class));
+                }
+            }
+            templates = Map.copyOf(loaded);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Cannot load bundled templates", ex);
+        }
     }
 
     @Transactional
     public Deck importTemplate(User user, String templateId) {
+        TemplateFile template = templates.get(templateId);
+        if (template == null) throw new InvalidInputException("Unknown template");
+        Deck deck = new Deck();
+        deck.setUserId(user.getId()); deck.setName(template.name()); deck.setDescription(template.description());
+        deck = decks.saveAndFlush(deck);
         try {
-            ClassPathResource resource = new ClassPathResource("templates/" + templateId + ".json");
-            if (!resource.exists()) {
-                throw new RuntimeException("Template not found: " + templateId);
+            String tags = template.category() == null ? "template" : template.category().toLowerCase(Locale.ROOT);
+            var notes = new java.util.ArrayList<CardService.CreateNoteRequest>();
+            for (var card : template.cards()) {
+                notes.add(new CardService.CreateNoteRequest(deck.getId(), "basic",
+                    mapper.writeValueAsString(Map.of("front", card.front(), "back", card.back())), tags));
             }
-            
-            try (InputStream is = resource.getInputStream()) {
-                Map<String, Object> templateData = objectMapper.readValue(is, new TypeReference<Map<String, Object>>() {});
-                
-                Deck deck = new Deck();
-                deck.setUserId(user.getId());
-                deck.setName((String) templateData.get("name"));
-                deck.setDescription((String) templateData.get("description"));
-                deck = deckRepository.save(deck);
-
-                List<Map<String, String>> cards = (List<Map<String, String>>) templateData.get("cards");
-                String tags = templateData.containsKey("category") ? ((String) templateData.get("category")).toLowerCase() : "template";
-                
-                for (Map<String, String> cardData : cards) {
-                    Note note = new Note();
-                    note.setUserId(user.getId());
-                    note.setDeckId(deck.getId());
-                    note.setNoteType("basic");
-                    note.setTags(tags);
-                    
-                    String fieldsJson = objectMapper.writeValueAsString(Map.of(
-                            "front", cardData.get("front"),
-                            "back", cardData.get("back")
-                    ));
-                    note.setFieldsJson(fieldsJson);
-                    note = noteRepository.save(note);
-
-                    Card card = new Card();
-                    card.setNoteId(note.getId());
-                    card.setDeckId(deck.getId());
-                    card.setCardOrdinal(0);
-                    card.setState("new");
-                    card.setIntervalDays(0.0);
-                    card.setEaseFactor(2.5);
-                    card.setRepetitions(0);
-                    card.setLapses(0);
-                    cardRepository.save(card);
-                }
-
-                return deck;
+            for (int start = 0; start < notes.size(); start += 500) {
+                imports.importNotes(user.getId(), deck.getId(), notes.subList(start, Math.min(start + 500, notes.size())), null);
             }
-        } catch (java.io.IOException e) {
-            log.error("Failed to import template", e);
-            throw new RuntimeException("Failed to import template", e);
+            return deck;
+        } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+            throw new IllegalStateException("Cannot serialize bundled template", ex);
         }
     }
-    
-    public List<Map<String, Object>> getAvailableTemplates() {
-        try {
-            ClassPathResource resource = new ClassPathResource("templates/registry.json");
-            if (!resource.exists()) {
-                return List.of();
-            }
-            try (InputStream is = resource.getInputStream()) {
-                return objectMapper.readValue(is, new TypeReference<List<Map<String, Object>>>() {});
-            }
-        } catch (java.io.IOException e) {
-            log.error("Failed to load available templates", e);
-            return List.of();
-        }
-    }
+
+    public List<Map<String, Object>> getAvailableTemplates() { return registry; }
 }

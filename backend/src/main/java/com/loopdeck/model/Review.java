@@ -30,6 +30,16 @@ public class Review {
     @Column(name = "reviewed_at")
     private Instant reviewedAt;
 
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(name = "previous_state", columnDefinition = "jsonb")
+    private String previousState;
+    @Column(nullable = false)
+    private boolean undone;
+    public String getPreviousState() { return previousState; }
+    public void setPreviousState(String previousState) { this.previousState = previousState; }
+    public boolean isUndone() { return undone; }
+    public void setUndone(boolean undone) { this.undone = undone; }
+
     @PrePersist
     void prePersist() {
         if (id == null) id = java.util.UUID.randomUUID().toString();

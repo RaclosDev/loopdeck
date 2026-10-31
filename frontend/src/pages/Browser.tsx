@@ -1,9 +1,13 @@
+import { parseNoteFields } from '../lib/noteFields';
+import { useAuth } from '../context/AuthContext';
+import { useQueryClient } from '@tanstack/react-query';
+import { invalidateStudyData } from '../lib/queryInvalidation';
 import toast from 'react-hot-toast';
-import { useState, useMemo, useDeferredValue } from 'react';
+import { useState, useEffect } from 'react';
 import { sanitizeHtml } from '../lib/utils';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { notesApi, decksApi } from '../services/api';
+import { notesApi } from '../services/api';
 import { Note } from '../types';
 import { useDecks } from '../hooks/useDecks';
 import { Button } from '../components/ui/button';
@@ -27,6 +31,8 @@ const getStateColor = (state: string) => {
 };
 
 export default function Browser() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialDeck = searchParams.get('deck');
 
@@ -37,8 +43,28 @@ export default function Browser() {
     refetch: retryDecks,
   } = useDecks();
   const selectedDeckId = decks.find((deck) => deck.id === initialDeck)?.id || decks[0]?.id || '';
-  const [selectedTag, setSelectedTag] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const selectedTag = searchParams.get('tag') || '';
+  const search = searchParams.get('q') || '';
+  const page = Math.min(100_000, Math.max(0, Math.floor(Number(searchParams.get('page')) || 0)));
+  const [searchQuery, setSearchQuery] = useState(search);
+  useEffect(() => setSearchQuery(search), [search]);
+  useEffect(() => {
+    if (searchQuery === search) return;
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(searchParams);
+      params.set('q', searchQuery);
+      params.delete('page');
+      setSearchParams(params, { replace: true });
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [searchQuery, search, searchParams, setSearchParams]);
+  const changeFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    value ? params.set(key, value) : params.delete(key);
+    if (key !== 'page') params.delete('page');
+    if (key === 'deck') params.delete('tag');
+    setSearchParams(params, { replace: true });
+  };
 
   const [editingNote, setEditingNote] = useState<BrowserNote | null>(null);
   const [editFront, setEditFront] = useState('');
@@ -52,50 +78,32 @@ export default function Browser() {
     isError: isErrorNotes,
     refetch: refetchNotes,
   } = useQuery({
-    queryKey: ['browserNotes', selectedDeckId],
-    queryFn: async () => {
-      const data = await notesApi.getByDeck(selectedDeckId);
-      const cardStateMap = await decksApi.getCardStates(selectedDeckId);
-
-      const allTags = new Set<string>();
-
-      const processed: BrowserNote[] = data.map((n) => {
-        if (n.tags) n.tags.split(',').forEach((t) => allTags.add(t.trim()));
-        return {
-          ...n,
-          parsedFields: JSON.parse(n.fieldsJson || '{}'),
-          state: cardStateMap[n.id] || 'new',
-        };
-      });
-
-      return { notes: processed, tags: Array.from(allTags).filter((t) => t) };
-    },
+    queryKey: ['notePage', selectedDeckId, user?.id, page, search, selectedTag],
+    queryFn: ({ signal }) => notesApi.getPage(selectedDeckId, page, search, selectedTag, signal),
     enabled: !!selectedDeckId,
-    staleTime: 60 * 1000, // 1 minute
+    staleTime: 60_000,
   });
-
-  const notes = browserData?.notes || [];
-  const tags = browserData?.tags || [];
+  const { data: tags = [] } = useQuery({
+    queryKey: ['noteTags', selectedDeckId, user?.id],
+    queryFn: ({ signal }) => notesApi.getTags(selectedDeckId, signal),
+    enabled: !!selectedDeckId,
+    staleTime: 300_000,
+  });
+  const filteredNotes: BrowserNote[] = (browserData?.items || []).map(({ note, state }) => ({
+    ...note,
+    state,
+    parsedFields: parseNoteFields(note.fieldsJson),
+  }));
+  const total = browserData?.total || 0;
   const loading = loadingDecks || loadingNotes || !selectedDeckId;
-
-  const deferredSearch = useDeferredValue(searchQuery);
-
-  const filteredNotes = useMemo(() => {
-    const q = deferredSearch.toLowerCase();
-    return notes.filter((n) => {
-      const matchSearch =
-        (n.parsedFields.front || '').toLowerCase().includes(q) ||
-        (n.parsedFields.back || '').toLowerCase().includes(q);
-      const matchTag = selectedTag
-        ? n.tags && n.tags.split(',').some((tag) => tag.trim() === selectedTag)
-        : true;
-      return matchSearch && matchTag;
-    });
-  }, [notes, deferredSearch, selectedTag]);
+  useEffect(() => {
+    if (browserData && !browserData.items.length && page > 0)
+      changeFilter('page', String(Math.max(0, Math.ceil(browserData.total / 25) - 1)));
+  }, [browserData, page]);
 
   const handleEditClick = (note: BrowserNote) => {
     setEditingNote(note);
-    setEditFront(note.parsedFields.front || '');
+    setEditFront(note.parsedFields[note.noteType === 'cloze' ? 'text' : 'front'] || '');
     setEditBack(note.parsedFields.back || '');
   };
 
@@ -103,9 +111,15 @@ export default function Browser() {
     if (!editingNote) return;
     setSaving(true);
     try {
-      const newFieldsJson = JSON.stringify({ front: editFront, back: editBack });
+      const fields = { ...editingNote.parsedFields };
+      if (editingNote.noteType === 'cloze') fields.text = editFront;
+      else {
+        fields.front = editFront;
+        fields.back = editBack;
+      }
+      const newFieldsJson = JSON.stringify(fields);
       await notesApi.update(editingNote.id, { fieldsJson: newFieldsJson, tags: editingNote.tags });
-      await refetchNotes();
+      await invalidateStudyData(queryClient, selectedDeckId);
       setEditingNote(null);
       toast.success('Nota actualizada');
     } catch {
@@ -119,7 +133,7 @@ export default function Browser() {
     if (!deletingNoteId) return;
     try {
       await notesApi.delete(deletingNoteId);
-      await refetchNotes();
+      await invalidateStudyData(queryClient, selectedDeckId);
       toast.success('Nota eliminada');
     } catch {
       toast.error('Error al eliminar nota');
@@ -158,8 +172,7 @@ export default function Browser() {
             className="form-input"
             value={selectedDeckId}
             onChange={(e) => {
-              setSearchParams({ deck: e.target.value }, { replace: true });
-              setSelectedTag('');
+              changeFilter('deck', e.target.value);
             }}
           >
             {decks.map((deck) => (
@@ -175,7 +188,7 @@ export default function Browser() {
             id="browser-tag"
             className="form-input"
             value={selectedTag}
-            onChange={(e) => setSelectedTag(e.target.value)}
+            onChange={(e) => changeFilter('tag', e.target.value)}
           >
             <option value="">Todas</option>
             {tags.map((tag) => (
@@ -202,7 +215,7 @@ export default function Browser() {
       </div>
       {!loading && !isErrorNotes && (
         <p className="results-count" role="status">
-          {filteredNotes.length} {filteredNotes.length === 1 ? 'tarjeta' : 'tarjetas'}
+          {total} {total === 1 ? 'nota' : 'notas'}
         </p>
       )}
 
@@ -268,7 +281,9 @@ export default function Browser() {
                 <div
                   className="text-[0.95rem] font-semibold mb-1 note-content text-foreground"
                   dangerouslySetInnerHTML={{
-                    __html: sanitizeHtml(note.parsedFields.front || '(Vacío)'),
+                    __html: sanitizeHtml(
+                      note.parsedFields.front || note.parsedFields.text || '(Vacío)',
+                    ),
                   }}
                 />
                 <div
@@ -301,7 +316,31 @@ export default function Browser() {
         )}
       </div>
 
-      <Dialog open={!!editingNote} onOpenChange={(open) => !open && setEditingNote(null)}>
+      {total > 25 && (
+        <nav className="flex items-center justify-between gap-3 my-6" aria-label="Páginas de notas">
+          <Button
+            variant="secondary"
+            disabled={page === 0 || loading}
+            onClick={() => changeFilter('page', String(page - 1))}
+          >
+            Anterior
+          </Button>
+          <span role="status">
+            Página {page + 1} de {Math.ceil(total / 25)}
+          </span>
+          <Button
+            variant="secondary"
+            disabled={(page + 1) * 25 >= total || loading}
+            onClick={() => changeFilter('page', String(page + 1))}
+          >
+            Siguiente
+          </Button>
+        </nav>
+      )}
+      <Dialog
+        open={!!editingNote}
+        onOpenChange={(open) => !open && !saving && setEditingNote(null)}
+      >
         <DialogContent className="max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Editar Tarjeta</DialogTitle>
@@ -309,7 +348,7 @@ export default function Browser() {
           <div className="flex flex-col gap-4 my-4">
             <div>
               <label className="form-label mb-2 block uppercase tracking-wide text-xs">
-                Frente
+                {editingNote?.noteType === 'cloze' ? 'Texto con huecos' : 'Frente'}
               </label>
               <div
                 className="form-input min-h-[80px] p-3"
@@ -318,23 +357,35 @@ export default function Browser() {
                 aria-multiline="true"
                 aria-label="Frente de la tarjeta"
                 tabIndex={0}
-                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.front || '' }}
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(
+                    editingNote?.parsedFields[
+                      editingNote.noteType === 'cloze' ? 'text' : 'front'
+                    ] || '',
+                  ),
+                }}
                 onInput={(e) => setEditFront(e.currentTarget.innerHTML)}
               />
             </div>
-            <div>
-              <label className="form-label mb-2 block uppercase tracking-wide text-xs">Dorso</label>
-              <div
-                className="form-input min-h-[80px] p-3"
-                contentEditable
-                role="textbox"
-                aria-multiline="true"
-                aria-label="Dorso de la tarjeta"
-                tabIndex={0}
-                dangerouslySetInnerHTML={{ __html: editingNote?.parsedFields.back || '' }}
-                onInput={(e) => setEditBack(e.currentTarget.innerHTML)}
-              />
-            </div>
+            {editingNote?.noteType !== 'cloze' && (
+              <div>
+                <label className="form-label mb-2 block uppercase tracking-wide text-xs">
+                  Dorso
+                </label>
+                <div
+                  className="form-input min-h-[80px] p-3"
+                  contentEditable
+                  role="textbox"
+                  aria-multiline="true"
+                  aria-label="Dorso de la tarjeta"
+                  tabIndex={0}
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(editingNote?.parsedFields.back || ''),
+                  }}
+                  onInput={(e) => setEditBack(e.currentTarget.innerHTML)}
+                />
+              </div>
+            )}
           </div>
           <DialogFooter className="flex gap-3 mt-4">
             <Button variant="secondary" className="flex-1" onClick={() => setEditingNote(null)}>

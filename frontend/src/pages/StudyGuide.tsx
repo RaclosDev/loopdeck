@@ -1,3 +1,4 @@
+import { parseNoteFields } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useMemo } from 'react';
@@ -45,7 +46,7 @@ function StudyGuide() {
 
   const parsedNotes = useMemo(() => {
     return notes.map((note, index) => {
-      const fields = JSON.parse(note.fieldsJson || '{}');
+      const fields = parseNoteFields(note.fieldsJson || '{}');
       return {
         id: note.id,
         index,
