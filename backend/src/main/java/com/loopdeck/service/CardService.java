@@ -141,37 +141,4 @@ public class CardService {
         return NoteStates.aggregate(cardRepository.findCardStatesByDeckId(deckId));
     }
 
-    /**
-     * Kept as a compatibility entry point for existing unit tests and callers.
-     * Production reviews are scheduled by FsrsSchedulerService in StudyReviewService.
-     */
-    void applySmTwo(Card card, int rating) {
-        switch (card.getState()) {
-            case "new", "learning" -> applyLearning(card, rating);
-            case "review" -> applyReview(card, rating);
-            case "relearning" -> applyRelearning(card, rating);
-        }
-    }
-
-    private static final int[] LEARNING_STEPS_MINUTES = {1, 10};
-    private void applyLearning(Card card, int rating) {
-        if (rating == 1) { card.setLearningStep(0); card.setState("learning"); card.setDue(Instant.now().plusSeconds(60)); }
-        else if (rating == 4) { card.setState("review"); card.setIntervalDays(4.0); card.setRepetitions(1); card.setDue(Instant.now().plusSeconds(4 * 86400L)); }
-        else if (rating == 2) { int step=Math.max(0,Math.min(card.getLearningStep(),1)); int current=LEARNING_STEPS_MINUTES[step]; int next=step==0?10:20; card.setState("learning"); card.setLearningStep(step); card.setDue(Instant.now().plusSeconds(Math.round((current+next)/2.0)*60L)); }
-        else if (card.getLearningStep() + 1 >= LEARNING_STEPS_MINUTES.length) { card.setState("review"); card.setIntervalDays(1.0); card.setRepetitions(1); card.setDue(Instant.now().plusSeconds(86400L)); }
-        else { card.setLearningStep(card.getLearningStep()+1); card.setState("learning"); card.setDue(Instant.now().plusSeconds(600L)); }
-    }
-    private void applyReview(Card card, int rating) {
-        double ease=card.getEaseFactor(), interval=card.getIntervalDays();
-        switch(rating) {
-            case 1 -> { card.setLapses(card.getLapses()+1); card.setState("relearning"); card.setLearningStep(0); card.setEaseFactor(Math.max(1.3,ease-0.2)); card.setDue(Instant.now().plusSeconds(600L)); if(card.getLapses()>=8) card.setLeech(true); }
-            case 2 -> { card.setEaseFactor(Math.max(1.3,ease-0.15)); card.setIntervalDays(Math.max(1,interval*1.2)); card.setRepetitions(card.getRepetitions()+1); card.setDue(Instant.now().plusSeconds((long)(card.getIntervalDays()*86400))); }
-            case 3 -> { card.setIntervalDays(Math.max(1,interval*ease)); card.setRepetitions(card.getRepetitions()+1); card.setDue(Instant.now().plusSeconds((long)(card.getIntervalDays()*86400))); }
-            case 4 -> { card.setEaseFactor(Math.min(3.5,ease+0.15)); card.setIntervalDays(Math.max(1,interval*card.getEaseFactor()*1.3)); card.setRepetitions(card.getRepetitions()+1); card.setDue(Instant.now().plusSeconds((long)(card.getIntervalDays()*86400))); }
-        }
-    }
-    private void applyRelearning(Card card, int rating) {
-        if(rating<=2) card.setDue(Instant.now().plusSeconds(600L));
-        else { card.setState("review"); card.setIntervalDays(Math.max(1,card.getIntervalDays()*(rating==3?0.7:1.0))); card.setDue(Instant.now().plusSeconds((long)(card.getIntervalDays()*86400))); }
-    }
 }
