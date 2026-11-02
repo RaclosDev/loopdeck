@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FsrsSchedulerService {
+    private static final String FSRS_STATE_PREFIX = "FSRS-5:";
     private final ReviewRepository reviews;
 
     private Scheduler schedulerFor(Card card) {
@@ -42,7 +43,10 @@ public class FsrsSchedulerService {
 
     private io.github.openspacedrepetition.Card stateFor(Card card, Scheduler scheduler, List<Review> loadedHistory) {
         if (card.getFsrsState() != null && !card.getFsrsState().isBlank()) {
-            return io.github.openspacedrepetition.Card.fromJson(card.getFsrsState());
+            if (!card.getFsrsState().startsWith(FSRS_STATE_PREFIX)) {
+                throw new IllegalStateException("Unsupported FSRS card-state version for card " + card.getId());
+            }
+            return io.github.openspacedrepetition.Card.fromJson(card.getFsrsState().substring(FSRS_STATE_PREFIX.length()));
         }
 
         List<Review> history = loadedHistory.stream()
@@ -124,7 +128,7 @@ public class FsrsSchedulerService {
             next.setDue(now.plus(Duration.ofMinutes(customIntervalMinutes)));
         }
 
-        card.setFsrsState(next.toJson());
+        card.setFsrsState(FSRS_STATE_PREFIX + next.toJson());
         card.setDue(next.getDue());
         card.setState(next.getState().name().toLowerCase());
         card.setLearningStep(next.getStep() == null ? 0 : next.getStep());
