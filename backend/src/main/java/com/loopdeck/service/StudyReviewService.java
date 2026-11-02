@@ -21,7 +21,7 @@ public class StudyReviewService {
     private final CardRepository cards;
     private final DeckRepository decks;
     private final ReviewRepository reviews;
-    private final CardService scheduler;
+    private final FsrsSchedulerService scheduler;
     private final ObjectMapper json;
     private final jakarta.persistence.EntityManager entityManager;
 
@@ -54,11 +54,7 @@ public class StudyReviewService {
         if (card.getState() == null || !java.util.List.of("new", "learning", "review", "relearning").contains(card.getState()))
             throw new ConflictException("El estado de la tarjeta no es válido");
         String previous = encode(CardSchedule.capture(card));
-        scheduler.applySmTwo(card, rating);
-        if (customIntervalMinutes != null) {
-            card.setIntervalDays(customIntervalMinutes / 1440.0);
-            card.setDue(Instant.now().plus(customIntervalMinutes, ChronoUnit.MINUTES));
-        }
+        scheduler.apply(card, rating, customIntervalMinutes);
         cards.save(card);
         Instant timestamp = Instant.now().truncatedTo(ChronoUnit.MICROS);
         var latest = reviews.findFirstByCardIdOrderByReviewedAtDescIdDesc(cardId);
