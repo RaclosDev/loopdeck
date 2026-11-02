@@ -53,6 +53,26 @@ class FsrsSchedulerServiceTest {
     }
 
     @Test
+    void previewMatchesThePersistedScheduleForTheSameCardAndRating() {
+        ReviewRepository reviews = mock(ReviewRepository.class);
+        when(reviews.findByCardIdOrderByReviewedAtDesc("card-4")).thenReturn(List.of());
+        FsrsSchedulerService scheduler = new FsrsSchedulerService(reviews);
+        Card card = new Card();
+        card.setId("card-4");
+        card.setState("new");
+        card.setLearningStep(0);
+        scheduler.apply(card, 3, null);
+        var preview = scheduler.preview(card);
+        Instant before = Instant.now();
+
+        scheduler.apply(card, 3, null);
+
+        long actualMinutes = Duration.between(before, card.getDue()).toMinutes();
+        String actual = actualMinutes < 60 ? actualMinutes + "m" : Math.round(actualMinutes / 1440.0) + "d";
+        assertEquals(preview.get(3), actual);
+    }
+
+    @Test
     void customIntervalOverridesDueDateWithoutDiscardingFsrsMemory() {
         ReviewRepository reviews = mock(ReviewRepository.class);
         when(reviews.findByCardIdOrderByReviewedAtDesc("card-3")).thenReturn(List.of());
