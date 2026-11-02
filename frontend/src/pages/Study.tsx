@@ -15,44 +15,6 @@ import { Skeleton } from '../components/ui/skeleton';
 import { sanitizeHtml } from '../lib/utils';
 import CustomReviewScheduleDialog from '../components/CustomReviewScheduleDialog';
 
-function getIntervalLabel(card: Card, rating: number) {
-  if (!card) return '';
-  const ease = card.easeFactor || 2.5;
-  const interval = card.intervalDays || 0;
-  const step = card.learningStep || 0;
-  const learningSteps = [1, 10];
-
-  if (card.state === 'new' || card.state === 'learning') {
-    if (rating === 1) return formatMinutes(learningSteps[0]);
-    if (rating === 2) {
-      const curr = learningSteps[step] || learningSteps[0] || 1;
-      const next = learningSteps[step + 1] || curr * 2;
-      return formatMinutes(Math.round((curr + next) / 2));
-    }
-    if (rating === 3) {
-      const nextStep = step + 1;
-      if (nextStep >= learningSteps.length) return '1d';
-      return formatMinutes(learningSteps[nextStep]);
-    }
-    return '4d';
-  }
-  if (card.state === 'relearning') {
-    if (rating === 1) return '10m';
-    if (rating === 2) return '10m';
-    if (rating === 3) return `${Math.max(1, Math.round(interval * 0.7))}d`;
-    return `${Math.max(1, Math.round(interval))}d`;
-  }
-  if (rating === 1) return '10m';
-  if (rating === 2) return `${Math.max(1, Math.round(interval * 1.2))}d`;
-  if (rating === 3) return `${Math.max(1, Math.round(interval * ease))}d`;
-  return `${Math.max(1, Math.round(interval * Math.min(ease + 0.15, 3.5) * 1.3))}d`;
-}
-
-function formatMinutes(m: number) {
-  if (m < 60) return `${m}m`;
-  return `${Math.round(m / 60)}h`;
-}
-
 export default function Study() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
@@ -93,11 +55,7 @@ export default function Study() {
   const card = currentPair?.card;
   const fields = useMemo(() => (note ? parseNoteFields(note.fieldsJson || '{}') : {}), [note]);
 
-  const intervals = useMemo(() => {
-    return Object.fromEntries(
-      [1, 2, 3, 4].map((rating) => [rating, card ? getIntervalLabel(card, rating) : '…']),
-    );
-  }, [card]);
+  const intervals = useMemo(() => currentPair?.intervals ?? null, [currentPair]);
 
   const frontHtml = useMemo(() => {
     if (!note || !card) return '';
