@@ -30,7 +30,9 @@ public class FsrsSchedulerService {
     private final ReviewRepository reviews;
 
     private Scheduler schedulerFor(Card card) {
-        int seed = card.getId() == null ? 1 : (card.getId().hashCode() & 0x7fffffff);
+        String seedMaterial = (card.getId() == null ? "new-card" : card.getId()) + ":"
+                + (card.getRepetitions() == null ? 0 : card.getRepetitions());
+        int seed = seedMaterial.hashCode() & 0x7fffffff;
         return Scheduler.builder()
                 .desiredRetention(0.90)
                 .learningSteps(new Duration[]{Duration.ofMinutes(1), Duration.ofMinutes(10)})
