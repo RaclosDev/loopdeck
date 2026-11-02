@@ -46,6 +46,7 @@ class FsrsSchedulerServiceTest {
         scheduler.apply(card, 3, null);
 
         assertNotNull(card.getFsrsState());
+        assertTrue(card.getFsrsState().startsWith("FSRS-5:"));
         assertFalse(card.getFsrsState().isBlank());
         assertEquals("learning", card.getState());
         assertTrue(Duration.between(before, card.getDue()).toMinutes() >= 9);
@@ -68,7 +69,9 @@ class FsrsSchedulerServiceTest {
         scheduler.apply(card, 3, null);
 
         long actualMinutes = Duration.between(before, card.getDue()).toMinutes();
-        String actual = actualMinutes < 60 ? actualMinutes + "m" : Math.round(actualMinutes / 1440.0) + "d";
+        String actual = actualMinutes < 60 ? actualMinutes + "m"
+                : actualMinutes < 1440 ? Math.round(actualMinutes / 60.0) + "h"
+                : Math.round(actualMinutes / 1440.0) + "d";
         assertEquals(preview.get(3), actual);
     }
 
