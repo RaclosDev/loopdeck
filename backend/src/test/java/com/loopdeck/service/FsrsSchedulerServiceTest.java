@@ -16,7 +16,7 @@ class FsrsSchedulerServiceTest {
     @Test
     void previewReturnsAllFourServerOwnedOptionsForANewCard() {
         ReviewRepository reviews = mock(ReviewRepository.class);
-        when(reviews.findByCardIdOrderByReviewedAtDesc("card-1")).thenReturn(List.of());
+        when(reviews.findByCardIdInAndUndoneFalseOrderByReviewedAtAsc(List.of("card-1"))).thenReturn(List.of());
         FsrsSchedulerService scheduler = new FsrsSchedulerService(reviews);
         Card card = new Card();
         card.setId("card-1");
