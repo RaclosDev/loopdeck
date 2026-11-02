@@ -1,4 +1,3 @@
-import { RotateCcw } from 'lucide-react';
 import { sanitizeHtml } from '../lib/utils';
 
 interface FlashCardProps {
@@ -87,26 +86,6 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(front || '') }}
           />
         </div>
-
-        {!isFlipped && (
-          <div
-            style={{
-              marginTop: '1rem',
-              paddingTop: '1rem',
-              flexShrink: 0,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '0.5rem',
-              fontSize: '0.85rem',
-              color: 'var(--text-muted)',
-              borderTop: '1px solid var(--border-subtle)',
-            }}
-          >
-            <RotateCcw size={18} />
-            <span style={{ fontWeight: 500, letterSpacing: '0.05em' }}>Toca para voltear</span>
-          </div>
-        )}
       </div>
 
       {/* Back */}

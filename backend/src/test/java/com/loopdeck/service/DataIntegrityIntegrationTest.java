@@ -25,6 +25,7 @@ class DataIntegrityIntegrationTest {
     @Autowired NoteImportService imports;
     @Autowired NoteQueryService queries;
     @Autowired TemplateService templates;
+    @Autowired StudyPreparationService preparation;
     @Autowired javax.sql.DataSource dataSource;
     String owner, other;
     @BeforeEach void seedUsers() {
@@ -35,6 +36,33 @@ class DataIntegrityIntegrationTest {
         for (String user : List.of(owner, other)) jdbc.update("DELETE FROM users WHERE id = ?", user);
     }
     Deck deck(String user) { return decks.createDeck(user, new DeckService.CreateDeckRequest("Mazo", "", null)); }
+    @Test void preparationIsBoundedPerDeckOwnedOrderedAndExpiresAtNextDue() {
+        var first = deck(owner); var second = deck(owner); var foreign = deck(other);
+        for (var selected : List.of(first, second)) {
+            for (int i = 0; i < 5; i++) note(selected, "basic", "{\"front\":\"f\",\"back\":\"b\"}");
+        }
+        var future = cardRepository.findByDeckId(first.getId()).get(0);
+        future.setState("learning"); future.setDue(Instant.now().plusSeconds(20)); cardRepository.save(future);
+        var dueReview = cardRepository.findByDeckId(first.getId()).stream().filter(card -> !card.getId().equals(future.getId())).findFirst().orElseThrow();
+        dueReview.setState("review"); dueReview.setDue(Instant.now().minusSeconds(10)); cardRepository.save(dueReview);
+        for (String order : List.of("new_first", "review_first", "mixed")) {
+            var result = preparation.prepare(owner, List.of(first.getId(), second.getId()), order);
+            for (var selected : List.of(first, second)) {
+                var batch = result.get(selected.getId()).batch();
+                assertEquals(2, batch.items().size()); assertTrue(batch.hasMore());
+                assertTrue(batch.items().stream().allMatch(pair -> selected.getId().equals(pair.note().getDeckId())));
+                assertEquals(2, batch.items().stream().map(pair -> pair.card().getId()).distinct().count());
+            }
+            if (order.equals("new_first")) assertTrue(result.get(first.getId()).batch().items().stream().allMatch(pair -> pair.card().getState().equals("new")));
+            if (order.equals("review_first")) assertEquals("review", result.get(first.getId()).batch().items().get(0).card().getState());
+            assertTrue(result.get(first.getId()).validForMs() > 0 && result.get(first.getId()).validForMs() <= 20_000);
+            assertEquals(60_000, result.get(second.getId()).validForMs());
+        }
+        assertThrows(com.loopdeck.exception.InvalidInputException.class, () -> preparation.prepare(owner, List.of(first.getId(), foreign.getId()), "new_first"));
+        assertThrows(com.loopdeck.exception.InvalidInputException.class, () -> preparation.prepare(owner, Collections.nCopies(13, first.getId()), "new_first"));
+        var empty = deck(owner);
+        assertTrue(preparation.prepare(owner, List.of(empty.getId()), "new_first").get(empty.getId()).batch().items().isEmpty());
+    }
     @Test @org.springframework.transaction.annotation.Transactional
     void legacyClozeMigrationKeepsTheOriginalHistoryAndAddsMissingIndices() {
         var deck = deck(owner);

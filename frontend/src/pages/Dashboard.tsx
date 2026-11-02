@@ -173,6 +173,7 @@ export default function Dashboard() {
                     <Link
                       className="sheet-action sheet-action--primary"
                       to={due ? `/study/${deck.id}` : `/hub/${deck.id}`}
+                      state={{ returnTo: '/' }}
                     >
                       <Play size={16} aria-hidden="true" />{' '}
                       {due ? `Repasar (${due.toLocaleString('es-ES')})` : 'Abrir mazo'}
