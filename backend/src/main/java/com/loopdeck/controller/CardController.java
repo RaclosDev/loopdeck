@@ -23,6 +23,15 @@ public class CardController {
     private final com.loopdeck.service.NoteQueryService noteQueries;
     private final com.loopdeck.service.NoteImportService imports;
     private final com.loopdeck.service.StudyReviewService reviewService;
+    private final com.loopdeck.service.StudyPreparationService preparation;
+
+    public record PrepareBody(List<String> deckIds, String order) {}
+    @PostMapping("/study/prepare")
+    public ResponseEntity<Map<String, com.loopdeck.service.StudyPreparationService.PreparedStudy>> prepare(
+            Authentication auth, @RequestBody PrepareBody body) {
+        if (body == null) throw new com.loopdeck.exception.InvalidInputException("Preparación no válida");
+        return ResponseEntity.ok(preparation.prepare(auth.getName(), body.deckIds(), body.order()));
+    }
 
     public record CreateNoteBody(
         @NotBlank String deckId,
@@ -39,7 +48,8 @@ public class CardController {
     public record ReviewBody(
         @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(4) int rating,
         @jakarta.validation.constraints.Min(0) int timeTakenMs,
-        String requestId
+        String requestId,
+        @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(5_256_000) Integer customIntervalMinutes
     ) {}
 
 
@@ -122,7 +132,7 @@ public class CardController {
     public ResponseEntity<com.loopdeck.service.StudyReviewService.ReviewResult> review(Authentication auth,
                                        @PathVariable String cardId,
                                        @Valid @RequestBody ReviewBody body) {
-        return ResponseEntity.ok(reviewService.review(auth.getName(), cardId, body.rating(), body.timeTakenMs(), body.requestId()));
+        return ResponseEntity.ok(reviewService.review(auth.getName(), cardId, body.rating(), body.timeTakenMs(), body.requestId(), body.customIntervalMinutes()));
     }
 
     public record RestoreBody(String reviewId, String state, java.time.Instant due, Double intervalDays, Double easeFactor,

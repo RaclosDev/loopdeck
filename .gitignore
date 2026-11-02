@@ -72,7 +72,18 @@ temp_*.py
 public/workbox-*.js
 
 # ==============================================================================
-# AI Config
+# Local tools and working notes
 # ==============================================================================
 AGENTS.md
+AGENTS.override.md
+CLAUDE.md
+GEMINI.md
 .agents/
+.codex/
+.claude/
+.gemini/
+graphify-out/
+/DESIGN.md
+/anti-slop/
+/docs/audits/
+/docs/plans/

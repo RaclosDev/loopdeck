@@ -21,7 +21,7 @@ public class StudyReviewService {
     private final CardRepository cards;
     private final DeckRepository decks;
     private final ReviewRepository reviews;
-    private final CardService scheduler;
+    private final FsrsSchedulerService scheduler;
     private final ObjectMapper json;
     private final jakarta.persistence.EntityManager entityManager;
 
@@ -30,7 +30,14 @@ public class StudyReviewService {
 
     @Transactional
     public ReviewResult review(String user, String cardId, int rating, int timeTakenMs, String requestId) {
+        return review(user, cardId, rating, timeTakenMs, requestId, null);
+    }
+
+    @Transactional
+    public ReviewResult review(String user, String cardId, int rating, int timeTakenMs, String requestId, Integer customIntervalMinutes) {
         if (rating < 1 || rating > 4 || timeTakenMs < 0) throw new InvalidInputException("Calificación o tiempo no válido");
+        if (customIntervalMinutes != null && (customIntervalMinutes < 1 || customIntervalMinutes > 5_256_000))
+            throw new InvalidInputException("El intervalo personalizado no es válido");
         String id = requestId == null ? UUID.randomUUID().toString() : requestId;
         try { if (!UUID.fromString(id).toString().equalsIgnoreCase(id)) throw new IllegalArgumentException(); id = UUID.fromString(id).toString(); }
         catch (IllegalArgumentException ex) { throw new InvalidInputException("Identificador de acción no válido"); }
@@ -38,7 +45,8 @@ public class StudyReviewService {
         var existing = reviews.findById(id);
         if (existing.isPresent()) {
             var review = existing.get();
-            if (!cardId.equals(review.getCardId()) || review.getRating() != rating || !Objects.equals(review.getTimeTakenMs(), timeTakenMs > 0 ? timeTakenMs : null))
+            boolean sameCustomInterval = customIntervalMinutes == null || Math.abs(review.getIntervalDays() - customIntervalMinutes / 1440.0) < 0.000_001;
+            if (!cardId.equals(review.getCardId()) || review.getRating() != rating || !Objects.equals(review.getTimeTakenMs(), timeTakenMs > 0 ? timeTakenMs : null) || !sameCustomInterval)
                 throw new ConflictException("El identificador ya corresponde a otra acción");
             if (review.isUndone()) throw new ConflictException("Esta revisión ya se ha deshecho");
             return new ReviewResult(card, id);
@@ -46,7 +54,7 @@ public class StudyReviewService {
         if (card.getState() == null || !java.util.List.of("new", "learning", "review", "relearning").contains(card.getState()))
             throw new ConflictException("El estado de la tarjeta no es válido");
         String previous = encode(CardSchedule.capture(card));
-        scheduler.applySmTwo(card, rating);
+        scheduler.apply(card, rating, customIntervalMinutes);
         cards.save(card);
         Instant timestamp = Instant.now().truncatedTo(ChronoUnit.MICROS);
         var latest = reviews.findFirstByCardIdOrderByReviewedAtDescIdDesc(cardId);

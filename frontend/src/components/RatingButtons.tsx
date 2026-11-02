@@ -1,3 +1,5 @@
+import { Pencil } from 'lucide-react';
+
 const RATING_STYLES = {
   again: { color: 'text-red-500', bgHover: 'hover:bg-red-500/10', border: 'border-red-500/20' },
   hard: {
@@ -16,10 +18,11 @@ const RATING_STYLES = {
 interface RatingButtonsProps {
   intervals: Record<number, string> | null;
   onRate: (rating: number) => void;
+  onCustomSchedule?: () => void;
   disabled?: boolean;
 }
 
-function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
+function RatingButtons({ intervals, onRate, onCustomSchedule, disabled }: RatingButtonsProps) {
   if (!intervals) return null;
 
   const buttons = [
@@ -67,6 +70,21 @@ function RatingButtons({ intervals, onRate, disabled }: RatingButtonsProps) {
           </button>
         );
       })}
+      {onCustomSchedule && (
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={(event) => {
+            event.stopPropagation();
+            onCustomSchedule();
+          }}
+          aria-label="Elegir cuándo repasar esta tarjeta"
+          className="col-span-2 flex min-h-12 items-center justify-center gap-2 rounded-md border border-dashed border-[var(--border-medium)] bg-card px-4 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-[var(--bg-card-hover)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Pencil size={16} aria-hidden="true" />
+          Elegir otro momento
+        </button>
+      )}
     </div>
   );
 }

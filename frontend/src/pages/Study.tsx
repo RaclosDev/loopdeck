@@ -2,7 +2,7 @@ import { parseNoteFields, renderCloze } from '../lib/noteFields';
 import useStore from '../store/useStore';
 import StudyLoadError from '../components/StudyLoadError';
 import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { marked } from 'marked';
 import { ArrowLeft, Undo2, Eye, Timer, CheckCircle2, Trophy } from 'lucide-react';
 import FlashCard from '../components/FlashCard';
@@ -10,51 +10,23 @@ import RatingButtons from '../components/RatingButtons';
 import { useDecks } from '../hooks/useDecks';
 import { useStudySession } from '../hooks/useStudySession';
 import { useAuth } from '../context/AuthContext';
-import { Card } from '../types';
 import { Skeleton } from '../components/ui/skeleton';
 import { sanitizeHtml } from '../lib/utils';
-
-function getIntervalLabel(card: Card, rating: number) {
-  if (!card) return '';
-  const ease = card.easeFactor || 2.5;
-  const interval = card.intervalDays || 0;
-  const step = card.learningStep || 0;
-  const learningSteps = [1, 10];
-
-  if (card.state === 'new' || card.state === 'learning') {
-    if (rating === 1) return formatMinutes(learningSteps[0]);
-    if (rating === 2) {
-      const curr = learningSteps[step] || learningSteps[0] || 1;
-      const next = learningSteps[step + 1] || curr * 2;
-      return formatMinutes(Math.round((curr + next) / 2));
-    }
-    if (rating === 3) {
-      const nextStep = step + 1;
-      if (nextStep >= learningSteps.length) return '1d';
-      return formatMinutes(learningSteps[nextStep]);
-    }
-    return '4d';
-  }
-  if (card.state === 'relearning') {
-    if (rating === 1) return '10m';
-    if (rating === 2) return '10m';
-    if (rating === 3) return `${Math.max(1, Math.round(interval * 0.7))}d`;
-    return `${Math.max(1, Math.round(interval))}d`;
-  }
-  if (rating === 1) return '10m';
-  if (rating === 2) return `${Math.max(1, Math.round(interval * 1.2))}d`;
-  if (rating === 3) return `${Math.max(1, Math.round(interval * ease))}d`;
-  return `${Math.max(1, Math.round(interval * Math.min(ease + 0.15, 3.5) * 1.3))}d`;
-}
-
-function formatMinutes(m: number) {
-  if (m < 60) return `${m}m`;
-  return `${Math.round(m / 60)}h`;
-}
+import CustomReviewScheduleDialog from '../components/CustomReviewScheduleDialog';
 
 export default function Study() {
   const { deckId } = useParams<{ deckId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const navigationState: unknown = location.state;
+  const returnTo =
+    navigationState &&
+    typeof navigationState === 'object' &&
+    'returnTo' in navigationState &&
+    navigationState.returnTo === '/'
+      ? '/'
+      : `/hub/${deckId}`;
+  const returnLabel = returnTo === '/' ? 'Volver a Mazos' : 'Volver al centro del mazo';
   const settings = useStore((s) => s.settings);
   const { user } = useAuth();
 
@@ -75,8 +47,10 @@ export default function Study() {
     handleRate,
     handleUndo,
     handleFlip,
+    handleCustomInterval,
   } = useStudySession(deckId, settings?.studyOrder || 'new_first', user?.id);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [customScheduleOpen, setCustomScheduleOpen] = useState(false);
   useEffect(() => {
     if (!settings?.showTimer || isComplete) return;
     const timer = setInterval(
@@ -90,11 +64,7 @@ export default function Study() {
   const card = currentPair?.card;
   const fields = useMemo(() => (note ? parseNoteFields(note.fieldsJson || '{}') : {}), [note]);
 
-  const intervals = useMemo(() => {
-    return Object.fromEntries(
-      [1, 2, 3, 4].map((rating) => [rating, card ? getIntervalLabel(card, rating) : '…']),
-    );
-  }, [card]);
+  const intervals = useMemo(() => currentPair?.intervals ?? null, [currentPair]);
 
   const frontHtml = useMemo(() => {
     if (!note || !card) return '';
@@ -126,7 +96,6 @@ export default function Study() {
       if (
         e.defaultPrevented ||
         e.repeat ||
-        saving ||
         saveError ||
         loading ||
         loadError ||
@@ -142,7 +111,7 @@ export default function Study() {
       } else if (e.key === 'z' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         handleUndo();
-      } else if (e.key === 'Escape') navigate('/');
+      } else if (e.key === 'Escape') navigate(returnTo);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -152,6 +121,7 @@ export default function Study() {
     queue,
     undoStack,
     navigate,
+    returnTo,
     saving,
     saveError,
     loading,
@@ -164,6 +134,7 @@ export default function Study() {
     return (
       <StudyLoadError
         deckId={deckId}
+        returnTo={returnTo}
         onRetry={() => {
           void retryDecks();
           void loadNext();
@@ -171,7 +142,22 @@ export default function Study() {
       />
     );
 
-  if (loading) {
+  if (saveError) {
+    return (
+      <div className="page-state" role="alert">
+        <h1 className="study-title">No se han confirmado tus respuestas</h1>
+        <p>Las conservamos para reintentar el guardado sin duplicar los repasos.</p>
+        <button className="sheet-action" disabled={saving} onClick={() => void handleRate(0)}>
+          Reintentar guardado
+        </button>
+        <button className="sheet-action" onClick={() => navigate(returnTo)}>
+          {returnLabel}
+        </button>
+      </div>
+    );
+  }
+
+  if (loading || (queue.length === 0 && saving)) {
     return (
       <div className="study-container">
         <Skeleton className="w-[120px] h-[32px] mx-auto mb-4" />
@@ -270,9 +256,9 @@ export default function Study() {
         <button
           className="btn btn-primary"
           style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate(returnTo)}
         >
-          <ArrowLeft size={20} /> Volver a Mazos
+          <ArrowLeft size={20} /> {returnLabel}
         </button>
       </div>
     );
@@ -289,9 +275,9 @@ export default function Study() {
         <button
           className="btn btn-primary"
           style={{ padding: '1rem 2rem', fontSize: '1.1rem' }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate(returnTo)}
         >
-          <ArrowLeft size={20} /> Volver a Mazos
+          <ArrowLeft size={20} /> {returnLabel}
         </button>
       </div>
     );
@@ -317,8 +303,8 @@ export default function Study() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <button
-            onClick={() => navigate(`/hub/${deckId}`)}
-            aria-label="Volver al centro del mazo"
+            onClick={() => navigate(returnTo)}
+            aria-label={returnLabel}
             style={{
               padding: '0.5rem',
               marginLeft: '-0.5rem',
@@ -427,26 +413,12 @@ export default function Study() {
             </button>
           ) : (
             <>
-              {saveError && (
-                <div role="alert" className="card">
-                  <p>
-                    No se ha confirmado el guardado. Reintenta la misma respuesta para continuar.
-                  </p>
-                  <button
-                    className="sheet-action"
-                    disabled={saving}
-                    onClick={() => void handleRate(0)}
-                  >
-                    Reintentar guardado
-                  </button>
-                </div>
-              )}
               <RatingButtons
                 intervals={intervals}
                 onRate={handleRate}
-                disabled={saving || saveError}
+                onCustomSchedule={() => setCustomScheduleOpen(true)}
+                disabled={saveError}
               />
-              {saving && <p role="status">Guardando revisión…</p>}
             </>
           )}
 
@@ -468,6 +440,11 @@ export default function Study() {
           </div>
         </div>
       </div>
+      <CustomReviewScheduleDialog
+        open={customScheduleOpen}
+        onOpenChange={setCustomScheduleOpen}
+        onSchedule={(minutes) => void handleCustomInterval(minutes)}
+      />
     </div>
   );
 }
