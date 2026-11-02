@@ -28,7 +28,7 @@ function session(client = new QueryClient({ defaultOptions: { queries: { retry: 
 }
 beforeEach(() => vi.resetAllMocks());
 
-it('keeps a failed review visible and retries the exact action only once', async () => {
+it('retains a failed background review and retries the exact action only once', async () => {
   vi.mocked(studyApi.getBatch).mockResolvedValueOnce(batch()).mockResolvedValue(batch([]));
   vi.mocked(studyApi.reviewCard)
     .mockRejectedValueOnce(new Error('offline'))
@@ -37,7 +37,7 @@ it('keeps a failed review visible and retries the exact action only once', async
   await waitFor(() => expect(result.current.loading).toBe(false));
   act(() => result.current.handleFlip());
   await act(() => result.current.handleRate(3));
-  expect(result.current.queue).toHaveLength(1);
+  expect(result.current.queue).toHaveLength(0);
   expect(result.current.sessionStats.reviewed).toBe(0);
   expect(result.current.saveError).toBe(true);
   await act(() => result.current.handleRate(0));
@@ -50,8 +50,11 @@ it('keeps a failed review visible and retries the exact action only once', async
   expect(result.current.isComplete).toBe(true);
 });
 
-it('blocks duplicate clicks and never advances until the server confirms', async () => {
-  vi.mocked(studyApi.getBatch).mockResolvedValueOnce(batch()).mockResolvedValue(batch([]));
+it('advances immediately and accepts the next answer while saves run in order', async () => {
+  const second = { ...pair, card: { ...pair.card, id: 'two' } };
+  vi.mocked(studyApi.getBatch)
+    .mockResolvedValueOnce(batch([pair, second]))
+    .mockResolvedValue(batch([]));
   let confirm!: (value: { card: DueCardDto['card']; reviewId: string }) => void;
   vi.mocked(studyApi.reviewCard).mockReturnValue(
     new Promise((resolve) => {
@@ -67,12 +70,19 @@ it('blocks duplicate clicks and never advances until the server confirms', async
     void result.current.handleRate(4);
   });
   await waitFor(() => expect(studyApi.reviewCard).toHaveBeenCalledTimes(1));
-  expect(result.current.queue).toHaveLength(1);
+  expect(result.current.queue[0].card.id).toBe('two');
+  expect(result.current.isFlipped).toBe(false);
+  act(() => result.current.handleFlip());
+  act(() => {
+    void result.current.handleRate(3);
+  });
+  expect(result.current.queue).toHaveLength(0);
+  expect(studyApi.reviewCard).toHaveBeenCalledTimes(1);
   await act(async () => {
     confirm({ card: pair.card, reviewId: 'action' });
     await request;
   });
-  expect(result.current.sessionStats.reviewed).toBe(1);
+  expect(result.current.sessionStats.reviewed).toBe(2);
 });
 
 it('retries a failed next block without submitting the confirmed review again', async () => {
@@ -90,6 +100,80 @@ it('retries a failed next block without submitting the confirmed review again', 
   expect(result.current.queue[0].card.id).toBe('next');
   expect(result.current.sessionStats.reviewed).toBe(1);
   expect(studyApi.reviewCard).toHaveBeenCalledTimes(1);
+});
+
+it('retains later answers behind a failed write and retries with their original request ids', async () => {
+  const second = { ...pair, card: { ...pair.card, id: 'two' } };
+  vi.mocked(studyApi.getBatch)
+    .mockResolvedValueOnce(batch([pair, second]))
+    .mockResolvedValue(batch([]));
+  let reject!: (error: Error) => void;
+  vi.mocked(studyApi.reviewCard)
+    .mockReturnValueOnce(
+      new Promise((_, fail) => {
+        reject = fail;
+      }),
+    )
+    .mockResolvedValue({ card: pair.card, reviewId: 'action' });
+  const { result } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  let request!: Promise<void>;
+  act(() => {
+    request = result.current.handleRate(4);
+  });
+  await waitFor(() => expect(studyApi.reviewCard).toHaveBeenCalledTimes(1));
+  act(() => result.current.handleFlip());
+  act(() => {
+    void result.current.handleRate(2);
+  });
+  await act(async () => {
+    reject(new Error('offline'));
+    await request;
+  });
+  expect(result.current.saveError).toBe(true);
+  expect(result.current.isComplete).toBe(false);
+  expect(result.current.sessionStats.reviewed).toBe(0);
+  await act(() => result.current.handleRate(0));
+  const calls = vi.mocked(studyApi.reviewCard).mock.calls;
+  expect(calls[1]).toEqual(calls[0]);
+  expect(calls[2]).toEqual(['two', expect.objectContaining({ rating: 2 })]);
+  expect(calls[2][1].requestId).not.toBe(calls[0][1].requestId);
+  expect(result.current.sessionStats).toMatchObject({ reviewed: 2, correct: 1 });
+  expect(result.current.isComplete).toBe(true);
+});
+
+it('continues saving queued answers after leaving the study screen', async () => {
+  const second = { ...pair, card: { ...pair.card, id: 'two' } };
+  vi.mocked(studyApi.getBatch).mockResolvedValue(batch([pair, second]));
+  let confirm!: (value: { card: DueCardDto['card']; reviewId: string }) => void;
+  vi.mocked(studyApi.reviewCard)
+    .mockReturnValueOnce(
+      new Promise((resolve) => {
+        confirm = resolve;
+      }),
+    )
+    .mockResolvedValue({ card: second.card, reviewId: 'second' });
+  const { result, unmount } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  let request!: Promise<void>;
+  act(() => {
+    request = result.current.handleRate(4);
+  });
+  await waitFor(() => expect(studyApi.reviewCard).toHaveBeenCalledTimes(1));
+  act(() => result.current.handleFlip());
+  act(() => {
+    void result.current.handleRate(3);
+  });
+  unmount();
+  confirm({ card: pair.card, reviewId: 'first' });
+  await request;
+  expect(studyApi.reviewCard).toHaveBeenCalledTimes(2);
+  expect(studyApi.reviewCard).toHaveBeenLastCalledWith(
+    'two',
+    expect.objectContaining({ rating: 3 }),
+  );
 });
 
 it('undo uses the server action and deduplicates a card already returned by the next block', async () => {

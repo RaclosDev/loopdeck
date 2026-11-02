@@ -98,8 +98,8 @@ export default function Layout() {
         navigate(href);
       }
     };
-    document.addEventListener('click', handleGlobalClick, { capture: true });
-    return () => document.removeEventListener('click', handleGlobalClick, { capture: true });
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
   }, [navigate]);
 
   const closeSidebar = () => setSidebarOpen(false);

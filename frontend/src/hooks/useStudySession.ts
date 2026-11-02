@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  createElement,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type SetStateAction,
+} from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import toast from 'react-hot-toast';
@@ -13,7 +20,13 @@ type PendingReview = { pair: DueCardDto; body: ReviewBody };
 
 export function useStudySession(deckId: string | undefined, order: string, account?: string) {
   const client = useQueryClient();
-  const [queue, setQueue] = useState<DueCardDto[]>([]);
+  const [queue, setQueueState] = useState<DueCardDto[]>([]);
+  const queueRef = useRef<DueCardDto[]>([]);
+  const revealed = useRef<string | null>(null);
+  const setQueue = useCallback((value: SetStateAction<DueCardDto[]>) => {
+    queueRef.current = typeof value === 'function' ? value(queueRef.current) : value;
+    setQueueState(queueRef.current);
+  }, []);
   const [counts, setCounts] = useState({ new: 0, learning: 0, review: 0 });
   const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,11 +41,12 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     startTime: Date.now(),
   });
   const busy = useRef(false);
-  const pending = useRef<PendingReview | null>(null);
+  const pending = useRef<PendingReview[]>([]);
   const restored = useRef<DueCardDto | null>(null);
   const started = useRef(Date.now());
   const generation = useRef(0);
   const writeEpoch = useRef(0);
+  const retryOnLeave = useRef<(() => void) | null>(null);
   const initialPreview = useRef<{ key: string; value: PreparedStudy } | null>(null);
 
   const fillRemaining = useCallback(
@@ -100,6 +114,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
           : batch.items;
         restored.current = null;
         setQueue(items);
+        revealed.current = null;
         setIsFlipped(false);
         setCounts({
           new: batch.counts.newCount,
@@ -120,7 +135,9 @@ export function useStudySession(deckId: string | undefined, order: string, accou
 
   useEffect(() => {
     const version = ++generation.current;
-    pending.current = null;
+    pending.current = [];
+    revealed.current = null;
+    retryOnLeave.current = null;
     restored.current = null;
     writeEpoch.current++;
     busy.current = false;
@@ -133,72 +150,122 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     void loadNext(version, true);
     return () => {
       generation.current++;
+      retryOnLeave.current?.();
     };
   }, [loadNext]);
 
-  const handleRate = async (rating: number, customIntervalMinutes?: number) => {
-    if (busy.current || loading || loadError || !isFlipped || !queue[0]) return;
-    const action = pending.current || {
-      pair: queue[0],
-      body: {
-        rating,
-        timeTakenMs: Math.min(2_147_483_647, Date.now() - started.current),
-        requestId: crypto.randomUUID(),
-        ...(customIntervalMinutes ? { customIntervalMinutes } : {}),
-      },
-    };
-    pending.current = action;
+  const flushReviews = async () => {
+    if (busy.current) return;
+    const actions = pending.current;
+    const version = generation.current;
     busy.current = true;
-    writeEpoch.current++;
     setSaving(true);
     setSaveError(false);
-    const version = generation.current;
+    retryOnLeave.current = null;
     try {
       await client.cancelQueries({ queryKey: ['studyBatch', deckId, account, order] });
-      if (version !== generation.current) return;
-      const result = await studyApi.reviewCard(action.pair.card.id, action.body);
-      void invalidateStudyData(client, deckId);
-      if (version !== generation.current) return;
-      pending.current = null;
-      setUndoStack((stack) => [
-        ...stack,
-        { pair: action.pair, reviewId: result.reviewId, rating: action.body.rating },
-      ]);
-      setSessionStats((stats) => ({
-        ...stats,
-        reviewed: stats.reviewed + 1,
-        correct: stats.correct + Number(action.body.rating >= 3),
-      }));
-      const state = action.pair.card.state;
-      setCounts((previous) => {
-        const key = state === 'new' ? 'new' : state.includes('learn') ? 'learning' : 'review';
-        return { ...previous, [key]: Math.max(0, previous[key] - 1) };
-      });
-      setIsFlipped(false);
-      const remaining = queue.slice(1);
-      setQueue(remaining);
-      started.current = Date.now();
-      if (!remaining.length) await loadNext(version);
+      while (actions.length) {
+        const action = actions[0];
+        const result = await studyApi.reviewCard(action.pair.card.id, action.body);
+        actions.shift();
+        void invalidateStudyData(client, deckId);
+        if (version !== generation.current) continue;
+        setUndoStack((stack) => [
+          ...stack,
+          { pair: action.pair, reviewId: result.reviewId, rating: action.body.rating },
+        ]);
+        setSessionStats((stats) => ({
+          ...stats,
+          reviewed: stats.reviewed + 1,
+          correct: stats.correct + Number(action.body.rating >= 3),
+        }));
+      }
+      if (version === generation.current && !queueRef.current.length) await loadNext(version);
     } catch (error) {
-      if (version !== generation.current) return;
-      if (isAxiosError(error) && error.response && error.response.status < 500) {
-        pending.current = null;
-        setLoadError(true);
-        toast.error('La tarjeta ha cambiado. Recarga las pendientes para continuar.');
-      } else setSaveError(true);
+      if (version === generation.current) {
+        setSaveError(true);
+        retryOnLeave.current = offerRetry;
+        if (isAxiosError(error) && error.response && error.response.status < 500)
+          toast.error('No se ha podido guardar la respuesta. Reintenta o comprueba la tarjeta.');
+      } else {
+        offerRetry();
+      }
     } finally {
       if (version === generation.current) {
         busy.current = false;
         setSaving(false);
       }
     }
+    // The captured outbox must survive leaving the study screen.
+    function offerRetry() {
+      toast(
+        (notification) =>
+          createElement(
+            'button',
+            {
+              onClick: () => {
+                toast.dismiss(notification.id);
+                void retryDetached();
+              },
+            },
+            'Hay repasos sin confirmar. Reintentar guardado',
+          ),
+        { duration: Infinity },
+      );
+    }
+    async function retryDetached() {
+      try {
+        while (actions.length) {
+          const action = actions[0];
+          await studyApi.reviewCard(action.pair.card.id, action.body);
+          actions.shift();
+          void invalidateStudyData(client, deckId);
+        }
+      } catch {
+        offerRetry();
+      }
+    }
+  };
+
+  const handleRate = (rating: number, customIntervalMinutes?: number) => {
+    if (saveError) return flushReviews();
+    const pair = queueRef.current[0];
+    if (
+      loading ||
+      loadError ||
+      (busy.current && !pending.current.length) ||
+      !pair ||
+      revealed.current !== pair.card.id
+    )
+      return Promise.resolve();
+    revealed.current = null;
+    pending.current.push({
+      pair,
+      body: {
+        rating,
+        timeTakenMs: Math.min(2_147_483_647, Date.now() - started.current),
+        requestId: crypto.randomUUID(),
+        ...(customIntervalMinutes ? { customIntervalMinutes } : {}),
+      },
+    });
+    writeEpoch.current++;
+    const state = pair.card.state;
+    setCounts((previous) => {
+      const key = state === 'new' ? 'new' : state.includes('learn') ? 'learning' : 'review';
+      return { ...previous, [key]: Math.max(0, previous[key] - 1) };
+    });
+    setIsFlipped(false);
+    setQueue((items) => items.slice(1));
+    started.current = Date.now();
+    return flushReviews();
   };
 
   const handleUndo = async () => {
     const action = undoStack[undoStack.length - 1];
-    if (!action || busy.current || pending.current) return;
+    if (!action || busy.current || pending.current.length) return;
     busy.current = true;
     writeEpoch.current++;
+    setLoading(true);
     setSaving(true);
     const version = generation.current;
     try {
@@ -238,6 +305,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
       if (version === generation.current) {
         busy.current = false;
         setSaving(false);
+        setLoading(false);
       }
     }
   };
@@ -258,7 +326,15 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     handleCustomInterval: (minutes: number) => handleRate(3, minutes),
     handleUndo,
     handleFlip: () => {
-      if (!busy.current) setIsFlipped(true);
+      if (
+        !saveError &&
+        !loading &&
+        (!busy.current || pending.current.length > 0) &&
+        queueRef.current[0]
+      ) {
+        revealed.current = queueRef.current[0].card.id;
+        setIsFlipped(true);
+      }
     },
   };
 }
