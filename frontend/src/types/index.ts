@@ -117,6 +117,7 @@ export interface ReviewBody {
 export interface DueCardDto {
   card: Card;
   note: Note;
+  intervals: Record<number, string>;
 }
 
 export interface StudyBatch {
