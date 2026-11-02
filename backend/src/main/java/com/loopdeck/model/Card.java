@@ -118,6 +118,7 @@ public class Card {
 
     public void setDue(Instant due) { this.due = due; }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getFsrsState() { return fsrsState; }
 
     public void setFsrsState(String fsrsState) { this.fsrsState = fsrsState; }
