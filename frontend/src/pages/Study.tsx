@@ -10,7 +10,6 @@ import RatingButtons from '../components/RatingButtons';
 import { useDecks } from '../hooks/useDecks';
 import { useStudySession } from '../hooks/useStudySession';
 import { useAuth } from '../context/AuthContext';
-import { Card } from '../types';
 import { Skeleton } from '../components/ui/skeleton';
 import { sanitizeHtml } from '../lib/utils';
 import CustomReviewScheduleDialog from '../components/CustomReviewScheduleDialog';
