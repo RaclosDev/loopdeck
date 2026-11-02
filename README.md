@@ -21,7 +21,20 @@
   <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
-![Colección de mazos: tarjetas nuevas, en aprendizaje y pendientes de repaso](docs/screenshots/decks-desktop.png)
+<table>
+  <tr>
+    <th>Tus mazos</th>
+    <th>Centro de estudio</th>
+    <th>Repaso</th>
+  </tr>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/decks-mobile.png" alt="Colección de mazos en móvil con tarjetas pendientes"></td>
+    <td width="33%"><img src="docs/screenshots/study-hub-mobile.png" alt="Centro de estudio en móvil con apuntes y métodos de estudio"></td>
+    <td width="33%"><img src="docs/screenshots/study-mobile.png" alt="Repaso en móvil con respuesta y valoraciones"></td>
+  </tr>
+</table>
+
+_Capturas de la interfaz real en formato móvil con datos ficticios. Los recuentos y los intervalos son de demostración. [Cómo reproducirlas](docs/screenshots/README.md)._
 
 LoopDeck reúne la preparación del material y el repaso en una misma aplicación. Puedes crear una colección de tarjetas, consultar tus apuntes y elegir entre repaso espaciado, lectura libre o tests. Su interfaz de papel y tinta está adaptada a escritorio y móvil, y se puede instalar como PWA.
 
@@ -36,19 +49,6 @@ LoopDeck reúne la preparación del material y el repaso en una misma aplicació
 | **Ayuda de IA**                                | Genera definiciones y tarjetas a partir de listas de términos, y pregunta al tutor sobre el contenido del mazo con Google Gemini.                                                                  |
 | **Plantillas y seguimiento**                   | Empieza con colecciones de capitales y banderas; consulta la distribución de tus tarjetas y lo que tienes pendiente.                                                                               |
 | **Móvil y escritorio**                         | Usa la misma cuenta desde el navegador o instala la PWA. Incluye temas claro y oscuro y atajos de teclado para repasar.                                                                            |
-
-<table>
-  <tr>
-    <th>Centro de estudio</th>
-    <th>Repaso en móvil</th>
-  </tr>
-  <tr>
-    <td width="72%"><img src="docs/screenshots/study-hub.png" alt="Centro de un mazo con acceso a repaso, guía, paseo, tests y tutor IA"></td>
-    <td width="28%"><img src="docs/screenshots/study-mobile.png" alt="Tarjeta de biología en móvil con respuesta, valoraciones e intervalo personalizado"></td>
-  </tr>
-</table>
-
-_Capturas de la interfaz real ejecutada en local con datos ficticios. Los recuentos y los intervalos son de demostración. [Cómo reproducirlas](docs/screenshots/README.md)._
 
 ## Prueba el recorrido
 

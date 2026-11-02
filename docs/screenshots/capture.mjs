@@ -88,8 +88,10 @@ const browser = await chromium.launch();
 const unexpected = [];
 try {
   const context = await browser.newContext({
-    viewport: { width: 1440, height: 960 },
-    deviceScaleFactor: 1,
+    viewport: { width: 430, height: 932 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
     reducedMotion: "reduce",
     serviceWorkers: "block",
   });
@@ -127,13 +129,33 @@ try {
       }
       return route.fulfill({ json: body });
     }
-    if (url.origin !== origin) return route.abort();
+    const fontOrigins = [
+      "https://fonts.googleapis.com",
+      "https://fonts.gstatic.com",
+    ];
+    if (url.origin !== origin && !fontOrigins.includes(url.origin))
+      return route.abort();
     return route.continue();
   });
   const page = await context.newPage();
   page.on("pageerror", (error) => unexpected.push(error.message));
   async function capture(name) {
-    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(async () => {
+      for (const font of [
+        '400 16px "Anton"',
+        '400 16px "Permanent Marker"',
+        '400 16px "Inter"',
+        '600 16px "Inter"',
+        '700 16px "Inter"',
+        '800 16px "Inter"',
+      ]) {
+        const loaded = await document.fonts.load(font);
+        if (!loaded.length || loaded.some((face) => face.status !== "loaded")) {
+          throw new Error(`Required app font did not load: ${font}`);
+        }
+      }
+      await document.fonts.ready;
+    });
     await expect
       .poll(() =>
         page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
@@ -141,19 +163,19 @@ try {
       .toBe(true);
     await page.screenshot({
       path: `${output}/${name}.png`,
-      fullPage: true,
+      fullPage: false,
       animations: "disabled",
     });
   }
   await page.goto(origin);
   await expect(page.getByRole("article")).toHaveCount(3);
   await expect(page.getByText("36 tarjetas", { exact: true })).toBeVisible();
-  await capture("decks-desktop");
+  await capture("decks-mobile");
   await page.goto(origin + "/hub/biology");
   await expect(
     page.getByRole("heading", { name: "Cómo quieres estudiar" }),
   ).toBeVisible();
-  await capture("study-hub");
+  await capture("study-hub-mobile");
   await page.goto(`${origin}/study/biology`);
   await page
     .getByRole("button", { name: "Mostrar Respuesta", exact: true })
@@ -162,12 +184,11 @@ try {
     page.getByRole("button", { name: "Tarjeta volteada" }),
   ).toBeVisible();
 
-  await page.setViewportSize({ width: 390, height: 844 });
   await capture("study-mobile");
   if (unexpected.length)
     throw new Error(`Unexpected requests/errors: ${unexpected.join(", ")}`);
   console.log(
-    "Captured desktop decks and desktop/mobile study with local fixtures.",
+    "Captured three mobile screens with verified app fonts and local fixtures.",
   );
 } finally {
   await browser.close();
