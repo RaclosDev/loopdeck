@@ -110,6 +110,7 @@ export interface ReviewBody {
   rating: number;
   timeTakenMs: number;
   requestId?: string;
+  customIntervalMinutes?: number;
 }
 
 // DTOs from CardService.DueCardDto

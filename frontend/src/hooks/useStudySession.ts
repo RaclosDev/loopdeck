@@ -136,7 +136,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     };
   }, [loadNext]);
 
-  const handleRate = async (rating: number) => {
+  const handleRate = async (rating: number, customIntervalMinutes?: number) => {
     if (busy.current || loading || loadError || !isFlipped || !queue[0]) return;
     const action = pending.current || {
       pair: queue[0],
@@ -144,6 +144,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
         rating,
         timeTakenMs: Math.min(2_147_483_647, Date.now() - started.current),
         requestId: crypto.randomUUID(),
+        ...(customIntervalMinutes ? { customIntervalMinutes } : {}),
       },
     };
     pending.current = action;
@@ -254,6 +255,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     sessionStats,
     loadNext,
     handleRate,
+    handleCustomInterval: (minutes: number) => handleRate(3, minutes),
     handleUndo,
     handleFlip: () => {
       if (!busy.current) setIsFlipped(true);
