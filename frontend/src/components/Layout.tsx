@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import StudyPreparation from './StudyPreparation';
 import useStore from '../store/useStore';
 import { useState, useEffect, Suspense } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
@@ -142,6 +143,9 @@ export default function Layout() {
 
   return (
     <div className="app-root">
+      {(location.pathname === '/' ||
+        location.pathname === '/hub' ||
+        /^\/hub\/[^/]+$/.test(location.pathname)) && <StudyPreparation />}
       {!isStudyPage && (
         <header className="mobile-top-bar justify-center">
           <div className="mobile-top-logo flex items-center justify-center">

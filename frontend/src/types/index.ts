@@ -110,6 +110,7 @@ export interface ReviewBody {
   rating: number;
   timeTakenMs: number;
   requestId?: string;
+  customIntervalMinutes?: number;
 }
 
 // DTOs from CardService.DueCardDto
@@ -122,6 +123,11 @@ export interface StudyBatch {
   items: DueCardDto[];
   counts: DeckStats;
   hasMore: boolean;
+}
+
+export interface PreparedStudy {
+  batch: StudyBatch;
+  validForMs: number;
 }
 
 export interface NotePage {

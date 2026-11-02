@@ -114,7 +114,7 @@ public class CardService {
 
     public record StudyBatch(List<DueCardDto> items, DeckService.DeckStats counts, boolean hasMore) {}
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
     public StudyBatch getStudyBatch(String userId, String deckId, int limit, String order) {
         deckRepository.findByIdAndUserId(deckId, userId).orElseThrow(() -> new IllegalArgumentException("Mazo no encontrado"));
         if (limit < 1 || limit > 100 || !List.of("new_first", "review_first", "mixed").contains(order))

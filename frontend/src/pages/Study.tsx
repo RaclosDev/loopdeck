@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { Card } from '../types';
 import { Skeleton } from '../components/ui/skeleton';
 import { sanitizeHtml } from '../lib/utils';
+import CustomReviewScheduleDialog from '../components/CustomReviewScheduleDialog';
 
 function getIntervalLabel(card: Card, rating: number) {
   if (!card) return '';
@@ -75,8 +76,10 @@ export default function Study() {
     handleRate,
     handleUndo,
     handleFlip,
+    handleCustomInterval,
   } = useStudySession(deckId, settings?.studyOrder || 'new_first', user?.id);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [customScheduleOpen, setCustomScheduleOpen] = useState(false);
   useEffect(() => {
     if (!settings?.showTimer || isComplete) return;
     const timer = setInterval(
@@ -444,6 +447,7 @@ export default function Study() {
               <RatingButtons
                 intervals={intervals}
                 onRate={handleRate}
+                onCustomSchedule={() => setCustomScheduleOpen(true)}
                 disabled={saving || saveError}
               />
               {saving && <p role="status">Guardando revisión…</p>}
@@ -468,6 +472,11 @@ export default function Study() {
           </div>
         </div>
       </div>
+      <CustomReviewScheduleDialog
+        open={customScheduleOpen}
+        onOpenChange={setCustomScheduleOpen}
+        onSchedule={(minutes) => void handleCustomInterval(minutes)}
+      />
     </div>
   );
 }
