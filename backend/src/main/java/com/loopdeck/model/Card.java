@@ -32,6 +32,9 @@ public class Card {
     @Column(name = "interval_days")
     private Double intervalDays;
 
+    @Column(name = "fsrs_state", columnDefinition = "text")
+    private String fsrsState;
+
     @Column(name = "ease_factor")
     private Double easeFactor;
 
@@ -115,6 +118,11 @@ public class Card {
 
     public void setDue(Instant due) { this.due = due; }
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public String getFsrsState() { return fsrsState; }
+
+    public void setFsrsState(String fsrsState) { this.fsrsState = fsrsState; }
+
     public Double getIntervalDays() { return intervalDays; }
 
     public void setIntervalDays(Double intervalDays) { this.intervalDays = intervalDays; }
@@ -168,6 +176,7 @@ public class Card {
         private String state;
         private Instant due;
         private Double intervalDays;
+        private String fsrsState;
         private Double easeFactor;
         private Integer repetitions;
         private Integer lapses;
@@ -184,6 +193,7 @@ public class Card {
         public CardBuilder state(String state) { this.state = state; return this; }
         public CardBuilder due(Instant due) { this.due = due; return this; }
         public CardBuilder intervalDays(Double intervalDays) { this.intervalDays = intervalDays; return this; }
+        public CardBuilder fsrsState(String fsrsState) { this.fsrsState = fsrsState; return this; }
         public CardBuilder easeFactor(Double easeFactor) { this.easeFactor = easeFactor; return this; }
         public CardBuilder repetitions(Integer repetitions) { this.repetitions = repetitions; return this; }
         public CardBuilder lapses(Integer lapses) { this.lapses = lapses; return this; }
@@ -193,7 +203,7 @@ public class Card {
         public CardBuilder flagColor(String flagColor) { this.flagColor = flagColor; return this; }
         public CardBuilder leech(Boolean leech) { this.leech = leech; return this; }
         public CardBuilder createdAt(Instant createdAt) { this.createdAt = createdAt; return this; }
-        public Card build() { Card c = new Card(); c.setId(this.id); c.setNoteId(this.noteId); c.setDeckId(this.deckId); c.setCardOrdinal(this.cardOrdinal); c.setState(this.state); c.setDue(this.due); c.setIntervalDays(this.intervalDays); c.setEaseFactor(this.easeFactor); c.setRepetitions(this.repetitions); c.setLapses(this.lapses); c.setLearningStep(this.learningStep); c.setSuspended(this.suspended); c.setBuried(this.buried); c.setFlagColor(this.flagColor); c.setLeech(this.leech); c.setCreatedAt(this.createdAt); return c; }
+        public Card build() { Card c = new Card(); c.setId(this.id); c.setNoteId(this.noteId); c.setDeckId(this.deckId); c.setCardOrdinal(this.cardOrdinal); c.setState(this.state); c.setDue(this.due); c.setIntervalDays(this.intervalDays); c.setFsrsState(this.fsrsState); c.setEaseFactor(this.easeFactor); c.setRepetitions(this.repetitions); c.setLapses(this.lapses); c.setLearningStep(this.learningStep); c.setSuspended(this.suspended); c.setBuried(this.buried); c.setFlagColor(this.flagColor); c.setLeech(this.leech); c.setCreatedAt(this.createdAt); return c; }
     }
 }
 

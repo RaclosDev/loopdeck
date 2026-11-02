@@ -20,6 +20,7 @@ public class CardService {
     private final NoteRepository noteRepository;
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
+    private final FsrsSchedulerService fsrsScheduler;
 
 
     public record CreateNoteRequest(String deckId, String noteType, String fieldsJson, String tags) {}
@@ -91,7 +92,7 @@ public class CardService {
     }
 
 
-    public record DueCardDto(Card card, Note note) {}
+    public record DueCardDto(Card card, Note note, Map<Integer, String> intervals) {}
 
     @Transactional(readOnly = true)
     public List<DueCardDto> getDueCards(String userId, String deckId, int limit) {
@@ -107,8 +108,9 @@ public class CardService {
                 .stream()
                 .collect(java.util.stream.Collectors.toMap(Note::getId, n -> n));
                 
+        var intervalMap = fsrsScheduler.previewAll(dueCards);
         return dueCards.stream()
-                .map(c -> new DueCardDto(c, notesMap.get(c.getNoteId())))
+                .map(c -> new DueCardDto(c, notesMap.get(c.getNoteId()), intervalMap.get(c.getId())))
                 .toList();
     }
 
@@ -123,7 +125,8 @@ public class CardService {
         var dueCards = cardRepository.findStudyBatch(deckId, now, limit, order);
         var noteIds = dueCards.stream().map(Card::getNoteId).distinct().toList();
         var notes = noteIds.isEmpty() ? Map.<String,Note>of() : noteRepository.findAllById(noteIds).stream().collect(java.util.stream.Collectors.toMap(Note::getId, note -> note));
-        var items = dueCards.stream().map(card -> new DueCardDto(card, notes.get(card.getNoteId()))).toList();
+        var intervalMap = fsrsScheduler.previewAll(dueCards);
+        var items = dueCards.stream().map(card -> new DueCardDto(card, notes.get(card.getNoteId()), intervalMap.get(card.getId()))).toList();
         var raw = cardRepository.getStatsForDecks(List.of(deckId), now);
         var counts = raw.isEmpty() ? new DeckService.DeckStats(deckId,0,0,0,0,0) : new DeckService.DeckStats(deckId,
             count(raw.get(0).getNewCount()), count(raw.get(0).getLearningCount()), count(raw.get(0).getReviewCount()),
@@ -140,98 +143,4 @@ public class CardService {
         return NoteStates.aggregate(cardRepository.findCardStatesByDeckId(deckId));
     }
 
-    private static final int[] LEARNING_STEPS_MINUTES = {1, 10};
-    private static final int GRADUATING_INTERVAL_DAYS = 1;
-    private static final int EASY_INTERVAL_DAYS = 4;
-
-    void applySmTwo(Card card, int rating) {
-        switch (card.getState()) {
-            case "new", "learning" -> applyLearning(card, rating);
-            case "review" -> applyReview(card, rating);
-            case "relearning" -> applyRelearning(card, rating);
-        }
-    }
-
-    private void applyLearning(Card card, int rating) {
-        if (rating == 1) { // Again
-            card.setLearningStep(0);
-            card.setState("learning");
-            card.setDue(Instant.now().plusSeconds(LEARNING_STEPS_MINUTES[0] * 60L));
-        } else if (rating == 4) { // Easy → skip to review immediately
-            card.setState("review");
-            card.setIntervalDays((double) EASY_INTERVAL_DAYS);
-            card.setEaseFactor(2.5);
-            card.setRepetitions(1);
-            card.setDue(Instant.now().plusSeconds((long)(EASY_INTERVAL_DAYS * 86400)));
-        } else if (rating == 2) {
-            int step = Math.max(0, Math.min(card.getLearningStep(), LEARNING_STEPS_MINUTES.length - 1));
-            int current = LEARNING_STEPS_MINUTES[step];
-            int next = step + 1 < LEARNING_STEPS_MINUTES.length ? LEARNING_STEPS_MINUTES[step + 1] : current * 2;
-            card.setLearningStep(step);
-            card.setState("learning");
-            card.setDue(Instant.now().plusSeconds(Math.round((current + next) / 2.0) * 60L));
-        } else {
-            int nextStep = card.getLearningStep() + 1;
-            if (nextStep >= LEARNING_STEPS_MINUTES.length) {
-
-                card.setState("review");
-                card.setIntervalDays((double) GRADUATING_INTERVAL_DAYS);
-                card.setEaseFactor(2.5);
-                card.setRepetitions(1);
-                card.setDue(Instant.now().plusSeconds(GRADUATING_INTERVAL_DAYS * 86400L));
-            } else {
-                card.setLearningStep(nextStep);
-                card.setState("learning");
-                card.setDue(Instant.now().plusSeconds(LEARNING_STEPS_MINUTES[nextStep] * 60L));
-            }
-        }
-    }
-
-    private void applyReview(Card card, int rating) {
-        double ease = card.getEaseFactor();
-        double interval = card.getIntervalDays();
-
-        switch (rating) {
-            case 1 -> { // Again → relearning
-                card.setLapses(card.getLapses() + 1);
-                card.setState("relearning");
-                card.setLearningStep(0);
-                card.setEaseFactor(Math.max(1.3, ease - 0.2));
-                card.setDue(Instant.now().plusSeconds(10 * 60L)); // 10 min relearn step
-                if (card.getLapses() >= 8) card.setLeech(true);
-            }
-            case 2 -> { // Hard
-                ease = Math.max(1.3, ease - 0.15);
-                interval = Math.max(1, interval * 1.2);
-                card.setEaseFactor(ease);
-                card.setIntervalDays(interval);
-                card.setRepetitions(card.getRepetitions() + 1);
-                card.setDue(Instant.now().plusSeconds((long)(interval * 86400)));
-            }
-            case 3 -> { // Good
-                interval = Math.max(1, interval * ease);
-                card.setIntervalDays(interval);
-                card.setRepetitions(card.getRepetitions() + 1);
-                card.setDue(Instant.now().plusSeconds((long)(interval * 86400)));
-            }
-            case 4 -> { // Easy
-                ease = Math.min(ease + 0.15, 3.5);
-                interval = Math.max(1, interval * ease * 1.3);
-                card.setEaseFactor(ease);
-                card.setIntervalDays(interval);
-                card.setRepetitions(card.getRepetitions() + 1);
-                card.setDue(Instant.now().plusSeconds((long)(interval * 86400)));
-            }
-        }
-    }
-
-    private void applyRelearning(Card card, int rating) {
-        if (rating <= 2) {
-            card.setDue(Instant.now().plusSeconds(10 * 60L));
-        } else {
-            card.setState("review");
-            card.setIntervalDays(Math.max(1, card.getIntervalDays() * (rating == 3 ? 0.7 : 1.0)));
-            card.setDue(Instant.now().plusSeconds((long)(card.getIntervalDays() * 86400)));
-        }
-    }
 }

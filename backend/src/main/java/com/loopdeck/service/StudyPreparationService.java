@@ -19,6 +19,7 @@ public class StudyPreparationService {
     private final DeckRepository decks;
     private final CardRepository cards;
     private final NoteRepository notes;
+    private final FsrsSchedulerService fsrsScheduler;
     public record PreparedStudy(CardService.StudyBatch batch, long validForMs) {}
 
     @Transactional(readOnly = true, isolation = org.springframework.transaction.annotation.Isolation.REPEATABLE_READ)
@@ -38,10 +39,11 @@ public class StudyPreparationService {
             .collect(Collectors.toMap(CardRepository.DeckStatsProjection::getDeckId, value -> value));
         var nextDue = cards.findNextDue(selected, now).stream()
             .collect(Collectors.toMap(CardRepository.NextDueProjection::getDeckId, CardRepository.NextDueProjection::getNextDue));
+        var intervalMap = fsrsScheduler.previewAll(prepared);
         Map<String, PreparedStudy> result = new LinkedHashMap<>();
         for (String id : selected) {
             var items = prepared.stream().filter(card -> id.equals(card.getDeckId()))
-                .map(card -> new CardService.DueCardDto(card, noteMap.get(card.getNoteId()))).toList();
+                .map(card -> new CardService.DueCardDto(card, noteMap.get(card.getNoteId()), intervalMap.get(card.getId()))).toList();
             var raw = stats.get(id);
             var counts = raw == null ? new DeckService.DeckStats(id,0,0,0,0,0) :
                 new DeckService.DeckStats(id, count(raw.getNewCount()), count(raw.getLearningCount()), count(raw.getReviewCount()),

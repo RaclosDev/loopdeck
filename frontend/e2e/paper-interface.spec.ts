@@ -75,6 +75,7 @@ async function fixture(page: Page, authenticated = true) {
             intervalDays: 0,
             easeFactor: 2.5,
           },
+          intervals: { 1: '1m', 2: '6m', 3: '10m', 4: '4d' },
         })),
         counts: { newCount: 4, learningCount: 2, reviewCount: 3 },
         hasMore: false,
@@ -91,6 +92,7 @@ async function fixture(page: Page, authenticated = true) {
           intervalDays: 0,
           easeFactor: 2.5,
         },
+        intervals: { 1: '1m', 2: '6m', 3: '10m', 4: '4d' },
       }));
     else if (path.endsWith('/document/info')) body = { hasDocument: false };
     else if (path === '/templates')
@@ -735,6 +737,7 @@ test('study continues after fifty cards and completes only after the last confir
       fieldsJson: JSON.stringify({ front: `Pregunta ${i + 1}`, back: `Respuesta ${i + 1}` }),
     },
     card: { id: `large-card-${i}`, state: 'new', cardOrdinal: 0, intervalDays: 0, easeFactor: 2.5 },
+    intervals: { 1: '1m', 2: '6m', 3: '10m', 4: '4d' },
   }));
   let batchRequests = 0;
   const actions = new Set<string>();
