@@ -15,6 +15,8 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -38,12 +40,12 @@ public class FsrsSchedulerService {
                 .build();
     }
 
-    private io.github.openspacedrepetition.Card stateFor(Card card, Scheduler scheduler) {
+    private io.github.openspacedrepetition.Card stateFor(Card card, Scheduler scheduler, List<Review> loadedHistory) {
         if (card.getFsrsState() != null && !card.getFsrsState().isBlank()) {
             return io.github.openspacedrepetition.Card.fromJson(card.getFsrsState());
         }
 
-        List<Review> history = reviews.findByCardIdOrderByReviewedAtDesc(card.getId()).stream()
+        List<Review> history = loadedHistory.stream()
                 .filter(review -> !review.isUndone())
                 .sorted(Comparator.comparing(Review::getReviewedAt))
                 .toList();
@@ -78,22 +80,43 @@ public class FsrsSchedulerService {
     }
 
     public Map<Integer, String> preview(Card card) {
-        Scheduler scheduler = schedulerFor(card);
-        io.github.openspacedrepetition.Card current = stateFor(card, scheduler);
-        Instant now = Instant.now();
-        return List.of(1, 2, 3, 4).stream().collect(Collectors.toMap(
-                rating -> rating,
-                rating -> {
-                    CardAndReviewLog result = scheduler.reviewCard(
-                            new io.github.openspacedrepetition.Card(current), rating(rating), now);
-                    return format(Duration.between(now, result.card().getDue()));
-                }
-        ));
+        return previewAll(List.of(card)).get(card.getId());
+    }
+
+    public Map<String, Map<Integer, String>> previewAll(Collection<Card> cards) {
+        List<Card> legacyCards = cards.stream()
+                .filter(card -> card.getFsrsState() == null || card.getFsrsState().isBlank())
+                .toList();
+        Map<String, List<Review>> historyByCard = new HashMap<>();
+        if (!legacyCards.isEmpty()) {
+            List<String> ids = legacyCards.stream().map(Card::getId).toList();
+            historyByCard = reviews.findByCardIdInAndUndoneFalseOrderByReviewedAtAsc(ids).stream()
+                    .collect(Collectors.groupingBy(Review::getCardId));
+        }
+
+        Map<String, Map<Integer, String>> result = new HashMap<>();
+        for (Card card : cards) {
+            Map<Integer, String> options = new HashMap<>();
+            List<Review> history = historyByCard.getOrDefault(card.getId(), List.of());
+            Instant now = Instant.now();
+            for (int value = 1; value <= 4; value++) {
+                // A fresh scheduler per option makes preview fuzzing identical to the subsequent
+                // persisted answer, regardless of which other buttons were calculated first.
+                Scheduler scheduler = schedulerFor(card);
+                io.github.openspacedrepetition.Card current = stateFor(card, scheduler, history);
+                CardAndReviewLog next = scheduler.reviewCard(current, rating(value), now);
+                options.put(value, format(Duration.between(now, next.card().getDue())));
+            }
+            result.put(card.getId(), Map.copyOf(options));
+        }
+        return Map.copyOf(result);
     }
 
     public void apply(Card card, int rating, Integer customIntervalMinutes) {
         Scheduler scheduler = schedulerFor(card);
-        io.github.openspacedrepetition.Card current = stateFor(card, scheduler);
+        List<Review> history = card.getFsrsState() == null || card.getFsrsState().isBlank()
+                ? reviews.findByCardIdOrderByReviewedAtDesc(card.getId()) : List.of();
+        io.github.openspacedrepetition.Card current = stateFor(card, scheduler, history);
         Instant now = Instant.now();
         io.github.openspacedrepetition.Card next = scheduler.reviewCard(current, rating(rating), now).card();
 
