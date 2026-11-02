@@ -24,7 +24,7 @@ class CardServiceTest {
 
     @BeforeEach
     void setUp() {
-        cardService = new CardService(null, null, null);
+        cardService = new CardService(null, null, null, null);
     }
 
     @Test
@@ -126,7 +126,7 @@ class CardServiceTest {
         NoteRepository noteRepo = mock(NoteRepository.class);
         CardRepository cardRepo = mock(CardRepository.class);
         DeckRepository deckRepo = mock(DeckRepository.class);
-        CardService service = new CardService(noteRepo, cardRepo, deckRepo);
+        CardService service = new CardService(noteRepo, cardRepo, deckRepo, null);
 
         String userId = "user-1";
         String deckId = "deck-123";
@@ -149,7 +149,7 @@ class CardServiceTest {
         NoteRepository noteRepo = mock(NoteRepository.class);
         CardRepository cardRepo = mock(CardRepository.class);
         DeckRepository deckRepo = mock(DeckRepository.class);
-        CardService service = new CardService(noteRepo, cardRepo, deckRepo);
+        CardService service = new CardService(noteRepo, cardRepo, deckRepo, null);
 
         String userId = "user-1";
         String deckId = "deck-123";
@@ -168,7 +168,7 @@ class CardServiceTest {
         NoteRepository notes = mock(NoteRepository.class);
         CardRepository cards = mock(CardRepository.class);
         DeckRepository decks = mock(DeckRepository.class);
-        CardService service = new CardService(notes, cards, decks);
+        CardService service = new CardService(notes, cards, decks, null);
         when(decks.findByIdAndUserId("deck", "user")).thenReturn(Optional.of(new Deck()));
         var learning = mock(CardRepository.CardStateProjection.class);
         var review = mock(CardRepository.CardStateProjection.class);
