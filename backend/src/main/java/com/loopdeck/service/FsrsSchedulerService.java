@@ -63,13 +63,16 @@ public class FsrsSchedulerService {
 
         // Legacy cards may predate review logging. Give already-graduated cards a conservative
         // initial memory state instead of attempting to run FSRS with null stability/difficulty.
-        if ("review".equals(card.getState())) {
+        if ("review".equals(card.getState()) || "relearning".equals(card.getState())) {
             Instant created = card.getCreatedAt() == null ? Instant.now().minus(Duration.ofDays(2)) : card.getCreatedAt();
             fsrs = scheduler.reviewCard(fsrs, Rating.GOOD, created).card();
             fsrs = scheduler.reviewCard(fsrs, Rating.GOOD, created.plus(Duration.ofMinutes(10))).card();
-        } else if ("learning".equals(card.getState()) || "relearning".equals(card.getState())) {
+            if ("relearning".equals(card.getState())) {
+                fsrs.setState(State.RELEARNING);
+                fsrs.setStep(0);
+            }
+        } else if ("learning".equals(card.getState())) {
             fsrs.setStep(Math.max(0, card.getLearningStep() == null ? 0 : card.getLearningStep()));
-            if ("relearning".equals(card.getState())) fsrs.setState(State.RELEARNING);
         }
         return fsrs;
     }
