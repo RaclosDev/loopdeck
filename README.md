@@ -1,71 +1,88 @@
-﻿<p align="center">
-  <img src="frontend/public/loopdeck-brush-512.png" alt="Loopdeck" width="128">
+<p align="center">
+  <img src="frontend/public/loopdeck-brush-512.png" alt="" width="96">
+</p>
+
+<h1 align="center">LoopDeck</h1>
+
+<p align="center">
+  Crea tus tarjetas, estudia a tu ritmo y repasa cuando toca.<br>
+  Aplicación full-stack de estudio con repetición espaciada, documentos y tutor IA.
 </p>
 
 <p align="center">
-  <b>PWA full-stack de flashcards y spaced repetition con generación de tarjetas mediante IA.</b>
+  <a href="https://loopdeck.raclos.es"><strong>Abrir la app</strong></a> ·
+  <a href="#qué-puedes-hacer">Funcionalidades</a> ·
+  <a href="docs/ARCHITECTURE.md">Arquitectura</a> ·
+  <a href="CONTRIBUTING.md">Desarrollo local</a>
 </p>
 
 <p align="center">
-  <img alt="CI" src="https://github.com/RaclosDev/loopdeck/actions/workflows/build.yml/badge.svg">
-  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg">
-  <img alt="Java 17" src="https://img.shields.io/badge/Java-17-orange.svg">
-  <img alt="Spring Boot 3.3" src="https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F.svg">
-  <img alt="React 19" src="https://img.shields.io/badge/React-19-61DAFB.svg">
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6.svg">
-  <img alt="PWA" src="https://img.shields.io/badge/PWA-ready-5A0FC8.svg">
+  <a href="https://github.com/RaclosDev/loopdeck/actions/workflows/build.yml"><img alt="Estado de CI" src="https://github.com/RaclosDev/loopdeck/actions/workflows/build.yml/badge.svg"></a>
+  <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
-## Descripción
+![Colección de mazos: tarjetas nuevas, en aprendizaje y pendientes de repaso](docs/screenshots/decks-desktop.png)
 
-Loopdeck es una aplicación PWA (instalable en móvil y escritorio) de tarjetas de estudio inteligente. Utiliza **FSRS-5 (Free Spaced Repetition Scheduler)** para adaptar la planificación de los repasos al historial de cada tarjeta y ayudar a optimizar la retención a largo plazo. Usa PostgreSQL, cachés locales con React Query e Inteligencia Artificial (Google Gemini) para generar tarjetas de estudio, buscar explicaciones y procesar documentos de texto.
+LoopDeck reúne la preparación del material y el repaso en una misma aplicación. Puedes crear una colección de tarjetas, consultar tus apuntes y elegir entre repaso espaciado, lectura libre o tests. Su interfaz de papel y tinta está adaptada a escritorio y móvil, y se puede instalar como PWA.
 
-El proyecto cuenta con una arquitectura estandarizada con componentes UI modulares, autenticación con JWT y renovación mediante cookies HttpOnly y despliegue dockerizado.
+## Qué puedes hacer
 
-## Arquitectura
+| Funcionalidad                                  | Para qué sirve                                                                                                                                                                                     |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mazos y tarjetas**                           | Organiza el temario en mazos y crea tarjetas de pregunta/respuesta, reversibles o con huecos (_cloze_). Añade imágenes y etiquetas, y busca contenido en el explorador.                            |
+| **Repetición espaciada**                       | Repasa las tarjetas pendientes y valora cuánto te ha costado recordarlas. FSRS-5 adapta la siguiente fecha al historial de cada tarjeta; también puedes elegirla manualmente y deshacer un repaso. |
+| **Cinco formas de estudiar además del repaso** | Lee preguntas y respuestas en la guía, recorre tarjetas sin calificación en el modo paseo, practica por bloques, responde tests de cuatro opciones o consulta al tutor IA.                         |
+| **Apuntes junto al mazo**                      | Adjunta un documento DOCX y consúltalo desde el centro de estudio.                                                                                                                                 |
+| **Ayuda de IA**                                | Genera definiciones y tarjetas a partir de listas de términos, y pregunta al tutor sobre el contenido del mazo con Google Gemini.                                                                  |
+| **Plantillas y seguimiento**                   | Empieza con colecciones de capitales y banderas; consulta la distribución de tus tarjetas y lo que tienes pendiente.                                                                               |
+| **Móvil y escritorio**                         | Usa la misma cuenta desde el navegador o instala la PWA. Incluye temas claro y oscuro y atajos de teclado para repasar.                                                                            |
 
-### 🧠 Repetición espaciada con FSRS-5
-- El planificador utiliza **FSRS-5**, en lugar del algoritmo SM-2. Calcula los siguientes repasos a partir del estado de memoria individual de cada tarjeta y de las valoraciones del usuario.
-- El modelo mantiene métricas de **dificultad**, **estabilidad de memoria** y **probabilidad estimada de recuerdo (retrievability)** para adaptar los intervalos.
-- El estado FSRS se persiste por tarjeta en PostgreSQL, de modo que la planificación se conserva entre sesiones.
-- Las tarjetas existentes pueden inicializar su estado a partir del historial de revisiones disponible.
-- El backend calcula tanto los intervalos de revisión como sus previsualizaciones; el frontend presenta esos resultados sin duplicar la lógica del planificador.
-- La acción de deshacer restaura también el estado de planificación anterior. Se admiten intervalos personalizados y una variación controlada (*fuzzing*) para distribuir fechas de revisión.
+<table>
+  <tr>
+    <th>Centro de estudio</th>
+    <th>Repaso en móvil</th>
+  </tr>
+  <tr>
+    <td width="72%"><img src="docs/screenshots/study-hub.png" alt="Centro de un mazo con acceso a repaso, guía, paseo, tests y tutor IA"></td>
+    <td width="28%"><img src="docs/screenshots/study-mobile.png" alt="Tarjeta de biología en móvil con respuesta, valoraciones e intervalo personalizado"></td>
+  </tr>
+</table>
 
-FSRS adapta la programación progresivamente según las respuestas: los fallos y las respuestas difíciles influyen en la siguiente planificación, mientras que los recuerdos consolidados pueden espaciarse más. Los intervalos concretos dependen del historial y del estado de cada tarjeta; no tienen por qué ser distintos en cada repaso.
+_Capturas de la interfaz real ejecutada en local con datos ficticios. Los recuentos y los intervalos son de demostración. [Cómo reproducirlas](docs/screenshots/README.md)._
 
-### Rendimiento y base de datos
-- Las tarjetas incluyen `deck_id` para consultar un mazo sin unir todas sus notas. Los índices ayudan a acotar las lecturas; el coste depende del volumen y de los filtros.
-- El explorador carga páginas de 25 notas con búsqueda en servidor; el repaso carga bloques de 50 en orden global. La importación valida cada bloque antes de escribirlo mediante JDBC batch.
-- `@Transactional(readOnly = true)` en los servicios de lectura para evitar presión de memoria (*Dirty Checking*) en Hibernate.
+## Prueba el recorrido
 
-### 🤖 Integración GenAI Robusta
-- Integración nativa con **Google Gemini** a través del moderno `RestClient` de Spring Boot 3.
-- Incluye políticas de resiliencia (timeouts explícitos de conexión y lectura) para evitar el colapso de hilos del servidor (*Thread Exhaustion*).
-- Capacidad de procesamiento masivo: importa archivos DOCX y genera definiciones masivas mediante prompts enriquecidos de IA.
+1. Abre [LoopDeck](https://loopdeck.raclos.es) y crea una cuenta o inicia sesión.
+2. Importa una plantilla de capitales desde **Plantillas**, o crea un mazo con tus propias tarjetas.
+3. Entra en el **Centro de Estudio** y elige una guía, un test o el repaso espaciado.
+4. Durante el repaso, muestra la respuesta y valora el recuerdo para programar la siguiente revisión.
 
-### 🛡️ Seguridad y Autenticación
-- Arquitectura Zero-Trust: los Refresh Tokens se almacenan en **cookies HttpOnly**, previniendo vectores de ataque XSS.
-- Validaciones a nivel de servicio para mitigar vulnerabilidades IDOR (Insecure Direct Object Reference), garantizando que los usuarios no puedan acceder ni modificar tarjetas de otros mazos mediante fuerza bruta de URLs.
+El estudio manual no requiere Gemini. Las funciones de IA necesitan una clave configurada en el servidor y conexión con el proveedor. La PWA no ofrece sincronización completa de repasos sin conexión.
 
-### 🧪 Testing e Infraestructura
-- **Backend:** Testcontainers levanta instancias reales de PostgreSQL efímeras para garantizar que los tests de integración interactúan con el motor de base de datos de producción (evitando los falsos positivos de H2).
-- **Frontend:** cobertura de tests E2E con **Playwright** y tests unitarios de componentes con **Vitest + Testing Library**.
-- **DevOps:** GitHub Actions configurado para CI/CD continuo, OpenAPI/Swagger para auto-documentación y Husky + lint-staged para asegurar la calidad de código en el pre-commit.
+## Tecnología
 
-## Funcionalidades Core
+| Capa                  | Stack                                                                        |
+| --------------------- | ---------------------------------------------------------------------------- |
+| Interfaz              | React 19, TypeScript, Vite, TanStack Query, Zustand, Tailwind CSS y Radix UI |
+| API                   | Java 17, Spring Boot 3, Spring Security, Spring Data JPA y OpenAPI           |
+| Datos y planificación | PostgreSQL, migraciones Flyway y FSRS-5                                      |
+| IA                    | Google Gemini, integrado desde el backend                                    |
+| Pruebas               | JUnit, Testcontainers con PostgreSQL, Vitest, Testing Library y Playwright   |
+| Entrega               | Docker multietapa y GitHub Actions                                           |
 
-### 🧠 Motor de Estudio (FSRS-5)
-- Tarjetas Básicas, Reversibles y de tipo Cloze (Huecos).
-- Planificación adaptativa de repasos mediante FSRS-5.
-- Animaciones 3D nativas con CSS.
-- Navegación por teclado (Espacio para girar, 1-4 para evaluar el repaso).
-- Los repasos avanzan después de confirmar el guardado. Cada acción lleva un identificador para que los reintentos no dupliquen revisiones; deshacer restaura una instantánea guardada por el servidor.
+El proyecto cubre interfaz responsive, API autenticada, persistencia relacional, integración de IA y pruebas de navegador y base de datos. La [guía de arquitectura](docs/ARCHITECTURE.md) describe cómo se conectan estas partes y enlaza a código y pruebas representativos.
 
-## Instalación y Desarrollo Local
+## Ejecutarlo en local
 
-Consulta el archivo [CONTRIBUTING.md](CONTRIBUTING.md) para ver la guía completa de instalación usando Docker Compose o ejecución nativa.
+Necesitas **Node.js 22+, Java 17 y Docker** para la base de datos y los tests de integración.
 
-## Licencia
+```bash
+git clone https://github.com/RaclosDev/loopdeck.git
+cd loopdeck
+```
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+Continúa con la [configuración paso a paso](CONTRIBUTING.md#configuración): variables de entorno, PostgreSQL, API y frontend. Allí se explican también los comandos de verificación y el flujo de contribución.
+
+## Autor y licencia
+
+Desarrollado por [Carlos Sanz Tomero · RaclosDev](https://github.com/RaclosDev). Código disponible bajo [licencia MIT](LICENSE).
