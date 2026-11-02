@@ -108,8 +108,9 @@ public class CardService {
                 .stream()
                 .collect(java.util.stream.Collectors.toMap(Note::getId, n -> n));
                 
+        var intervalMap = fsrsScheduler.previewAll(dueCards);
         return dueCards.stream()
-                .map(c -> new DueCardDto(c, notesMap.get(c.getNoteId()), fsrsScheduler.preview(c)))
+                .map(c -> new DueCardDto(c, notesMap.get(c.getNoteId()), intervalMap.get(c.getId())))
                 .toList();
     }
 
@@ -124,7 +125,8 @@ public class CardService {
         var dueCards = cardRepository.findStudyBatch(deckId, now, limit, order);
         var noteIds = dueCards.stream().map(Card::getNoteId).distinct().toList();
         var notes = noteIds.isEmpty() ? Map.<String,Note>of() : noteRepository.findAllById(noteIds).stream().collect(java.util.stream.Collectors.toMap(Note::getId, note -> note));
-        var items = dueCards.stream().map(card -> new DueCardDto(card, notes.get(card.getNoteId()), fsrsScheduler.preview(card))).toList();
+        var intervalMap = fsrsScheduler.previewAll(dueCards);
+        var items = dueCards.stream().map(card -> new DueCardDto(card, notes.get(card.getNoteId()), intervalMap.get(card.getId()))).toList();
         var raw = cardRepository.getStatsForDecks(List.of(deckId), now);
         var counts = raw.isEmpty() ? new DeckService.DeckStats(deckId,0,0,0,0,0) : new DeckService.DeckStats(deckId,
             count(raw.get(0).getNewCount()), count(raw.get(0).getLearningCount()), count(raw.get(0).getReviewCount()),
