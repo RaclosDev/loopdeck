@@ -2,12 +2,13 @@
   "name": "loopdeck-root",
   "private": true,
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:workflow": "node --test scripts/ci-scope.test.mjs"
   },
   "lint-staged": {
     "frontend/**/*.{ts,tsx}": [
-      "npm --prefix frontend run lint",
-      "prettier --write"
+      "prettier --write",
+      "node scripts/lint-staged-frontend.mjs"
     ],
     "frontend/**/*.{json,css,md}": [
       "prettier --write"
