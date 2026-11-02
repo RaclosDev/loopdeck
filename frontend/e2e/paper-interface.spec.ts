@@ -75,6 +75,7 @@ async function fixture(page: Page, authenticated = true) {
             intervalDays: 0,
             easeFactor: 2.5,
           },
+          intervals: { 1: '1m', 2: '6m', 3: '10m', 4: '4d' },
         })),
         counts: { newCount: 4, learningCount: 2, reviewCount: 3 },
         hasMore: false,
@@ -91,6 +92,7 @@ async function fixture(page: Page, authenticated = true) {
           intervalDays: 0,
           easeFactor: 2.5,
         },
+        intervals: { 1: '1m', 2: '6m', 3: '10m', 4: '4d' },
       }));
     else if (path.endsWith('/document/info')) body = { hasDocument: false };
     else if (path === '/templates')
@@ -735,6 +737,7 @@ test('study continues after fifty cards and completes only after the last confir
       fieldsJson: JSON.stringify({ front: `Pregunta ${i + 1}`, back: `Respuesta ${i + 1}` }),
     },
     card: { id: `large-card-${i}`, state: 'new', cardOrdinal: 0, intervalDays: 0, easeFactor: 2.5 },
+    intervals: { 1: '1m', 2: '6m', 3: '10m', 4: '4d' },
   }));
   let batchRequests = 0;
   const actions = new Set<string>();
@@ -792,10 +795,11 @@ for (const width of [320, 390]) {
       expect((await page.locator('.mobile-top-logo').boundingBox())!.y).toBeGreaterThanOrEqual(47);
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await expect
-        .poll(
-          async () =>
-            (await page.locator('.main-content-inner').boundingBox())!.y +
-            (await page.locator('.main-content-inner').boundingBox())!.height,
+        .poll(() =>
+          page.evaluate(() => {
+            window.scrollTo(0, document.documentElement.scrollHeight);
+            return document.querySelector('.main-content-inner')!.getBoundingClientRect().bottom;
+          }),
         )
         .toBeLessThanOrEqual(bounds.y - 16);
       await noOverflow(page);
@@ -814,3 +818,173 @@ for (const width of [320, 390]) {
     await expect(page.getByRole('navigation', { name: 'Navegación inferior' })).toHaveCount(0);
   });
 }
+
+test('prepares two cards after the collection paints and fills the rest without blocking study', async ({
+  page,
+}) => {
+  await fixture(page);
+  let preparations = 0;
+  let release!: () => void;
+  const remaining = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route('**/api/study/prepare', async (route) => {
+    preparations++;
+    expect(route.request().postDataJSON().deckIds).toEqual([deck.id]);
+    await route.fulfill({
+      json: {
+        [deck.id]: {
+          batch: {
+            items: notes.slice(0, 2).map((note, i) => ({
+              note,
+              card: { id: `prepared-${i}`, state: 'new', cardOrdinal: 0 },
+            })),
+            counts: { newCount: 4, learningCount: 0, reviewCount: 0 },
+            hasMore: true,
+          },
+          validForMs: 60_000,
+        },
+      },
+    });
+  });
+  await page.route('**/api/decks/paper-deck/study/batch?**', async (route) => {
+    await remaining;
+    await route.fulfill({
+      json: {
+        items: notes.map((note, i) => ({
+          note,
+          card: { id: `prepared-${i}`, state: 'new', cardOrdinal: 0 },
+        })),
+        counts: { newCount: 4, learningCount: 0, reviewCount: 0 },
+        hasMore: false,
+      },
+    });
+  });
+  const prepared = page.waitForResponse((response) => response.url().endsWith('/study/prepare'));
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: deck.name, exact: true })).toBeVisible();
+  await prepared;
+  await page
+    .getByRole('article')
+    .first()
+    .getByRole('link', { name: /Repasar/ })
+    .click();
+  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeVisible();
+  await expect(page.getByText('Concepto 1', { exact: true })).toBeVisible();
+  expect(preparations).toBe(1);
+  const restResponse = page.waitForResponse((response) => response.url().includes('/study/batch?'));
+  release();
+  await restResponse;
+});
+
+test('background preparation groups many decks instead of downloading full study queues', async ({
+  page,
+}) => {
+  await fixture(page);
+  const collection = Array.from({ length: 25 }, (_, i) => ({
+    ...deck,
+    id: `group-${i}`,
+    name: `Mazo ${i}`,
+  }));
+  await page.route('**/api/decks', (route) => route.fulfill({ json: collection }));
+  await page.route('**/api/decks/stats', (route) =>
+    route.fulfill({
+      json: Object.fromEntries(
+        collection.map((item) => [
+          item.id,
+          { newCount: 4, learningCount: 0, reviewCount: 0, totalCount: 4 },
+        ]),
+      ),
+    }),
+  );
+  const sizes: number[] = [];
+  const ids = new Set<string>();
+  let fullQueues = 0;
+  page.on('request', (request) => {
+    if (request.url().includes('/study/batch?')) fullQueues++;
+  });
+  await page.route('**/api/study/prepare', (route) => {
+    const body = route.request().postDataJSON();
+    sizes.push(body.deckIds.length);
+    for (const id of body.deckIds) ids.add(id);
+    return route.fulfill({
+      json: Object.fromEntries(
+        body.deckIds.map((id: string) => [
+          id,
+          {
+            batch: {
+              items: [],
+              counts: { newCount: 0, learningCount: 0, reviewCount: 0, totalCount: 4 },
+              hasMore: false,
+            },
+            validForMs: 60_000,
+          },
+        ]),
+      ),
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByRole('article')).toHaveCount(25);
+  await expect.poll(() => sizes).toEqual([12, 12, 1]);
+  expect(ids.size).toBe(25);
+  expect(fullQueues).toBe(0);
+});
+
+test('review returns to decks and advances before a delayed save completes', async ({ page }) => {
+  await fixture(page);
+  let release!: () => void;
+  const saved = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let writes = 0;
+  await page.route('**/api/cards/*/review', async (route) => {
+    writes++;
+    await saved;
+    await route.fulfill({ json: { card: { id: 'card-0' }, reviewId: 'saved' } });
+  });
+  await page.goto('/');
+  await page
+    .getByRole('article')
+    .first()
+    .getByRole('link', { name: /Repasar/ })
+    .click();
+  await page.getByRole('button', { name: 'Mostrar Respuesta', exact: true }).click();
+  await page.getByRole('button', { name: /Fácil/ }).click();
+  await expect(page.getByText('Concepto 2', { exact: true })).toBeVisible();
+  await expect(page.getByText('Guardando revisión…')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeEnabled();
+  await page.getByRole('button', { name: 'Volver a Mazos', exact: true }).click();
+  await expect(page).toHaveURL('/');
+  release();
+  await expect.poll(() => writes).toBe(1);
+});
+
+test('review entered from studying returns to its deck hub with Escape', async ({ page }) => {
+  await fixture(page);
+  await page.goto('/hub/paper-deck');
+  await page.getByRole('link', { name: /Repaso espaciado/ }).click();
+  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page).toHaveURL('/hub/paper-deck');
+});
+
+test('a failed background save can be retried without losing the next card', async ({ page }) => {
+  await fixture(page);
+  const requests: unknown[] = [];
+  await page.route('**/api/cards/*/review', async (route) => {
+    requests.push(route.request().postDataJSON());
+    if (requests.length === 1) await route.fulfill({ status: 503, json: {} });
+    else await route.fulfill({ json: { card: { id: 'card-0' }, reviewId: 'saved' } });
+  });
+  await page.goto('/study/paper-deck');
+  await page.getByRole('button', { name: 'Mostrar Respuesta', exact: true }).click();
+  await page.getByRole('button', { name: /Fácil/ }).click();
+  await expect(
+    page.getByRole('heading', { name: 'No se han confirmado tus respuestas' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Reintentar guardado', exact: true }).click();
+  await expect(page.getByText('Concepto 2', { exact: true })).toBeVisible();
+  expect(requests).toHaveLength(2);
+  expect(requests[1]).toEqual(requests[0]);
+  await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeEnabled();
+});

@@ -3,6 +3,7 @@ import {
   DeckStats,
   NotePage,
   StudyBatch,
+  PreparedStudy,
   Card,
   Note,
   UserDto,
@@ -123,6 +124,14 @@ export const notesApi = {
 };
 
 export const studyApi = {
+  prepare: async (
+    deckIds: string[],
+    order: string,
+    signal?: AbortSignal,
+  ): Promise<Record<string, PreparedStudy>> => {
+    const response = await api.post('/study/prepare', { deckIds, order }, { signal });
+    return response.data;
+  },
   getBatch: async (deckId: string, order: string, signal?: AbortSignal): Promise<StudyBatch> => {
     const res = await api.get<StudyBatch>(`/decks/${deckId}/study/batch`, {
       params: { limit: 50, order },
