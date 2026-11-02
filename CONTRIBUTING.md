@@ -4,13 +4,49 @@ Requisitos: Node.js 22+, Java 17 y Docker en ejecución para PostgreSQL y los te
 
 ## Configuración
 
-1. Copia `.env.example` a `.env` y sustituye los placeholders. `JWT_SECRET` es obligatorio, debe tener al menos 32 bytes y no puede comenzar por `CHANGE_ME`. Genera un valor aleatorio propio; no reutilices el de las pruebas.
-2. `docker compose up -d` construye backend y frontend y arranca PostgreSQL. Para desarrollo nativo puedes arrancar solo `docker compose up -d postgres`.
-3. Si ejecutas Java fuera de Compose, exporta las variables de `.env` a tu terminal: Spring no carga ese archivo automáticamente. Configura `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` y `SPRING_DATASOURCE_PASSWORD` para la base local.
-4. En `backend`, ejecuta `./mvnw spring-boot:run` (`.\mvnw.cmd spring-boot:run` en Windows).
-5. En `frontend`, ejecuta `npm ci` y `npm run dev`. Configura las variables de `frontend/.env.example` y permite ese origen en `CORS_ALLOWED_ORIGINS`.
+El recorrido siguiente ejecuta PostgreSQL en Docker y la API y el frontend en sus servidores de desarrollo.
 
-Google requiere un client ID con los orígenes configurados. Gemini es necesario para las funciones de IA; no lo es para crear y repasar tarjetas manualmente.
+1. Desde la raíz, ejecuta `npm ci` para instalar los hooks del repositorio.
+2. Copia `.env.example` a `.env` y sustituye los placeholders. `JWT_SECRET` es obligatorio, debe tener al menos 32 bytes y no puede comenzar por `CHANGE_ME`. Puedes generar un valor con `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. Usa también una contraseña propia para PostgreSQL.
+3. Arranca la base de datos con `docker compose up -d postgres`.
+4. Carga las variables en la terminal donde ejecutarás Java; Spring no lee `.env` automáticamente. Usa uno de los bloques siguientes desde la raíz.
+
+**PowerShell:**
+
+```powershell
+Get-Content .env | ForEach-Object {
+    if ($_ -match '^([A-Z_][A-Z0-9_]*)=(.*)$') {
+        [Environment]::SetEnvironmentVariable($matches[1], $matches[2], 'Process')
+    }
+}
+$env:SPRING_DATASOURCE_URL = "jdbc:postgresql://localhost:$($env:POSTGRES_PORT)/$($env:POSTGRES_DB)"
+$env:SPRING_DATASOURCE_USERNAME = $env:POSTGRES_USER
+$env:SPRING_DATASOURCE_PASSWORD = $env:POSTGRES_PASSWORD
+cd backend
+.\mvnw.cmd spring-boot:run
+```
+
+**Bash:**
+
+```bash
+set -a
+. ./.env
+set +a
+export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:$POSTGRES_PORT/$POSTGRES_DB"
+export SPRING_DATASOURCE_USERNAME="$POSTGRES_USER"
+export SPRING_DATASOURCE_PASSWORD="$POSTGRES_PASSWORD"
+cd backend
+./mvnw spring-boot:run
+```
+
+Los ejemplos usan el formato `CLAVE=valor` de `.env.example`, sin comillas ni espacios alrededor de `=`. Si eliges valores con caracteres especiales del shell, expórtalos manualmente en lugar de cargar el archivo con Bash.
+
+5. En otra terminal, entra en `frontend`, copia `.env.example` a `.env`, ejecuta `npm ci` y después `npm run dev`. Abre la URL que indique Vite (por defecto, `http://localhost:5173`). El ejemplo de CORS ya permite ese origen.
+6. Crea una cuenta desde la app y añade un mazo o importa una plantilla para empezar a estudiar.
+
+Puedes usar el registro con correo y contraseña sin configurar Google ni Gemini. Google requiere un client ID con los orígenes configurados. Gemini es necesario para las funciones de IA; no lo es para crear y repasar tarjetas manualmente.
+
+Para construir la imagen unificada de producción, consulta el [Dockerfile de la raíz](Dockerfile) y la [descripción del despliegue](docs/ARCHITECTURE.md#construcción-y-entrega). Esta imagen necesita PostgreSQL y sus variables de entorno al ejecutarse.
 
 ## Verificación según el cambio
 
