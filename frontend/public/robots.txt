@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /api/
+
+Sitemap: https://loopdeck.raclos.es/sitemap.xml
