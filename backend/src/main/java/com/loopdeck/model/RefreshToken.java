@@ -26,12 +26,16 @@ public class RefreshToken {
     @Column(nullable = false)
     private Instant expiryDate;
 
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
     public RefreshToken() {
     }
 
     public RefreshToken(String userId, Instant expiryDate) {
         this.userId = userId;
         this.expiryDate = expiryDate;
+        this.createdAt = Instant.now();
         this.plainToken = UUID.randomUUID().toString();
         this.token = hashToken(this.plainToken);
     }
@@ -44,6 +48,7 @@ public class RefreshToken {
     public void setUserId(String userId) { this.userId = userId; }
     public Instant getExpiryDate() { return expiryDate; }
     public void setExpiryDate(Instant expiryDate) { this.expiryDate = expiryDate; }
+    public Instant getCreatedAt() { return createdAt; }
 
     public static String hashToken(String plain) {
         try {
@@ -57,7 +62,7 @@ public class RefreshToken {
             }
             return hexString.toString();
         } catch (java.security.NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("SHA-256 no disponible", e);
         }
     }
 }

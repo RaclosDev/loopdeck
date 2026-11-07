@@ -20,6 +20,7 @@ import com.loopdeck.config.SecurityConfig;
 import com.loopdeck.interceptor.RateLimitInterceptor;
 
 @WebMvcTest(AuthController.class)
+@Import(com.loopdeck.security.TrustedOrigins.class)
 @AutoConfigureMockMvc(addFilters = false) // Disable security for unit testing controller
 public class AuthControllerTest {
 
@@ -101,6 +102,30 @@ public class AuthControllerTest {
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"email\":\"invalid\",\"password\":\"\"}"))
             .andExpect(status().isBadRequest());
+        org.mockito.Mockito.verifyNoInteractions(authService);
+    }
+
+    @Test void refreshCookieIsScopedToAuthAndClearsTheLegacyRootCookie() throws Exception {
+        when(authService.refreshToken("refresh")).thenReturn(new AuthService.AuthResponse("token", "refresh", null));
+        var result = mockMvc.perform(post("/api/auth/refresh")
+                .cookie(new jakarta.servlet.http.Cookie("refreshToken", "refresh"))
+                .header("Origin", "http://localhost:5173"))
+            .andExpect(status().isOk())
+            .andReturn();
+        var cookies = result.getResponse().getHeaders("Set-Cookie");
+        org.junit.jupiter.api.Assertions.assertTrue(cookies.stream().anyMatch(c -> c.startsWith("refreshToken=refresh") && c.contains("Path=/api/auth") && c.contains("HttpOnly")));
+        org.junit.jupiter.api.Assertions.assertTrue(cookies.stream().anyMatch(c -> c.startsWith("refreshToken=;") && c.contains("Path=/;") && c.contains("Max-Age=0")));
+    }
+
+    @Test void refreshAndLogoutRejectForeignOrigins() throws Exception {
+        mockMvc.perform(post("/api/auth/refresh")
+                .cookie(new jakarta.servlet.http.Cookie("refreshToken", "refresh"))
+                .header("Origin", "https://evil.example"))
+            .andExpect(status().isForbidden());
+        mockMvc.perform(post("/api/auth/logout")
+                .cookie(new jakarta.servlet.http.Cookie("refreshToken", "refresh"))
+                .header("Origin", "https://evil.example"))
+            .andExpect(status().isForbidden());
         org.mockito.Mockito.verifyNoInteractions(authService);
     }
 }

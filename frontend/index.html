@@ -9,8 +9,53 @@
 
     <meta
       name="description"
-      content="LoopDeck - Memoriza cualquier cosa con repetición espaciada. La alternativa moderna a Anki."
+      content="LoopDeck es una app gratuita de tarjetas de estudio con repetición espaciada (FSRS): crea mazos, importa notas y repasa en el móvil o el ordenador. La alternativa moderna a Anki."
     />
+    <link rel="canonical" href="https://loopdeck.raclos.es/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LoopDeck" />
+    <meta property="og:locale" content="es_ES" />
+    <meta property="og:url" content="https://loopdeck.raclos.es/" />
+    <meta property="og:title" content="LoopDeck · Tarjetas de estudio con repetición espaciada" />
+    <meta
+      property="og:description"
+      content="Crea mazos, importa notas y repasa con repetición espaciada. Gratis, en el móvil o el ordenador."
+    />
+    <meta property="og:image" content="https://loopdeck.raclos.es/loopdeck-brush-512.png" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:image:alt" content="Logotipo de LoopDeck" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="LoopDeck · Tarjetas de estudio con repetición espaciada" />
+    <meta
+      name="twitter:description"
+      content="Crea mazos, importa notas y repasa con repetición espaciada. Gratis, en el móvil o el ordenador."
+    />
+    <meta name="twitter:image" content="https://loopdeck.raclos.es/loopdeck-brush-512.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://loopdeck.raclos.es/#website",
+            "name": "LoopDeck",
+            "url": "https://loopdeck.raclos.es/",
+            "inLanguage": "es"
+          },
+          {
+            "@type": "WebApplication",
+            "name": "LoopDeck",
+            "url": "https://loopdeck.raclos.es/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "Web, Android, iOS",
+            "description": "Tarjetas de estudio con repetición espaciada (FSRS): mazos, importación de notas y repaso en el móvil o el ordenador.",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+            "isPartOf": { "@id": "https://loopdeck.raclos.es/#website" }
+          }
+        ]
+      }
+    </script>
     <meta name="theme-color" content="#0f172a" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -18,9 +63,68 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="LoopDeck" />
     <link rel="icon" type="image/x-icon" href="/favicon-brush.ico" sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" href="/loopdeck-brush-192.png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-brush.png" />
     <link rel="manifest" href="/manifest.json" />
-    <title>LoopDeck - Repetición Espaciada</title>
+    <title>LoopDeck · Tarjetas de estudio con repetición espaciada, gratis</title>
+    <!-- Pinta el fondo antes de que lleguen el CSS y el JS, y muestra el icono solo si el arranque tarda. -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #0f172a;
+      }
+      html.boot-light,
+      html.boot-light body {
+        background: #d4d0c5;
+      }
+      #boot-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        background: inherit;
+        transition: opacity 200ms ease;
+      }
+      html.boot-light #boot-splash {
+        background: #d4d0c5;
+      }
+      html:not(.boot-light) #boot-splash {
+        background: #0f172a;
+      }
+      #boot-splash img {
+        width: 72px;
+        height: 72px;
+        opacity: 0;
+        animation: boot-splash-in 200ms ease 500ms forwards;
+      }
+      #boot-splash.is-leaving {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @keyframes boot-splash-in {
+        to {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot-splash,
+        #boot-splash img {
+          transition: none;
+          animation: none;
+        }
+      }
+    </style>
+    <script>
+      try {
+        if (localStorage.getItem('loopdeck_theme') === 'light') {
+          document.documentElement.classList.add('boot-light');
+        }
+      } catch (e) {
+        /* almacenamiento no disponible: se queda el fondo oscuro */
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -29,6 +133,7 @@
     />
   </head>
   <body>
+    <div id="boot-splash" aria-hidden="true"><img src="/loopdeck-brush-192.png" alt="" /></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

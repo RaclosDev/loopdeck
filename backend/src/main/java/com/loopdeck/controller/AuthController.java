@@ -1,29 +1,29 @@
 package com.loopdeck.controller;
 
+import com.loopdeck.security.RefreshCookies;
+import com.loopdeck.security.TrustedOrigins;
 import com.loopdeck.service.AuthService;
-import com.loopdeck.service.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
-    private final RefreshTokenService refreshTokenService;
+    private final TrustedOrigins trustedOrigins;
 
-    public AuthController(AuthService authService, RefreshTokenService refreshTokenService) {
+    public AuthController(AuthService authService, TrustedOrigins trustedOrigins) {
         this.authService = authService;
-        this.refreshTokenService = refreshTokenService;
+        this.trustedOrigins = trustedOrigins;
     }
 
     public record RegisterBody(
@@ -47,17 +47,13 @@ public class AuthController {
     ) {}
 
     public record AuthResponseDto(String token, AuthService.UserDto user) {}
-    
+
+    public record AuthConfigDto(String googleClientId) {}
+
     private ResponseEntity<AuthResponseDto> buildAuthCookieResponse(AuthService.AuthResponse res) {
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", res.refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Lax")
-                .path("/")
-                .maxAge(7 * 24 * 60 * 60) // 7 days
-                .build();
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, RefreshCookies.issue(res.refreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, RefreshCookies.clearLegacy().toString())
                 .body(new AuthResponseDto(res.token(), res.user()));
     }
 
@@ -88,7 +84,12 @@ public class AuthController {
     }
     
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponseDto> refreshToken(@CookieValue(name = "refreshToken", required = false) String refreshTokenCookie) {
+    public ResponseEntity<AuthResponseDto> refreshToken(
+            @CookieValue(name = RefreshCookies.NAME, required = false) String refreshTokenCookie,
+            HttpServletRequest request) {
+        if (!trustedOrigins.isTrusted(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (refreshTokenCookie == null || refreshTokenCookie.isBlank()) {
             return ResponseEntity.status(401).build();
         }
@@ -96,23 +97,24 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@CookieValue(name = "refreshToken", required = false) String refreshTokenCookie) {
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = RefreshCookies.NAME, required = false) String refreshTokenCookie,
+            HttpServletRequest request) {
+        if (!trustedOrigins.isTrusted(request)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         if (refreshTokenCookie != null && !refreshTokenCookie.isBlank()) {
             authService.logout(refreshTokenCookie);
         }
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Lax")
-                .path("/")
-                .maxAge(0) 
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, RefreshCookies.clear().toString())
+                .header(HttpHeaders.SET_COOKIE, RefreshCookies.clearLegacy().toString())
                 .build();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
     }
 
     @GetMapping("/config")
-    public ResponseEntity<Map<String, String>> getConfig() {
-        return ResponseEntity.ok(Map.of("googleClientId", authService.getGoogleClientId()));
+    public ResponseEntity<AuthConfigDto> getConfig() {
+        return ResponseEntity.ok(new AuthConfigDto(authService.getGoogleClientId()));
     }
 
     @GetMapping("/me")

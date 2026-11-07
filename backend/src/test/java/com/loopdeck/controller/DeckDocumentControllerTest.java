@@ -3,6 +3,7 @@ package com.loopdeck.controller;
 import com.loopdeck.exception.GlobalExceptionHandler;
 import com.loopdeck.model.DeckDocument;
 import com.loopdeck.repository.DeckDocumentRepository;
+import com.loopdeck.service.DeckDocumentService;
 import com.loopdeck.service.DeckService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class DeckDocumentControllerTest {
     private MockMvc mvc;
 
     @BeforeEach void setUp() {
-        DeckController controller = new DeckController(decks, documents);
+        DeckController controller = new DeckController(decks, new DeckDocumentService(decks, documents));
         mvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new GlobalExceptionHandler()).build();
     }
 

@@ -82,8 +82,8 @@ class DataIntegrityIntegrationTest {
     }
     @Test void bundledTemplateImportsAllNotesWithCardsAndRejectsUnknownTemplates() {
         var user = new User(); user.setId(owner);
-        assertThrows(com.loopdeck.exception.InvalidInputException.class, () -> templates.importTemplate(user, "missing"));
-        var deck = templates.importTemplate(user, "capitals-europe");
+        assertThrows(com.loopdeck.exception.InvalidInputException.class, () -> templates.importTemplate(user.getId(), "missing"));
+        var deck = templates.importTemplate(user.getId(), "capitals-europe");
         assertEquals(53, notes.findByDeckId(deck.getId()).size());
         assertEquals(53, cardRepository.findByDeckId(deck.getId()).size());
         assertEquals(53, queries.page(owner, deck.getId(), 0, 25, "", "").total());

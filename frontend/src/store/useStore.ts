@@ -9,20 +9,20 @@ export interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export interface ToastMessage {
+interface ToastMessage {
   id: string;
   message: string;
   type: 'info' | 'success' | 'error' | 'warning';
 }
 
-export interface Settings {
+interface Settings {
   showTimer: boolean;
   animationsEnabled: boolean;
   studyOrder: string;
   theme: 'dark' | 'light';
 }
 
-export interface StoreState {
+interface StoreState {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   closeSidebar: () => void;
@@ -60,11 +60,13 @@ const useStore = create<StoreState>()(
 
       activeModal: null,
       modalData: null,
-      openModal: (name: string, data: unknown = null) => set({ activeModal: name, modalData: data }),
+      openModal: (name: string, data: unknown = null) =>
+        set({ activeModal: name, modalData: data }),
       closeModal: () => set({ activeModal: null, modalData: null }),
 
       deferredPrompt: null,
-      setDeferredPrompt: (prompt: BeforeInstallPromptEvent | null) => set({ deferredPrompt: prompt }),
+      setDeferredPrompt: (prompt: BeforeInstallPromptEvent | null) =>
+        set({ deferredPrompt: prompt }),
 
       settings: {
         showTimer: false,
@@ -72,13 +74,14 @@ const useStore = create<StoreState>()(
         studyOrder: 'new_first',
         theme: 'dark',
       },
-      updateSettings: (newSettings: Partial<Settings>) => set((s) => ({ settings: { ...s.settings, ...newSettings } })),
+      updateSettings: (newSettings: Partial<Settings>) =>
+        set((s) => ({ settings: { ...s.settings, ...newSettings } })),
     }),
     {
       name: 'loopdeck-settings',
       partialize: (state) => ({ settings: state.settings }),
-    }
-  )
+    },
+  ),
 );
 
 export default useStore;

@@ -81,7 +81,6 @@ function DocxViewerModal({ isOpen, onClose, deckId }: DocxViewerModalProps) {
       >
         <div
           className={`modal-content card docx-modal-content ${isFullscreen ? 'fullscreen' : ''}`}
-          onClick={(e) => e.stopPropagation()}
         >
           <div className="docx-modal-header">
             <DialogTitle asChild>
