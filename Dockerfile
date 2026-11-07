@@ -29,7 +29,7 @@ COPY --from=frontend-build /app/frontend/dist ./src/main/resources/static
 RUN mvn clean package -DskipTests -B
 
 # ── Etapa 3: Imagen de producción (JRE mínimo Alpine) ───────────────────────
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:24-jre-alpine
 WORKDIR /app
 
 COPY --from=backend-build /app/target/*.jar app.jar
