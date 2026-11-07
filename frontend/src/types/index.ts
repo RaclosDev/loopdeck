@@ -45,38 +45,6 @@ export interface Note {
   updatedAt: string;
 }
 
-export interface Review {
-  id: string;
-  cardId: string;
-  rating: number;
-  intervalDays: number;
-  easeFactor: number;
-  timeTakenMs: number;
-  reviewedAt: string;
-}
-
-export interface UserDto {
-  id: string;
-  email: string;
-  name: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: UserDto;
-}
-
-export interface RegisterRequest {
-  email: string;
-  name: string;
-  password?: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password?: string;
-}
-
 export interface DeckCreateBody {
   name: string;
   description?: string;
@@ -110,18 +78,25 @@ export interface ReviewBody {
   rating: number;
   timeTakenMs: number;
   requestId?: string;
+  customIntervalMinutes?: number;
 }
 
 // DTOs from CardService.DueCardDto
 export interface DueCardDto {
   card: Card;
   note: Note;
+  intervals: Record<number, string>;
 }
 
 export interface StudyBatch {
   items: DueCardDto[];
   counts: DeckStats;
   hasMore: boolean;
+}
+
+export interface PreparedStudy {
+  batch: StudyBatch;
+  validForMs: number;
 }
 
 export interface NotePage {

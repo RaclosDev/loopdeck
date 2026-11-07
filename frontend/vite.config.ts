@@ -67,5 +67,13 @@ export default defineConfig({
     globals: true,
     setupFiles: './src/test/setup.ts',
     exclude: ['e2e/**', 'node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/test/**', 'src/**/*.d.ts', 'src/main.tsx', 'src/components/ui/**'],
+      reporter: ['text-summary', 'html', 'json-summary'],
+      // Justo por debajo de la cobertura actual, para que no baje.
+      thresholds: { lines: 18, statements: 18, functions: 14, branches: 15 },
+    },
   },
 });

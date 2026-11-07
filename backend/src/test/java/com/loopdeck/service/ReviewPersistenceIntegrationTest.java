@@ -43,6 +43,21 @@ class ReviewPersistenceIntegrationTest {
         assertThrows(ConflictException.class, () -> study.review(owner, cardId, 3, 200, id));
         assertThrows(InvalidInputException.class, () -> study.review(owner, cardId, 5, 0, requestId()));
     }
+    @Test void aCustomIntervalOverridesTheAlgorithmAndCanBeUndone() {
+        var before = CardSchedule.capture(cardRepository.findById(cardId).orElseThrow());
+        String id = requestId();
+
+        study.review(owner, cardId, 3, 100, id, 90);
+
+        var scheduled = cardRepository.findById(cardId).orElseThrow();
+        assertEquals("learning", scheduled.getState());
+        assertEquals(90.0 / 1440.0, scheduled.getIntervalDays());
+        assertTrue(scheduled.getDue().isAfter(Instant.now().plusSeconds(89 * 60)));
+        assertThrows(ConflictException.class, () -> study.review(owner, cardId, 3, 100, id, 60));
+
+        study.restore(owner, cardId, id, null);
+        assertEquals(before, CardSchedule.capture(cardRepository.findById(cardId).orElseThrow()));
+    }
     @Test void undoUsesTheServerSnapshotAndKeepsTheIdempotencyTombstone() {
         var before = CardSchedule.capture(cardRepository.findById(cardId).orElseThrow());
         String id = requestId();

@@ -64,6 +64,8 @@ export default function GoogleSignInButton({
               theme="outline"
               shape="pill"
               text="continue_with"
+              // FedCM: «Continuar como…» con nombre y foto aunque el navegador bloquee cookies de terceros.
+              use_fedcm_for_button
             />
           )}
         </div>

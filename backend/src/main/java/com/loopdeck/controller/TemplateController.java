@@ -1,8 +1,6 @@
 package com.loopdeck.controller;
 
 import com.loopdeck.model.Deck;
-import com.loopdeck.model.User;
-import com.loopdeck.repository.UserRepository;
 import com.loopdeck.service.TemplateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,11 +18,8 @@ import java.util.Map;
 public class TemplateController {
 
     private final TemplateService templateService;
-    private final UserRepository userRepository;
-
-    public TemplateController(TemplateService templateService, UserRepository userRepository) {
+    public TemplateController(TemplateService templateService) {
         this.templateService = templateService;
-        this.userRepository = userRepository;
     }
 
     @GetMapping
@@ -38,11 +33,6 @@ public class TemplateController {
             throw new IllegalArgumentException("Invalid template type format");
         }
         
-        String userId = authentication.getName();
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Deck importedDeck = templateService.importTemplate(user, type);
-        return ResponseEntity.ok(importedDeck);
+        return ResponseEntity.ok(templateService.importTemplate(authentication.getName(), type));
     }
 }

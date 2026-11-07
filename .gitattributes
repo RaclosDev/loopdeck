@@ -1,0 +1,4 @@
+# Scripts que se ejecutan en contenedores Linux: siempre con saltos de línea LF.
+backend/mvnw text eol=lf
+*.sh text eol=lf
+backend/.mvn/wrapper/maven-wrapper.properties text eol=lf

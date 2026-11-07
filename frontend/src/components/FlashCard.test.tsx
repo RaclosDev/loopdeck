@@ -38,6 +38,7 @@ describe('FlashCard Component', () => {
       />,
     );
     expect(screen.getByText('Question')).toBeInTheDocument();
+    expect(screen.queryByText('Toca para voltear')).not.toBeInTheDocument();
   });
 
   it('calls onFlip when clicked and not flipped', () => {

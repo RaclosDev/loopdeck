@@ -17,7 +17,7 @@ describe('RatingButtons Component', () => {
 
   it('renders correctly with given intervals', () => {
     render(<RatingButtons intervals={mockIntervals} onRate={() => {}} />);
-    
+
     expect(screen.getByText('< 10m')).toBeInTheDocument();
     expect(screen.getByText('1d')).toBeInTheDocument();
     expect(screen.getByText('3d')).toBeInTheDocument();
@@ -27,17 +27,32 @@ describe('RatingButtons Component', () => {
   it('calls onRate with correct rating when clicked', () => {
     const onRateMock = vi.fn();
     render(<RatingButtons intervals={mockIntervals} onRate={onRateMock} />);
-    
+
     const goodButton = screen.getByText('3d').closest('button');
     fireEvent.click(goodButton!);
-    
+
     expect(onRateMock).toHaveBeenCalledWith(3);
+  });
+
+  it('opens the custom scheduling control', () => {
+    const onCustomSchedule = vi.fn();
+    render(
+      <RatingButtons
+        intervals={mockIntervals}
+        onRate={() => {}}
+        onCustomSchedule={onCustomSchedule}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Elegir cuándo repasar esta tarjeta' }));
+
+    expect(onCustomSchedule).toHaveBeenCalledOnce();
   });
 
   it('disables buttons when disabled prop is true', () => {
     render(<RatingButtons intervals={mockIntervals} onRate={() => {}} disabled={true} />);
     const buttons = screen.getAllByRole('button');
-    buttons.forEach(button => {
+    buttons.forEach((button) => {
       expect(button).toBeDisabled();
     });
   });

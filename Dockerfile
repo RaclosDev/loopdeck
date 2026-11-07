@@ -26,7 +26,7 @@ COPY backend/src ./src
 COPY --from=frontend-build /app/frontend/dist ./src/main/resources/static
 
 # Compilamos el backend (el .jar ya incluirá el frontend)
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -B
 
 # ── Etapa 3: Imagen de producción (JRE mínimo Alpine) ───────────────────────
 FROM eclipse-temurin:17-jre-alpine
@@ -43,5 +43,9 @@ RUN apk add --no-cache tzdata && \
     apk del tzdata
 
 ENV SPRING_PROFILES_ACTIVE=prod
+
+# Sin privilegios de root en ejecución
+RUN addgroup -S app && adduser -S app -G app
+USER app
 
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

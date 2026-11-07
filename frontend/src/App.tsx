@@ -1,3 +1,4 @@
+import { loadStudy } from './lib/studyQuery';
 import { useEffect, useState, lazy, Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
@@ -10,7 +11,7 @@ import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
 const GlobalStudy = lazy(() => import('./pages/GlobalStudy'));
-const Study = lazy(() => import('./pages/Study'));
+const Study = lazy(loadStudy);
 const StudyHub = lazy(() => import('./pages/StudyHub'));
 const StudyGuide = lazy(() => import('./pages/StudyGuide'));
 const StudyExplore = lazy(() => import('./pages/StudyExplore'));

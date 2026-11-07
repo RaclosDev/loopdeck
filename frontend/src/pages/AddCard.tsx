@@ -390,6 +390,7 @@ export default function AddCard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
             <label
+              htmlFor="add-card-deck"
               className="form-label"
               style={{
                 margin: 0,
@@ -401,6 +402,7 @@ export default function AddCard() {
               MAZO
             </label>
             <button
+              id="add-card-deck"
               type="button"
               className="form-input"
               aria-label="Seleccionar mazo"
@@ -425,6 +427,7 @@ export default function AddCard() {
           {addMode === 'single' && (
             <div>
               <label
+                htmlFor="add-card-note-type"
                 className="form-label"
                 style={{
                   margin: 0,
@@ -436,6 +439,7 @@ export default function AddCard() {
                 TIPO DE NOTA
               </label>
               <button
+                id="add-card-note-type"
                 type="button"
                 className="form-input"
                 aria-label="Seleccionar tipo de nota"
@@ -556,12 +560,12 @@ export default function AddCard() {
                   gap: '8px',
                 }}
               >
-                <label
+                <span
                   className="form-label"
                   style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}
                 >
                   Frente
-                </label>
+                </span>
                 <div className="editor-tools">
                   <button
                     type="button"
@@ -683,12 +687,12 @@ export default function AddCard() {
                   gap: '8px',
                 }}
               >
-                <label
+                <span
                   className="form-label"
                   style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}
                 >
                   Dorso
-                </label>
+                </span>
                 <div className="editor-tools">
                   <button
                     type="button"
@@ -753,6 +757,7 @@ export default function AddCard() {
             {/* Tags */}
             <div>
               <label
+                htmlFor="add-card-tags"
                 style={{
                   display: 'block',
                   fontSize: '0.85rem',
@@ -773,6 +778,7 @@ export default function AddCard() {
                   padding: '8px 12px',
                   alignItems: 'center',
                 }}
+                role="presentation"
                 onClick={() => tagInputRef.current?.focus()}
               >
                 {tags.map((tag) => (
@@ -790,18 +796,30 @@ export default function AddCard() {
                     }}
                   >
                     {tag}
-                    <span
-                      style={{ cursor: 'pointer', opacity: 0.7 }}
+                    <button
+                      type="button"
+                      aria-label={`Quitar etiqueta ${tag}`}
+                      style={{
+                        cursor: 'pointer',
+                        opacity: 0.7,
+                        background: 'none',
+                        border: 0,
+                        padding: 0,
+                        color: 'inherit',
+                        display: 'inline-flex',
+                      }}
                       onClick={(e) => {
                         e.stopPropagation();
                         removeTag(tag);
                       }}
                     >
-                      <X className="w-3 h-3" />
-                    </span>
+                      {' '}
+                      <X className="w-3 h-3" aria-hidden="true" />{' '}
+                    </button>
                   </span>
                 ))}
                 <input
+                  id="add-card-tags"
                   ref={tagInputRef}
                   style={{
                     flex: 1,

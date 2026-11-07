@@ -3,9 +3,10 @@ server:
 
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:loopdeck}}
-    username: ${SPRING_DATASOURCE_USERNAME:${PGUSER:loopdeck}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD:CHANGE_ME}}
+    # Sin valores por defecto: en producción el arranque falla si falta la base de datos.
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://${PGHOST}:${PGPORT:5432}/${PGDATABASE}}
+    username: ${SPRING_DATASOURCE_USERNAME:${PGUSER}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${PGPASSWORD}}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

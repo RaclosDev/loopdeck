@@ -10,6 +10,7 @@ import './study-sheets.css';
 import './ux-polish.css';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { hideBootSplash } from './lib/bootSplash';
 
 import { applyThemeColor } from './utils/colorHelper';
 
@@ -48,3 +49,5 @@ createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </StrictMode>,
 );
+
+void hideBootSplash();

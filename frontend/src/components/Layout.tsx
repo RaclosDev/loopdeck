@@ -1,4 +1,5 @@
 import toast from 'react-hot-toast';
+import StudyPreparation from './StudyPreparation';
 import useStore from '../store/useStore';
 import { useState, useEffect, Suspense } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
@@ -15,6 +16,7 @@ import {
   Download,
   LogOut,
   Menu,
+  Share,
 } from 'lucide-react';
 
 const navItems = [
@@ -97,8 +99,8 @@ export default function Layout() {
         navigate(href);
       }
     };
-    document.addEventListener('click', handleGlobalClick, { capture: true });
-    return () => document.removeEventListener('click', handleGlobalClick, { capture: true });
+    document.addEventListener('click', handleGlobalClick);
+    return () => document.removeEventListener('click', handleGlobalClick);
   }, [navigate]);
 
   const closeSidebar = () => setSidebarOpen(false);
@@ -124,10 +126,10 @@ export default function Layout() {
 
   const handleInstallClick = async () => {
     if (showIosInstall) {
-      toast('Para instalar LoopDeck en iOS: toca Compartir y "Añadir a la pantalla de inicio".', {
-        icon: '📲',
-        duration: 6000,
-      });
+      toast(
+        'Para instalar LoopDeck en el iPhone, abre Compartir en Safari y elige «Añadir a pantalla de inicio». En Safari 26 o posterior puede estar dentro de «Ver más».',
+        { icon: <Share className="w-5 h-5" aria-hidden="true" />, duration: 8000 },
+      );
       return;
     }
 
@@ -142,6 +144,9 @@ export default function Layout() {
 
   return (
     <div className="app-root">
+      {(location.pathname === '/' ||
+        location.pathname === '/hub' ||
+        /^\/hub\/[^/]+$/.test(location.pathname)) && <StudyPreparation />}
       {!isStudyPage && (
         <header className="mobile-top-bar justify-center">
           <div className="mobile-top-logo flex items-center justify-center">
@@ -153,7 +158,11 @@ export default function Layout() {
         </header>
       )}
 
-      <div className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`} onClick={closeSidebar} />
+      <div
+        className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`}
+        role="presentation"
+        onClick={closeSidebar}
+      />
 
       <div className="app-container">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>

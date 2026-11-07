@@ -110,7 +110,6 @@ export default function ImageSearchModal({
       <DialogContent className="p-0 max-w-[700px]">
         <div
           className="modal animate-slide-up"
-          onClick={(e) => e.stopPropagation()}
           style={{
             maxWidth: 700,
             width: '100%',

@@ -68,3 +68,5 @@ rate-limit:
   enabled: ${RATE_LIMIT_ENABLED:true}
   capacity: ${RATE_LIMIT_CAPACITY:100}
   tokens: ${RATE_LIMIT_TOKENS:10}
+  # Proxies delante de la app que añaden un salto a X-Forwarded-For (1 con un proxy de borde o nginx).
+  trusted-proxy-hops: ${RATE_LIMIT_TRUSTED_PROXY_HOPS:1}

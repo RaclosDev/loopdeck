@@ -62,9 +62,10 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title, child
         <Dialog.Overlay asChild>
           <div
             className="bottom-sheet-overlay"
+            role="presentation"
             onClick={(e) => {
               e.stopPropagation();
-              onClose();
+              if (e.target === e.currentTarget) onClose();
             }}
             style={{ opacity: dragY > 0 ? Math.max(0, 1 - dragY / 300) : 1 }}
           >
@@ -84,7 +85,6 @@ const BottomSheet: React.FC<BottomSheetProps> = ({ isOpen, onClose, title, child
             >
               <div
                 className="bottom-sheet-content"
-                onClick={(e) => e.stopPropagation()}
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
