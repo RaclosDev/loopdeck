@@ -1,10 +1,12 @@
 import js from '@eslint/js';
 import react from 'eslint-plugin-react';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
 import tsParser from '@babel/eslint-parser';
 
 export default [
-  { ignores: ['dist/**', 'playwright-report/**', 'test-results/**'] },
+  { ignores: ['dist/**', 'coverage/**', 'playwright-report/**', 'test-results/**'] },
   js.configs.recommended,
+  jsxA11y.flatConfigs.recommended,
   {
     files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
     plugins: {

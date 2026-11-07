@@ -9,9 +9,10 @@ const CACHE_NAME = 'loopdeck-v2';
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
-// API caching - Network First
+// API caching - Network First. La sesión (/api/auth) nunca se guarda, y la app borra esta caché
+// al cerrar sesión o cambiar de cuenta para que nadie vea datos de la cuenta anterior.
 registerRoute(
-  ({ url }) => url.pathname.startsWith('/api/'),
+  ({ url }) => url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/'),
   new NetworkFirst({
     cacheName: 'api-cache',
     plugins: [

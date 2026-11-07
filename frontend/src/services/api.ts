@@ -6,7 +6,6 @@ import {
   PreparedStudy,
   Card,
   Note,
-  UserDto,
   DeckCreateBody,
   DeckUpdateBody,
   NoteCreateBody,
@@ -23,13 +22,6 @@ import {
 import api from '../api/client';
 
 export const API_BASE = import.meta.env.VITE_API_URL || '/api';
-
-export const authApi = {
-  me: async (): Promise<UserDto> => {
-    const res = await api.get('/auth/me');
-    return res.data;
-  },
-};
 
 export const decksApi = {
   getAll: async (): Promise<Deck[]> => {
@@ -180,21 +172,4 @@ export const aiApi = {
     const res = await api.post('/ai/mass-define', { words } as AiMassDefinePayload);
     return res.data;
   },
-};
-
-export const usersApi = {
-  dailyLogin: async (): Promise<UserDto> => {
-    const res = await api.post('/users/daily-login');
-    return res.data;
-  },
-};
-
-export default {
-  auth: authApi,
-  decks: decksApi,
-  notes: notesApi,
-  study: studyApi,
-  templates: templatesApi,
-  ai: aiApi,
-  users: usersApi,
 };

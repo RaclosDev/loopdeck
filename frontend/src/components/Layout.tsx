@@ -16,6 +16,7 @@ import {
   Download,
   LogOut,
   Menu,
+  Share,
 } from 'lucide-react';
 
 const navItems = [
@@ -125,10 +126,10 @@ export default function Layout() {
 
   const handleInstallClick = async () => {
     if (showIosInstall) {
-      toast('Para instalar LoopDeck en iOS: toca Compartir y "Añadir a la pantalla de inicio".', {
-        icon: '📲',
-        duration: 6000,
-      });
+      toast(
+        'Para instalar LoopDeck en el iPhone, abre Compartir en Safari y elige «Añadir a pantalla de inicio». En Safari 26 o posterior puede estar dentro de «Ver más».',
+        { icon: <Share className="w-5 h-5" aria-hidden="true" />, duration: 8000 },
+      );
       return;
     }
 
@@ -157,7 +158,11 @@ export default function Layout() {
         </header>
       )}
 
-      <div className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`} onClick={closeSidebar} />
+      <div
+        className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`}
+        role="presentation"
+        onClick={closeSidebar}
+      />
 
       <div className="app-container">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>

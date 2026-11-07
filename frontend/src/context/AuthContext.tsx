@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, useRef, ReactNode } fro
 import { useQueryClient } from '@tanstack/react-query';
 import { googleLogout } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { clearOfflineApiCache } from '../lib/offlineCache';
 
 export interface CustomJwtPayload extends JwtPayload {
   email?: string;
@@ -19,7 +20,7 @@ export interface User {
   currentStreak?: number;
 }
 
-export interface AuthContextType {
+interface AuthContextType {
   token: string | null;
   user: User | null;
   isLoading: boolean;
@@ -42,7 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const synchronizeIdentity = (jwtToken: string) => {
     const subject = jwtDecode<CustomJwtPayload>(jwtToken).sub;
-    if (identity.current !== undefined && identity.current !== subject) queryClient.clear();
+    if (identity.current !== undefined && identity.current !== subject) {
+      queryClient.clear();
+      void clearOfflineApiCache();
+    }
     identity.current = subject;
   };
 
@@ -170,6 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Ignore network errors during logout
     }
     localStorage.removeItem('loopdeck_jwt_token');
+    await clearOfflineApiCache();
     setToken(null);
     setUser(null);
     identity.current = undefined;

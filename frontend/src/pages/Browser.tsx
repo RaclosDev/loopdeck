@@ -375,9 +375,7 @@ export default function Browser() {
             </div>
             {editingNote?.noteType !== 'cloze' && (
               <div>
-                <label className="form-label mb-2 block uppercase tracking-wide text-xs">
-                  Dorso
-                </label>
+                <span className="form-label mb-2 block uppercase tracking-wide text-xs">Dorso</span>
                 <div
                   className="form-input min-h-[80px] p-3"
                   contentEditable

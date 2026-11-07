@@ -45,38 +45,6 @@ export interface Note {
   updatedAt: string;
 }
 
-export interface Review {
-  id: string;
-  cardId: string;
-  rating: number;
-  intervalDays: number;
-  easeFactor: number;
-  timeTakenMs: number;
-  reviewedAt: string;
-}
-
-export interface UserDto {
-  id: string;
-  email: string;
-  name: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: UserDto;
-}
-
-export interface RegisterRequest {
-  email: string;
-  name: string;
-  password?: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password?: string;
-}
-
 export interface DeckCreateBody {
   name: string;
   description?: string;

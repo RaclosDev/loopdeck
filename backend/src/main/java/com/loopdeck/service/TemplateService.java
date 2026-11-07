@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.loopdeck.exception.InvalidInputException;
 import com.loopdeck.model.Deck;
-import com.loopdeck.model.User;
 import com.loopdeck.repository.DeckRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -48,11 +47,11 @@ public class TemplateService {
     }
 
     @Transactional
-    public Deck importTemplate(User user, String templateId) {
+    public Deck importTemplate(String userId, String templateId) {
         TemplateFile template = templates.get(templateId);
         if (template == null) throw new InvalidInputException("Unknown template");
         Deck deck = new Deck();
-        deck.setUserId(user.getId()); deck.setName(template.name()); deck.setDescription(template.description());
+        deck.setUserId(userId); deck.setName(template.name()); deck.setDescription(template.description());
         deck = decks.saveAndFlush(deck);
         try {
             String tags = template.category() == null ? "template" : template.category().toLowerCase(Locale.ROOT);
@@ -62,7 +61,7 @@ public class TemplateService {
                     mapper.writeValueAsString(Map.of("front", card.front(), "back", card.back())), tags));
             }
             for (int start = 0; start < notes.size(); start += 500) {
-                imports.importNotes(user.getId(), deck.getId(), notes.subList(start, Math.min(start + 500, notes.size())), null);
+                imports.importNotes(userId, deck.getId(), notes.subList(start, Math.min(start + 500, notes.size())), null);
             }
             return deck;
         } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
