@@ -4,8 +4,6 @@ import com.loopdeck.service.AiService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -17,39 +15,42 @@ public class AiController {
         this.aiService = aiService;
     }
 
+    public record DefinitionResponse(String definition) {}
+
+    public record ImageResponse(String imageUrl) {}
+
+    public record ChatRequest(String prompt, String context) {}
+
+    public record ChatResponse(String response) {}
+
+    public record MassDefineRequest(String words) {}
+
     @GetMapping("/definition")
-    public ResponseEntity<Map<String, String>> getDefinition(@RequestParam String word) {
+    public ResponseEntity<DefinitionResponse> getDefinition(@RequestParam String word) {
         if (word == null || word.trim().isEmpty() || word.length() > 50) {
             throw new IllegalArgumentException("Palabra inválida o demasiado larga");
         }
-        String definition = aiService.getDefinition(word);
-        
-        Map<String, String> response = new HashMap<>();
-        response.put("definition", definition);
-        
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new DefinitionResponse(aiService.getDefinition(word)));
     }
 
     @GetMapping("/image")
-    public ResponseEntity<Map<String, String>> getImage(@RequestParam String word) {
+    public ResponseEntity<ImageResponse> getImage(@RequestParam String word) {
         if (word == null || word.trim().isEmpty() || word.length() > 50) {
             throw new IllegalArgumentException("Palabra inválida o demasiado larga");
         }
         String imageUrl = aiService.getImageUrl(word);
         
         if (imageUrl != null) {
-            Map<String, String> response = new HashMap<>();
-            response.put("imageUrl", imageUrl);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new ImageResponse(imageUrl));
         }
         
         return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> payload) {
-        String prompt = payload.get("prompt");
-        String context = payload.get("context");
+    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest payload) {
+        String prompt = payload.prompt();
+        String context = payload.context();
         
         if (prompt == null || prompt.trim().isEmpty() || prompt.length() > 2000) {
             throw new IllegalArgumentException("El prompt es inválido o excede los 2000 caracteres");
@@ -58,17 +59,12 @@ public class AiController {
             throw new IllegalArgumentException("El contexto excede el límite permitido");
         }
         
-        String responseText = aiService.getChatResponse(prompt, context);
-        
-        Map<String, String> response = new HashMap<>();
-        response.put("response", responseText);
-        
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ChatResponse(aiService.getChatResponse(prompt, context)));
     }
 
     @PostMapping("/mass-define")
-    public ResponseEntity<String> massDefine(@RequestBody Map<String, String> payload) {
-        String words = payload.get("words");
+    public ResponseEntity<String> massDefine(@RequestBody MassDefineRequest payload) {
+        String words = payload.words();
         if (words == null || words.trim().isEmpty() || words.length() > 5000) {
             throw new IllegalArgumentException("La lista de palabras es inválida o excede los 5000 caracteres");
         }

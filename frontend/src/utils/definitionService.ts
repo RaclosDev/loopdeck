@@ -1,3 +1,4 @@
+import type { AiDefinitionResponse, AiImageResponse } from '../types';
 /**
  * LoopDeck - Definition Lookup Service
  * Uses Google Gemini AI via Backend with fallback to Wikipedia API.
@@ -24,7 +25,7 @@ export async function lookupDefinition(word: string) {
       },
     });
     if (aiRes.ok) {
-      const data = await aiRes.json();
+      const data: AiDefinitionResponse = await aiRes.json();
       if (data && data.definition && !data.definition.startsWith('Error:')) {
         resultDefinition = data.definition;
       }
@@ -78,7 +79,7 @@ export async function lookupImage(word: string) {
       },
     });
     if (res.ok) {
-      const data = await res.json();
+      const data: AiImageResponse = await res.json();
       if (data && data.imageUrl) {
         return data.imageUrl;
       }

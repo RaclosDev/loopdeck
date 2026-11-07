@@ -31,6 +31,8 @@ export default function Settings() {
     localStorage.setItem('loopdeck_theme', newTheme);
     document.body.classList.remove('dark-mode', 'light-mode');
     document.body.classList.add(newTheme === 'light' ? 'light-mode' : 'dark-mode');
+    // El fondo inicial de index.html sigue al tema elegido.
+    document.documentElement.classList.toggle('boot-light', newTheme === 'light');
   };
   const [showClearModal, setShowClearModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -97,8 +99,13 @@ export default function Settings() {
           <h2 className="text-xl font-bold mb-6">Apariencia</h2>
 
           <div className="mb-8">
-            <label className="form-label mb-3 block uppercase tracking-wide text-xs">Tema</label>
-            <div className="flex gap-3">
+            <span
+              id="settings-theme"
+              className="form-label mb-3 block uppercase tracking-wide text-xs"
+            >
+              Tema
+            </span>
+            <div className="flex gap-3" role="group" aria-labelledby="settings-theme">
               <Button
                 type="button"
                 variant={currentTheme === 'dark' ? 'default' : 'secondary'}
@@ -119,11 +126,15 @@ export default function Settings() {
           </div>
 
           <div className="mb-8">
-            <label className="form-label mb-3 block uppercase tracking-wide text-xs">
+            <label
+              htmlFor="settings-accent-color"
+              className="form-label mb-3 block uppercase tracking-wide text-xs"
+            >
               Color Principal
             </label>
             <div className="flex items-center gap-4 mb-3">
               <input
+                id="settings-accent-color"
                 type="color"
                 aria-label="Seleccionar color de acento personalizado"
                 value={customColor}

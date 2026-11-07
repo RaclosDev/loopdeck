@@ -43,6 +43,11 @@ public class GlobalExceptionHandler {
         org.springframework.web.bind.MissingServletRequestParameterException.class,
         org.springframework.web.multipart.support.MissingServletRequestPartException.class})
     public ResponseEntity<?> handleMalformedRequest(Exception ex) {
+        for (Throwable cause = ex; cause != null; cause = cause.getCause()) {
+            if (cause instanceof com.loopdeck.config.RequestBodyLimitFilter.BodyTooLargeException) {
+                return buildErrorResponse("La petición es demasiado grande", HttpStatus.PAYLOAD_TOO_LARGE);
+            }
+        }
         return buildErrorResponse("La solicitud contiene datos no válidos", HttpStatus.BAD_REQUEST);
     }
     
