@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="frontend/public/loopdeck-brush-512.png" alt="" width="96">
+  <img src="docs/screenshots/hero.jpg" alt="LoopDeck: mazos, centro de estudio y repaso con la interfaz móvil actual" width="100%">
 </p>
 
 <h1 align="center">LoopDeck</h1>
 
 <p align="center">
-  Crea tus tarjetas, estudia a tu ritmo y repasa cuando toca.<br>
-  Aplicación full-stack de estudio con repetición espaciada, documentos y tutor IA.
+  <strong>Prepara el temario. Practica. Vuelve a repasarlo cuando toca.</strong><br>
+  Una PWA de estudio con flashcards, repetición espaciada, apuntes y tutor IA.
 </p>
 
 <p align="center">
@@ -21,56 +21,70 @@
   <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 </p>
 
+LoopDeck reúne el material y la práctica en un mismo lugar: cada mazo contiene sus tarjetas y puede tener un documento DOCX de apoyo. El centro de estudio permite leer, practicar por bloques, hacer tests o comenzar el repaso espaciado. La siguiente revisión se calcula a partir del historial de cada tarjeta con **FSRS-5**, y también se puede programar manualmente.
+
+Es un proyecto personal de **Carlos Sanz Tomero**, desarrollado desde el modelo de datos y la API hasta la interfaz, las pruebas y la distribución como PWA.
+
+## La aplicación
+
 <table>
   <tr>
-    <th>Tus mazos</th>
+    <th>Mazos y pendientes</th>
     <th>Centro de estudio</th>
-    <th>Repaso</th>
+    <th>Repaso y próxima revisión</th>
   </tr>
   <tr>
-    <td width="33%"><img src="docs/screenshots/decks-mobile.png" alt="Colección de mazos en móvil con tarjetas pendientes"></td>
-    <td width="33%"><img src="docs/screenshots/study-hub-mobile.png" alt="Centro de estudio en móvil con apuntes y métodos de estudio"></td>
-    <td width="33%"><img src="docs/screenshots/study-mobile.png" alt="Repaso en móvil con respuesta y valoraciones"></td>
+    <td width="33%"><img src="docs/screenshots/decks-mobile.png" alt="Mazos de biología, inglés y arte con recuentos de tarjetas nuevas, en aprendizaje y pendientes"></td>
+    <td width="33%"><img src="docs/screenshots/study-hub-mobile.png" alt="Centro de estudio de un mazo con apuntes, repaso espaciado y guía de estudio"></td>
+    <td width="33%"><img src="docs/screenshots/study-mobile.png" alt="Respuesta de una tarjeta con cuatro valoraciones y la opción de elegir otro momento para repasarla"></td>
   </tr>
 </table>
 
-_Capturas de la interfaz real en formato móvil con datos ficticios. Los recuentos y los intervalos son de demostración. [Cómo reproducirlas](docs/screenshots/README.md)._
-
-LoopDeck reúne la preparación del material y el repaso en una misma aplicación. Puedes crear una colección de tarjetas, consultar tus apuntes y elegir entre repaso espaciado, lectura libre o tests. Su interfaz de papel y tinta está adaptada a escritorio y móvil, y se puede instalar como PWA.
+_Interfaz real capturada desde el código actual, con datos ficticios y las fuentes de la app. [Reproducir las capturas](docs/screenshots/README.md)._
 
 ## Qué puedes hacer
 
-| Funcionalidad                                  | Para qué sirve                                                                                                                                                                                     |
-| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Mazos y tarjetas**                           | Organiza el temario en mazos y crea tarjetas de pregunta/respuesta, reversibles o con huecos (_cloze_). Añade imágenes y etiquetas, y busca contenido en el explorador.                            |
-| **Repetición espaciada**                       | Repasa las tarjetas pendientes y valora cuánto te ha costado recordarlas. FSRS-5 adapta la siguiente fecha al historial de cada tarjeta; también puedes elegirla manualmente y deshacer un repaso. |
-| **Cinco formas de estudiar además del repaso** | Lee preguntas y respuestas en la guía, recorre tarjetas sin calificación en el modo paseo, practica por bloques, responde tests de cuatro opciones o consulta al tutor IA.                         |
-| **Apuntes junto al mazo**                      | Adjunta un documento DOCX y consúltalo desde el centro de estudio.                                                                                                                                 |
-| **Ayuda de IA**                                | Genera definiciones y tarjetas a partir de listas de términos, y pregunta al tutor sobre el contenido del mazo con Google Gemini.                                                                  |
-| **Plantillas y seguimiento**                   | Empieza con colecciones de capitales y banderas; consulta la distribución de tus tarjetas y lo que tienes pendiente.                                                                               |
-| **Móvil y escritorio**                         | Usa la misma cuenta desde el navegador o instala la PWA. Incluye temas claro y oscuro y atajos de teclado para repasar.                                                                            |
+| Recorrido | Funcionalidades |
+| --- | --- |
+| **Preparar el temario** | Crea mazos y tarjetas de pregunta/respuesta, reversibles o con huecos (*cloze*). Añade imágenes y etiquetas, busca en el explorador y vincula apuntes DOCX. |
+| **Elegir cómo estudiar** | Lee la guía, recorre tarjetas sin calificarlas, practica por bloques o responde tests de cuatro opciones. El tutor IA responde sobre el contenido del mazo. |
+| **Repasar con continuidad** | Valora el recuerdo para que FSRS-5 programe la siguiente revisión. Puedes elegir otro intervalo y deshacer el último repaso. |
+| **Preparar material con IA** | Genera definiciones y tarjetas a partir de listas de términos con Google Gemini. También hay plantillas de capitales y banderas para empezar. |
+| **Seguir lo pendiente** | Consulta las tarjetas nuevas, en aprendizaje y disponibles para repaso por mazo. Usa la misma cuenta en móvil y escritorio, con temas claro y oscuro y atajos de teclado. |
 
-## Prueba el recorrido
+## Un recorrido para probarla
 
-1. Abre [LoopDeck](https://loopdeck.raclos.es) y crea una cuenta o inicia sesión.
-2. Importa una plantilla de capitales desde **Plantillas**, o crea un mazo con tus propias tarjetas.
-3. Entra en el **Centro de Estudio** y elige una guía, un test o el repaso espaciado.
-4. Durante el repaso, muestra la respuesta y valora el recuerdo para programar la siguiente revisión.
+1. Abre [LoopDeck](https://loopdeck.raclos.es) y entra con correo y contraseña o con Google, si está habilitado.
+2. Crea un mazo o importa una colección de capitales desde **Plantillas**.
+3. Entra en el **Centro de estudio** y abre una guía, un test o el repaso espaciado.
+4. Muestra la respuesta y valora cuánto recuerdas, o elige una fecha de repaso manual.
 
-El estudio manual no requiere Gemini. Las funciones de IA necesitan una clave configurada en el servidor y conexión con el proveedor. La PWA no ofrece sincronización completa de repasos sin conexión.
+Las funciones de IA necesitan Gemini configurado en el servidor; crear tarjetas y estudiar manualmente no depende de ese servicio. La app se puede instalar como PWA, pero el guardado de los repasos requiere conexión con la API.
 
-## Tecnología
+## Decisiones técnicas
 
-| Capa                  | Stack                                                                        |
-| --------------------- | ---------------------------------------------------------------------------- |
-| Interfaz              | React 19, TypeScript, Vite, TanStack Query, Zustand, Tailwind CSS y Radix UI |
-| API                   | Java 17, Spring Boot 3, Spring Security, Spring Data JPA y OpenAPI           |
-| Datos y planificación | PostgreSQL, migraciones Flyway y FSRS-5                                      |
-| IA                    | Google Gemini, integrado desde el backend                                    |
-| Pruebas               | JUnit, Testcontainers con PostgreSQL, Vitest, Testing Library y Playwright   |
-| Entrega               | Docker multietapa y GitHub Actions                                           |
+| Problema | Implementación |
+| --- | --- |
+| **Un contenido, varias formas de repasarlo** | Notas y tarjetas son entidades distintas: una nota reversible genera dos tarjetas con planificación independiente. [Modelo de estudio](docs/ARCHITECTURE.md#modelo-de-estudio). |
+| **Reintentar un guardado sin duplicar el repaso** | Un identificador de operación, una transacción y el bloqueo de la tarjeta protegen el historial. Deshacer restaura una instantánea conservada por el servidor. [StudyReviewService](backend/src/main/java/com/loopdeck/service/StudyReviewService.java). |
+| **Programar revisiones a partir del historial** | Un servicio integra la librería FSRS-5, conserva el estado de memoria y expone los intervalos al frontend. [FsrsSchedulerService](backend/src/main/java/com/loopdeck/service/FsrsSchedulerService.java). |
+| **Cargar material a medida que se necesita** | El explorador pagina en servidor y el repaso solicita bloques. TanStack Query coordina consultas e invalidaciones; la sesión de estudio gestiona el avance y los fallos de guardado. [useStudySession](frontend/src/hooks/useStudySession.ts). |
+| **Aislar los datos de cada cuenta** | Spring Security autentica las peticiones y los servicios comprueban la propiedad de los recursos. Las pruebas de integración ejercitan operaciones con usuarios distintos. [Pruebas de integridad](backend/src/test/java/com/loopdeck/service/DataIntegrityIntegrationTest.java). |
 
-El proyecto cubre interfaz responsive, API autenticada, persistencia relacional, integración de IA y pruebas de navegador y base de datos. La [guía de arquitectura](docs/ARCHITECTURE.md) describe cómo se conectan estas partes y enlaza a código y pruebas representativos.
+La [guía de arquitectura](docs/ARCHITECTURE.md) detalla el modelo, la integración de Gemini, la autenticación y los límites de la caché sin conexión.
+
+## Stack y calidad
+
+| Capa | Tecnologías |
+| --- | --- |
+| Interfaz | React 19, TypeScript, Vite, TanStack Query, Zustand, Tailwind CSS y Radix UI |
+| API | Java 17, Spring Boot 3.3, Spring Security, Spring Data JPA y OpenAPI |
+| Datos y planificación | PostgreSQL, migraciones Flyway y FSRS-5 |
+| IA | Google Gemini, integrado desde el backend |
+| Pruebas | JUnit, Testcontainers con PostgreSQL, Vitest, Testing Library y Playwright |
+| Distribución | Docker multietapa, PWA y GitHub Actions |
+
+La CI comprueba el alcance modificado, con tests de dominio, integración sobre PostgreSQL, pruebas de navegador, tipos, accesibilidad estática y umbrales de cobertura. CodeQL analiza Java y TypeScript. Los cambios exclusivamente documentales no reconstruyen toda la aplicación.
 
 ## Ejecutarlo en local
 
@@ -81,8 +95,10 @@ git clone https://github.com/RaclosDev/loopdeck.git
 cd loopdeck
 ```
 
-Continúa con la [configuración paso a paso](CONTRIBUTING.md#configuración): variables de entorno, PostgreSQL, API y frontend. Allí se explican también los comandos de verificación y el flujo de contribución.
+Continúa con la [configuración paso a paso](CONTRIBUTING.md#configuración): variables de entorno, PostgreSQL, API y frontend. La misma guía recoge los comandos de verificación.
 
 ## Autor y licencia
 
-Desarrollado por [Carlos Sanz Tomero · RaclosDev](https://github.com/RaclosDev). Código disponible bajo [licencia MIT](LICENSE).
+[Carlos Sanz Tomero · RaclosDev](https://github.com/RaclosDev) · [Portfolio](https://raclosdev.github.io/) · [LinkedIn](https://www.linkedin.com/in/carlos-sanz-tomero/)
+
+Código disponible bajo [licencia MIT](LICENSE).
