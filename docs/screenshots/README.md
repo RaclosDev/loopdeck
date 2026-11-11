@@ -19,6 +19,8 @@ Deja el servidor abierto y ejecuta en otra terminal, desde la raíz:
 node docs/screenshots/capture.mjs
 ```
 
+Si el servidor usa otro puerto, pasa su origen como argumento: `node docs/screenshots/capture.mjs http://127.0.0.1:5303`.
+
 El script sobrescribe las tres capturas de esta carpeta. Usa el servidor local e intercepta las llamadas API. Permite únicamente las conexiones externas a Google Fonts que usa la app (Anton, Permanent Marker e Inter), y comprueba que las fuentes estén cargadas antes de capturar; si faltan, falla en lugar de utilizar fuentes de sustitución. Verifica los estados visibles y que no haya desbordamiento horizontal. No necesita backend, credenciales ni Gemini.
 
 | Archivo                | Vista móvil                                     |
@@ -28,5 +30,7 @@ El script sobrescribe las tres capturas de esta carpeta. Usa el servidor local e
 | `study-mobile.png`     | Respuesta de una tarjeta y controles de repaso. |
 
 Las tres imágenes capturan una pantalla, sin extender la página ni ocultar elementos de la interfaz. Necesitas conexión a Google Fonts para reproducirlas con la tipografía original.
+
+`hero.jpg` combina estas capturas en una composición HTML/CSS con marcos de teléfono. El generador compartido `render-showcase.mjs` se mantiene en los [scripts del perfil](https://github.com/RaclosDev/RaclosDev/tree/main/scripts).
 
 Revisa visualmente las imágenes antes de publicarlas si cambia la interfaz. El script usa movimiento reducido; las capturas no representan las animaciones de la app.

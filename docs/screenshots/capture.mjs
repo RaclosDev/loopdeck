@@ -7,7 +7,7 @@ const require = createRequire(
 );
 const { chromium, expect } = require("@playwright/test");
 const output = fileURLToPath(new URL("./", import.meta.url));
-const origin = "http://127.0.0.1:3000";
+const origin = new URL(process.argv[2] ?? "http://127.0.0.1:3000").origin;
 const decks = [
   {
     id: "biology",
@@ -29,7 +29,7 @@ const decks = [
   userId: "showcase",
   parentId: null,
   presetId: null,
-  createdAt: "2026-11-03",
+  createdAt: "2026-11-11",
 }));
 const counts = {
   biology: {
@@ -94,6 +94,8 @@ try {
     hasTouch: true,
     reducedMotion: "reduce",
     serviceWorkers: "block",
+    locale: "es-ES",
+    colorScheme: "light",
   });
   await context.addInitScript(() => {
     // Unsigned, local-only fixture; never sent to a backend.
