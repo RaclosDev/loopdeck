@@ -156,19 +156,6 @@ body.light-mode .sidebar-note {
 body.light-mode .sidebar .nav-item.text-destructive {
   color: #991b1b;
 }
-.mobile-bottom-nav {
-  height: var(--mobile-nav-height);
-  border: 2px solid var(--ink);
-}
-.mobile-bottom-item {
-  flex: 1;
-  min-height: 48px;
-  margin: 0;
-  border-radius: 12px;
-}
-.mobile-bottom-indicator {
-  display: none;
-}
 .card,
 .kpi-card {
   box-shadow: 2px 3px 0 #11182712;
