@@ -40,7 +40,7 @@ Es un proyecto personal de **Carlos Sanz Tomero**, desarrollado desde el modelo 
   </tr>
 </table>
 
-_Interfaz real capturada desde el código actual, con datos ficticios y las fuentes de la app. [Reproducir las capturas](docs/screenshots/README.md)._
+_Interfaz real con la sesión iniciada, capturada en noviembre de 2026 con datos ficticios y las fuentes de la app. [Reproducir las capturas](docs/screenshots/README.md)._
 
 ## Qué puedes hacer
 
@@ -50,7 +50,7 @@ _Interfaz real capturada desde el código actual, con datos ficticios y las fuen
 | **Elegir cómo estudiar** | Lee la guía, recorre tarjetas sin calificarlas, practica por bloques o responde tests de cuatro opciones. El tutor IA responde sobre el contenido del mazo. |
 | **Repasar con continuidad** | Valora el recuerdo para que FSRS-5 programe la siguiente revisión. Puedes elegir otro intervalo y deshacer el último repaso. |
 | **Preparar material con IA** | Genera definiciones y tarjetas a partir de listas de términos con Google Gemini. También hay plantillas de capitales y banderas para empezar. |
-| **Seguir lo pendiente** | Consulta las tarjetas nuevas, en aprendizaje y disponibles para repaso por mazo. Usa la misma cuenta en móvil y escritorio, con temas claro y oscuro y atajos de teclado. |
+| **Seguir lo pendiente** | Consulta las tarjetas nuevas, en aprendizaje y disponibles para repaso por mazo. Usa la misma cuenta en móvil y escritorio, con barra inferior de navegación en el móvil, menú de cuenta en la cabecera, temas claro y oscuro y atajos de teclado. |
 
 ## Un recorrido para probarla
 

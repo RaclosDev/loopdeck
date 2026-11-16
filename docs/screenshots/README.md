@@ -1,6 +1,6 @@
 # Capturas de LoopDeck
 
-Las imágenes muestran la aplicación React del repositorio ejecutada en Chromium con emulación móvil de 430 × 932 píxeles CSS y densidad 2× (imágenes de 860 × 1864). Los mazos, el usuario, los recuentos y los intervalos son ficticios; las respuestas de API se simulan en el navegador. No se accede a cuentas ni bases de datos reales, ni se generan imágenes con IA.
+Las imágenes muestran la aplicación React del repositorio ejecutada en Chromium con emulación móvil de 430 × 932 píxeles CSS y la sesión iniciada. El script captura a densidad 3× (1290 × 2796) y las imágenes del repositorio están reducidas a 860 × 1864. Los mazos, el usuario, los recuentos y los intervalos son ficticios, y la foto de perfil es un avatar ilustrado ([DiceBear Lorelei](https://www.dicebear.com/styles/lorelei/), CC0) guardado en `avatars.json`; las respuestas de API se simulan en el navegador. No se accede a cuentas ni bases de datos reales, ni se generan imágenes con IA.
 
 ## Reproducir
 
