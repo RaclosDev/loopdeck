@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { usePaperTapeAngles } from './hooks/usePaperTapeAngles';
 
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
@@ -48,7 +47,7 @@ class GlobalErrorBoundary extends Component<{ children: React.ReactNode }, { has
     if (this.state.hasError) {
       return (
         <main className="auth-stage">
-          <section className="auth-paper paper-panel landing-tape" role="alert">
+          <section className="auth-paper paper-panel" role="alert">
             <h2 style={{ marginBottom: '10px' }}>Nueva versión disponible</h2>
             <p style={{ color: 'var(--text-muted)', marginBottom: '20px' }}>
               Estamos actualizando la app. Por favor, recarga.
@@ -207,7 +206,6 @@ function AppContent({
 }
 
 export default function App() {
-  usePaperTapeAngles();
   useEffect(() => {
     const savedTheme = localStorage.getItem('loopdeck_theme') || 'dark';
     document.body.classList.remove('dark-mode', 'light-mode');

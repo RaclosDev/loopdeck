@@ -90,11 +90,6 @@ body.light-mode .sheet-canvas {
     4px 5px 0 #11182780,
     0 8px 18px #0002;
 }
-.paper-sheet.landing-tape::after {
-  width: 70px;
-  height: 21px;
-  top: -10px;
-}
 .sheet-canvas .deck-grid {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 285px), 1fr));
   gap: 24px;

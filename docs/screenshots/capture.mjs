@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import { readFileSync } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
@@ -7,7 +8,9 @@ const require = createRequire(
 );
 const { chromium, expect } = require("@playwright/test");
 const output = fileURLToPath(new URL("./", import.meta.url));
-const origin = "http://127.0.0.1:3000";
+// Avatar ilustrado (DiceBear Lorelei, CC0) para la cuenta de ejemplo.
+const avatars = JSON.parse(readFileSync(new URL("./avatars.json", import.meta.url), "utf8"));
+const origin = new URL(process.argv[2] ?? "http://127.0.0.1:3000").origin;
 const decks = [
   {
     id: "biology",
@@ -29,7 +32,7 @@ const decks = [
   userId: "showcase",
   parentId: null,
   presetId: null,
-  createdAt: "2026-11-03",
+  createdAt: "2026-11-11",
 }));
 const counts = {
   biology: {
@@ -89,24 +92,27 @@ const unexpected = [];
 try {
   const context = await browser.newContext({
     viewport: { width: 430, height: 932 },
-    deviceScaleFactor: 2,
+    deviceScaleFactor: 3,
     isMobile: true,
     hasTouch: true,
     reducedMotion: "reduce",
     serviceWorkers: "block",
+    locale: "es-ES",
+    colorScheme: "light",
   });
-  await context.addInitScript(() => {
+  await context.addInitScript((picture) => {
     // Unsigned, local-only fixture; never sent to a backend.
     const payload = btoa(
       JSON.stringify({
         sub: "showcase",
-        name: "Alex",
-        email: "demo@example.invalid",
+        name: "Carlos",
+        email: "carlos@example.invalid",
+        picture,
         exp: 4102444800,
       }),
     );
     localStorage.setItem("loopdeck_jwt_token", `e30.${payload}.fixture`);
-  });
+  }, avatars[0]);
   await context.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     if (url.pathname.startsWith("/api/")) {

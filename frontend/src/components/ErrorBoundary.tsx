@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <main className="auth-stage">
-          <section className="auth-paper paper-panel landing-tape text-center" role="alert">
+          <section className="auth-paper paper-panel text-center" role="alert">
             <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
