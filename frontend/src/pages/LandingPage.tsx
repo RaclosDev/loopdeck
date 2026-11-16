@@ -16,7 +16,7 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
         </a>
       </header>
       <section id="inicio" className="landing-intro" aria-labelledby="landing-title">
-        <div className="landing-copy paper-panel landing-tape">
+        <div className="landing-copy paper-panel">
           <p className="marker-ink">Tu memoria se entrena.</p>
           <h1 id="landing-title">
             Apréndelo.
@@ -39,7 +39,7 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
         <div className="landing-sample">
           <p className="marker-ink">Una pregunta. Dale la vuelta.</p>
           <button
-            className="landing-example paper-panel landing-tape"
+            className="landing-example paper-panel"
             aria-pressed={revealed}
             onClick={() => setRevealed(!revealed)}
           >
@@ -56,11 +56,7 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
           <p className="landing-sample-note">Empieza por una idea. Construye tu colección.</p>
         </div>
       </section>
-      <section
-        className="landing-notes paper-panel landing-tape"
-        id="cuaderno"
-        aria-labelledby="notebook-title"
-      >
+      <section className="landing-notes paper-panel" id="cuaderno" aria-labelledby="notebook-title">
         <div>
           <p className="marker-ink">Todo en tu cuaderno</p>
           <h2 id="notebook-title">Estudia a tu manera.</h2>

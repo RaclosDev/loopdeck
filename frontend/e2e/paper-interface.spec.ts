@@ -541,7 +541,7 @@ test('login, registration and safe errors', async ({ page }) => {
     });
 });
 
-test('dialog keyboard, centered stable tape, themes and reduced motion', async ({ page }) => {
+test('dialog keyboard, themes and reduced motion', async ({ page }) => {
   await fixture(page);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
@@ -550,18 +550,8 @@ test('dialog keyboard, centered stable tape, themes and reduced motion', async (
   await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Crear un mazo' })).toBeFocused();
-  const tape = page.getByRole('article').first();
-  const angle = await tape.evaluate((el) => el.style.getPropertyValue('--tape-angle'));
-  expect(Math.abs(parseFloat(angle))).toBeLessThanOrEqual(6);
-  const centered = await tape.evaluate((el) =>
-    Math.abs(
-      parseFloat(getComputedStyle(el, '::after').left) - el.getBoundingClientRect().width / 2,
-    ),
-  );
-  expect(centered).toBeLessThanOrEqual(1);
   await page.getByRole('button', { name: `Opciones del mazo ${deck.name}` }).click();
   await page.keyboard.press('Escape');
-  expect(await tape.evaluate((el) => el.style.getPropertyValue('--tape-angle'))).toBe(angle);
   await page.goto('/settings');
   await page.getByRole('button', { name: 'Apariencia', exact: true }).click();
   await page.getByRole('button', { name: /Claro/ }).click();

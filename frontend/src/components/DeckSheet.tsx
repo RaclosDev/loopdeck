@@ -18,7 +18,7 @@ export default function DeckSheet({
   const due = stats && pendingCards(stats);
   return (
     <article
-      className="paper-sheet landing-tape deck-sheet"
+      className="paper-sheet deck-sheet"
       aria-labelledby={`deck-${deck.id}`}
       data-deck-id={deck.id}
     >
