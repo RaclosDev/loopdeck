@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import StudyPreparation from './StudyPreparation';
 import useStore from '../store/useStore';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, type CSSProperties } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BottomSheet from './BottomSheet';
@@ -60,15 +60,18 @@ const navItems = [
 ];
 
 const bottomNavPaths = ['/', '/hub', '/add', '/stats'];
-const moreMenuPaths = ['/templates', '/browser', '/settings'];
+const moreMenuPaths = ['/templates', '/browser'];
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
 
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const userInitial = (user?.name?.trim()[0] ?? 'U').toUpperCase();
   const deferredPrompt = useStore((s) => s.deferredPrompt);
   const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
 
@@ -81,6 +84,7 @@ export default function Layout() {
   useEffect(() => {
     setSidebarOpen(false);
     setMoreMenuOpen(false);
+    setAccountMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
 
@@ -103,8 +107,32 @@ export default function Layout() {
     return () => document.removeEventListener('click', handleGlobalClick);
   }, [navigate]);
 
+  // El menú de cuenta se cierra al pulsar fuera o con Escape.
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const handlePointer = (e: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(e.target as Node)) setAccountMenuOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAccountMenuOpen(false);
+    };
+    document.addEventListener('pointerdown', handlePointer);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointer);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [accountMenuOpen]);
+
   const closeSidebar = () => setSidebarOpen(false);
   const isMoreActive = moreMenuPaths.some((p) => location.pathname.startsWith(p));
+  const bottomItems = navItems.filter((i) => bottomNavPaths.includes(i.path));
+  const isNavItemActive = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+  // Índice de la pestaña resaltada; «Más» es el último hueco. -1 oculta la píldora.
+  const activeBottomIndex = isMoreActive
+    ? bottomItems.length
+    : bottomItems.findIndex((i) => isNavItemActive(i.path));
   const pageTitle = location.pathname.startsWith('/add')
     ? 'Añadir tarjeta'
     : navItems.find((item) => item.path === location.pathname)?.label;
@@ -147,17 +175,6 @@ export default function Layout() {
       {(location.pathname === '/' ||
         location.pathname === '/hub' ||
         /^\/hub\/[^/]+$/.test(location.pathname)) && <StudyPreparation />}
-      {!isStudyPage && (
-        <header className="mobile-top-bar justify-center">
-          <div className="mobile-top-logo flex items-center justify-center">
-            <div className="brand text-2xl m-0">
-              <span className="text-[var(--accent-primary)]">Loop</span>
-              <span className="text-foreground">Deck</span>
-            </div>
-          </div>
-        </header>
-      )}
-
       <div
         className={`mobile-overlay ${sidebarOpen ? 'active' : ''}`}
         role="presentation"
@@ -227,9 +244,60 @@ export default function Layout() {
         </aside>
 
         <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}>
-          <div
-            className={`main-content-inner ${isSheetOverview ? 'sheet-canvas' : 'paper-panel landing-tape'}`}
-          >
+          {!isStudyPage && (
+            <header className="mobile-top-bar">
+              <div className="brand mobile-top-logo">
+                <span>Loop</span>
+                <span>Deck</span>
+              </div>
+              <div className="mobile-account" ref={accountMenuRef}>
+                <button
+                  type="button"
+                  className="mobile-avatar-btn"
+                  aria-label="Cuenta y ajustes"
+                  title="Cuenta y ajustes"
+                  aria-haspopup="menu"
+                  aria-expanded={accountMenuOpen}
+                  onClick={() => setAccountMenuOpen((open) => !open)}
+                >
+                  {user?.picture ? (
+                    <img src={user.picture} alt="" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span aria-hidden="true">{userInitial}</span>
+                  )}
+                </button>
+                {accountMenuOpen && (
+                  <div className="account-menu" role="menu" aria-label="Cuenta">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="account-menu-item"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        if (location.pathname !== '/settings') navigate('/settings');
+                      }}
+                    >
+                      <Settings className="w-4 h-4" aria-hidden="true" />
+                      Configuración
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="account-menu-item is-danger"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        logout();
+                      }}
+                    >
+                      <LogOut className="w-4 h-4" aria-hidden="true" />
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </div>
+            </header>
+          )}
+          <div className={`main-content-inner ${isSheetOverview ? 'sheet-canvas' : 'paper-panel'}`}>
             {pageTitle && !isSheetOverview && (
               <header className="page-heading">
                 <h1>{pageTitle}</h1>
@@ -256,34 +324,44 @@ export default function Layout() {
       </div>
 
       {!isStudyPage && (
-        <nav className="mobile-bottom-nav" aria-label="Navegación inferior">
-          {navItems
-            .filter((i) => bottomNavPaths.includes(i.path))
-            .map((item) => {
-              const isActive =
-                item.path === '/'
-                  ? location.pathname === '/'
-                  : location.pathname.startsWith(item.path);
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  className={`mobile-bottom-item ${isActive ? 'active' : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setMoreMenuOpen(false);
-                    if (location.pathname !== item.path) navigate(item.path);
-                  }}
-                  aria-label={item.label}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="mobile-bottom-icon">{item.icon}</span>
-                  <span className="mobile-bottom-label">{item.shortLabel}</span>
-                  {isActive && <span className="mobile-bottom-indicator" />}
-                </button>
-              );
-            })}
+        <nav
+          className="mobile-bottom-nav"
+          aria-label="Navegación inferior"
+          style={
+            {
+              '--nav-count': bottomItems.length + 1,
+              '--nav-active': Math.max(activeBottomIndex, 0),
+            } as CSSProperties
+          }
+        >
+          {/* Un único resaltado que se desliza entre pestañas */}
+          <span
+            className={`mobile-bottom-pill${activeBottomIndex < 0 ? ' is-hidden' : ''}`}
+            aria-hidden="true"
+          />
+          {bottomItems.map((item) => {
+            const isActive = isNavItemActive(item.path);
+            return (
+              <button
+                key={item.path}
+                type="button"
+                className={`mobile-bottom-item ${isActive ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMoreMenuOpen(false);
+                  if (location.pathname !== item.path) navigate(item.path);
+                }}
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+                title={item.shortLabel}
+              >
+                <span className="mobile-bottom-icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+              </button>
+            );
+          })}
           <button
             type="button"
             className={`mobile-bottom-item ${isMoreActive ? 'active' : ''}`}
@@ -294,12 +372,12 @@ export default function Layout() {
             }}
             aria-label="Más opciones"
             aria-expanded={moreMenuOpen}
+            aria-haspopup="dialog"
+            title="Más opciones"
           >
-            <span className="mobile-bottom-icon">
+            <span className="mobile-bottom-icon" aria-hidden="true">
               <Menu className="w-5 h-5" />
             </span>
-            <span className="mobile-bottom-label">Más</span>
-            {isMoreActive && <span className="mobile-bottom-indicator" />}
           </button>
         </nav>
       )}
@@ -339,20 +417,6 @@ export default function Layout() {
                 <span>Instalar App</span>
               </button>
             )}
-
-            <button
-              type="button"
-              className="bottom-sheet-item text-destructive"
-              onClick={() => {
-                setMoreMenuOpen(false);
-                logout();
-              }}
-            >
-              <span className="bottom-sheet-item-icon">
-                <LogOut className="w-5 h-5" />
-              </span>
-              <span>Cerrar sesión</span>
-            </button>
           </div>
         </BottomSheet>
       )}

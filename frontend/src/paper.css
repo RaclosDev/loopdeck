@@ -53,19 +53,6 @@ textarea::placeholder {
 .paper-panel {
   background-image: url('./assets/paper-grain.png');
 }
-.landing-tape::after {
-  content: '';
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  width: 104px;
-  height: 28px;
-  background: var(--tape);
-  border-inline: 1px dashed #11182730;
-  transform: translateX(-50%) rotate(var(--tape-angle, 0deg));
-  pointer-events: none;
-  z-index: 2;
-}
 .page-heading {
   margin-bottom: 28px;
   padding-bottom: 22px;
@@ -150,24 +137,17 @@ body.light-mode .nav-item {
 body.light-mode .brand span {
   color: var(--ink);
 }
+body.light-mode .mobile-top-bar {
+  border-bottom-color: rgba(17, 24, 39, 0.2);
+}
+body.light-mode .mobile-avatar-btn {
+  border-color: var(--ink);
+}
 body.light-mode .sidebar-note {
   color: #48505c;
 }
 body.light-mode .sidebar .nav-item.text-destructive {
   color: #991b1b;
-}
-.mobile-bottom-nav {
-  height: var(--mobile-nav-height);
-  border: 2px solid var(--ink);
-}
-.mobile-bottom-item {
-  flex: 1;
-  min-height: 48px;
-  margin: 0;
-  border-radius: 12px;
-}
-.mobile-bottom-indicator {
-  display: none;
 }
 .card,
 .kpi-card {

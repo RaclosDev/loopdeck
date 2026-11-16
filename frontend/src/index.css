@@ -132,8 +132,51 @@
   --sidebar-width: 260px;
 }
 
+/* La barra inferior va sobre la pared, no es una hoja: usa sus propios tonos, como Ascension. */
+:root {
+  --nav-bg: #1b2438;
+  --nav-border: rgba(243, 236, 220, 0.18);
+  --nav-ink: #f3ecdc;
+  --nav-muted: rgba(243, 236, 220, 0.62);
+  --nav-pill: rgba(243, 236, 220, 0.12);
+  --nav-shadow: rgba(0, 0, 0, 0.35);
+}
+
 body.light-mode {
   --wall: #d4d0c5;
+  --nav-bg: #fffdf7;
+  --nav-border: rgba(17, 24, 39, 0.2);
+  --nav-ink: #111827;
+  --nav-muted: #4b5563;
+  --nav-pill: rgba(17, 24, 39, 0.07);
+  --nav-shadow: rgba(17, 24, 39, 0.22);
+}
+
+/* Franja para la barra de estado de la app instalada en iOS 26+. Sin una caja fija de
+   color sólido en el borde superior, iOS difumina la parte alta de la página bajo la
+   barra de estado y ningún meta ni propiedad CSS lo apaga. WebKit busca esa caja justo
+   bajo el borde superior: tiene que ser un elemento real, fijo, casi de ancho completo y
+   de más de 10 px de alto. El color se lee del estilo y background-clip: text hace que
+   no pinte nada. Es el mismo arreglo que Ascension. */
+.ios-status-bar-band {
+  display: none;
+}
+@media (display-mode: standalone) {
+  @supports (-webkit-touch-callout: none) {
+    .ios-status-bar-band {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background-color: var(--wall, #0f172a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      z-index: 2147483647;
+      pointer-events: none;
+    }
+  }
 }
 
 @layer base {
@@ -162,8 +205,8 @@ body {
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --safe-right: env(safe-area-inset-right, 0px);
-  --mobile-nav-height: 64px;
-  --mobile-nav-gap: 12px;
+  --mobile-nav-height: 56px;
+  --mobile-nav-gap: 24px;
 }
 
 html {
@@ -347,79 +390,179 @@ textarea,
     0 12px 30px #0003;
 }
 
-/* Mobile Top / Bottom Navigation */
+/* Mobile Top / Bottom Navigation
+   La barra superior va dentro del contenido y se desplaza con él, como en
+   Ascension y PorrApp: sin barra fija ni scroll interno que iOS difumine. */
 .mobile-top-bar {
   display: none;
-  min-height: calc(56px + var(--safe-top));
-  flex-shrink: 0;
-  background: var(--wall);
-  border-bottom: 1px solid var(--border-subtle);
   align-items: center;
   justify-content: space-between;
-  padding: var(--safe-top) max(var(--space-md), var(--safe-right)) 0
-    max(var(--space-md), var(--safe-left));
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  gap: 8px;
+  height: 56px;
+  margin: 0 0 0.75rem;
+  padding: 0 0.25rem;
+  border-bottom: 2px solid #ffffff26;
+  position: relative;
 }
 
 .mobile-top-logo {
-  flex: 1;
+  margin: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.mobile-account {
+  position: relative;
+  margin-left: auto;
+}
+
+.mobile-avatar-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid var(--paper);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.mobile-avatar-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  min-width: 200px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid rgba(17, 24, 39, 0.3);
+  border-radius: 4px;
+  box-shadow:
+    3px 4px 0 #0003,
+    0 12px 30px #0004;
+}
+
+.account-menu-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.account-menu-item:hover,
+.account-menu-item:focus-visible {
+  background: rgba(17, 24, 39, 0.08);
+}
+
+.account-menu-item.is-danger {
+  color: #991b1b;
 }
 
 .mobile-bottom-nav {
   display: none;
   position: fixed;
   bottom: calc(var(--mobile-nav-gap) + var(--safe-bottom));
-  left: max(12px, var(--safe-left));
-  right: max(12px, var(--safe-right));
-  max-width: 480px;
+  left: max(20px, var(--safe-left));
+  right: max(20px, var(--safe-right));
+  max-width: 440px;
   margin-inline: auto;
   height: var(--mobile-nav-height);
-  background: var(--paper);
-  border: 1px solid var(--ink);
-  border-radius: 18px;
-  box-shadow: 0 6px 20px #0004;
+  padding: 4px;
+  background: var(--nav-bg);
+  border: 1px solid var(--nav-border);
+  border-radius: 999px;
+  box-shadow: 0 4px 16px var(--nav-shadow);
   z-index: 50;
-  align-items: center;
-  justify-content: space-around;
-  padding: 6px;
 }
 
 .mobile-bottom-item {
+  flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: transparent;
   border: none;
-  color: var(--text-muted);
-  font-size: 0.7rem;
+  border-radius: 999px;
+  color: var(--nav-muted);
   cursor: pointer;
-  position: relative;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 4px 8px;
-  flex: 1;
-  border-radius: 12px;
+  transition: color 150ms ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.mobile-bottom-item:focus-visible {
+  outline-offset: -2px;
 }
 
 .mobile-bottom-item.active {
-  color: var(--ink);
-  background: var(--tape);
+  color: var(--nav-ink);
 }
 
-.mobile-bottom-indicator {
+.mobile-bottom-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.mobile-bottom-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* El resaltado comparte el margen interior y el ancho de hueco de los botones. */
+.mobile-bottom-pill {
   position: absolute;
-  top: 2px;
-  width: 16px;
-  height: 2px;
-  border-radius: 1px;
-  background: var(--ink);
+  inset: 4px auto 4px 4px;
+  width: calc((100% - 8px) / var(--nav-count, 5));
+  border-radius: 999px;
+  background: var(--nav-pill);
+  pointer-events: none;
+  transform: translateX(calc(var(--nav-active, 0) * 100%));
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.2s ease;
+}
+
+.mobile-bottom-pill.is-hidden {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-bottom-pill {
+    transition: opacity 0.2s ease;
+  }
 }
 
 .mobile-overlay {
@@ -445,7 +588,7 @@ textarea,
   }
   .main-content {
     margin-left: 0;
-    padding: 28px max(12px, var(--safe-right))
+    padding: calc(4px + var(--safe-top)) max(12px, var(--safe-right))
       calc(var(--mobile-nav-height) + var(--mobile-nav-gap) + var(--safe-bottom) + 24px)
       max(12px, var(--safe-left));
   }
