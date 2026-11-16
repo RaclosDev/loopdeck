@@ -53,19 +53,6 @@ textarea::placeholder {
 .paper-panel {
   background-image: url('./assets/paper-grain.png');
 }
-.landing-tape::after {
-  content: '';
-  position: absolute;
-  top: -13px;
-  left: 50%;
-  width: 104px;
-  height: 28px;
-  background: var(--tape);
-  border-inline: 1px dashed #11182730;
-  transform: translateX(-50%) rotate(var(--tape-angle, 0deg));
-  pointer-events: none;
-  z-index: 2;
-}
 .page-heading {
   margin-bottom: 28px;
   padding-bottom: 22px;
