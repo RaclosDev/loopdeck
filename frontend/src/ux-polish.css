@@ -182,7 +182,7 @@
     visibility: hidden;
   }
   .main-content {
-    padding-top: 20px;
+    padding-top: calc(4px + var(--safe-top));
   }
   .main-content-inner:not(.sheet-canvas) {
     padding: 22px 16px;
