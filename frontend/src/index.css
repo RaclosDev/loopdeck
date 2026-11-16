@@ -132,8 +132,51 @@
   --sidebar-width: 260px;
 }
 
+/* La barra inferior va sobre la pared, no es una hoja: usa sus propios tonos, como Ascension. */
+:root {
+  --nav-bg: #1b2438;
+  --nav-border: rgba(243, 236, 220, 0.18);
+  --nav-ink: #f3ecdc;
+  --nav-muted: rgba(243, 236, 220, 0.62);
+  --nav-pill: rgba(243, 236, 220, 0.12);
+  --nav-shadow: rgba(0, 0, 0, 0.35);
+}
+
 body.light-mode {
   --wall: #d4d0c5;
+  --nav-bg: #fffdf7;
+  --nav-border: rgba(17, 24, 39, 0.2);
+  --nav-ink: #111827;
+  --nav-muted: #4b5563;
+  --nav-pill: rgba(17, 24, 39, 0.07);
+  --nav-shadow: rgba(17, 24, 39, 0.22);
+}
+
+/* Franja para la barra de estado de la app instalada en iOS 26+. Sin una caja fija de
+   color sólido en el borde superior, iOS difumina la parte alta de la página bajo la
+   barra de estado y ningún meta ni propiedad CSS lo apaga. WebKit busca esa caja justo
+   bajo el borde superior: tiene que ser un elemento real, fijo, casi de ancho completo y
+   de más de 10 px de alto. El color se lee del estilo y background-clip: text hace que
+   no pinte nada. Es el mismo arreglo que Ascension. */
+.ios-status-bar-band {
+  display: none;
+}
+@media (display-mode: standalone) {
+  @supports (-webkit-touch-callout: none) {
+    .ios-status-bar-band {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 12px;
+      background-color: var(--wall, #0f172a);
+      -webkit-background-clip: text;
+      background-clip: text;
+      z-index: 2147483647;
+      pointer-events: none;
+    }
+  }
 }
 
 @layer base {
@@ -449,10 +492,10 @@ textarea,
   margin-inline: auto;
   height: var(--mobile-nav-height);
   padding: 4px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  background: var(--nav-bg);
+  border: 1px solid var(--nav-border);
   border-radius: 999px;
-  box-shadow: 0 4px 16px #0004;
+  box-shadow: 0 4px 16px var(--nav-shadow);
   z-index: 50;
 }
 
@@ -470,7 +513,7 @@ textarea,
   background: transparent;
   border: none;
   border-radius: 999px;
-  color: var(--text-secondary);
+  color: var(--nav-muted);
   cursor: pointer;
   transition: color 150ms ease;
   touch-action: manipulation;
@@ -483,7 +526,7 @@ textarea,
 }
 
 .mobile-bottom-item.active {
-  color: var(--ink);
+  color: var(--nav-ink);
 }
 
 .mobile-bottom-icon {
@@ -504,7 +547,7 @@ textarea,
   inset: 4px auto 4px 4px;
   width: calc((100% - 8px) / var(--nav-count, 5));
   border-radius: 999px;
-  background: var(--bg-glass-strong);
+  background: var(--nav-pill);
   pointer-events: none;
   transform: translateX(calc(var(--nav-active, 0) * 100%));
   transition:
