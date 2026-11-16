@@ -138,7 +138,7 @@ function StudyHub() {
         </div>
       </header>
       <CountsNotice loading={loadingStats} error={errorStats} onRetry={() => void retryStats()} />
-      <section className="paper-sheet landing-tape deck-study-summary" aria-label="Estado del mazo">
+      <section className="paper-sheet deck-study-summary" aria-label="Estado del mazo">
         <div className="deck-study-summary-heading">
           <div>
             <h2>{stats?.totalCount === 0 ? 'Tu mazo está vacío' : 'Listo para repasar'}</h2>

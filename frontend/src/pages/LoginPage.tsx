@@ -54,7 +54,7 @@ export default function LoginPage({
   };
   return (
     <main className="auth-stage">
-      <section className="auth-paper paper-panel landing-tape" aria-label="Acceso a LoopDeck">
+      <section className="auth-paper paper-panel" aria-label="Acceso a LoopDeck">
         <Heading>LoopDeck</Heading>
         <p className="marker-ink">Un repaso más. Un poco más lejos.</p>
         <div className="paper-tabs" aria-label="Tipo de acceso">
