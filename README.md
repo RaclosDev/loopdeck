@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://loopdeck.raclos.es"><strong>Abrir la app</strong></a> ·
   <a href="#qué-puedes-hacer">Funcionalidades</a> ·
-  <a href="docs/ARCHITECTURE.md">Arquitectura</a> ·
+  <a href="docs/arquitectura.md">Arquitectura</a> ·
   <a href="CONTRIBUTING.md">Desarrollo local</a>
 </p>
 
@@ -65,13 +65,13 @@ Las funciones de IA necesitan Gemini configurado en el servidor; crear tarjetas 
 
 | Problema | Implementación |
 | --- | --- |
-| **Un contenido, varias formas de repasarlo** | Notas y tarjetas son entidades distintas: una nota reversible genera dos tarjetas con planificación independiente. [Modelo de estudio](docs/ARCHITECTURE.md#modelo-de-estudio). |
+| **Un contenido, varias formas de repasarlo** | Notas y tarjetas son entidades distintas: una nota reversible genera dos tarjetas con planificación independiente. [Modelo de estudio](docs/arquitectura.md#modelo-de-estudio). |
 | **Reintentar un guardado sin duplicar el repaso** | Un identificador de operación, una transacción y el bloqueo de la tarjeta protegen el historial. Deshacer restaura una instantánea conservada por el servidor. [StudyReviewService](backend/src/main/java/com/loopdeck/service/StudyReviewService.java). |
 | **Programar revisiones a partir del historial** | Un servicio integra la librería FSRS-5, conserva el estado de memoria y expone los intervalos al frontend. [FsrsSchedulerService](backend/src/main/java/com/loopdeck/service/FsrsSchedulerService.java). |
 | **Cargar material a medida que se necesita** | El explorador pagina en servidor y el repaso solicita bloques. TanStack Query coordina consultas e invalidaciones; la sesión de estudio gestiona el avance y los fallos de guardado. [useStudySession](frontend/src/hooks/useStudySession.ts). |
 | **Aislar los datos de cada cuenta** | Spring Security autentica las peticiones y los servicios comprueban la propiedad de los recursos. Las pruebas de integración ejercitan operaciones con usuarios distintos. [Pruebas de integridad](backend/src/test/java/com/loopdeck/service/DataIntegrityIntegrationTest.java). |
 
-La [guía de arquitectura](docs/ARCHITECTURE.md) detalla el modelo, la integración de Gemini, la autenticación y los límites de la caché sin conexión.
+La [guía de arquitectura](docs/arquitectura.md) detalla el modelo, la integración de Gemini, la autenticación y los límites de la caché sin conexión.
 
 ## Stack y calidad
 

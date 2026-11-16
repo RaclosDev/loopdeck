@@ -47,7 +47,7 @@ Estados en LoopDeck: **Aplicada** (en este cambio), **Ya estaba**, **No aplica**
 | Email normalizado con `Locale.ROOT` (Ascension #192 y #197) | **Aplicada**: `util/Emails` en registro, login y Google. El registro guardaba el email tal cual y el login lo buscaba en minúsculas, así que quien se registraba con mayúsculas no podía entrar. |
 | `catch (Exception)` acotados (PorrApp #181, Ascension #201) | **Aplicada** en la verificación de Google, que además tiene tiempos de espera de 5 s y no falla con un 500 si a Google le falta un campo. |
 | Caché del service worker por cuenta (PorrApp v3, Ascension) | **Aplicada**: el SW no guarda `/api/auth`, y `api-cache` se borra al cerrar sesión o cambiar de cuenta. |
-| Rotación del refresh token con detección de reutilización (PorrApp v5, Ascension #192) | **No aplica por ahora**: LoopDeck no rota a propósito, por las carreras de la PWA y porque iOS copia la cookie de Safari a la app instalada. Rotar exigiría antes un traspaso de sesión como el de PorrApp #188. Está documentado en `ARCHITECTURE.md`. |
+| Rotación del refresh token con detección de reutilización (PorrApp v5, Ascension #192) | **No aplica por ahora**: LoopDeck no rota a propósito, por las carreras de la PWA y porque iOS copia la cookie de Safari a la app instalada. Rotar exigiría antes un traspaso de sesión como el de PorrApp #188. Está documentado en `arquitectura.md`. |
 | Errores públicos controlados | **Ya estaba** (`GlobalExceptionHandler`, `SafeErrorsTest`). |
 | HTML saneado | **Ya estaba** (`sanitizeHtml` con DOMPurify). |
 | CSP estricta (PorrApp #114) | **Pendiente**: hay que revisar Google Sign-In, las fuentes, los blobs de documentos y las imágenes en base64. Merece un cambio propio. |

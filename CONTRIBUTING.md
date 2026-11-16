@@ -46,7 +46,7 @@ Los ejemplos usan el formato `CLAVE=valor` de `.env.example`, sin comillas ni es
 
 Puedes usar el registro con correo y contraseña sin configurar Google ni Gemini. Google requiere un client ID con los orígenes configurados. Gemini es necesario para las funciones de IA; no lo es para crear y repasar tarjetas manualmente.
 
-Para construir la imagen unificada de producción, consulta el [Dockerfile de la raíz](Dockerfile) y la [descripción del despliegue](docs/ARCHITECTURE.md#construcción-y-entrega). Esta imagen necesita PostgreSQL y sus variables de entorno al ejecutarse.
+Para construir la imagen unificada de producción, consulta el [Dockerfile de la raíz](Dockerfile) y la [descripción del despliegue](docs/arquitectura.md#construcción-y-entrega). Esta imagen necesita PostgreSQL y sus variables de entorno al ejecutarse.
 
 ## Verificación según el cambio
 
