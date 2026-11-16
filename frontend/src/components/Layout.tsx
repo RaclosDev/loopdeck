@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import StudyPreparation from './StudyPreparation';
 import useStore from '../store/useStore';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, type CSSProperties } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BottomSheet from './BottomSheet';
@@ -105,6 +105,13 @@ export default function Layout() {
 
   const closeSidebar = () => setSidebarOpen(false);
   const isMoreActive = moreMenuPaths.some((p) => location.pathname.startsWith(p));
+  const bottomItems = navItems.filter((i) => bottomNavPaths.includes(i.path));
+  const isNavItemActive = (path: string) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
+  // Índice de la pestaña resaltada; «Más» es el último hueco. -1 oculta la píldora.
+  const activeBottomIndex = isMoreActive
+    ? bottomItems.length
+    : bottomItems.findIndex((i) => isNavItemActive(i.path));
   const pageTitle = location.pathname.startsWith('/add')
     ? 'Añadir tarjeta'
     : navItems.find((item) => item.path === location.pathname)?.label;
@@ -256,34 +263,44 @@ export default function Layout() {
       </div>
 
       {!isStudyPage && (
-        <nav className="mobile-bottom-nav" aria-label="Navegación inferior">
-          {navItems
-            .filter((i) => bottomNavPaths.includes(i.path))
-            .map((item) => {
-              const isActive =
-                item.path === '/'
-                  ? location.pathname === '/'
-                  : location.pathname.startsWith(item.path);
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  className={`mobile-bottom-item ${isActive ? 'active' : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setMoreMenuOpen(false);
-                    if (location.pathname !== item.path) navigate(item.path);
-                  }}
-                  aria-label={item.label}
-                  aria-current={isActive ? 'page' : undefined}
-                >
-                  <span className="mobile-bottom-icon">{item.icon}</span>
-                  <span className="mobile-bottom-label">{item.shortLabel}</span>
-                  {isActive && <span className="mobile-bottom-indicator" />}
-                </button>
-              );
-            })}
+        <nav
+          className="mobile-bottom-nav"
+          aria-label="Navegación inferior"
+          style={
+            {
+              '--nav-count': bottomItems.length + 1,
+              '--nav-active': Math.max(activeBottomIndex, 0),
+            } as CSSProperties
+          }
+        >
+          {/* Un único resaltado que se desliza entre pestañas */}
+          <span
+            className={`mobile-bottom-pill${activeBottomIndex < 0 ? ' is-hidden' : ''}`}
+            aria-hidden="true"
+          />
+          {bottomItems.map((item) => {
+            const isActive = isNavItemActive(item.path);
+            return (
+              <button
+                key={item.path}
+                type="button"
+                className={`mobile-bottom-item ${isActive ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMoreMenuOpen(false);
+                  if (location.pathname !== item.path) navigate(item.path);
+                }}
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
+                title={item.shortLabel}
+              >
+                <span className="mobile-bottom-icon" aria-hidden="true">
+                  {item.icon}
+                </span>
+              </button>
+            );
+          })}
           <button
             type="button"
             className={`mobile-bottom-item ${isMoreActive ? 'active' : ''}`}
@@ -294,12 +311,12 @@ export default function Layout() {
             }}
             aria-label="Más opciones"
             aria-expanded={moreMenuOpen}
+            aria-haspopup="dialog"
+            title="Más opciones"
           >
-            <span className="mobile-bottom-icon">
+            <span className="mobile-bottom-icon" aria-hidden="true">
               <Menu className="w-5 h-5" />
             </span>
-            <span className="mobile-bottom-label">Más</span>
-            {isMoreActive && <span className="mobile-bottom-indicator" />}
           </button>
         </nav>
       )}
