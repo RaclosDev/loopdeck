@@ -137,6 +137,12 @@ body.light-mode .nav-item {
 body.light-mode .brand span {
   color: var(--ink);
 }
+body.light-mode .mobile-top-bar {
+  border-bottom-color: rgba(17, 24, 39, 0.2);
+}
+body.light-mode .mobile-avatar-btn {
+  border-color: var(--ink);
+}
 body.light-mode .sidebar-note {
   color: #48505c;
 }

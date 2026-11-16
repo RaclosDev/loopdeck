@@ -581,6 +581,27 @@ test('mobile menu traps focus, closes with Escape, and navigates', async ({ page
   await noOverflow(page);
 });
 
+test('mobile account menu opens from the avatar with settings and logout', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await fixture(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Más opciones' }).click();
+  const sheet = page.getByRole('dialog');
+  await expect(sheet.getByRole('button', { name: 'Cerrar sesión' })).toHaveCount(0);
+  await expect(sheet.getByRole('button', { name: 'Configuración' })).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  const avatar = page.getByRole('button', { name: 'Cuenta y ajustes' });
+  await avatar.click();
+  const menu = page.getByRole('menu', { name: 'Cuenta' });
+  await expect(menu.getByRole('menuitem', { name: 'Cerrar sesión' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(menu).toHaveCount(0);
+  await avatar.click();
+  await menu.getByRole('menuitem', { name: 'Configuración' }).click();
+  await expect(page).toHaveURL(/\/settings$/);
+  await expect(menu).toHaveCount(0);
+});
+
 test('study cards retain readable dimensions and keyboard interaction', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 740 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -782,7 +803,11 @@ for (const width of [320, 390]) {
       const bounds = (await nav.boundingBox())!;
       expect(bounds.x).toBeGreaterThanOrEqual(12);
       expect(bounds.y + bounds.height).toBeLessThanOrEqual(844 - 34 - 12);
-      expect((await page.locator('.mobile-top-logo').boundingBox())!.y).toBeGreaterThanOrEqual(47);
+      // La barra superior se desplaza con el contenido: se mide desde el inicio del documento.
+      const topBarTop = await page
+        .locator('.mobile-top-bar')
+        .evaluate((el) => el.getBoundingClientRect().top + window.scrollY);
+      expect(topBarTop).toBeGreaterThanOrEqual(47);
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
       await expect
         .poll(() =>
