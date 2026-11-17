@@ -10,16 +10,33 @@ const deck = {
   createdAt: '2026-10-30',
 };
 
-const paragraph =
-  '<p>Cada hilo guarda su propia copia de la variable, aislada del resto, así que no hace falta sincronizar. ' +
-  'Se usa para contexto por petición: usuario autenticado, transacción en curso o identificador de traza.</p>';
+const box = (color: string, body: string) =>
+  `<div style="border-left:3px solid ${color};padding:0.1em 0 0.1em 0.8em;margin:0.8em 0">${body}</div>`;
 const longBack =
   '<div style="text-align:left;font-size:0.85em;line-height:1.5">' +
-  paragraph.repeat(4) +
+  '<p>Cada hilo guarda su propia copia de la variable, aislada del resto, así que no hace falta sincronizar. ' +
+  'Se declara como <code>static final</code> y cada hilo lee y escribe solo su valor.</p>' +
+  '<p><strong>Cuándo usarlo:</strong></p>' +
+  '<ul><li>Contexto por petición: usuario autenticado, transacción en curso.</li>' +
+  '<li>Identificador de traza para los logs (<code>MDC</code>).</li>' +
+  '<li>Objetos caros y no seguros entre hilos, como <code>SimpleDateFormat</code>.</li></ul>' +
   '<pre style="white-space:pre-wrap;overflow-wrap:anywhere;text-align:left;font-size:0.9em"><code>' +
-  'private static final ThreadLocal&lt;Usuario&gt; ACTUAL = new ThreadLocal&lt;&gt;();<br>ACTUAL.set(usuario);<br>try { servicio.ejecutar(); } finally { ACTUAL.remove(); }' +
+  'private static final ThreadLocal&lt;Usuario&gt; ACTUAL = new ThreadLocal&lt;&gt;();<br><br>' +
+  'ACTUAL.set(usuario);<br>try {<br>    servicio.ejecutar();<br>} finally {<br>    ACTUAL.remove();<br>}' +
   '</code></pre>' +
-  paragraph.repeat(4) +
+  box(
+    '#D9A400',
+    '<p>💡 <strong>Punto clave:</strong> en pools de hilos hay que llamar siempre a <code>remove()</code> al terminar, o el valor se filtra a la siguiente petición que reutilice el hilo.</p>',
+  ) +
+  '<hr><p><strong>En mis proyectos</strong></p>' +
+  box(
+    '#1F9E9E',
+    '<p><strong>⚽ PorrApp</strong></p><p>Spring Security guarda el usuario del token en un <code>SecurityContextHolder</code>, que por debajo es un ThreadLocal, y lo limpia al acabar la petición.</p>',
+  ) +
+  box(
+    '#5B5FC7',
+    '<p><strong>🏋 Ascension</strong></p><p>El identificador de traza de cada petición viaja en el MDC para poder seguirla en los logs de principio a fin.</p>',
+  ) +
   '</div>';
 
 function note(id: string, front: string, back: string) {

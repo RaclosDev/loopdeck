@@ -1,4 +1,5 @@
 import { sanitizeHtml } from '../lib/utils';
+import { isLongCardContent } from '../lib/noteFields';
 
 interface FlashCardProps {
   front: string;
@@ -18,6 +19,9 @@ export default function FlashCard({
   cardState,
   reading = false,
 }: FlashCardProps) {
+  // Solo la cara que de verdad es larga lleva tipografía de lectura; una
+  // pregunta corta sigue centrada y grande.
+  const frontProse = reading && isLongCardContent(front || '');
   const getStateColor = () => {
     if (cardState === 'new') return 'var(--srs-new, #3b82f6)';
     if (cardState === 'learning' || cardState === 'relearning')
@@ -85,11 +89,13 @@ export default function FlashCard({
           }}
         >
           <div
+            className={frontProse ? 'card-reading' : undefined}
             style={{
               // margen automático: centra si cabe y, si no cabe, no recorta el principio
               margin: 'auto 0',
-              maxWidth: '100%',
-              fontSize: reading ? '1.35rem' : '1.75rem',
+              width: frontProse ? '100%' : undefined,
+              maxWidth: frontProse ? '46rem' : '100%',
+              fontSize: frontProse ? '1.1rem' : reading ? '1.35rem' : '1.75rem',
               lineHeight: 1.6,
               color: 'var(--text-primary)',
               fontWeight: 500,
@@ -133,11 +139,12 @@ export default function FlashCard({
           }}
         >
           <div
+            className={reading ? 'card-reading' : undefined}
             style={{
               // en modo lectura el texto empieza arriba, como una página
               margin: reading ? 0 : 'auto 0',
               width: reading ? '100%' : undefined,
-              maxWidth: '100%',
+              maxWidth: reading ? '46rem' : '100%',
               fontSize: reading ? '1.1rem' : '1.25rem',
               lineHeight: 1.6,
               color: 'var(--text-primary)',
