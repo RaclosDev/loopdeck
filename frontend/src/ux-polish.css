@@ -143,6 +143,11 @@
 .study-session .flashcard-frame {
   min-height: 240px;
 }
+/* Tarjetas largas: en modo lectura la tarjeta se queda con casi toda la pantalla. */
+.study-session.study-session--reading {
+  height: calc(100dvh - 66px);
+  min-height: 420px;
+}
 .study-session > div:first-child {
   flex-wrap: wrap;
   gap: 12px;

@@ -29,3 +29,18 @@ export function renderCloze(html: string, ordinal: number, revealed: boolean) {
       : `<span class="cloze">[${hint.join('::') || '…'}]</span>`;
   });
 }
+
+const LONG_CARD_TEXT_LENGTH = 300;
+
+/**
+ * Una cara es «larga» si lleva bloques de código o tablas, o más texto del que
+ * cabe en una tarjeta de vocabulario. Las imágenes no cuentan.
+ */
+export function isLongCardContent(html: string): boolean {
+  if (/<(pre|table)\b/i.test(html)) return true;
+  const text = html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return text.length > LONG_CARD_TEXT_LENGTH;
+}
