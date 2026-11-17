@@ -1,3 +1,4 @@
+import { DEMO } from '../demo/mode';
 import useStore from '../store/useStore';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -43,7 +44,7 @@ export default function Settings() {
   };
 
   const handleClearLocalData = () => {
-    localStorage.clear();
+    if (!DEMO) localStorage.clear();
     logout();
     window.location.href = '/';
   };

@@ -32,6 +32,9 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
           <a className="btn btn-primary" href="#acceso">
             Empezar a estudiar
           </a>
+          <a className="btn btn-secondary landing-demo" href="/demo">
+            Probar la demo
+          </a>
           <a className="landing-text-link" href="#cuaderno">
             Así funciona tu cuaderno
           </a>

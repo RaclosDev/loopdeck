@@ -1,10 +1,16 @@
 import axios from 'axios';
+import { DEMO } from '../demo/mode';
 
 const api = axios.create({
   baseURL: '/api',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// Modo demo: las peticiones las responde un backend ficticio en memoria.
+if (DEMO) {
+  api.defaults.adapter = async (config) => (await import('../demo/backend')).demoAdapter(config);
+}
 
 api.interceptors.request.use(
   (config) => {

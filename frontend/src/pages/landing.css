@@ -227,3 +227,7 @@ body.light-mode .landing-footer {
     justify-self: center;
   }
 }
+
+.landing-demo {
+  margin-left: 0.75rem;
+}

@@ -4,6 +4,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { googleLogout } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { clearOfflineApiCache } from '../lib/offlineCache';
+import { DEMO, DEMO_TOKEN } from '../demo/mode';
+
+// En el modo demo la sesión es ficticia y no se lee ni se escribe la del navegador.
+const storedToken = () => (DEMO ? DEMO_TOKEN : localStorage.getItem('loopdeck_jwt_token'));
 
 export interface CustomJwtPayload extends JwtPayload {
   email?: string;
@@ -34,9 +38,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem('loopdeck_jwt_token'),
-  );
+  const [token, setToken] = useState<string | null>(storedToken);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const identity = useRef<string | undefined>(undefined);
@@ -54,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
 
     const initializeAuth = async () => {
-      let currentToken = localStorage.getItem('loopdeck_jwt_token');
+      let currentToken = storedToken();
       let needsRefresh = false;
 
       if (currentToken) {
@@ -166,6 +168,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    if (DEMO) {
+      window.location.href = '/';
+      return;
+    }
     setIsLoading(true);
     queryClient.clear();
     try {
