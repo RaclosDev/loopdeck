@@ -6,6 +6,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Texto plano de un fragmento HTML: quita todas las etiquetas y conserva su contenido. */
+export function htmlToText(html: string): string {
+  if (!html) return '';
+  return DOMPurify.sanitize(html, { ALLOWED_TAGS: [], KEEP_CONTENT: true });
+}
+
 export function sanitizeHtml(html: string): string {
   if (!html) return '';
   return DOMPurify.sanitize(html, {

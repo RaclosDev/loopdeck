@@ -7,7 +7,7 @@ import { decksApi, notesApi, aiApi } from '../services/api';
 import { marked } from 'marked';
 import { Deck } from '../types';
 import { ArrowLeft } from 'lucide-react';
-import { sanitizeHtml } from '../lib/utils';
+import { htmlToText, sanitizeHtml } from '../lib/utils';
 
 interface Message {
   role: 'user' | 'ai';
@@ -55,8 +55,8 @@ function StudyTutor() {
         const reversedNotes = [...allNotes].reverse();
         reversedNotes.forEach((n) => {
           const f = parseNoteFields(n.fieldsJson || '{}');
-          const front = f.front ? f.front.replace(/<[^>]+>/g, '') : '';
-          const back = f.back ? f.back.replace(/<[^>]+>/g, '') : '';
+          const front = htmlToText(f.front || '');
+          const back = htmlToText(f.back || '');
           context += `Pregunta: ${front}\nRespuesta: ${back}\n\n`;
         });
 

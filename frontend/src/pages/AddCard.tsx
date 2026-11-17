@@ -11,7 +11,7 @@ import ImageSearchModal from '../components/ImageSearchModal';
 import { useDecks } from '../hooks/useDecks';
 import { SegmentedControl } from '../components/ui/segmented-control';
 import { BookA, ListPlus, Image, Folder, Search, ChevronDown, X } from 'lucide-react';
-import { sanitizeHtml } from '../lib/utils';
+import { htmlToText, sanitizeHtml } from '../lib/utils';
 import BottomSheet from '../components/BottomSheet';
 
 const NOTE_TYPES = [
@@ -20,7 +20,7 @@ const NOTE_TYPES = [
 ];
 
 const formatMovedText = (html: string) => {
-  const text = (html || '').replace(/<[^>]*>/g, '').trim();
+  const text = htmlToText(html).trim();
   if (!text) return '';
   const titleCased = text
     .split(/\s+/)
@@ -187,8 +187,8 @@ export default function AddCard() {
 
   const handleOpenImageSearch = (field: 'front' | 'back') => {
     const query =
-      (fields[field] || '').replace(/<[^>]*>/g, '').trim() ||
-      (field === 'back' ? (fields.front || '').replace(/<[^>]*>/g, '').trim() : '');
+      htmlToText(fields[field] || '').trim() ||
+      (field === 'back' ? htmlToText(fields.front || '').trim() : '');
     setImageSearchModalInfo({ field, query });
   };
 
@@ -208,7 +208,7 @@ export default function AddCard() {
   };
 
   const handleDefinition = async () => {
-    const term = (fields.front || '').replace(/<[^>]*>/g, '').trim();
+    const term = htmlToText(fields.front || '').trim();
     if (!term) return toast.error('Escribe un término en el frente primero');
     setLookingUpDef(true);
     try {
@@ -226,7 +226,7 @@ export default function AddCard() {
   };
 
   const handleAutoImage = async () => {
-    const term = (fields.front || '').replace(/<[^>]*>/g, '').trim();
+    const term = htmlToText(fields.front || '').trim();
     if (!term) return toast.error('Escribe un término en el frente primero');
     setLookingUpImage(true);
     try {
