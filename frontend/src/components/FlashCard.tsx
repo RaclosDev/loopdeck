@@ -68,16 +68,18 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
             overflowY: 'auto',
             minHeight: 0,
             width: '100%',
             textAlign: 'center',
-            scrollbarWidth: 'none',
+            scrollbarWidth: 'thin',
           }}
         >
           <div
             style={{
+              // margen automático: centra si cabe y, si no cabe, no recorta el principio
+              margin: 'auto 0',
+              maxWidth: '100%',
               fontSize: '1.75rem',
               lineHeight: 1.6,
               color: 'var(--text-primary)',
@@ -114,16 +116,21 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
             overflowY: 'auto',
             minHeight: 0,
             width: '100%',
             textAlign: 'center',
-            scrollbarWidth: 'none',
+            scrollbarWidth: 'thin',
           }}
         >
           <div
-            style={{ fontSize: '1.25rem', lineHeight: 1.6, color: 'var(--text-primary)' }}
+            style={{
+              margin: 'auto 0',
+              maxWidth: '100%',
+              fontSize: '1.25rem',
+              lineHeight: 1.6,
+              color: 'var(--text-primary)',
+            }}
             dangerouslySetInnerHTML={{ __html: sanitizeHtml(back || '') }}
           />
         </div>
