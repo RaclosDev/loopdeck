@@ -33,8 +33,9 @@ spring:
     locations: classpath:db/migration
 
   jackson:
-    serialization:
-      write-dates-as-timestamps: false
+    datatype:
+      datetime:
+        write-dates-as-timestamps: false
     default-property-inclusion: non_null
 
   mandatory-file-encoding: UTF-8

@@ -78,7 +78,7 @@ La [guía de arquitectura](docs/arquitectura.md) detalla el modelo, la integraci
 | Capa | Tecnologías |
 | --- | --- |
 | Interfaz | React 19, TypeScript, Vite, TanStack Query, Zustand, Tailwind CSS y Radix UI |
-| API | Java 17, Spring Boot 3.3, Spring Security, Spring Data JPA y OpenAPI |
+| API | Java 21, Spring Boot 4.1, Spring Security, Spring Data JPA y OpenAPI |
 | Datos y planificación | PostgreSQL, migraciones Flyway y FSRS-5 |
 | IA | Google Gemini, integrado desde el backend |
 | Pruebas | JUnit, Testcontainers con PostgreSQL, Vitest, Testing Library y Playwright |
@@ -88,7 +88,7 @@ La CI comprueba el alcance modificado, con tests de dominio, integración sobre 
 
 ## Ejecutarlo en local
 
-Necesitas **Node.js 22+, Java 17 y Docker** para la base de datos y los tests de integración.
+Necesitas **Node.js 22+, Java 21 y Docker** para la base de datos y los tests de integración.
 
 ```bash
 git clone https://github.com/RaclosDev/loopdeck.git

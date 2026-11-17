@@ -1,8 +1,7 @@
 # Mejoras transversales de PorrApp y Ascension aplicables a LoopDeck
 
 Recopilación de las mejoras no funcionales hechas en PorrApp y Ascension Tracker y de su estado en
-LoopDeck. Fuentes: todas las sesiones de Claude de ambos proyectos, activas y archivadas (unas 55
-conversaciones), y el historial de commits y PR de los dos repos hasta el 7 nov 2026. Quedan fuera las
+LoopDeck. Fuentes: el historial de commits y PR de los dos repos hasta el 7 nov 2026. Quedan fuera las
 funcionalidades propias de cada producto: modo entrenador, ligas, cuadros, IA de nutrición, etc.
 
 Estados en LoopDeck: **Aplicada** (en este cambio), **Ya estaba**, **No aplica**, **Pendiente**
@@ -116,9 +115,8 @@ Estados en LoopDeck: **Aplicada** (en este cambio), **Ya estaba**, **No aplica**
 ## 7. Stack alineado
 
 PorrApp y Ascension usan Java 21 y Spring Boot 4.1.2 (y TypeScript 6; LoopDeck ya va en la 7).
-LoopDeck sigue con Spring Boot 3.3.0, Java 17 y springdoc 2.5. **Pendiente**: subir de versión es un cambio de dependencias con
-impacto en ambos lados (Jackson 3 y Spring Security 7) y conviene hacerlo en un PR propio. En este
-cambio solo se alinean Maven, Node en Docker y las versiones de las acciones de CI.
+**Aplicada** después, en un PR propio: LoopDeck usa también Java 21, Spring Boot 4.1.2 y springdoc 3, con
+Jackson 3 y Testcontainers 2.
 
 ## Verificación de este cambio
 

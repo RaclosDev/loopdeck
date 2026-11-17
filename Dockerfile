@@ -1,5 +1,5 @@
 # ── Etapa 1: Build del Frontend (React + Vite) ──────────────────────────────
-FROM node:22-alpine AS frontend-build
+FROM node:26-alpine AS frontend-build
 WORKDIR /app/frontend
 
 # Instalamos dependencias primero (mejor uso del caché de Docker)
@@ -12,7 +12,7 @@ RUN npm run build
 # El resultado queda en /app/frontend/dist
 
 # ── Etapa 2: Build del Backend (Spring Boot + Maven) ────────────────────────
-FROM maven:3.9.6-eclipse-temurin-17 AS backend-build
+FROM maven:3.9-eclipse-temurin-21 AS backend-build
 WORKDIR /app
 
 # Copiamos el pom.xml y descargamos dependencias (caché)
@@ -29,7 +29,7 @@ COPY --from=frontend-build /app/frontend/dist ./src/main/resources/static
 RUN mvn clean package -DskipTests -B
 
 # ── Etapa 3: Imagen de producción (JRE mínimo Alpine) ───────────────────────
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 COPY --from=backend-build /app/target/*.jar app.jar

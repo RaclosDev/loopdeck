@@ -1,4 +1,4 @@
-﻿# Política de Seguridad (Security Policy)
+# Política de Seguridad (Security Policy)
 
 ## Modelos Soportados
 Actualmente solo se proporciona soporte de seguridad a la rama main de este repositorio.
