@@ -2,8 +2,39 @@ import { useState } from 'react';
 import LoginPage from './LoginPage';
 import './landing.css';
 
+const SAMPLE = [
+  {
+    topic: 'Biología',
+    front: '¿Qué función tiene la mitocondria?',
+    back: 'La mitocondria produce la mayor parte de la energía que utiliza la célula.',
+  },
+  {
+    topic: 'Inglés',
+    front: '¿Cómo se dice «sin embargo»?',
+    back: '«However». Al empezar la frase va seguido de coma.',
+  },
+  {
+    topic: 'Historia',
+    front: '¿En qué año cayó Constantinopla?',
+    back: 'En 1453, cuando la tomó el ejército otomano de Mehmed II.',
+  },
+];
+const RATINGS = [
+  { label: 'Otra vez', due: 'en 10 minutos' },
+  { label: 'Bien', due: 'en 3 días' },
+  { label: 'Fácil', due: 'en 8 días' },
+];
+
 export default function LandingPage({ googleEnabled }: { googleEnabled: boolean }) {
   const [revealed, setRevealed] = useState(false);
+  const [index, setIndex] = useState(0);
+  const [scheduled, setScheduled] = useState<string | null>(null);
+  const card = SAMPLE[index]!;
+  const rate = (due: string) => {
+    setScheduled(due);
+    setRevealed(false);
+    setIndex((index + 1) % SAMPLE.length);
+  };
   return (
     <div className="landing-page">
       <header className="landing-header">
@@ -41,22 +72,41 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
         </div>
         <div className="landing-sample">
           <p className="marker-ink">Una pregunta. Dale la vuelta.</p>
-          <button
-            className="landing-example paper-panel"
-            aria-pressed={revealed}
-            onClick={() => setRevealed(!revealed)}
-          >
-            <span className="landing-example-label">Tarjeta de ejemplo · Biología</span>
-            <span className="landing-example-content">
-              {revealed
-                ? 'La mitocondria produce la mayor parte de la energía que utiliza la célula.'
-                : '¿Qué función tiene la mitocondria?'}
+          <div className="landing-example paper-panel">
+            <span className="landing-example-label">
+              Tarjeta de ejemplo · {card.topic} · {index + 1} de {SAMPLE.length}
             </span>
-            <span className="landing-example-action">
-              {revealed ? 'Volver a la pregunta' : 'Mostrar respuesta'}
-            </span>
-          </button>
-          <p className="landing-sample-note">Empieza por una idea. Construye tu colección.</p>
+            <button
+              key={`${index}-${revealed}`}
+              className="landing-example-flip"
+              aria-pressed={revealed}
+              onClick={() => setRevealed(!revealed)}
+            >
+              <span className="landing-example-content">{revealed ? card.back : card.front}</span>
+              <span className="landing-example-action">
+                {revealed ? 'Volver a la pregunta' : 'Mostrar respuesta'}
+              </span>
+            </button>
+            {revealed && (
+              <div
+                className="landing-example-rate"
+                role="group"
+                aria-label="¿Cuánto la recordabas?"
+              >
+                {RATINGS.map((rating) => (
+                  <button key={rating.label} onClick={() => rate(rating.due)}>
+                    {rating.label}
+                    <small>{rating.due}</small>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <p className="landing-sample-note" aria-live="polite">
+            {scheduled
+              ? `Apuntada: vuelve ${scheduled}. Así decide LoopDeck cuándo toca cada tarjeta.`
+              : 'Empieza por una idea. Construye tu colección.'}
+          </p>
         </div>
       </section>
       <section className="landing-notes paper-panel" id="cuaderno" aria-labelledby="notebook-title">
