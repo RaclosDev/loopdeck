@@ -83,8 +83,89 @@
   outline: 1px solid #11182755;
   border-radius: 4px;
   box-shadow: 5px 7px 0 #0003;
-  cursor: pointer;
   text-align: left;
+}
+.landing-example-flip {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transform-origin: 50% 0;
+  animation: landing-flip 360ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.landing-example-flip:focus-visible {
+  outline: 2px solid #0b5f74;
+  outline-offset: 6px;
+}
+.landing-example-flip:hover .landing-example-action {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@keyframes landing-flip {
+  from {
+    opacity: 0;
+    transform: perspective(900px) rotateX(-55deg);
+  }
+}
+.landing-example-rate {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  animation: landing-rate 260ms ease-out 120ms both;
+}
+.landing-example-rate button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 6px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: #fffdf7;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition:
+    transform 90ms ease-out,
+    background-color 120ms ease;
+}
+.landing-example-rate button small {
+  font-family: var(--font-main);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+.landing-example-rate button:hover {
+  background: #ffe68c;
+}
+.landing-example-rate button:active {
+  transform: translateY(2px);
+}
+.landing-example-rate button:focus-visible {
+  outline: 2px solid #0b5f74;
+  outline-offset: 2px;
+}
+@keyframes landing-rate {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-example-flip,
+  .landing-example-rate {
+    animation: none;
+  }
 }
 .landing-example-label {
   color: var(--text-muted);
