@@ -1,7 +1,7 @@
 package com.loopdeck.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.loopdeck.exception.ConflictException;
 import com.loopdeck.exception.InvalidInputException;
 import com.loopdeck.model.Card;
@@ -108,10 +108,10 @@ public class StudyReviewService {
     }
     private String encode(CardSchedule state) {
         try { return json.writeValueAsString(state); }
-        catch (JsonProcessingException ex) { throw new IllegalStateException("Unable to serialize review snapshot", ex); }
+        catch (JacksonException ex) { throw new IllegalStateException("Unable to serialize review snapshot", ex); }
     }
     private CardSchedule decode(String state) {
         try { return json.readValue(state, CardSchedule.class); }
-        catch (JsonProcessingException ex) { throw new IllegalStateException("Unable to read review snapshot", ex); }
+        catch (JacksonException ex) { throw new IllegalStateException("Unable to read review snapshot", ex); }
     }
 }

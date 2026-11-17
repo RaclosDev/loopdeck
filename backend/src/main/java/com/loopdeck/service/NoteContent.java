@@ -1,8 +1,8 @@
 package com.loopdeck.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import com.loopdeck.exception.InvalidInputException;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ public record NoteContent(String type, String fieldsJson, String tags, List<Inte
         if (fieldsJson == null || fieldsJson.isBlank() || fieldsJson.length() > 5_000_000) throw invalid("Contenido de tarjeta vacío o demasiado grande");
         JsonNode fields;
         try { fields = JSON.readTree(fieldsJson); }
-        catch (JsonProcessingException ex) { throw invalid("El contenido debe ser un objeto JSON válido"); }
+        catch (JacksonException ex) { throw invalid("El contenido debe ser un objeto JSON válido"); }
         if (fields == null || !fields.isObject()) throw invalid("El contenido debe ser un objeto JSON válido");
         for (String key : List.of("front", "back", "text")) {
             if (fields.has(key) && !fields.get(key).isTextual()) throw invalid("Los campos de la tarjeta deben ser texto");

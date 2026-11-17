@@ -63,6 +63,6 @@ Los tests de integración usan PostgreSQL con Testcontainers. Los tests de inter
 
 ## Construcción y entrega
 
-El [Dockerfile de la raíz](../Dockerfile) compila el frontend, lo incorpora a los recursos estáticos de Spring Boot y genera una imagen con Java 17. La base PostgreSQL se ejecuta por separado. Flyway aplica las migraciones y Hibernate valida el esquema al arrancar.
+El [Dockerfile de la raíz](../Dockerfile) compila el frontend, lo incorpora a los recursos estáticos de Spring Boot y genera una imagen con Java 21. La base PostgreSQL se ejecuta por separado. Flyway aplica las migraciones y Hibernate valida el esquema al arrancar.
 
 [GitHub Actions](../.github/workflows/build.yml) selecciona las comprobaciones según las rutas modificadas: backend, frontend y/o imagen Docker. La suite frontend incluye `npm audit` de dependencias de producción, lint con reglas de accesibilidad, knip, tests con umbrales de cobertura, build y Playwright; el backend, ArchUnit y una puerta de cobertura de JaCoCo. CodeQL analiza Java y TypeScript, y Dependabot propone actualizaciones semanales. Los cambios exclusivamente documentales no reconstruyen la aplicación. Este workflow valida el repositorio; no contiene un paso de despliegue a producción.

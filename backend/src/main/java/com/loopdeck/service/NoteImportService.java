@@ -1,7 +1,7 @@
 package com.loopdeck.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import com.loopdeck.exception.ConflictException;
 import com.loopdeck.exception.InvalidInputException;
 import com.loopdeck.repository.DeckRepository;
@@ -62,6 +62,6 @@ public class NoteImportService {
     }
     private String digest(List<NoteContent> contents) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(json.writeValueAsBytes(contents))); }
-        catch (NoSuchAlgorithmException | JsonProcessingException ex) { throw new IllegalStateException("Unable to identify import batch", ex); }
+        catch (NoSuchAlgorithmException | JacksonException ex) { throw new IllegalStateException("Unable to identify import batch", ex); }
     }
 }
