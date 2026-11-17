@@ -1191,3 +1191,20 @@ textarea,
   scrollbar-width: thin;
   scrollbar-color: var(--border-medium) var(--bg-primary);
 }
+
+/* Aviso del modo demo (/demo) */
+.demo-banner {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px dashed var(--ink);
+  background: var(--tape);
+  color: var(--ink);
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.demo-banner a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
