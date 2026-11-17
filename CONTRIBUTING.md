@@ -70,3 +70,9 @@ La CI conserva lint, tests y build completos de cada parte afectada, con umbrale
 No incluyas secretos, `.env`, artefactos compilados ni cambios ajenos. Usa ramas, PR y Conventional Commits. Un check aplicable fallido bloquea commit y push; no reduzcas tests ni assertions para conseguir verde.
 
 Las migraciones compartidas se conservan: cualquier reparación del esquema o de los datos necesita una migración nueva.
+
+## Participar
+
+- Para un fallo o una idea, abre una [issue](https://github.com/RaclosDev/loopdeck/issues) con su plantilla.
+- Para una vulnerabilidad, sigue [SECURITY.md](SECURITY.md) y no abras una issue pública.
+- En issues y pull requests rige el [código de conducta](CODE_OF_CONDUCT.md).
