@@ -6,9 +6,18 @@ interface FlashCardProps {
   isFlipped: boolean;
   onFlip: () => void;
   cardState: string;
+  /** Tarjeta con mucho texto: ocupa todo el ancho y usa letra de lectura. */
+  reading?: boolean;
 }
 
-export default function FlashCard({ front, back, isFlipped, onFlip, cardState }: FlashCardProps) {
+export default function FlashCard({
+  front,
+  back,
+  isFlipped,
+  onFlip,
+  cardState,
+  reading = false,
+}: FlashCardProps) {
   const getStateColor = () => {
     if (cardState === 'new') return 'var(--srs-new, #3b82f6)';
     if (cardState === 'learning' || cardState === 'relearning')
@@ -24,7 +33,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
         perspective: '1200px',
         position: 'relative',
         width: '100%',
-        maxWidth: '32rem',
+        maxWidth: reading ? 'none' : '32rem',
         margin: '0 auto',
         flex: 1,
         display: 'flex',
@@ -51,7 +60,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
           inset: 0,
           display: 'flex',
           flexDirection: 'column',
-          padding: '2rem',
+          padding: reading ? '1.25rem 1.5rem' : '2rem',
           boxShadow: 'var(--shadow-elevated, 0 10px 40px rgba(0,0,0,0.35))',
           border: '1px solid var(--border-medium)',
           borderRadius: 'var(--radius-lg)',
@@ -80,7 +89,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
               // margen automático: centra si cabe y, si no cabe, no recorta el principio
               margin: 'auto 0',
               maxWidth: '100%',
-              fontSize: '1.75rem',
+              fontSize: reading ? '1.35rem' : '1.75rem',
               lineHeight: 1.6,
               color: 'var(--text-primary)',
               fontWeight: 500,
@@ -99,7 +108,7 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
           inset: 0,
           display: 'flex',
           flexDirection: 'column',
-          padding: '2rem',
+          padding: reading ? '1.25rem 1.5rem' : '2rem',
           boxShadow: 'var(--shadow-elevated, 0 10px 40px rgba(0,0,0,0.35))',
           border: '1px solid var(--border-medium)',
           borderRadius: 'var(--radius-lg)',
@@ -125,9 +134,11 @@ export default function FlashCard({ front, back, isFlipped, onFlip, cardState }:
         >
           <div
             style={{
-              margin: 'auto 0',
+              // en modo lectura el texto empieza arriba, como una página
+              margin: reading ? 0 : 'auto 0',
+              width: reading ? '100%' : undefined,
               maxWidth: '100%',
-              fontSize: '1.25rem',
+              fontSize: reading ? '1.1rem' : '1.25rem',
               lineHeight: 1.6,
               color: 'var(--text-primary)',
             }}

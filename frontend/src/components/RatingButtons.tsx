@@ -20,9 +20,17 @@ interface RatingButtonsProps {
   onRate: (rating: number) => void;
   onCustomSchedule?: () => void;
   disabled?: boolean;
+  /** Una sola fila de botones pequeños, para dejar sitio a tarjetas largas. */
+  compact?: boolean;
 }
 
-function RatingButtons({ intervals, onRate, onCustomSchedule, disabled }: RatingButtonsProps) {
+function RatingButtons({
+  intervals,
+  onRate,
+  onCustomSchedule,
+  disabled,
+  compact = false,
+}: RatingButtonsProps) {
   if (!intervals) return null;
 
   const buttons = [
@@ -31,6 +39,53 @@ function RatingButtons({ intervals, onRate, onCustomSchedule, disabled }: Rating
     { key: 'good', label: 'Bien', rating: 3, interval: intervals?.[3] },
     { key: 'easy', label: 'Fácil', rating: 4, interval: intervals?.[4] },
   ];
+
+  if (compact) {
+    return (
+      <div className="flex min-w-0 flex-1 items-stretch gap-1.5">
+        {buttons.map((btn) => {
+          const style = RATING_STYLES[btn.key as keyof typeof RATING_STYLES];
+          return (
+            <button
+              key={btn.key}
+              disabled={disabled}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRate(btn.rating);
+              }}
+              className={`
+                flex h-11 min-w-0 flex-1 flex-col items-center justify-center px-1 rounded-md
+                sm:flex-row sm:gap-1.5 text-[11px] sm:text-sm leading-tight
+                bg-card border ${style.border} ${style.bgHover} ${style.color}
+                transition-all duration-200 cursor-pointer active:scale-95
+                disabled:opacity-50 disabled:cursor-not-allowed
+              `}
+            >
+              <span className="text-xs font-bold sm:text-sm">{btn.interval || '...'}</span>
+              <span className="max-w-full truncate text-[11px] opacity-80 sm:text-sm">
+                {btn.label}
+              </span>
+            </button>
+          );
+        })}
+        {onCustomSchedule && (
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={(event) => {
+              event.stopPropagation();
+              onCustomSchedule();
+            }}
+            aria-label="Elegir cuándo repasar esta tarjeta"
+            title="Elegir otro momento"
+            className="flex h-11 w-9 shrink-0 items-center justify-center rounded-md border border-dashed sm:w-11 border-[var(--border-medium)] bg-card text-muted-foreground transition-colors hover:bg-[var(--bg-card-hover)] hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Pencil size={16} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full mt-4">
