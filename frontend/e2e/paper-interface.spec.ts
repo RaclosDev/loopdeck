@@ -258,10 +258,9 @@ test('deck sheet actions and menu target the selected deck', async ({ page }) =>
 });
 
 async function textContrast(page: Page) {
-  await page.locator('.fade-in').evaluateAll(async (elements) => {
-    await Promise.all(
-      elements.flatMap((element) => element.getAnimations()).map((animation) => animation.finished),
-    );
+  // Incluye las transiciones de color del cambio de tema: medir a mitad daría contrastes falsos.
+  await page.evaluate(async () => {
+    await Promise.allSettled(document.getAnimations().map((animation) => animation.finished));
   });
   const failures = await page.evaluate(() => {
     const rgb = (color: string) => {
@@ -999,7 +998,7 @@ test('a failed background save can be retried without losing the next card', asy
   ).toBeVisible();
   await page.getByRole('button', { name: 'Reintentar guardado', exact: true }).click();
   await expect(page.getByText('Concepto 2', { exact: true })).toBeVisible();
-  expect(requests).toHaveLength(2);
+  await expect.poll(() => requests.length).toBe(2);
   expect(requests[1]).toEqual(requests[0]);
   await expect(page.getByRole('button', { name: 'Mostrar Respuesta', exact: true })).toBeEnabled();
 });
