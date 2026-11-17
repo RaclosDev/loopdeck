@@ -1,8 +1,8 @@
 package com.loopdeck.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 import com.loopdeck.exception.InvalidInputException;
 import com.loopdeck.model.Deck;
 import com.loopdeck.repository.DeckRepository;
@@ -64,7 +64,7 @@ public class TemplateService {
                 imports.importNotes(userId, deck.getId(), notes.subList(start, Math.min(start + 500, notes.size())), null);
             }
             return deck;
-        } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+        } catch (tools.jackson.core.JacksonException ex) {
             throw new IllegalStateException("Cannot serialize bundled template", ex);
         }
     }

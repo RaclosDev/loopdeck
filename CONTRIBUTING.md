@@ -1,6 +1,6 @@
 # Desarrollo de LoopDeck
 
-Requisitos: Node.js 22+, Java 17 y Docker en ejecución para PostgreSQL y los tests de integración.
+Requisitos: Node.js 22+, Java 21 y Docker en ejecución para PostgreSQL y los tests de integración.
 
 ## Configuración
 
