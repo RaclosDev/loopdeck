@@ -39,7 +39,7 @@ export async function lookupDefinition(word: string) {
 
   if (!resultDefinition) {
     try {
-      const url = `https://es.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=1&exlimit=1&titles=${encodeURIComponent(clean)}&explaintext=1&formatversion=2&format=json&origin=*`;
+      const url = `https://es.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=1&exlimit=1&redirects=1&titles=${encodeURIComponent(clean)}&explaintext=1&formatversion=2&format=json&origin=*`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
