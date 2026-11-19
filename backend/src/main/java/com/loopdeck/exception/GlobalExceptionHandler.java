@@ -62,6 +62,12 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("El archivo supera el límite de 15 MB", HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
+    @ExceptionHandler(AiUnavailableException.class)
+    public ResponseEntity<?> handleAiUnavailable(AiUnavailableException ex) {
+        log.warn("AI unavailable: {}", ex.getMessage());
+        return buildErrorResponse("La IA no ha podido responder. Inténtalo de nuevo en un momento", HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<?> handleConflict(ConflictException ex) { return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT); }
 

@@ -6,6 +6,7 @@ import type { AiDefinitionResponse, AiImageResponse } from '../types';
 
 import { API_BASE } from '../services/api';
 import { DEMO } from '../demo/mode';
+import { maskTerm } from './termGuard';
 
 /**
  * Fetch a short definition for a word.
@@ -44,7 +45,7 @@ export async function lookupDefinition(word: string) {
         const data = await res.json();
         const pages = data.query?.pages || [];
         if (pages.length > 0 && !pages[0].missing && pages[0].extract) {
-          resultDefinition = pages[0].extract;
+          resultDefinition = maskTerm(pages[0].extract, clean);
           if (resultDefinition.length > 150) {
             resultDefinition = resultDefinition.substring(0, 147) + '...';
           }
