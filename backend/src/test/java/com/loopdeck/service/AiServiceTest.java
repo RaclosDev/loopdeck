@@ -31,7 +31,7 @@ class AiServiceTest {
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
-        service = new AiService(builder.build(), "test-key", "gemini-3.8-flash", "low");
+        service = new AiService(builder.build(), "test-key", "gemini-3.8-flash", "medium");
     }
 
     private static String reply(String finishReason, Map<String, Object>... parts) {
@@ -47,8 +47,8 @@ class AiServiceTest {
     void sendsConfiguredModelThinkingLevelAndSystemRules() {
         server.expect(requestTo(URL)).andExpect(method(HttpMethod.POST))
             .andExpect(header("x-goog-api-key", "test-key"))
-            .andExpect(jsonPath("$.generationConfig.thinkingConfig.thinkingLevel").value("low"))
-            .andExpect(jsonPath("$.generationConfig.maxOutputTokens").value(1024))
+            .andExpect(jsonPath("$.generationConfig.thinkingConfig.thinkingLevel").value("medium"))
+            .andExpect(jsonPath("$.generationConfig.maxOutputTokens").value(4096))
             .andExpect(jsonPath("$.generationConfig.temperature").doesNotExist())
             .andExpect(jsonPath("$.systemInstruction.parts[0].text").value(org.hamcrest.Matchers.containsString("NUNCA escribas el término")))
             .andExpect(jsonPath("$.contents[0].parts[0].text").value("Término: perro"))
@@ -85,7 +85,7 @@ class AiServiceTest {
         server.expect(requestTo(URL)).andRespond(withServerError());
         assertThatThrownBy(() -> service.getDefinition("perro")).isInstanceOf(AiUnavailableException.class);
 
-        AiService withoutKey = new AiService(RestClient.create(), "", "gemini-3.8-flash", "low");
+        AiService withoutKey = new AiService(RestClient.create(), "", "gemini-3.8-flash", "medium");
         assertThatThrownBy(() -> withoutKey.getDefinition("perro")).isInstanceOf(AiUnavailableException.class);
     }
 
