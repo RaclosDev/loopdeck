@@ -146,4 +146,26 @@ class AiServiceTest {
         assertThatThrownBy(() -> withFallbacks.getDefinition("cucaracha")).isInstanceOf(AiUnavailableException.class);
         fallbackServer.verify();
     }
+
+    @Test
+    void definitionsUseTheFastModelAndFallBackToThePrimary() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer liteServer = MockRestServiceServer.bindTo(builder).build();
+        AiService withLite = new AiService(builder.build(), "test-key", "gemini-3.8-flash", "medium",
+            List.of("gemini-3.5-flash-lite"), "gemini-3.5-flash-lite");
+        String lite = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent";
+
+        liteServer.expect(requestTo(lite))
+            .andExpect(jsonPath("$.generationConfig.thinkingConfig").doesNotExist())
+            .andRespond(withSuccess(reply("Felino grande de melena espesa."), MediaType.APPLICATION_JSON));
+        liteServer.expect(requestTo(lite))
+            .andRespond(withStatus(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE));
+        liteServer.expect(requestTo(URL))
+            .andExpect(jsonPath("$.generationConfig.thinkingConfig.thinkingLevel").value("medium"))
+            .andRespond(withSuccess(reply("Insecto saltador de patas traseras largas."), MediaType.APPLICATION_JSON));
+
+        assertThat(withLite.getDefinition("león")).isEqualTo("Felino grande de melena espesa.");
+        assertThat(withLite.getDefinition("saltamontes")).isEqualTo("Insecto saltador de patas traseras largas.");
+        liteServer.verify();
+    }
 }
