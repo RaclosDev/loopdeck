@@ -79,7 +79,7 @@ public class AiService {
         @Value("${gemini.api.key:}") String apiKey,
         @Value("${gemini.api.model:gemini-3.8-flash}") String model,
         @Value("${gemini.api.thinking-level:medium}") String thinkingLevel,
-        @Value("${gemini.api.fallback-models:gemini-3.6-flash,gemini-3.5-flash-lite}") String fallbackModels) {
+        @Value("${gemini.api.fallback-models:gemini-3.5-flash-lite,gemini-3.6-flash}") String fallbackModels) {
         this(defaultClient(), apiKey, model, thinkingLevel, parseModels(fallbackModels));
     }
 
@@ -93,6 +93,10 @@ public class AiService {
         this.model = model;
         this.thinkingLevel = thinkingLevel;
         this.fallbackModels = fallbackModels.stream().filter(m -> !m.equals(model)).distinct().toList();
+    }
+
+    private static long elapsedMs(long start) {
+        return (System.nanoTime() - start) / 1_000_000;
     }
 
     private static List<String> parseModels(String models) {
@@ -194,6 +198,7 @@ public class AiService {
         for (String current : models) {
             // El nivel de razonamiento se ajusta al modelo principal; los de reserva usan el suyo por defecto.
             Map<String, Object> body = requestBody(system, userText, maxOutputTokens, schema, current.equals(model));
+            long start = System.nanoTime();
             try {
                 ResponseEntity<Map> entity = restClient.post()
                     .uri(API_BASE + current + ":generateContent")
@@ -206,9 +211,10 @@ public class AiService {
                     throw new AiUnavailableException("Respuesta vacía de Gemini");
                 }
                 response = entity.getBody();
+                log.info("Gemini ({}) respondió en {} ms", current, elapsedMs(start));
                 break;
             } catch (HttpServerErrorException | HttpClientErrorException.TooManyRequests e) {
-                log.warn("Gemini ({}) saturado o caído: {}", current, e.getStatusCode());
+                log.warn("Gemini ({}) saturado o caído tras {} ms: {}", current, elapsedMs(start), e.getStatusCode());
             } catch (RestClientException e) {
                 log.error("Error llamando a Gemini ({}): {}", current, e.getMessage());
                 throw new AiUnavailableException("Gemini no responde");
