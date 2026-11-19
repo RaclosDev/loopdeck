@@ -73,14 +73,17 @@ public class AiService {
     private final String thinkingLevel;
     /** Modelos que se prueban, en orden, si el principal está saturado o caído. */
     private final List<String> fallbackModels;
+    /** Modelo rápido para definiciones sueltas, donde la latencia importa más que la capacidad. */
+    private final String definitionModel;
 
     @Autowired
     public AiService(
         @Value("${gemini.api.key:}") String apiKey,
         @Value("${gemini.api.model:gemini-3.8-flash}") String model,
         @Value("${gemini.api.thinking-level:medium}") String thinkingLevel,
-        @Value("${gemini.api.fallback-models:gemini-3.5-flash-lite,gemini-3.6-flash}") String fallbackModels) {
-        this(defaultClient(), apiKey, model, thinkingLevel, parseModels(fallbackModels));
+        @Value("${gemini.api.fallback-models:gemini-3.5-flash-lite,gemini-3.6-flash}") String fallbackModels,
+        @Value("${gemini.api.definition-model:gemini-3.5-flash-lite}") String definitionModel) {
+        this(defaultClient(), apiKey, model, thinkingLevel, parseModels(fallbackModels), definitionModel);
     }
 
     AiService(RestClient restClient, String apiKey, String model, String thinkingLevel) {
@@ -88,6 +91,12 @@ public class AiService {
     }
 
     AiService(RestClient restClient, String apiKey, String model, String thinkingLevel, List<String> fallbackModels) {
+        this(restClient, apiKey, model, thinkingLevel, fallbackModels, model);
+    }
+
+    AiService(RestClient restClient, String apiKey, String model, String thinkingLevel, List<String> fallbackModels,
+              String definitionModel) {
+        this.definitionModel = definitionModel == null || definitionModel.isBlank() ? model : definitionModel.trim();
         this.restClient = restClient;
         this.apiKey = apiKey;
         this.model = model;
@@ -115,12 +124,12 @@ public class AiService {
         if (word == null || word.isBlank()) return "";
         String term = word.trim();
 
-        String definition = cleanDefinition(generate(DEFINITION_SYSTEM, "Término: " + term, 4096, null, false));
+        String definition = cleanDefinition(generate(definitionModel, DEFINITION_SYSTEM, "Término: " + term, 4096, null, false));
         if (TermGuard.containsTerm(definition, term)) {
             log.info("La definición repetía el término; se pide otra vez");
             String retry = "Término: " + term + "\nTu definición anterior era «" + definition
                 + "» y usaba el término o una palabra de su familia. Escribe otra que no la use.";
-            definition = cleanDefinition(generate(DEFINITION_SYSTEM, retry, 4096, null, false));
+            definition = cleanDefinition(generate(definitionModel, DEFINITION_SYSTEM, retry, 4096, null, false));
         }
         if (definition.isEmpty()) throw new AiUnavailableException("Definición vacía");
         return TermGuard.mask(definition, term);
@@ -187,14 +196,21 @@ public class AiService {
 
     @SuppressWarnings("unchecked")
     private String generate(String system, String userText, int maxOutputTokens, Map<String, Object> schema, boolean allowTruncated) {
+        return generate(model, system, userText, maxOutputTokens, schema, allowTruncated);
+    }
+
+    /** Prueba {@code primary} y, si está saturado, el modelo principal y los de reserva. */
+    private String generate(String primary, String system, String userText, int maxOutputTokens,
+                            Map<String, Object> schema, boolean allowTruncated) {
         if (apiKey == null || apiKey.isBlank() || "TU_CLAVE_AQUI".equals(apiKey) || "CHANGE_ME".equals(apiKey)) {
             throw new AiUnavailableException("Clave de Gemini no configurada");
         }
 
         Map<String, Object> response = null;
         List<String> models = new ArrayList<>();
-        models.add(model);
-        models.addAll(fallbackModels);
+        models.add(primary);
+        if (!models.contains(model)) models.add(model);
+        fallbackModels.stream().filter(m -> !models.contains(m)).forEach(models::add);
         for (String current : models) {
             // El nivel de razonamiento se ajusta al modelo principal; los de reserva usan el suyo por defecto.
             Map<String, Object> body = requestBody(system, userText, maxOutputTokens, schema, current.equals(model));
