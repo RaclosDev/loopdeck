@@ -715,7 +715,8 @@ test('auto image offers several photos and builds an image card', async ({ page 
     'src',
     'https://upload.wikimedia.org/thumb/Perro dos.jpg',
   );
-  await expect(editors.nth(1)).toHaveText('perro');
+  await expect(editors.nth(1)).toHaveText('PERRO');
+  await expect(editors.nth(1).locator('strong')).toHaveText('PERRO');
 });
 
 test('document dialog has paper, fullscreen and a recoverable local error', async ({ page }) => {
