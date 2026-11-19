@@ -143,6 +143,103 @@
 .study-session .flashcard-frame {
   min-height: 240px;
 }
+/* Tarjetas largas: en modo lectura la tarjeta se queda con casi toda la pantalla. */
+.study-session.study-session--reading {
+  height: calc(100dvh - 66px);
+  min-height: 420px;
+}
+/* Tipografía de lectura: columna estrecha, párrafos separados y código enmarcado. */
+.card-reading {
+  text-align: left;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.card-reading p,
+.card-reading ul,
+.card-reading ol,
+.card-reading blockquote,
+.card-reading table {
+  margin: 0 0 0.9em;
+}
+.card-reading > :last-child,
+.card-reading > div > :last-child {
+  margin-bottom: 0;
+}
+.card-reading ul,
+.card-reading ol {
+  padding-left: 1.4em;
+}
+.card-reading ul {
+  list-style: disc;
+}
+.card-reading ol {
+  list-style: decimal;
+}
+.card-reading li {
+  margin-bottom: 0.4em;
+}
+.card-reading li::marker {
+  color: var(--accent-primary);
+}
+.card-reading strong {
+  font-weight: 700;
+}
+.card-reading h1,
+.card-reading h2,
+.card-reading h3,
+.card-reading h4 {
+  margin: 1.2em 0 0.5em;
+  font-size: 1.1em;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.card-reading code {
+  font-family: ui-monospace, 'Cascadia Code', Consolas, Menlo, monospace;
+  font-size: 0.88em;
+}
+.card-reading :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  background: var(--bg-glass-strong);
+}
+.card-reading pre {
+  margin: 1em 0;
+  padding: 0.85em 1em;
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.card-reading hr {
+  margin: 1.4em 0 1em;
+  border: 0;
+  border-top: 1px dashed var(--border-medium);
+}
+.card-reading blockquote {
+  padding-left: 0.9em;
+  border-left: 3px solid var(--border-medium);
+  color: var(--text-secondary);
+}
+.card-reading table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+.card-reading th,
+.card-reading td {
+  padding: 0.4em 0.6em;
+  border: 1px solid var(--border-subtle);
+  text-align: left;
+  vertical-align: top;
+}
+.card-reading th {
+  background: var(--bg-glass-strong);
+  font-weight: 700;
+}
 .study-session > div:first-child {
   flex-wrap: wrap;
   gap: 12px;

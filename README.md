@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://loopdeck.raclos.es"><strong>Abrir la app</strong></a> ·
+  <a href="https://loopdeck.raclos.es/demo">Demo sin registro</a> ·
   <a href="#qué-puedes-hacer">Funcionalidades</a> ·
   <a href="docs/arquitectura.md">Arquitectura</a> ·
   <a href="CONTRIBUTING.md">Desarrollo local</a>

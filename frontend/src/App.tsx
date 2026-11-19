@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import LandingPage from './pages/LandingPage';
+import { DEMO } from './demo/mode';
 import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
@@ -149,7 +150,7 @@ function AppContent({
 
   // Si hay token, renderizamos la app directamente
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={DEMO ? '/demo' : undefined}>
       <Toaster
         position="top-center"
         containerStyle={{

@@ -1,4 +1,4 @@
-import { parseNoteFields, renderCloze } from '../lib/noteFields';
+import { isLongCardContent, parseNoteFields, renderCloze } from '../lib/noteFields';
 import useStore from '../store/useStore';
 import StudyLoadError from '../components/StudyLoadError';
 import { useState, useEffect, useMemo } from 'react';
@@ -89,6 +89,13 @@ export default function Study() {
       return sanitizeHtml(marked.parse(fields.back || '') as string);
     }
   }, [note?.id, note?.noteType, card?.id, card?.cardOrdinal, fields]);
+
+  // Las tarjetas con mucho texto usan una disposición de lectura: tarjeta a todo
+  // el espacio y controles en una fila pequeña al pie.
+  const reading = useMemo(
+    () => isLongCardContent(frontHtml) || isLongCardContent(backHtml),
+    [frontHtml, backHtml],
+  );
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -285,10 +292,12 @@ export default function Study() {
 
   return (
     <div
-      className="fade-in study-session flex flex-col overflow-hidden max-w-3xl mx-auto w-full"
+      className={`fade-in study-session flex flex-col overflow-hidden mx-auto w-full ${
+        reading ? 'study-session--reading max-w-5xl' : 'max-w-3xl'
+      }`}
       style={{
-        paddingTop: '1rem',
-        paddingBottom: '1rem',
+        paddingTop: reading ? '0.25rem' : '1rem',
+        paddingBottom: reading ? '0.25rem' : '1rem',
       }}
     >
       {/* Header */}
@@ -297,7 +306,7 @@ export default function Study() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '1.5rem',
+          marginBottom: reading ? '0.25rem' : '1.5rem',
           padding: '0 0.5rem',
         }}
       >
@@ -313,10 +322,13 @@ export default function Study() {
               transition: 'all 0.2s',
             }}
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={reading ? 18 : 24} />
           </button>
           <div>
-            <h1 className="study-title" style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
+            <h1
+              className="study-title"
+              style={{ margin: 0, fontSize: reading ? '0.85rem' : '1.25rem', fontWeight: 600 }}
+            >
               {deck?.name}
             </h1>
             {settings?.showTimer && (
@@ -374,7 +386,7 @@ export default function Study() {
             alignItems: 'center',
             justifyContent: 'center',
             minHeight: 0,
-            padding: '1rem 0',
+            padding: reading ? '0.25rem 0' : '1rem 0',
             width: '100%',
           }}
         >
@@ -384,61 +396,105 @@ export default function Study() {
             isFlipped={isFlipped}
             onFlip={handleFlip}
             cardState={card.state}
+            reading={reading}
           />
         </div>
 
         {/* Controls */}
-        <div
-          style={{
-            marginTop: '1rem',
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            paddingBottom: '1rem',
-          }}
-        >
-          {!isFlipped ? (
-            <button
-              className="btn btn-primary"
-              style={{
-                width: '100%',
-                padding: '1.25rem',
-                fontSize: '1.25rem',
-                borderRadius: 'var(--radius-xl)',
-              }}
-              onClick={handleFlip}
-            >
-              <Eye size={20} /> Mostrar Respuesta
-            </button>
-          ) : (
-            <>
+        {reading ? (
+          <div
+            style={{
+              marginTop: '0.5rem',
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'stretch',
+              gap: '0.375rem',
+            }}
+          >
+            {!isFlipped ? (
+              <button
+                className="btn btn-primary"
+                style={{ flex: 1, minHeight: '2.75rem', padding: '0 1rem', fontSize: '0.95rem' }}
+                onClick={handleFlip}
+              >
+                <Eye size={16} /> Mostrar Respuesta
+              </button>
+            ) : (
               <RatingButtons
+                compact
                 intervals={intervals}
                 onRate={handleRate}
                 onCustomSchedule={() => setCustomScheduleOpen(true)}
                 disabled={saveError}
               />
-            </>
-          )}
-
-          <div className="flex justify-center mt-2">
+            )}
             <button
               onClick={handleUndo}
               disabled={undoStack.length === 0 || saving || saveError}
-              className={`
-                flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
-                ${
-                  undoStack.length === 0
-                    ? 'text-muted-foreground/30 cursor-not-allowed'
-                    : 'text-muted-foreground hover:bg-[var(--bg-card-hover)] hover:text-foreground cursor-pointer'
-                }
-              `}
+              aria-label="Deshacer"
+              title="Deshacer"
+              className={`flex h-11 w-9 sm:w-11 shrink-0 items-center justify-center rounded-md transition-colors ${
+                undoStack.length === 0
+                  ? 'text-muted-foreground/30 cursor-not-allowed'
+                  : 'text-muted-foreground hover:bg-[var(--bg-card-hover)] hover:text-foreground cursor-pointer'
+              }`}
             >
-              <Undo2 size={16} /> Deshacer
+              <Undo2 size={16} />
             </button>
           </div>
-        </div>
+        ) : (
+          <div
+            style={{
+              marginTop: '1rem',
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              paddingBottom: '1rem',
+            }}
+          >
+            {!isFlipped ? (
+              <button
+                className="btn btn-primary"
+                style={{
+                  width: '100%',
+                  padding: '1.25rem',
+                  fontSize: '1.25rem',
+                  borderRadius: 'var(--radius-xl)',
+                }}
+                onClick={handleFlip}
+              >
+                <Eye size={20} /> Mostrar Respuesta
+              </button>
+            ) : (
+              <>
+                <RatingButtons
+                  intervals={intervals}
+                  onRate={handleRate}
+                  onCustomSchedule={() => setCustomScheduleOpen(true)}
+                  disabled={saveError}
+                />
+              </>
+            )}
+
+            <div className="flex justify-center mt-2">
+              <button
+                onClick={handleUndo}
+                disabled={undoStack.length === 0 || saving || saveError}
+                className={`
+                  flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                  ${
+                    undoStack.length === 0
+                      ? 'text-muted-foreground/30 cursor-not-allowed'
+                      : 'text-muted-foreground hover:bg-[var(--bg-card-hover)] hover:text-foreground cursor-pointer'
+                  }
+                `}
+              >
+                <Undo2 size={16} /> Deshacer
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       <CustomReviewScheduleDialog
         open={customScheduleOpen}

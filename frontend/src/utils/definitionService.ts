@@ -5,6 +5,7 @@ import type { AiDefinitionResponse, AiImageResponse } from '../types';
  */
 
 import { API_BASE } from '../services/api';
+import { DEMO } from '../demo/mode';
 import { maskTerm } from './termGuard';
 
 /**
@@ -19,6 +20,7 @@ export async function lookupDefinition(word: string) {
   let resultDefinition = null;
 
   try {
+    if (DEMO) throw new Error('demo');
     const token = localStorage.getItem('loopdeck_jwt_token');
     const aiRes = await fetch(`${API_BASE}/ai/definition?word=${encodeURIComponent(clean)}`, {
       headers: {
@@ -71,6 +73,7 @@ export async function lookupDefinition(word: string) {
 export async function lookupImage(word: string) {
   if (!word || !word.trim()) return null;
   const clean = word.trim().toLowerCase();
+  if (DEMO) return null;
 
   try {
     const token = localStorage.getItem('loopdeck_jwt_token');
