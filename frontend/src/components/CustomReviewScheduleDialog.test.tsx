@@ -19,7 +19,8 @@ describe('CustomReviewScheduleDialog', () => {
     render(<CustomReviewScheduleDialog open onOpenChange={() => {}} onSchedule={onSchedule} />);
 
     fireEvent.change(screen.getByLabelText('Cantidad'), { target: { value: '3' } });
-    fireEvent.change(screen.getByLabelText('Unidad'), { target: { value: 'hours' } });
+    fireEvent.click(screen.getByLabelText('Unidad'));
+    fireEvent.click(screen.getByRole('menuitemradio', { name: 'horas', hidden: true }));
     fireEvent.click(screen.getByRole('button', { name: 'Programar repaso' }));
 
     expect(onSchedule).toHaveBeenCalledWith(180);

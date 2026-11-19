@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { SelectMenu } from '@/components/ui/select-menu';
 import {
   Dialog,
   DialogContent,
@@ -78,16 +79,18 @@ export default function CustomReviewScheduleDialog({
           <label className="sr-only" htmlFor="custom-review-unit">
             Unidad
           </label>
-          <select
-            id="custom-review-unit"
-            className="input w-32"
-            value={unit}
-            onChange={(event) => setUnit(event.target.value as Unit)}
-          >
-            <option value="minutes">minutos</option>
-            <option value="hours">horas</option>
-            <option value="days">días</option>
-          </select>
+          <div className="w-32">
+            <SelectMenu
+              id="custom-review-unit"
+              value={unit}
+              onChange={setUnit}
+              options={[
+                { value: 'minutes', label: 'minutos' },
+                { value: 'hours', label: 'horas' },
+                { value: 'days', label: 'días' },
+              ]}
+            />
+          </div>
         </div>
         <DialogFooter>
           <button type="button" className="sheet-action" onClick={() => onOpenChange(false)}>

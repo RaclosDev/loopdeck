@@ -463,14 +463,16 @@ test('browser filters exact tags and keeps the selected deck in its URL', async 
     });
   });
   await page.goto('/browser?deck=paper-deck');
-  await page.getByLabel('Etiqueta', { exact: true }).selectOption('bio');
+  await page.getByLabel('Etiqueta', { exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'bio', exact: true }).click();
   await expect(page.getByRole('status')).toHaveText('1 nota');
   await expect(page.getByText('Concepto 1', { exact: true })).toBeVisible();
   await expect(page.getByText('Concepto 2', { exact: true })).toHaveCount(0);
-  await page.getByLabel('Mazo', { exact: true }).selectOption('history');
+  await page.getByLabel('Mazo', { exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'Historia', exact: true }).click();
   await expect(page).toHaveURL(/deck=history/);
   await page.reload();
-  await expect(page.getByLabel('Mazo', { exact: true })).toHaveValue('history');
+  await expect(page.getByLabel('Mazo', { exact: true })).toHaveText('Historia');
 });
 
 for (const width of [390, 1440]) {
