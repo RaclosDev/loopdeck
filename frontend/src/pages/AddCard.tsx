@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { notesApi, aiApi } from '../services/api';
 import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
-import { lookupDefinition, lookupImage } from '../utils/definitionService';
+import { lookupDefinition } from '../utils/definitionService';
 import ImageSearchModal from '../components/ImageSearchModal';
 import { useDecks } from '../hooks/useDecks';
 import { SegmentedControl } from '../components/ui/segmented-control';
@@ -63,10 +63,10 @@ export default function AddCard() {
   const [showTypeSelector, setShowTypeSelector] = useState(false);
 
   const [lookingUpDef, setLookingUpDef] = useState<boolean>(false);
-  const [lookingUpImage, setLookingUpImage] = useState<boolean>(false);
 
+  /** `auto` crea una tarjeta de imagen: la foto elegida al frente y el término detrás. */
   const [imageSearchModalInfo, setImageSearchModalInfo] = useState<{
-    field: 'front' | 'back';
+    field: 'front' | 'back' | 'auto';
     query: string;
   } | null>(null);
 
@@ -192,8 +192,17 @@ export default function AddCard() {
     setImageSearchModalInfo({ field, query });
   };
 
-  const handleImageSearchSelect = (base64: string, field: 'front' | 'back') => {
-    const imgHtml = `<img src="${base64}" />`;
+  const handleImageSearchSelect = (url: string, field: 'front' | 'back' | 'auto') => {
+    const imgHtml = `<img src="${url.replace(/"/g, '%22')}" alt="" />`;
+    setImageSearchModalInfo(null);
+    if (field === 'auto') {
+      const term = imageSearchModalInfo?.query ?? '';
+      if (frontContentRef.current) frontContentRef.current.innerHTML = imgHtml;
+      // `term` ya viene saneado por htmlToText.
+      if (backContentRef.current) backContentRef.current.innerHTML = term;
+      setFields((prev) => ({ ...prev, front: imgHtml, back: term }));
+      return;
+    }
     if (field === 'front') insertHtmlAtCursor(imgHtml, frontContentRef);
     else insertHtmlAtCursor(imgHtml, backContentRef);
     setFields((prev) => ({
@@ -213,11 +222,16 @@ export default function AddCard() {
     setLookingUpDef(true);
     try {
       const def = await lookupDefinition(term);
-      if (def?.definition) {
-        if (frontContentRef.current) frontContentRef.current.innerHTML = def.definition;
-        if (backContentRef.current) backContentRef.current.innerHTML = term;
-        setFields((prev) => ({ ...prev, front: def.definition, back: term }));
+      if (!def?.definition) {
+        toast.error(`No he encontrado una definición para «${term}»`);
+        return;
       }
+      // La definición es texto: se inserta como tal para no interpretar HTML ajeno.
+      const front = frontContentRef.current;
+      const back = backContentRef.current;
+      if (front) front.textContent = def.definition;
+      if (back) back.innerHTML = term;
+      setFields((prev) => ({ ...prev, front: front?.innerHTML ?? def.definition, back: term }));
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Error buscando definicion');
     } finally {
@@ -225,25 +239,10 @@ export default function AddCard() {
     }
   };
 
-  const handleAutoImage = async () => {
+  const handleAutoImage = () => {
     const term = htmlToText(fields.front || '').trim();
     if (!term) return toast.error('Escribe un término en el frente primero');
-    setLookingUpImage(true);
-    try {
-      const url = await lookupImage(term);
-      if (url) {
-        const imgHtml = `<img src="${url}" />`;
-        if (frontContentRef.current) frontContentRef.current.innerHTML = imgHtml;
-        if (backContentRef.current) backContentRef.current.innerHTML = term;
-        setFields((prev) => ({ ...prev, front: imgHtml, back: term }));
-      } else {
-        toast.error('No se encontró imagen');
-      }
-    } catch (e: unknown) {
-      toast.error(e instanceof Error ? e.message : 'Error buscando imagen');
-    } finally {
-      setLookingUpImage(false);
-    }
+    setImageSearchModalInfo({ field: 'auto', query: term });
   };
 
   const handleAdd = async (closeAfter: boolean) => {
@@ -608,12 +607,10 @@ export default function AddCard() {
                       minWidth: 0,
                     }}
                     onClick={handleAutoImage}
-                    disabled={lookingUpImage}
+                    aria-label="Elegir una foto del término para el frente"
                   >
                     <Image className="w-4 h-4 mb-1" />
-                    <span style={{ lineHeight: 1, fontWeight: 600 }}>
-                      {lookingUpImage ? '...' : 'Auto'}
-                    </span>
+                    <span style={{ lineHeight: 1, fontWeight: 600 }}>Auto</span>
                   </button>
                   <button
                     type="button"
@@ -989,7 +986,12 @@ export default function AddCard() {
         <ImageSearchModal
           isOpen={true}
           initialQuery={imageSearchModalInfo.query}
-          onSelect={(base64: string) => handleImageSearchSelect(base64, imageSearchModalInfo.field)}
+          title={
+            imageSearchModalInfo.field === 'auto'
+              ? `Elige una foto de «${imageSearchModalInfo.query}»`
+              : undefined
+          }
+          onSelect={(url: string) => handleImageSearchSelect(url, imageSearchModalInfo.field)}
           onClose={() => setImageSearchModalInfo(null)}
         />
       )}

@@ -665,6 +665,7 @@ test('image search dialog uses paper and closes with keyboard', async ({ page })
   await page.setViewportSize({ width: 390, height: 844 });
   await fixture(page);
   await page.route('https://commons.wikimedia.org/**', (route) => route.fulfill({ json: {} }));
+  await page.route('https://es.wikipedia.org/**', (route) => route.fulfill({ json: {} }));
   await page.goto('/add/paper-deck');
   await page.getByRole('button', { name: 'Buscar', exact: true }).first().click();
   const dialog = page.getByRole('dialog');
@@ -675,6 +676,46 @@ test('image search dialog uses paper and closes with keyboard', async ({ page })
   await noOverflow(page);
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
+});
+
+test('auto image offers several photos and builds an image card', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await fixture(page);
+  const photo = (name: string) => ({
+    title: `File:${name}.jpg`,
+    imageinfo: [
+      {
+        url: `https://upload.wikimedia.org/${name}.jpg`,
+        thumburl: `https://upload.wikimedia.org/thumb/${name}.jpg`,
+        mime: 'image/jpeg',
+        width: 1200,
+      },
+    ],
+  });
+  await page.route('https://es.wikipedia.org/**', (route) => route.fulfill({ json: {} }));
+  await page.route('https://commons.wikimedia.org/**', (route) =>
+    route.fulfill({ json: { query: { pages: { a: photo('Perro uno'), b: photo('Perro dos') } } } }),
+  );
+  await page.route('https://upload.wikimedia.org/**', (route) =>
+    route.fulfill({
+      contentType: 'image/svg+xml',
+      body: '<svg xmlns="http://www.w3.org/2000/svg"/>',
+    }),
+  );
+  await page.goto('/add/paper-deck');
+  await page.locator('[contenteditable="true"]').first().fill('perro');
+  await page.getByRole('button', { name: 'Elegir una foto del término para el frente' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Elige una foto de «perro»' });
+  await expect(dialog.getByRole('button', { name: /Seleccionar imagen/ })).toHaveCount(2);
+  await noOverflow(page);
+  await dialog.getByRole('button', { name: 'Seleccionar imagen: Perro dos' }).click();
+  await expect(dialog).toHaveCount(0);
+  const editors = page.locator('[contenteditable="true"]');
+  await expect(editors.first().locator('img')).toHaveAttribute(
+    'src',
+    'https://upload.wikimedia.org/thumb/Perro dos.jpg',
+  );
+  await expect(editors.nth(1)).toHaveText('perro');
 });
 
 test('document dialog has paper, fullscreen and a recoverable local error', async ({ page }) => {
