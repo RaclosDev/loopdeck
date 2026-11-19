@@ -8,6 +8,7 @@ import { marked } from 'marked';
 
 import { Note } from '../types';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { SelectMenu } from '@/components/ui/select-menu';
 import { sanitizeHtml } from '../lib/utils';
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -151,11 +152,6 @@ function StudyChunkedQuiz() {
     generateOptions(notes, nextStart);
   };
 
-  const handleChunkSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSize = parseInt(e.target.value, 10);
-    setChunkSize(newSize);
-  };
-
   if (loadError)
     return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
 
@@ -264,17 +260,13 @@ function StudyChunkedQuiz() {
             }}
           >
             <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Bloque:</span>
-            <select
+            <SelectMenu
+              variant="pill"
               aria-label="Tamaño del bloque"
-              value={chunkSize}
-              onChange={handleChunkSizeChange}
-            >
-              {[5, 10, 20, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+              value={String(chunkSize)}
+              onChange={(value) => setChunkSize(parseInt(value, 10))}
+              options={['5', '10', '20', '50'].map((size) => ({ value: size, label: size }))}
+            />
           </div>
 
           <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 600 }}>

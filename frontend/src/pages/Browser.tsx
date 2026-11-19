@@ -20,6 +20,7 @@ import {
   DialogFooter,
 } from '../components/ui/dialog';
 import { Skeleton } from '../components/ui/skeleton';
+import { SelectMenu } from '@/components/ui/select-menu';
 import { Pencil, Trash2, Search, Loader2, AlertCircle } from 'lucide-react';
 
 type BrowserNote = Note & { parsedFields: Record<string, string>; state: string };
@@ -167,36 +168,25 @@ export default function Browser() {
       <div className="card browser-filters">
         <div className="browser-filter-field">
           <label htmlFor="browser-deck">Mazo</label>
-          <select
+          <SelectMenu
             id="browser-deck"
-            className="form-input"
             value={selectedDeckId}
-            onChange={(e) => {
-              changeFilter('deck', e.target.value);
-            }}
-          >
-            {decks.map((deck) => (
-              <option key={deck.id} value={deck.id}>
-                {deck.name}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => changeFilter('deck', value)}
+            options={decks.map((deck) => ({ value: deck.id, label: deck.name }))}
+          />
         </div>
         <div className="browser-filter-field">
           <label htmlFor="browser-tag">Etiqueta</label>
-          <select
+          <SelectMenu
             id="browser-tag"
-            className="form-input"
             value={selectedTag}
-            onChange={(e) => changeFilter('tag', e.target.value)}
-          >
-            <option value="">Todas</option>
-            {tags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => changeFilter('tag', value)}
+            options={[
+              { value: '', label: 'Todas' },
+              ...(tags.length ? [{ separator: true as const }] : []),
+              ...tags.map((tag) => ({ value: tag, label: tag })),
+            ]}
+          />
         </div>
         <div className="browser-filter-field">
           <label htmlFor="browser-search">Buscar</label>
