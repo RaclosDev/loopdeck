@@ -734,7 +734,7 @@ function route(method: string, path: string, body: unknown, query: Query): unkno
         .filter(Boolean)
         .map((word) => ({
           front: word,
-          back: `Definición de ejemplo de «${word}». En tu cuenta la redacta la IA.`,
+          back: 'Definición de ejemplo. En tu cuenta la redacta la IA sin repetir el término.',
         }));
   }
 
