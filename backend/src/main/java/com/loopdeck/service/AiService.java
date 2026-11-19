@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -69,20 +71,33 @@ public class AiService {
     private final String apiKey;
     private final String model;
     private final String thinkingLevel;
+    /** Modelos que se prueban, en orden, si el principal está saturado o caído. */
+    private final List<String> fallbackModels;
 
     @Autowired
     public AiService(
         @Value("${gemini.api.key:}") String apiKey,
         @Value("${gemini.api.model:gemini-3.8-flash}") String model,
-        @Value("${gemini.api.thinking-level:medium}") String thinkingLevel) {
-        this(defaultClient(), apiKey, model, thinkingLevel);
+        @Value("${gemini.api.thinking-level:medium}") String thinkingLevel,
+        @Value("${gemini.api.fallback-models:gemini-3.6-flash,gemini-3.5-flash-lite}") String fallbackModels) {
+        this(defaultClient(), apiKey, model, thinkingLevel, parseModels(fallbackModels));
     }
 
     AiService(RestClient restClient, String apiKey, String model, String thinkingLevel) {
+        this(restClient, apiKey, model, thinkingLevel, List.of());
+    }
+
+    AiService(RestClient restClient, String apiKey, String model, String thinkingLevel, List<String> fallbackModels) {
         this.restClient = restClient;
         this.apiKey = apiKey;
         this.model = model;
         this.thinkingLevel = thinkingLevel;
+        this.fallbackModels = fallbackModels.stream().filter(m -> !m.equals(model)).distinct().toList();
+    }
+
+    private static List<String> parseModels(String models) {
+        return models == null ? List.of()
+            : Arrays.stream(models.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toList();
     }
 
     private static RestClient defaultClient() {
@@ -172,37 +187,34 @@ public class AiService {
             throw new AiUnavailableException("Clave de Gemini no configurada");
         }
 
-        Map<String, Object> generationConfig = new LinkedHashMap<>();
-        generationConfig.put("maxOutputTokens", maxOutputTokens);
-        if (thinkingLevel != null && !thinkingLevel.isBlank()) {
-            generationConfig.put("thinkingConfig", Map.of("thinkingLevel", thinkingLevel));
-        }
-        if (schema != null) {
-            generationConfig.put("responseMimeType", "application/json");
-            generationConfig.put("responseJsonSchema", schema);
-        }
-        Map<String, Object> body = Map.of(
-            "systemInstruction", Map.of("parts", List.of(Map.of("text", system))),
-            "contents", List.of(Map.of("role", "user", "parts", List.of(Map.of("text", userText)))),
-            "generationConfig", generationConfig);
-
-        Map<String, Object> response;
-        try {
-            ResponseEntity<Map> entity = restClient.post()
-                .uri(API_BASE + model + ":generateContent")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("x-goog-api-key", apiKey)
-                .body(body)
-                .retrieve()
-                .toEntity(Map.class);
-            if (entity.getStatusCode() != HttpStatus.OK || entity.getBody() == null) {
-                throw new AiUnavailableException("Respuesta vacía de Gemini");
+        Map<String, Object> response = null;
+        List<String> models = new ArrayList<>();
+        models.add(model);
+        models.addAll(fallbackModels);
+        for (String current : models) {
+            // El nivel de razonamiento se ajusta al modelo principal; los de reserva usan el suyo por defecto.
+            Map<String, Object> body = requestBody(system, userText, maxOutputTokens, schema, current.equals(model));
+            try {
+                ResponseEntity<Map> entity = restClient.post()
+                    .uri(API_BASE + current + ":generateContent")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("x-goog-api-key", apiKey)
+                    .body(body)
+                    .retrieve()
+                    .toEntity(Map.class);
+                if (entity.getStatusCode() != HttpStatus.OK || entity.getBody() == null) {
+                    throw new AiUnavailableException("Respuesta vacía de Gemini");
+                }
+                response = entity.getBody();
+                break;
+            } catch (HttpServerErrorException | HttpClientErrorException.TooManyRequests e) {
+                log.warn("Gemini ({}) saturado o caído: {}", current, e.getStatusCode());
+            } catch (RestClientException e) {
+                log.error("Error llamando a Gemini ({}): {}", current, e.getMessage());
+                throw new AiUnavailableException("Gemini no responde");
             }
-            response = entity.getBody();
-        } catch (RestClientException e) {
-            log.error("Error llamando a Gemini ({}): {}", model, e.getMessage());
-            throw new AiUnavailableException("Gemini no responde");
         }
+        if (response == null) throw new AiUnavailableException("Gemini no responde");
 
         List<Map<String, Object>> candidates = (List<Map<String, Object>>) response.get("candidates");
         if (candidates == null || candidates.isEmpty()) throw new AiUnavailableException("Gemini sin candidatos");
@@ -224,6 +236,23 @@ public class AiService {
         }
         if (text.isEmpty()) throw new AiUnavailableException("Gemini sin texto (" + finishReason + ")");
         return text.toString().trim();
+    }
+
+    private Map<String, Object> requestBody(String system, String userText, int maxOutputTokens,
+                                            Map<String, Object> schema, boolean withThinkingLevel) {
+        Map<String, Object> generationConfig = new LinkedHashMap<>();
+        generationConfig.put("maxOutputTokens", maxOutputTokens);
+        if (withThinkingLevel && thinkingLevel != null && !thinkingLevel.isBlank()) {
+            generationConfig.put("thinkingConfig", Map.of("thinkingLevel", thinkingLevel));
+        }
+        if (schema != null) {
+            generationConfig.put("responseMimeType", "application/json");
+            generationConfig.put("responseJsonSchema", schema);
+        }
+        return Map.of(
+            "systemInstruction", Map.of("parts", List.of(Map.of("text", system))),
+            "contents", List.of(Map.of("role", "user", "parts", List.of(Map.of("text", userText)))),
+            "generationConfig", generationConfig);
     }
 
     private static String stripFences(String text) {

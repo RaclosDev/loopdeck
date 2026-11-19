@@ -16,6 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 class AiServiceTest {
@@ -108,5 +109,41 @@ class AiServiceTest {
             Map.of("front", "perro", "back", "Mamífero doméstico que ladra"),
             Map.of("front", "sol", "back", "Estrella del sistema solar"));
         server.verify();
+    }
+
+    @Test
+    void fallsBackToNextModelWhenPrimaryIsOverloaded() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer fallbackServer = MockRestServiceServer.bindTo(builder).build();
+        AiService withFallbacks = new AiService(builder.build(), "test-key", "gemini-3.8-flash", "medium",
+            List.of("gemini-3.6-flash", "gemini-3.5-flash-lite"));
+        String base = "https://generativelanguage.googleapis.com/v1beta/models/";
+
+        fallbackServer.expect(requestTo(URL))
+            .andRespond(withStatus(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE));
+        fallbackServer.expect(requestTo(base + "gemini-3.6-flash:generateContent"))
+            .andRespond(withStatus(org.springframework.http.HttpStatus.TOO_MANY_REQUESTS));
+        fallbackServer.expect(requestTo(base + "gemini-3.5-flash-lite:generateContent"))
+            .andExpect(jsonPath("$.generationConfig.thinkingConfig").doesNotExist())
+            .andRespond(withSuccess(reply("Insecto nocturno de cuerpo aplanado y antenas largas."), MediaType.APPLICATION_JSON));
+
+        assertThat(withFallbacks.getDefinition("cucaracha"))
+            .isEqualTo("Insecto nocturno de cuerpo aplanado y antenas largas.");
+        fallbackServer.verify();
+    }
+
+    @Test
+    void failsWhenEveryModelIsOverloaded() {
+        RestClient.Builder builder = RestClient.builder();
+        MockRestServiceServer fallbackServer = MockRestServiceServer.bindTo(builder).build();
+        AiService withFallbacks = new AiService(builder.build(), "test-key", "gemini-3.8-flash", "medium",
+            List.of("gemini-3.6-flash"));
+
+        fallbackServer.expect(requestTo(URL)).andRespond(withServerError());
+        fallbackServer.expect(requestTo("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent"))
+            .andRespond(withServerError());
+
+        assertThatThrownBy(() -> withFallbacks.getDefinition("cucaracha")).isInstanceOf(AiUnavailableException.class);
+        fallbackServer.verify();
     }
 }
