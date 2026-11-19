@@ -119,10 +119,6 @@ export interface AiDefinitionResponse {
   definition: string;
 }
 
-export interface AiImageResponse {
-  imageUrl: string;
-}
-
 export interface AiChatResponse {
   response: string;
 }

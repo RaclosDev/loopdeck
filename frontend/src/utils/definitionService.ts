@@ -1,4 +1,4 @@
-import type { AiDefinitionResponse, AiImageResponse } from '../types';
+import type { AiDefinitionResponse } from '../types';
 /**
  * LoopDeck - Definition Lookup Service
  * Uses Google Gemini AI via Backend with fallback to Wikipedia API.
@@ -62,34 +62,4 @@ export async function lookupDefinition(word: string) {
     definition: resultDefinition,
     language: 'es',
   };
-}
-
-/**
- * Fetch the best image for a word via our backend (uses Gemini AI to find Wikipedia images).
- * Envía la palabra en español directamente sin traducción previa.
- * @param {string} word - The word to search for
- * @returns {Promise<string | null>} The image URL, or null if not found
- */
-export async function lookupImage(word: string) {
-  if (!word || !word.trim()) return null;
-  const clean = word.trim().toLowerCase();
-  if (DEMO) return null;
-
-  try {
-    const token = localStorage.getItem('loopdeck_jwt_token');
-    const res = await fetch(`${API_BASE}/ai/image?word=${encodeURIComponent(clean)}`, {
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-    });
-    if (res.ok) {
-      const data: AiImageResponse = await res.json();
-      if (data && data.imageUrl) {
-        return data.imageUrl;
-      }
-    }
-  } catch (error) {
-    console.warn('No se pudo auto-obtener la imagen:', error);
-  }
-  return null;
 }

@@ -1,22 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
+import { findImages, type ImageResult } from '../utils/imageSearch';
 
 interface ImageSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSelect: (url: string) => void;
   initialQuery?: string;
-}
-
-export interface ImageResult {
-  url: string;
-  thumbnail: string;
-  title: string;
-}
-
-interface WikimediaPage {
-  title: string;
-  imageinfo?: { url: string; thumburl?: string; descriptionurl?: string }[];
+  /** Título del diálogo; por defecto «Buscar imagen». */
+  title?: string;
 }
 
 export default function ImageSearchModal({
@@ -24,52 +16,40 @@ export default function ImageSearchModal({
   onClose,
   onSelect,
   initialQuery = '',
+  title = 'Buscar imagen',
 }: ImageSearchModalProps) {
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<ImageResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<AbortController | null>(null);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) return;
 
+    searchRef.current?.abort();
+    const controller = new AbortController();
+    searchRef.current = controller;
     setLoading(true);
     setError(null);
+    setResults([]);
     try {
-      const url = `https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url|size|mime&generator=search&gsrsearch=filetype:bitmap|drawing ${encodeURIComponent(searchQuery)}&gsrlimit=20&format=json&origin=*`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('API Error');
-      const data = await res.json();
-
-      if (data.query && data.query.pages) {
-        const pages = data.query.pages as Record<string, WikimediaPage>;
-        const images: ImageResult[] = Object.values(pages)
-          .filter((page: WikimediaPage) => page.imageinfo && page.imageinfo.length > 0)
-          .map((page: WikimediaPage) => {
-            const info = page.imageinfo![0];
-            const cleanTitle = page.title.replace(/^File:/, '').replace(/\.\w+$/, '');
-            return {
-              url: info.url,
-              thumbnail: info.thumburl || info.url,
-              title: cleanTitle,
-            };
-          });
-
-        setResults(images);
-        if (images.length === 0) {
-          setError('No se encontraron imágenes para esta búsqueda.');
-        }
-      } else {
-        setResults([]);
-        setError('No se encontraron imágenes para esta búsqueda.');
+      const images = await findImages(searchQuery, controller.signal);
+      if (controller.signal.aborted) return;
+      setResults(images);
+      if (images.length === 0) {
+        setError('No se encontraron imágenes para esta búsqueda. Prueba con otra palabra.');
       }
     } catch {
+      if (controller.signal.aborted) return;
       setError('Error al buscar imágenes. Comprueba tu conexión.');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, []);
+
+  useEffect(() => () => searchRef.current?.abort(), []);
 
   useEffect(() => {
     if (isOpen) {
@@ -92,6 +72,8 @@ export default function ImageSearchModal({
       };
     } else {
       document.body.style.overflow = '';
+      searchRef.current?.abort();
+      setLoading(false);
       setQuery('');
       setResults([]);
       setError(null);
@@ -120,7 +102,7 @@ export default function ImageSearchModal({
           }}
         >
           <div className="modal-header" style={{ padding: '16px 20px', flexShrink: 0 }}>
-            <DialogTitle className="modal-title">Buscar Imagen</DialogTitle>
+            <DialogTitle className="modal-title">{title}</DialogTitle>
           </div>
 
           <div
@@ -186,74 +168,28 @@ export default function ImageSearchModal({
             {results.length > 0 && (
               <>
                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 12 }}>
-                  {results.length} imágenes encontradas · Toca para seleccionar
+                  {results.length} {results.length === 1 ? 'imagen' : 'imágenes'} · Toca la que
+                  quieras usar
                 </div>
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
                     gap: 10,
                   }}
                 >
-                  {results.map((img, i) => (
-                    <div
-                      key={i}
-                      role="button"
-                      tabIndex={0}
+                  {results.map((img) => (
+                    <button
+                      key={img.url}
+                      type="button"
+                      className="image-candidate"
                       aria-label={`Seleccionar imagen: ${img.title}`}
-                      style={{
-                        cursor: 'pointer',
-                        borderRadius: 'var(--radius-md)',
-                        overflow: 'hidden',
-                        border: '2px solid transparent',
-                        aspectRatio: '1',
-                        position: 'relative',
-                        transition: 'border-color 0.15s, transform 0.1s',
-                      }}
+                      title={img.title}
                       onClick={() => onSelect(img.url)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          onSelect(img.url);
-                        }
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--accent-primary)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'transparent';
-                      }}
-                      onTouchStart={(e) => {
-                        e.currentTarget.style.transform = 'scale(0.95)';
-                      }}
-                      onTouchEnd={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                      }}
                     >
-                      <img
-                        src={img.url}
-                        alt={img.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        loading="lazy"
-                      />
-                      <div
-                        style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          background: 'var(--paper)',
-                          color: 'var(--ink)',
-                          fontSize: '0.65rem',
-                          padding: '12px 6px 4px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {img.title}
-                      </div>
-                    </div>
+                      <img src={img.url} alt="" loading="lazy" decoding="async" />
+                      <span className="image-candidate-title">{img.title}</span>
+                    </button>
                   ))}
                 </div>
               </>
