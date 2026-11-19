@@ -74,7 +74,7 @@ public class AiService {
     public AiService(
         @Value("${gemini.api.key:}") String apiKey,
         @Value("${gemini.api.model:gemini-3.8-flash}") String model,
-        @Value("${gemini.api.thinking-level:low}") String thinkingLevel) {
+        @Value("${gemini.api.thinking-level:medium}") String thinkingLevel) {
         this(defaultClient(), apiKey, model, thinkingLevel);
     }
 
@@ -88,7 +88,7 @@ public class AiService {
     private static RestClient defaultClient() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(5000);
-        factory.setReadTimeout(30000);
+        factory.setReadTimeout(90000);
         return RestClient.builder().requestFactory(factory).build();
     }
 
@@ -96,12 +96,12 @@ public class AiService {
         if (word == null || word.isBlank()) return "";
         String term = word.trim();
 
-        String definition = cleanDefinition(generate(DEFINITION_SYSTEM, "Término: " + term, 1024, null, false));
+        String definition = cleanDefinition(generate(DEFINITION_SYSTEM, "Término: " + term, 4096, null, false));
         if (TermGuard.containsTerm(definition, term)) {
             log.info("La definición repetía el término; se pide otra vez");
             String retry = "Término: " + term + "\nTu definición anterior era «" + definition
                 + "» y usaba el término o una palabra de su familia. Escribe otra que no la use.";
-            definition = cleanDefinition(generate(DEFINITION_SYSTEM, retry, 1024, null, false));
+            definition = cleanDefinition(generate(DEFINITION_SYSTEM, retry, 4096, null, false));
         }
         if (definition.isEmpty()) throw new AiUnavailableException("Definición vacía");
         return TermGuard.mask(definition, term);
@@ -109,7 +109,7 @@ public class AiService {
 
     public String getChatResponse(String prompt, String context) {
         String userText = "CONTEXTO:\n" + (context == null ? "" : context) + "\n\nPREGUNTA DEL ESTUDIANTE:\n" + prompt;
-        return generate(CHAT_SYSTEM, userText, 2048, null, true);
+        return generate(CHAT_SYSTEM, userText, 8192, null, true);
     }
 
     public String generateMassDefinitions(String words) {
@@ -143,7 +143,7 @@ public class AiService {
     }
 
     private List<Map<String, String>> requestCards(List<String> terms) {
-        String text = generate(MASS_SYSTEM, "Términos:\n" + String.join("\n", terms), 16384, MASS_SCHEMA, false);
+        String text = generate(MASS_SYSTEM, "Términos:\n" + String.join("\n", terms), 32768, MASS_SCHEMA, false);
         try {
             JsonNode array = JSON.readTree(stripFences(text));
             List<Map<String, String>> cards = new ArrayList<>();
