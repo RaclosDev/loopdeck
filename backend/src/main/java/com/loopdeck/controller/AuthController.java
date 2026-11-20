@@ -11,7 +11,6 @@ import jakarta.validation.constraints.Size;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -115,10 +114,5 @@ public class AuthController {
     @GetMapping("/config")
     public ResponseEntity<AuthConfigDto> getConfig() {
         return ResponseEntity.ok(new AuthConfigDto(authService.getGoogleClientId()));
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<AuthService.UserDto> me(Authentication auth) {
-        return ResponseEntity.ok(authService.me(auth.getName()));
     }
 }

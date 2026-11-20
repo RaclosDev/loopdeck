@@ -16,3 +16,10 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   flyway:
     enabled: true
+
+# La documentación de la API no se publica en producción.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

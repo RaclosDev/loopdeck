@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { applyThemeColor } from '../utils/colorHelper';
 import { SegmentedControl } from '../components/ui/segmented-control';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import toast from 'react-hot-toast';
+import { accountApi } from '../services/api';
 import {
   Dialog,
   DialogContent,
@@ -37,6 +40,40 @@ export default function Settings() {
   };
   const [showClearModal, setShowClearModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const blob = await accountApi.exportData();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'loopdeck-datos.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error('No se han podido descargar tus datos. Inténtalo de nuevo.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await accountApi.deleteAccount();
+      localStorage.clear();
+      await logout();
+      window.location.href = '/';
+    } catch {
+      toast.error('No se ha podido borrar la cuenta. Inténtalo de nuevo.');
+      setDeleting(false);
+    }
+  };
 
   const handleColorChange = (color: string) => {
     setCustomColor(color);
@@ -217,8 +254,77 @@ export default function Settings() {
               Cerrar sesión
             </Button>
           </div>
+
+          {!DEMO && (
+            <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">
+              <h3 className="font-semibold text-foreground">Tus datos</h3>
+              <p className="text-sm text-muted-foreground mt-1 mb-4">
+                Descarga todo lo que LoopDeck guarda de ti, o borra tu cuenta para siempre.
+              </p>
+              <div className="flex flex-col gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={handleExport}
+                  disabled={exporting}
+                  className="w-full"
+                >
+                  {exporting ? 'Preparando la descarga…' : 'Descargar mis datos'}
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    setDeleteConfirmation('');
+                    setShowDeleteModal(true);
+                  }}
+                  className="w-full"
+                >
+                  Borrar mi cuenta
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
+
+      <Dialog open={showDeleteModal} onOpenChange={(open) => !deleting && setShowDeleteModal(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Borrar cuenta</DialogTitle>
+          </DialogHeader>
+          <p className="text-muted-foreground text-sm my-2">
+            Se borrarán tu cuenta, tus mazos, tarjetas, repasos y documentos. No se puede deshacer.
+            Si quieres conservarlos, descarga antes tus datos.
+          </p>
+          <label htmlFor="delete-account-confirmation" className="text-sm text-foreground mt-2">
+            Escribe <strong>BORRAR</strong> para confirmar
+          </label>
+          <Input
+            id="delete-account-confirmation"
+            value={deleteConfirmation}
+            onChange={(e) => setDeleteConfirmation(e.target.value)}
+            autoComplete="off"
+            autoCapitalize="characters"
+          />
+          <DialogFooter className="mt-4 flex gap-3">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              disabled={deleting}
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              disabled={deleting || deleteConfirmation.trim().toUpperCase() !== 'BORRAR'}
+              onClick={handleDeleteAccount}
+            >
+              {deleting ? 'Borrando…' : 'Borrar cuenta'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={showClearModal} onOpenChange={setShowClearModal}>
         <DialogContent>

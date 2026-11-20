@@ -53,10 +53,6 @@ export const decksApi = {
     const res = await api.get(`/decks/${id}/document/info`);
     return res.data;
   },
-  getDocumentUrl: (id: string): string => {
-    const token = localStorage.getItem('loopdeck_jwt_token');
-    return `${API_BASE}/decks/${id}/document?token=${token}`;
-  },
   downloadDocument: async (id: string): Promise<Blob> => {
     const res = await api.get(`/decks/${id}/document`, { responseType: 'blob' });
     return res.data;
@@ -68,6 +64,18 @@ export const decksApi = {
   getCardStates: async (deckId: string): Promise<Record<string, string>> => {
     const res = await api.get(`/decks/${deckId}/card-states`);
     return res.data;
+  },
+};
+
+export const accountApi = {
+  /** Todos los datos de la cuenta en JSON, listos para descargar. */
+  exportData: async (): Promise<Blob> => {
+    const res = await api.get('/users/me/export', { responseType: 'blob', timeout: 60000 });
+    return res.data;
+  },
+  /** Borra la cuenta y todos sus datos. No se puede deshacer. */
+  deleteAccount: async (): Promise<void> => {
+    await api.delete('/users/me');
   },
 };
 

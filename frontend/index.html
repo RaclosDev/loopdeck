@@ -116,15 +116,8 @@
         }
       }
     </style>
-    <script>
-      try {
-        if (localStorage.getItem('loopdeck_theme') === 'light') {
-          document.documentElement.classList.add('boot-light');
-        }
-      } catch (e) {
-        /* almacenamiento no disponible: se queda el fondo oscuro */
-      }
-    </script>
+    <!-- Script externo y no en línea: la Content-Security-Policy no permite JavaScript en línea. -->
+    <script src="/boot-theme.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

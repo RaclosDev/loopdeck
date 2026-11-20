@@ -76,6 +76,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("La operación entra en conflicto con los datos actuales", HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<?> handleNoResource(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        return buildErrorResponse("No encontrado", HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGlobalException(Exception ex) {
         log.error("Unhandled exception occurred", ex);

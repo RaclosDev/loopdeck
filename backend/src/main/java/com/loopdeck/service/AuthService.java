@@ -111,6 +111,9 @@ public class AuthService {
             // Primero como ID token (botón de Google); si no lo es, como access token.
             GoogleIdToken.Payload payload = verifyIdToken(credential);
             if (payload != null) {
+                if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
+                    throw new IllegalArgumentException("El email de Google no está verificado");
+                }
                 return processGoogleUser(payload.getSubject(), payload.getEmail(), (String) payload.get("name"));
             }
 
@@ -129,7 +132,9 @@ public class AuthService {
                     throw new IllegalArgumentException("Token de Google no emitido para esta aplicación");
                 }
             }
-            if (tokenInfoJson.has("email_verified") && !tokenInfoJson.get("email_verified").asBoolean()) {
+            // Sin email verificado no se crea ni se vincula ninguna cuenta: el email es lo que une
+            // el inicio de sesión de Google con una cuenta de LoopDeck que ya existe.
+            if (!tokenInfoJson.path("email_verified").asBoolean(false)) {
                 throw new IllegalArgumentException("El email de Google no está verificado");
             }
 

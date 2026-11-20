@@ -27,6 +27,8 @@ class DataIntegrityIntegrationTest {
     @Autowired TemplateService templates;
     @Autowired StudyPreparationService preparation;
     @Autowired javax.sql.DataSource dataSource;
+    @Autowired AccountService accounts;
+    @Autowired RefreshTokenRepository refreshTokens;
     String owner, other;
     @BeforeEach void seedUsers() {
         owner = UUID.randomUUID().toString(); other = UUID.randomUUID().toString();
@@ -177,5 +179,28 @@ class DataIntegrityIntegrationTest {
         var reviewsFirst = cards.getStudyBatch(owner,deck.getId(),10,"review_first");
         assertTrue(reviewsFirst.items().stream().allMatch(item -> item.card().getState().equals("review")));
         assertEquals(first.items().stream().map(item -> item.card().getId()).toList(),cards.getStudyBatch(owner,deck.getId(),10,"new_first").items().stream().map(item -> item.card().getId()).toList());
+    }
+    @Test void exportContainsOnlyTheOwnersDataAndDeletionRemovesEverything() {
+        var mine = deck(owner); var foreign = deck(other);
+        var note = note(mine, "basic", "{\"front\":\"f\",\"back\":\"b\"}");
+        cards.createNote(other, new CardService.CreateNoteRequest(foreign.getId(), "basic", "{\"front\":\"x\",\"back\":\"y\"}", ""));
+        var card = cardRepository.findByNoteId(note.getId()).get(0);
+        jdbc.update("INSERT INTO reviews(id,card_id,rating) VALUES (?,?,3)", UUID.randomUUID().toString(), card.getId());
+        refreshTokens.save(new com.loopdeck.model.RefreshToken(owner, Instant.now().plusSeconds(60)));
+
+        var export = accounts.export(owner);
+        assertEquals(owner, export.account().id());
+        assertEquals(List.of(mine.getId()), export.decks().stream().map(Deck::getId).toList());
+        assertEquals(List.of(note.getId()), export.notes().stream().map(Note::getId).toList());
+        assertEquals(1, export.cards().size());
+        assertEquals(1, export.reviews().size());
+
+        accounts.delete(owner);
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM users WHERE id=?", Integer.class, owner));
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM decks WHERE user_id=?", Integer.class, owner));
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM cards WHERE id=?", Integer.class, card.getId()));
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM reviews WHERE card_id=?", Integer.class, card.getId()));
+        assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM refresh_tokens WHERE user_id=?", Integer.class, owner));
+        assertEquals(1, jdbc.queryForObject("SELECT count(*) FROM decks WHERE user_id=?", Integer.class, other));
     }
 }

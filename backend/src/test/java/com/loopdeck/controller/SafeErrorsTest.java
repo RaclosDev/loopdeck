@@ -12,6 +12,7 @@ class SafeErrorsTest {
         @GetMapping("/invalid") String invalid() { throw new IllegalArgumentException("private-database-detail"); }
         @GetMapping("/number") int number(@RequestParam int page) { return page; }
         record Input(@jakarta.validation.constraints.NotBlank String name) {}
+        @GetMapping("/missing") String missing() throws Exception { throw new org.springframework.web.servlet.resource.NoResourceFoundException(org.springframework.http.HttpMethod.GET, "/missing.png", "missing.png"); }
         @PostMapping("/body") String body(@jakarta.validation.Valid @RequestBody Input input) { return input.name(); }
     }
     @Test void inputFailuresAreBadRequestsWithoutInternalDetails() throws Exception {
@@ -20,5 +21,6 @@ class SafeErrorsTest {
         mvc.perform(get("/number").param("page", "wrong")).andExpect(status().isBadRequest());
         mvc.perform(post("/body").contentType("application/json").content("{")).andExpect(status().isBadRequest());
         mvc.perform(post("/body").contentType("application/json").content("{\"name\":\"\"}")).andExpect(status().isBadRequest());
+        mvc.perform(get("/missing")).andExpect(status().isNotFound());
     }
 }
