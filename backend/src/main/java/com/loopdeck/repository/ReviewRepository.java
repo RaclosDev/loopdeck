@@ -11,4 +11,5 @@ public interface ReviewRepository extends JpaRepository<Review, String> {
     boolean existsByCardIdAndUndoneTrueAndPreviousState(String cardId, String previousState);
     List<Review> findByCardIdOrderByReviewedAtDesc(String cardId);
     List<Review> findByCardIdInAndUndoneFalseOrderByReviewedAtAsc(List<String> cardIds);
+    List<Review> findByCardIdInOrderByReviewedAtAsc(List<String> cardIds);
 }

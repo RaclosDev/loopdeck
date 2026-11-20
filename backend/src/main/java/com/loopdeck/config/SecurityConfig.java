@@ -24,6 +24,26 @@ import java.nio.charset.StandardCharsets;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Solo se ejecuta JavaScript propio y el de Google Sign-In. Las imágenes de las tarjetas pueden
+     * venir de cualquier web https, y el service worker necesita poder pedirlas (connect-src https:).
+     * Los estilos en línea son necesarios para el visor de documentos y el HTML de las tarjetas.
+     */
+    static final String CONTENT_SECURITY_POLICY = String.join("; ",
+        "default-src 'self'",
+        "script-src 'self' https://accounts.google.com/gsi/client",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style",
+        "font-src 'self' https://fonts.gstatic.com data: blob:",
+        "img-src 'self' https: data: blob:",
+        "connect-src 'self' https:",
+        "frame-src https://accounts.google.com/gsi/",
+        "worker-src 'self'",
+        "manifest-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'self'");
+
     @Value("${jwt.secret}")
     private String jwtSecret;
 
@@ -80,7 +100,11 @@ public class SecurityConfig {
             )
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
-        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+        http.headers(headers -> headers
+            .frameOptions(frameOptions -> frameOptions.sameOrigin())
+            .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
+            .referrerPolicy(referrer -> referrer.policy(
+                org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)));
         
         return http.build();
     }

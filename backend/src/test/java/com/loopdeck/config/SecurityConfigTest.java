@@ -14,4 +14,12 @@ class SecurityConfigTest {
         ReflectionTestUtils.setField(config, "jwtSecret", "test-only-placeholder-never-for-deployment-0123456789");
         assertDoesNotThrow(config::validateJwtSecret);
     }
+
+    @Test void contentSecurityPolicyBlocksForeignScriptsAndFraming() {
+        String csp = SecurityConfig.CONTENT_SECURITY_POLICY;
+        assertTrue(csp.contains("script-src 'self' https://accounts.google.com/gsi/client;"));
+        assertFalse(csp.contains("script-src 'self' 'unsafe-inline'"));
+        assertTrue(csp.contains("object-src 'none'"));
+        assertTrue(csp.contains("frame-ancestors 'self'"));
+    }
 }
