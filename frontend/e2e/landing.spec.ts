@@ -34,10 +34,10 @@ for (const width of [320, 390, 1440]) {
   });
 }
 
-test('Entrar opens /login and the browser back button returns to the landing', async ({ page }) => {
+test('Iniciar sesión opens /login and the browser back button returns to the landing', async ({ page }) => {
   await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
   await page.goto('/');
-  await page.getByRole('link', { name: 'Entrar', exact: true }).first().click();
+  await page.getByRole('link', { name: 'Iniciar sesión', exact: true }).first().click();
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Inicia sesión en LoopDeck');
   await page.goBack();
