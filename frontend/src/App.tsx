@@ -5,7 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
-import LandingPage from './pages/LandingPage';
+import { PublicRoutes, RedirectFromAuth } from './routes/authRoutes';
+import { AUTH_PATHS } from './lib/authRedirect';
 import { DEMO } from './demo/mode';
 import Dashboard from './pages/Dashboard';
 
@@ -73,6 +74,7 @@ function AppContent({
 }) {
   const { token, user, isLoading } = useAuth();
   const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
+  const basename = DEMO ? '/demo' : undefined;
 
   useEffect(() => {
     if (token && !isLoading) {
@@ -140,17 +142,21 @@ function AppContent({
         </div>
       );
     }
-    const loginNode = <LandingPage googleEnabled={!!googleClientId} />;
-    return googleClientId ? (
-      <GoogleOAuthProvider clientId={googleClientId}>{loginNode}</GoogleOAuthProvider>
-    ) : (
-      loginNode
+    const publicRoutes = <PublicRoutes googleEnabled={!!googleClientId} />;
+    return (
+      <BrowserRouter basename={basename}>
+        {googleClientId ? (
+          <GoogleOAuthProvider clientId={googleClientId}>{publicRoutes}</GoogleOAuthProvider>
+        ) : (
+          publicRoutes
+        )}
+      </BrowserRouter>
     );
   }
 
   // Si hay token, renderizamos la app directamente
   return (
-    <BrowserRouter basename={DEMO ? '/demo' : undefined}>
+    <BrowserRouter basename={basename}>
       <Toaster
         position="top-center"
         containerStyle={{
@@ -170,6 +176,8 @@ function AppContent({
         }}
       />
       <Routes key={user?.id || 'anonymous'}>
+        <Route path={AUTH_PATHS.login} element={<RedirectFromAuth />} />
+        <Route path={AUTH_PATHS.register} element={<RedirectFromAuth />} />
         <Route
           path="/"
           element={

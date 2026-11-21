@@ -1,0 +1,152 @@
+import { useState } from 'react';
+import GoogleSignInButton from './GoogleSignInButton';
+import api from '../api/client';
+import { useAuth } from '../context/AuthContext';
+
+export type AuthMode = 'login' | 'register';
+
+/**
+ * Formulario de acceso (email o Google). El modo lo decide la ruta (/login o /registro):
+ * las pestañas solo avisan con onModeChange para que la página cambie de URL.
+ */
+export default function AuthForm({
+  googleEnabled = false,
+  mode,
+  onModeChange,
+}: {
+  googleEnabled?: boolean;
+  mode: AuthMode;
+  onModeChange: (mode: AuthMode) => void;
+}) {
+  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login } = useAuth();
+  const handleGoogleSuccess = async (credential: string) => {
+    setError('');
+    setLoading(true);
+    try {
+      const res = await api.post<{ token?: string }>('/auth/google', { credential });
+      if (!res.data.token) throw new Error('Invalid authentication response');
+      login(res.data.token);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [event.target.name]: event.target.value });
+  };
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      if (mode === 'register' && form.name.trim().length < 2) {
+        setError('El nombre debe tener al menos 2 caracteres');
+        return;
+      }
+      const payload = mode === 'login' ? { email: form.email, password: form.password } : form;
+      const res = await api.post(`/auth/${mode}`, payload);
+      login(res.data.token);
+    } catch {
+      setError(
+        mode === 'login'
+          ? 'No se ha podido iniciar sesión. Revisa tus datos e inténtalo de nuevo.'
+          : 'No se ha podido crear la cuenta. Revisa tus datos e inténtalo de nuevo.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <div className="auth-stage">
+      <section className="auth-paper paper-panel" aria-label="Acceso a LoopDeck">
+        <h2>LoopDeck</h2>
+        <p className="marker-ink">Un repaso más. Un poco más lejos.</p>
+        <div className="paper-tabs" aria-label="Tipo de acceso">
+          <button
+            type="button"
+            aria-pressed={mode === 'login'}
+            onClick={() => {
+              setError('');
+              onModeChange('login');
+            }}
+          >
+            Iniciar sesión
+          </button>
+          <button
+            type="button"
+            aria-pressed={mode === 'register'}
+            onClick={() => {
+              setError('');
+              onModeChange('register');
+            }}
+          >
+            Crear cuenta
+          </button>
+        </div>
+        {googleEnabled && (
+          <>
+            <div className="auth-google">
+              <GoogleSignInButton onCredential={handleGoogleSuccess} />
+            </div>
+            <div className="auth-divider">o con tu email</div>
+          </>
+        )}
+        <form onSubmit={handleSubmit} aria-busy={loading}>
+          {mode === 'register' && (
+            <label>
+              Tu nombre
+              <input
+                type="text"
+                name="name"
+                autoComplete="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                minLength={2}
+                className="form-input"
+                placeholder="Tu nombre"
+              />
+            </label>
+          )}
+          <label>
+            Email
+            <input
+              type="email"
+              name="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="form-input"
+              placeholder="tu@email.com"
+            />
+          </label>
+          <label>
+            Contraseña
+            <input
+              type="password"
+              name="password"
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+              value={form.password}
+              onChange={handleChange}
+              required
+              minLength={mode === 'register' ? 6 : 1}
+              className="form-input"
+              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : 'Contraseña'}
+            />
+          </label>
+          {error && (
+            <div role="alert" className="auth-error">
+              {error}
+            </div>
+          )}
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
+          </button>
+        </form>
+      </section>
+    </div>
+  );
+}

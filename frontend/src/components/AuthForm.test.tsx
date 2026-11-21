@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CredentialResponse } from '@react-oauth/google';
-import LoginPage from './LoginPage';
+import AuthForm from './AuthForm';
 
 const { post, login } = vi.hoisted(() => ({ post: vi.fn(), login: vi.fn() }));
 vi.mock('../api/client', () => ({ default: { post } }));
@@ -17,7 +17,7 @@ describe('Google authentication contract', () => {
 
   it('exchanges the Google identity credential for an application session', async () => {
     post.mockResolvedValue({ data: { token: 'application-session' } });
-    render(<LoginPage googleEnabled />);
+    render(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: 'Continuar con Google' }));
     fireEvent.click(screen.getByRole('button', { name: 'Elegir cuenta' }));
     await waitFor(() => expect(login).toHaveBeenCalledWith('application-session'));
@@ -26,7 +26,7 @@ describe('Google authentication contract', () => {
 
   it('does not establish a session when the backend omits its token', async () => {
     post.mockResolvedValue({ data: {} });
-    render(<LoginPage googleEnabled />);
+    render(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: 'Continuar con Google' }));
     fireEvent.click(screen.getByRole('button', { name: 'Elegir cuenta' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('No se ha podido iniciar sesión');

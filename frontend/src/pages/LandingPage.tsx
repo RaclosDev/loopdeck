@@ -1,6 +1,6 @@
-import { useEffect, useState, type MouseEvent } from 'react';
-import { ArrowLeft, Layers, Repeat, Sparkles } from 'lucide-react';
-import LoginPage from './LoginPage';
+import { Link } from 'react-router-dom';
+import { AUTH_PATHS } from '../lib/authRedirect';
+import Brand from './landing/Brand';
 import PosterHeading from './landing/PosterHeading';
 import Reveal from './landing/Reveal';
 import ReviewLoop from './landing/ReviewLoop';
@@ -10,54 +10,8 @@ import './landing.css';
 
 /*
  * Portada pública: lo que ve quien llega sin sesión. Explica el producto con una tarjeta de
- * ejemplo de verdad y abre la entrada en su propia vista, /login, como PorrApp y Portfolio Tracker.
+ * ejemplo de verdad y enlaza con las páginas de acceso, /login y /registro.
  */
-
-const AUTH_PATH = '/login';
-type Mode = 'login' | 'register';
-const onAuthPath = () => window.location.pathname === AUTH_PATH;
-
-/** La entrada vive en /login: se abre sin bajar por la página y «atrás» vuelve a la portada. */
-function useAuthView() {
-  const [open, setOpen] = useState(onAuthPath);
-  const [mode, setMode] = useState<Mode>('login');
-  useEffect(() => {
-    const sync = () => setOpen(onAuthPath());
-    window.addEventListener('popstate', sync);
-    return () => window.removeEventListener('popstate', sync);
-  }, []);
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (open)
-      document
-        .querySelector<HTMLInputElement>('.ld-auth input[name="email"]')
-        ?.focus({ preventScroll: true });
-  }, [open, mode]);
-  const enter = (next: Mode) => (event?: MouseEvent) => {
-    event?.preventDefault();
-    setMode(next);
-    if (!onAuthPath()) window.history.pushState({ ld: 'auth' }, '', AUTH_PATH);
-    setOpen(true);
-  };
-  const leave = (event?: MouseEvent) => {
-    event?.preventDefault();
-    if ((window.history.state as { ld?: string } | null)?.ld === 'auth') {
-      window.history.back();
-      return;
-    }
-    window.history.replaceState(null, '', '/');
-    setOpen(false);
-  };
-  return { open, mode, enter, leave };
-}
-
-const Brand = ({ onClick }: { onClick?: (event: MouseEvent) => void }) => (
-  <a className="brand ld-brand" href="/" onClick={onClick} aria-label="LoopDeck, inicio">
-    <img src="/loopdeck-brush-192.png" alt="" width={36} height={36} />
-    <span>Loop</span>
-    <span>Deck</span>
-  </a>
-);
 
 const STEPS = [
   {
@@ -98,90 +52,7 @@ const BATCH = [
   { term: 'Encapsulación', def: 'Ocultar el estado interno y exponer solo lo necesario.' },
 ];
 
-const PERKS = [
-  {
-    icon: Layers,
-    title: 'Tus mazos, privados. ',
-    text: 'Agrupa tarjetas por asignatura, idioma o tema.',
-  },
-  {
-    icon: Repeat,
-    title: 'Un repaso con sentido. ',
-    text: 'Cada tarjeta vuelve cuando empieza a olvidarse.',
-  },
-  {
-    icon: Sparkles,
-    title: 'IA cuando la necesitas. ',
-    text: 'Definiciones, cuestionarios y un tutor del temario.',
-  },
-];
-
-export default function LandingPage({ googleEnabled }: { googleEnabled: boolean }) {
-  const { open, mode, enter, leave } = useAuthView();
-
-  if (open) {
-    return (
-      <div className="landing-page ld-page ld-page--auth">
-        <header className="ld-top">
-          <Brand onClick={leave} />
-          <nav className="ld-top__nav" aria-label="Acceso">
-            <a className="ld-btn ld-btn--ghost" href="/" onClick={leave}>
-              <ArrowLeft size={18} aria-hidden="true" />
-              Volver
-            </a>
-          </nav>
-        </header>
-        <main className="ld-auth">
-          <div className="ld-auth__copy">
-            <PosterHeading
-              as="h1"
-              onLoad
-              lines={['Abre tu']}
-              marked="cuaderno."
-              className="ld-auth__title"
-            />
-            <Reveal as="p" onLoad className="ld-lede" style={motionStyle({ '--base': '260ms' })}>
-              Crea tu cuenta o retoma tus mazos donde los dejaste. Tu progreso se guarda y te espera
-              en el móvil y en el ordenador.
-            </Reveal>
-            <Reveal as="ul" onLoad group className="ld-auth__perks">
-              {PERKS.map(({ icon: Icon, title, text }, i) => (
-                <li
-                  key={title}
-                  className="ld-reveal"
-                  style={motionStyle({ '--base': '340ms', '--i': i })}
-                >
-                  <span className="ld-auth__icon" aria-hidden="true">
-                    <Icon size={18} strokeWidth={2.2} />
-                  </span>
-                  <span>
-                    <strong>{title}</strong>
-                    {text}
-                  </span>
-                </li>
-              ))}
-            </Reveal>
-            <Reveal
-              as="p"
-              onLoad
-              className="ld-auth__demo"
-              style={motionStyle({ '--base': '620ms' })}
-            >
-              ¿Prefieres verla antes con mazos de ejemplo? <a href="/demo">Abre la demo</a>
-            </Reveal>
-          </div>
-          <Reveal
-            onLoad
-            className="ld-auth__form"
-            style={motionStyle({ '--from-y': '36px', '--base': '180ms', '--dur': '0.7s' })}
-          >
-            <LoginPage key={mode} googleEnabled={googleEnabled} embedded initialMode={mode} />
-          </Reveal>
-        </main>
-      </div>
-    );
-  }
-
+export default function LandingPage() {
   return (
     <div className="landing-page ld-page">
       <Reveal as="div" onLoad className="ld-top-wrap" style={motionStyle({ '--from-y': '-12px' })}>
@@ -197,9 +68,9 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
             <a className="ld-btn ld-btn--ghost" href="/demo">
               Demo
             </a>
-            <a className="ld-btn ld-btn--ink" href={AUTH_PATH} onClick={enter('login')}>
+            <Link className="ld-btn ld-btn--ink" to={AUTH_PATHS.login}>
               Entrar
-            </a>
+            </Link>
           </nav>
         </header>
       </Reveal>
@@ -222,13 +93,9 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
               minutos al día.
             </p>
             <Reveal onLoad className="ld-actions" style={motionStyle({ '--base': '420ms' })}>
-              <a
-                className="ld-btn ld-btn--ink ld-btn--lg"
-                href={AUTH_PATH}
-                onClick={enter('register')}
-              >
+              <Link className="ld-btn ld-btn--ink ld-btn--lg" to={AUTH_PATHS.register}>
                 Empezar a estudiar
-              </a>
+              </Link>
               <a className="ld-btn ld-btn--lg" href="/demo">
                 Probar la demo
               </a>
@@ -346,16 +213,12 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
             <p className="ld-lede">Crea tu cuenta gratis o retoma tus mazos donde los dejaste.</p>
           </div>
           <div className="ld-actions">
-            <a
-              className="ld-btn ld-btn--ink ld-btn--lg"
-              href={AUTH_PATH}
-              onClick={enter('register')}
-            >
+            <Link className="ld-btn ld-btn--ink ld-btn--lg" to={AUTH_PATHS.register}>
               Crear cuenta
-            </a>
-            <a className="ld-btn ld-btn--lg" href={AUTH_PATH} onClick={enter('login')}>
+            </Link>
+            <Link className="ld-btn ld-btn--lg" to={AUTH_PATHS.login}>
               Ya tengo cuenta
-            </a>
+            </Link>
           </div>
         </Reveal>
       </main>
@@ -364,9 +227,7 @@ export default function LandingPage({ googleEnabled }: { googleEnabled: boolean 
         <span>LoopDeck · Un repaso cada día.</span>
         <nav aria-label="Enlaces del pie">
           <a href="/demo">Demo</a>
-          <a href={AUTH_PATH} onClick={enter('login')}>
-            Entrar
-          </a>
+          <Link to={AUTH_PATHS.login}>Entrar</Link>
         </nav>
       </footer>
     </div>
