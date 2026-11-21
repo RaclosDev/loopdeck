@@ -6,8 +6,8 @@ import { useAuth } from '../context/AuthContext';
 export type AuthMode = 'login' | 'register';
 
 /**
- * Formulario de acceso (email o Google). El modo lo decide la ruta (/login o /registro):
- * las pestañas solo avisan con onModeChange para que la página cambie de URL.
+ * Formulario de acceso (email o Google) para la tarjeta común. El modo lo decide la ruta
+ * (/login o /registro): la línea de cambio solo avisa con onModeChange para que cambie la URL.
  */
 export default function AuthForm({
   googleEnabled = false,
@@ -58,95 +58,89 @@ export default function AuthForm({
       setLoading(false);
     }
   };
+  const registering = mode === 'register';
+  const switchMode = () => {
+    setError('');
+    onModeChange(registering ? 'login' : 'register');
+  };
   return (
-    <div className="auth-stage">
-      <section className="auth-paper paper-panel" aria-label="Acceso a LoopDeck">
-        <h2>LoopDeck</h2>
-        <p className="marker-ink">Un repaso más. Un poco más lejos.</p>
-        <div className="paper-tabs" aria-label="Tipo de acceso">
-          <button
-            type="button"
-            aria-pressed={mode === 'login'}
-            onClick={() => {
-              setError('');
-              onModeChange('login');
-            }}
-          >
-            Iniciar sesión
-          </button>
-          <button
-            type="button"
-            aria-pressed={mode === 'register'}
-            onClick={() => {
-              setError('');
-              onModeChange('register');
-            }}
-          >
-            Crear cuenta
-          </button>
-        </div>
-        {googleEnabled && (
+    <div className="flex w-full flex-col gap-3">
+      {googleEnabled && (
+        <>
+          <GoogleSignInButton
+            className="fam-btn fam-btn--block"
+            onCredential={handleGoogleSuccess}
+          />
+          <p className="fam-divider">o con tu email</p>
+        </>
+      )}
+      <form onSubmit={handleSubmit} aria-busy={loading} className="flex flex-col gap-3">
+        {registering && (
           <>
-            <div className="auth-google">
-              <GoogleSignInButton onCredential={handleGoogleSuccess} />
-            </div>
-            <div className="auth-divider">o con tu email</div>
+            <label htmlFor="auth-name" className="fam-label">
+              Tu nombre
+            </label>
+            <input
+              id="auth-name"
+              type="text"
+              name="name"
+              autoComplete="name"
+              value={form.name}
+              onChange={handleChange}
+              required
+              minLength={2}
+              className="fam-input"
+            />
           </>
         )}
-        <form onSubmit={handleSubmit} aria-busy={loading}>
-          {mode === 'register' && (
-            <label>
-              Tu nombre
-              <input
-                type="text"
-                name="name"
-                autoComplete="name"
-                value={form.name}
-                onChange={handleChange}
-                required
-                minLength={2}
-                className="form-input"
-                placeholder="Tu nombre"
-              />
-            </label>
-          )}
-          <label>
-            Email
-            <input
-              type="email"
-              name="email"
-              autoComplete="email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="form-input"
-              placeholder="tu@email.com"
-            />
-          </label>
-          <label>
-            Contraseña
-            <input
-              type="password"
-              name="password"
-              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-              value={form.password}
-              onChange={handleChange}
-              required
-              minLength={mode === 'register' ? 6 : 1}
-              className="form-input"
-              placeholder={mode === 'register' ? 'Mínimo 6 caracteres' : 'Contraseña'}
-            />
-          </label>
-          {error && (
-            <div role="alert" className="auth-error">
-              {error}
-            </div>
-          )}
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Cargando...' : mode === 'login' ? 'Entrar' : 'Crear cuenta'}
-          </button>
-        </form>
-      </section>
+        <label htmlFor="auth-email" className="fam-label">
+          Email
+        </label>
+        <input
+          id="auth-email"
+          type="email"
+          name="email"
+          autoComplete="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+          className="fam-input"
+          placeholder="tu@email.com"
+        />
+        <label htmlFor="auth-password" className="fam-label">
+          Contraseña
+        </label>
+        <input
+          id="auth-password"
+          type="password"
+          name="password"
+          autoComplete={registering ? 'new-password' : 'current-password'}
+          value={form.password}
+          onChange={handleChange}
+          required
+          minLength={registering ? 6 : 1}
+          className="fam-input"
+          placeholder={registering ? 'Mínimo 6 caracteres' : undefined}
+        />
+        {error && (
+          <p role="alert" className="text-sm text-[#b91c1c]">
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          className="fam-btn fam-btn--ink fam-btn--block fam-btn--lg mt-1"
+          disabled={loading}
+        >
+          {loading ? 'Cargando…' : registering ? 'Crear cuenta' : 'Entrar'}
+        </button>
+      </form>
+      <p className="fam-card__switch">
+        {registering ? '¿Ya tienes cuenta? ' : '¿No tienes cuenta? '}
+        <button type="button" className="fam-textlink" onClick={switchMode}>
+          {registering ? 'Inicia sesión' : 'Crea una gratis'}
+        </button>
+      </p>
     </div>
   );
 }

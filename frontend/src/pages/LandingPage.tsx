@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { AUTH_PATHS } from '../lib/authRedirect';
-import Brand from './landing/Brand';
 import PosterHeading from './landing/PosterHeading';
+import PublicFooter from './landing/PublicFooter';
+import PublicHeader from './landing/PublicHeader';
 import Reveal from './landing/Reveal';
 import ReviewLoop from './landing/ReviewLoop';
 import SampleDeck from './landing/SampleDeck';
 import { motionStyle } from './landing/motion';
+import './landing/family.css';
 import './landing.css';
 
 /*
@@ -54,28 +56,10 @@ const BATCH = [
 
 export default function LandingPage() {
   return (
-    <div className="landing-page ld-page">
-      <Reveal as="div" onLoad className="ld-top-wrap" style={motionStyle({ '--from-y': '-12px' })}>
-        <header className="ld-top">
-          <Brand />
-          <nav className="ld-top__nav" aria-label="Portada">
-            <a className="ld-btn ld-btn--ghost ld-top__link" href="#como-funciona">
-              Cómo funciona
-            </a>
-            <a className="ld-btn ld-btn--ghost ld-top__link" href="#metodos">
-              Métodos
-            </a>
-            <a className="ld-btn ld-btn--ghost" href="/demo">
-              Demo
-            </a>
-            <Link className="ld-btn ld-btn--ink" to={AUTH_PATHS.login}>
-              Entrar
-            </Link>
-          </nav>
-        </header>
-      </Reveal>
+    <div className="landing-page ld-page fam">
+      <PublicHeader />
 
-      <main>
+      <main className="fam-container">
         <section className="ld-hero" aria-labelledby="landing-title">
           <div className="ld-hero__copy">
             <PosterHeading
@@ -85,18 +69,18 @@ export default function LandingPage() {
               base={60}
               lines={['Apréndelo.', 'Repásalo.']}
               marked="Hazlo tuyo."
-              className="ld-hero__title"
+              className="fam-h1"
             />
-            <p className="ld-lede">
+            <p className="fam-lede">
               LoopDeck convierte lo que estudias en tarjetas y te las devuelve justo cuando empiezas
               a olvidarlas. Escribe un término, deja que la IA proponga la definición y repasa unos
               minutos al día.
             </p>
-            <Reveal onLoad className="ld-actions" style={motionStyle({ '--base': '420ms' })}>
-              <Link className="ld-btn ld-btn--ink ld-btn--lg" to={AUTH_PATHS.register}>
+            <Reveal onLoad className="fam-cta-row" style={motionStyle({ '--base': '420ms' })}>
+              <Link className="fam-btn fam-btn--ink fam-btn--lg" to={AUTH_PATHS.register}>
                 Empezar a estudiar
               </Link>
-              <a className="ld-btn ld-btn--lg" href="/demo">
+              <a className="fam-btn fam-btn--lg" href="/demo">
                 Probar la demo
               </a>
             </Reveal>
@@ -118,7 +102,7 @@ export default function LandingPage() {
             id="steps-title"
             lines={['Tres pasos.']}
             marked="Cada día."
-            className="ld-section__title"
+            className="fam-h2 ld-section__title"
           />
           <Reveal as="ol" group className="ld-steps">
             {STEPS.map((step, i) => (
@@ -143,9 +127,9 @@ export default function LandingPage() {
               id="loop-title"
               lines={['Cada repaso,']}
               marked="más lejos."
-              className="ld-section__title"
+              className="fam-h2 ld-section__title"
             />
-            <Reveal as="p" className="ld-lede">
+            <Reveal as="p" className="fam-lede">
               Repasar justo antes de olvidar es lo que fija un recuerdo. Así se espacian los repasos
               de una tarjeta que vas acertando; si fallas, vuelve antes.
             </Reveal>
@@ -161,7 +145,7 @@ export default function LandingPage() {
             id="methods-title"
             lines={['Más de una forma']}
             marked="de estudiar."
-            className="ld-section__title"
+            className="fam-h2 ld-section__title"
           />
           <div className="ld-methods">
             <Reveal as="dl" group className="ld-methods__list">
@@ -207,29 +191,23 @@ export default function LandingPage() {
 
         <Reveal as="section" className="ld-sheet ld-cta" aria-labelledby="cta-title">
           <div>
-            <h2 id="cta-title" className="ld-poster">
-              La próxima página <span className="ld-marked">es tuya.</span>
+            <h2 id="cta-title" className="fam-h2">
+              La próxima página <span className="fam-mark">es tuya.</span>
             </h2>
-            <p className="ld-lede">Crea tu cuenta gratis o retoma tus mazos donde los dejaste.</p>
+            <p className="fam-lede">Crea tu cuenta gratis o retoma tus mazos donde los dejaste.</p>
           </div>
-          <div className="ld-actions">
-            <Link className="ld-btn ld-btn--ink ld-btn--lg" to={AUTH_PATHS.register}>
+          <div className="fam-cta-row">
+            <Link className="fam-btn fam-btn--ink fam-btn--lg" to={AUTH_PATHS.register}>
               Crear cuenta
             </Link>
-            <Link className="ld-btn ld-btn--lg" to={AUTH_PATHS.login}>
+            <Link className="fam-btn fam-btn--lg" to={AUTH_PATHS.login}>
               Ya tengo cuenta
             </Link>
           </div>
         </Reveal>
       </main>
 
-      <footer className="ld-foot">
-        <span>LoopDeck · Un repaso cada día.</span>
-        <nav aria-label="Enlaces del pie">
-          <a href="/demo">Demo</a>
-          <Link to={AUTH_PATHS.login}>Entrar</Link>
-        </nav>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }

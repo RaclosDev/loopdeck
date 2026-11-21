@@ -36,8 +36,11 @@ function GoogleLogo() {
 
 export default function GoogleSignInButton({
   onCredential,
+  className = 'w-full gap-2',
 }: {
   onCredential: (credential: string) => Promise<void>;
+  /** Clases del botón que abre el diálogo; por defecto, el botón de contorno de la app. */
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
@@ -67,7 +70,7 @@ export default function GoogleSignInButton({
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full gap-2" style={{ paddingInline: '1rem' }}>
+        <Button variant="outline" className={className} style={{ paddingInline: '1rem' }}>
           <GoogleLogo />
           Continuar con Google
         </Button>
