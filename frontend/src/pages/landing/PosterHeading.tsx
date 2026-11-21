@@ -44,7 +44,7 @@ export default function PosterHeading({
   );
   return (
     <div ref={ref}>
-      <Tag id={id} className={`ld-poster ${className}`} aria-label={label}>
+      <Tag id={id} className={className} aria-label={label}>
         <span aria-hidden="true">
           {lines.map((line, l) => (
             <Fragment key={line}>
@@ -69,7 +69,7 @@ export default function PosterHeading({
               {marked.split(' ').map((w, i) => (
                 <Fragment key={`m${i}`}>
                   {i > 0 && ' '}
-                  {word(w, 'ld-marked')}
+                  {word(w, 'fam-mark')}
                 </Fragment>
               ))}
             </>

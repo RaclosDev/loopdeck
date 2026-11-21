@@ -39,11 +39,7 @@ test('Entrar opens /login and the browser back button returns to the landing', a
   await page.goto('/');
   await page.getByRole('link', { name: 'Entrar', exact: true }).first().click();
   await expect(page).toHaveURL(/\/login$/);
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Abre tu cuaderno.');
-  await expect(page.getByRole('button', { name: 'Iniciar sesión' })).toHaveAttribute(
-    'aria-pressed',
-    'true',
-  );
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Inicia sesión en LoopDeck');
   await page.goBack();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
   await page.goto('/login');
@@ -57,7 +53,7 @@ test('a private route without a session opens /login and returns there after sig
   await page.goto('/stats');
   await expect(page).toHaveURL(/\/login\?next=%2Fstats$/);
   await expect(page.getByLabel('Email', { exact: true })).toBeFocused();
-  await page.getByRole('button', { name: 'Crear cuenta' }).click();
+  await page.getByRole('button', { name: 'Crea una gratis' }).click();
   await expect(page).toHaveURL(/\/registro\?next=%2Fstats$/);
   await expect(page.getByLabel('Tu nombre')).toBeVisible();
 });

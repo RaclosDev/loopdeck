@@ -1,33 +1,26 @@
 import { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Layers, Repeat, Sparkles } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AuthForm, { type AuthMode } from '../../components/AuthForm';
 import { AUTH_PATHS } from '../../lib/authRedirect';
-import Brand from './Brand';
-import PosterHeading from './PosterHeading';
+import PublicFooter from './PublicFooter';
+import PublicHeader from './PublicHeader';
 import Reveal from './Reveal';
 import { motionStyle } from './motion';
+import './family.css';
 import '../landing.css';
 
-const PERKS = [
-  {
-    icon: Layers,
-    title: 'Tus mazos, privados. ',
-    text: 'Agrupa tarjetas por asignatura, idioma o tema.',
+const COPY: Record<AuthMode, { title: string; sub: string }> = {
+  login: {
+    title: 'Inicia sesión en LoopDeck',
+    sub: 'Tus mazos y tus repasos te esperan donde los dejaste.',
   },
-  {
-    icon: Repeat,
-    title: 'Un repaso con sentido. ',
-    text: 'Cada tarjeta vuelve cuando empieza a olvidarse.',
+  register: {
+    title: 'Crea tu cuenta en LoopDeck',
+    sub: 'Gratis. Tu progreso se guarda en el móvil y en el ordenador.',
   },
-  {
-    icon: Sparkles,
-    title: 'IA cuando la necesitas. ',
-    text: 'Definiciones, cuestionarios y un tutor del temario.',
-  },
-];
+};
 
-/** Página de acceso compartida por /login y /registro. */
+/** Página de acceso compartida por /login y /registro: la tarjeta común de la familia. */
 export default function AuthLayout({
   mode,
   googleEnabled,
@@ -41,72 +34,36 @@ export default function AuthLayout({
   useEffect(() => {
     window.scrollTo(0, 0);
     document
-      .querySelector<HTMLInputElement>('.ld-auth input[name="email"]')
+      .querySelector<HTMLInputElement>('.fam-auth input[name="email"]')
       ?.focus({ preventScroll: true });
   }, [mode]);
 
-  // Cambiar de pestaña cambia de ruta sin apilar historial: «atrás» sigue llevando a la portada.
+  // Cambiar de modo cambia de ruta sin apilar historial: «atrás» sigue llevando a la portada.
   const changeMode = (next: AuthMode) =>
     navigate({ pathname: AUTH_PATHS[next], search }, { replace: true });
 
   return (
-    <div className="landing-page ld-page ld-page--auth">
-      <header className="ld-top">
-        <Brand />
-        <nav className="ld-top__nav" aria-label="Acceso">
-          <Link className="ld-btn ld-btn--ghost" to="/">
-            <ArrowLeft size={18} aria-hidden="true" />
-            Volver
-          </Link>
-        </nav>
-      </header>
-      <main className="ld-auth">
-        <div className="ld-auth__copy">
-          <PosterHeading
-            as="h1"
-            onLoad
-            lines={['Abre tu']}
-            marked="cuaderno."
-            className="ld-auth__title"
-          />
-          <Reveal as="p" onLoad className="ld-lede" style={motionStyle({ '--base': '260ms' })}>
-            Crea tu cuenta o retoma tus mazos donde los dejaste. Tu progreso se guarda y te espera
-            en el móvil y en el ordenador.
-          </Reveal>
-          <Reveal as="ul" onLoad group className="ld-auth__perks">
-            {PERKS.map(({ icon: Icon, title, text }, i) => (
-              <li
-                key={title}
-                className="ld-reveal"
-                style={motionStyle({ '--base': '340ms', '--i': i })}
-              >
-                <span className="ld-auth__icon" aria-hidden="true">
-                  <Icon size={18} strokeWidth={2.2} />
-                </span>
-                <span>
-                  <strong>{title}</strong>
-                  {text}
-                </span>
-              </li>
-            ))}
-          </Reveal>
-          <Reveal
-            as="p"
-            onLoad
-            className="ld-auth__demo"
-            style={motionStyle({ '--base': '620ms' })}
-          >
-            ¿Prefieres verla antes con mazos de ejemplo? <a href="/demo">Abre la demo</a>
-          </Reveal>
-        </div>
+    <div className="landing-page ld-page fam">
+      <PublicHeader auth />
+      <main className="fam-container fam-auth">
         <Reveal
+          as="section"
           onLoad
-          className="ld-auth__form"
-          style={motionStyle({ '--from-y': '36px', '--base': '180ms', '--dur': '0.7s' })}
+          className="fam-card"
+          aria-labelledby="auth-title"
+          style={motionStyle({ '--from-y': '24px', '--dur': '0.6s' })}
         >
+          <h1 id="auth-title" className="fam-card__title">
+            {COPY[mode].title}
+          </h1>
+          <p className="fam-card__sub">{COPY[mode].sub}</p>
           <AuthForm googleEnabled={googleEnabled} mode={mode} onModeChange={changeMode} />
         </Reveal>
+        <a href="/demo" className="fam-btn fam-auth__demo">
+          Probar la demo sin registrarte
+        </a>
       </main>
+      <PublicFooter />
     </div>
   );
 }

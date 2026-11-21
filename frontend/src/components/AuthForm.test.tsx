@@ -33,3 +33,17 @@ describe('Google authentication contract', () => {
     expect(login).not.toHaveBeenCalled();
   });
 });
+
+describe('AuthForm mode switch', () => {
+  it('offers the other mode from the switch line', () => {
+    const onModeChange = vi.fn();
+    const { rerender } = render(<AuthForm mode="login" onModeChange={onModeChange} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Crea una gratis' }));
+    expect(onModeChange).toHaveBeenCalledWith('register');
+
+    rerender(<AuthForm mode="register" onModeChange={onModeChange} />);
+    expect(screen.getByLabelText('Tu nombre')).toBeRequired();
+    fireEvent.click(screen.getByRole('button', { name: 'Inicia sesión' }));
+    expect(onModeChange).toHaveBeenLastCalledWith('login');
+  });
+});

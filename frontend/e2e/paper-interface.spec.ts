@@ -527,7 +527,7 @@ test('login, registration and safe errors', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await fixture(page, false);
   await page.goto('/login');
-  await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
+  await page.getByRole('button', { name: 'Crea una gratis' }).click();
   await expect(page.getByLabel('Tu nombre')).toBeVisible();
   await page.getByLabel('Tu nombre').fill('Prueba');
   await page.getByLabel('Email', { exact: true }).fill('fixture@example.invalid');
