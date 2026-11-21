@@ -68,14 +68,6 @@ html body:has(.ld-page) {
   color: var(--ld-muted);
 }
 
-.ld-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-  align-items: center;
-  gap: clamp(40px, 6vw, 88px);
-  min-height: min(760px, calc(100svh - 84px));
-  padding: 32px 0 96px;
-}
 .ld-hero__copy > .fam-lede {
   margin-top: 24px;
 }
@@ -262,11 +254,6 @@ html body:has(.ld-page) {
 
 /* ---------- Mazo de ejemplo ---------- */
 
-.ld-hero__deck {
-  justify-self: center;
-  width: 100%;
-  max-width: 460px;
-}
 .ld-deck__stack {
   position: relative;
 }
@@ -608,14 +595,9 @@ html body:has(.ld-page) {
 /* ---------- Pantallas estrechas ---------- */
 
 @media (max-width: 960px) {
-  .ld-hero,
   .ld-methods,
   .ld-split {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .ld-hero {
-    min-height: 0;
-    padding: 24px 0 72px;
   }
   .ld-cta {
     grid-template-columns: minmax(0, 1fr);

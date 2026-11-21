@@ -6,7 +6,6 @@ export default function PublicFooter() {
   return (
     <footer className="fam-container fam-footer">
       <span className="fam-brand">
-        <img src="/loopdeck-brush-192.png" alt="" width={32} height={32} />
         <span>LoopDeck</span>
       </span>
       <p className="fam-footer__links">
@@ -15,7 +14,7 @@ export default function PublicFooter() {
           Demo
         </a>
         <Link className="fam-link" to={AUTH_PATHS.login}>
-          Entrar
+          Iniciar sesión
         </Link>
       </p>
     </footer>

@@ -60,7 +60,7 @@ export default function LandingPage() {
       <PublicHeader />
 
       <main className="fam-container">
-        <section className="ld-hero" aria-labelledby="landing-title">
+        <section className="fam-hero" aria-labelledby="landing-title">
           <div className="ld-hero__copy">
             <PosterHeading
               as="h1"
@@ -90,7 +90,7 @@ export default function LandingPage() {
           </div>
           <Reveal
             onLoad
-            className="ld-hero__deck"
+            className="fam-hero__demo"
             style={motionStyle({ '--from-y': '48px', '--base': '320ms', '--dur': '0.8s' })}
           >
             <SampleDeck />

@@ -20,6 +20,7 @@ export default function AuthForm({
 }) {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login } = useAuth();
   const handleGoogleSuccess = async (credential: string) => {
@@ -110,18 +111,29 @@ export default function AuthForm({
         <label htmlFor="auth-password" className="fam-label">
           Contraseña
         </label>
-        <input
-          id="auth-password"
-          type="password"
-          name="password"
-          autoComplete={registering ? 'new-password' : 'current-password'}
-          value={form.password}
-          onChange={handleChange}
-          required
-          minLength={registering ? 6 : 1}
-          className="fam-input"
-          placeholder={registering ? 'Mínimo 6 caracteres' : undefined}
-        />
+        <div className="fam-password">
+          <input
+            id="auth-password"
+            type={showPassword ? 'text' : 'password'}
+            name="password"
+            autoComplete={registering ? 'new-password' : 'current-password'}
+            value={form.password}
+            onChange={handleChange}
+            required
+            minLength={registering ? 6 : 1}
+            className="fam-input"
+            placeholder={registering ? 'Mínimo 6 caracteres' : undefined}
+          />
+          <button
+            type="button"
+            className="fam-password__toggle"
+            aria-pressed={showPassword}
+            aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            onClick={() => setShowPassword((shown) => !shown)}
+          >
+            {showPassword ? 'Ocultar' : 'Mostrar'}
+          </button>
+        </div>
         {error && (
           <p role="alert" className="text-sm text-[#b91c1c]">
             {error}
@@ -132,7 +144,7 @@ export default function AuthForm({
           className="fam-btn fam-btn--ink fam-btn--block fam-btn--lg mt-1"
           disabled={loading}
         >
-          {loading ? 'Cargando…' : registering ? 'Crear cuenta' : 'Entrar'}
+          {loading ? 'Cargando…' : registering ? 'Crear cuenta' : 'Iniciar sesión'}
         </button>
       </form>
       <p className="fam-card__switch">
