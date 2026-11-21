@@ -27,7 +27,7 @@ export default function FlashCard({
     if (cardState === 'learning' || cardState === 'relearning')
       return 'var(--srs-learning, #f97316)';
     if (cardState === 'review') return 'var(--srs-review, #10b981)';
-    return 'transparent';
+    return 'var(--ink)';
   };
 
   return (
@@ -57,7 +57,7 @@ export default function FlashCard({
     >
       {/* Front */}
       <div
-        className="card"
+        className="card flashcard-face"
         aria-hidden={isFlipped}
         style={{
           position: 'absolute',
@@ -65,9 +65,6 @@ export default function FlashCard({
           display: 'flex',
           flexDirection: 'column',
           padding: reading ? '1.25rem 1.5rem' : '2rem',
-          boxShadow: 'var(--shadow-elevated, 0 10px 40px rgba(0,0,0,0.35))',
-          border: '1px solid var(--border-medium)',
-          borderRadius: 'var(--radius-lg)',
           borderTop: `5px solid ${getStateColor()}`,
           backfaceVisibility: 'hidden',
           transition: 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -107,7 +104,7 @@ export default function FlashCard({
 
       {/* Back */}
       <div
-        className="card"
+        className="card flashcard-face"
         aria-hidden={!isFlipped}
         style={{
           position: 'absolute',
@@ -115,9 +112,6 @@ export default function FlashCard({
           display: 'flex',
           flexDirection: 'column',
           padding: reading ? '1.25rem 1.5rem' : '2rem',
-          boxShadow: 'var(--shadow-elevated, 0 10px 40px rgba(0,0,0,0.35))',
-          border: '1px solid var(--border-medium)',
-          borderRadius: 'var(--radius-lg)',
           borderTop: `5px solid ${getStateColor()}`,
           backfaceVisibility: 'hidden',
           transition: 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)',

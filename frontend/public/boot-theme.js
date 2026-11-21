@@ -1,11 +1,9 @@
-// Pinta el fondo claro antes de que cargue la app si el usuario eligió el tema claro, o si llega
-// sin sesión a la portada o a /login, que son de papel claro.
+// Pinta el fondo de papel antes de que cargue la app: es el tema por defecto, igual que la
+// portada. Solo se queda oscuro si el usuario eligió el tema oscuro en Configuración.
 try {
-  const publicPage =
-    !localStorage.getItem('loopdeck_jwt_token') && !location.pathname.startsWith('/demo');
-  if (localStorage.getItem('loopdeck_theme') === 'light' || publicPage) {
+  if (localStorage.getItem('loopdeck_theme') !== 'dark') {
     document.documentElement.classList.add('boot-light');
   }
 } catch {
-  /* almacenamiento no disponible: se queda el fondo oscuro */
+  document.documentElement.classList.add('boot-light');
 }

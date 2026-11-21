@@ -26,7 +26,7 @@ export default function Settings() {
     localStorage.getItem('loopdeck_custom_color') || '#0b5f74',
   );
   const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>(
-    (localStorage.getItem('loopdeck_theme') as 'dark' | 'light') || 'dark',
+    (localStorage.getItem('loopdeck_theme') as 'dark' | 'light') || 'light',
   );
 
   const handleThemeChange = (newTheme: 'dark' | 'light') => {

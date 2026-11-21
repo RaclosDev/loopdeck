@@ -208,7 +208,7 @@ function AppContent({
 
 export default function App() {
   useEffect(() => {
-    const savedTheme = localStorage.getItem('loopdeck_theme') || 'dark';
+    const savedTheme = localStorage.getItem('loopdeck_theme') || 'light';
     document.body.classList.remove('dark-mode', 'light-mode');
     document.body.classList.add(savedTheme === 'light' ? 'light-mode' : 'dark-mode');
 
