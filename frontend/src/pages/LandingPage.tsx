@@ -13,7 +13,7 @@ import './landing.css';
  * ejemplo de verdad y abre la entrada en su propia vista, /login, como PorrApp y Portfolio Tracker.
  */
 
-export const AUTH_PATH = '/login';
+const AUTH_PATH = '/login';
 type Mode = 'login' | 'register';
 const onAuthPath = () => window.location.pathname === AUTH_PATH;
 

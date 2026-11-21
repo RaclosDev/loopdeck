@@ -20,7 +20,7 @@ export const useReducedMotion = () =>
 const splashGone = () => !document.getElementById('boot-splash');
 
 /** Con la pantalla de arranque delante las animaciones no se verían: esperan a que se retire. */
-export function useSplashGone() {
+function useSplashGone() {
   const [gone, setGone] = useState(splashGone);
   useEffect(() => {
     if (gone) return;
