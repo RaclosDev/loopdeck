@@ -6,12 +6,15 @@ import { useAuth } from '../context/AuthContext';
 export default function LoginPage({
   googleEnabled = false,
   embedded = false,
+  initialMode = 'login',
 }: {
   googleEnabled?: boolean;
   embedded?: boolean;
+  initialMode?: 'login' | 'register';
 }) {
   const Heading = embedded ? 'h2' : 'h1';
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const Stage = embedded ? 'div' : 'main';
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -53,7 +56,7 @@ export default function LoginPage({
     }
   };
   return (
-    <main className="auth-stage">
+    <Stage className="auth-stage">
       <section className="auth-paper paper-panel" aria-label="Acceso a LoopDeck">
         <Heading>LoopDeck</Heading>
         <p className="marker-ink">Un repaso más. Un poco más lejos.</p>
@@ -141,6 +144,6 @@ export default function LoginPage({
           </button>
         </form>
       </section>
-    </main>
+    </Stage>
   );
 }

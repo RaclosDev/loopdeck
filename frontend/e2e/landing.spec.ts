@@ -14,7 +14,15 @@ for (const width of [320, 390, 1440]) {
     await expect(page.getByText('2 de 3')).toBeVisible();
     await expect(sample).toHaveAttribute('aria-pressed', 'false');
     await page.getByRole('link', { name: 'Empezar a estudiar' }).click();
+    await expect(page).toHaveURL(/\/login$/);
+    await expect(page.getByLabel('Tu nombre')).toBeVisible();
     await expect(page.getByLabel('Email', { exact: true })).toBeInViewport();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true,
+    );
+    await page.getByRole('link', { name: /Volver/ }).click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -25,3 +33,19 @@ for (const width of [320, 390, 1440]) {
       });
   });
 }
+
+test('Entrar opens /login and the browser back button returns to the landing', async ({ page }) => {
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
+  await page.goto('/');
+  await page.getByRole('link', { name: 'Entrar', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Abre tu cuaderno.');
+  await expect(page.getByRole('button', { name: 'Iniciar sesión' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await page.goBack();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
+  await page.goto('/login');
+  await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
+});
