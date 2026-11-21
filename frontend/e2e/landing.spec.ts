@@ -14,7 +14,7 @@ for (const width of [320, 390, 1440]) {
     await expect(page.getByText('2 de 3')).toBeVisible();
     await expect(sample).toHaveAttribute('aria-pressed', 'false');
     await page.getByRole('link', { name: 'Empezar a estudiar' }).click();
-    await expect(page).toHaveURL(/\/login$/);
+    await expect(page).toHaveURL(/\/registro$/);
     await expect(page.getByLabel('Tu nombre')).toBeVisible();
     await expect(page.getByLabel('Email', { exact: true })).toBeInViewport();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
@@ -48,4 +48,16 @@ test('Entrar opens /login and the browser back button returns to the landing', a
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
   await page.goto('/login');
   await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
+});
+
+test('a private route without a session opens /login and returns there after signing in', async ({
+  page,
+}) => {
+  await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
+  await page.goto('/stats');
+  await expect(page).toHaveURL(/\/login\?next=%2Fstats$/);
+  await expect(page.getByLabel('Email', { exact: true })).toBeFocused();
+  await page.getByRole('button', { name: 'Crear cuenta' }).click();
+  await expect(page).toHaveURL(/\/registro\?next=%2Fstats$/);
+  await expect(page.getByLabel('Tu nombre')).toBeVisible();
 });
