@@ -8,6 +8,7 @@ import './index.css';
 import './paper.css';
 import './study-sheets.css';
 import './ux-polish.css';
+import './app-paper.css';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { hideBootSplash } from './lib/bootSplash';

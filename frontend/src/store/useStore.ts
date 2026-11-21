@@ -72,7 +72,7 @@ const useStore = create<StoreState>()(
         showTimer: false,
         animationsEnabled: true,
         studyOrder: 'new_first',
-        theme: 'dark',
+        theme: 'light',
       },
       updateSettings: (newSettings: Partial<Settings>) =>
         set((s) => ({ settings: { ...s.settings, ...newSettings } })),

@@ -1,0 +1,192 @@
+/* Lenguaje de la portada dentro de la app: pared de papel con grano, hojas con borde de tinta
+   y sombra desplazada, botones que se levantan al pasar y entrada suave de cada pantalla.
+   Va después del resto de hojas de estilo para afinar sus piezas sin rehacerlas. */
+
+:root {
+  --app-ink: #111827;
+  --app-sheet: var(--paper);
+  --app-hi: #ffe68c;
+  --app-shadow: 6px 8px 0 rgba(17, 24, 39, 0.16);
+  --app-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+::selection {
+  background: var(--app-hi);
+  color: var(--app-ink);
+}
+
+/* ---------- Pared ---------- */
+
+body.light-mode {
+  background: var(--wall) url('./assets/paper-grain.png');
+}
+
+/* ---------- Navegación ---------- */
+
+body.light-mode .sidebar {
+  background: transparent;
+  border-right: 2px solid var(--app-ink);
+}
+body.light-mode .sidebar-header {
+  border-bottom: 2px solid var(--app-ink);
+}
+body.light-mode .brand span:last-child {
+  color: var(--accent-primary);
+}
+body.light-mode .sidebar .nav-item {
+  transition:
+    transform 160ms var(--app-ease),
+    box-shadow 160ms var(--app-ease),
+    background-color 160ms var(--app-ease);
+}
+body.light-mode .sidebar .nav-item:hover {
+  background: rgba(17, 24, 39, 0.07);
+}
+body.light-mode .sidebar .nav-item.active {
+  background: var(--app-sheet);
+  border: 2px solid var(--app-ink);
+  box-shadow: 3px 4px 0 var(--app-ink);
+  font-weight: 700;
+}
+body.light-mode .sidebar .nav-item.active .nav-icon {
+  color: var(--accent-primary);
+}
+body.light-mode .mobile-top-bar {
+  border-bottom: 2px solid var(--app-ink);
+}
+body.light-mode .mobile-bottom-nav {
+  background: var(--app-sheet);
+  border: 2px solid var(--app-ink);
+  box-shadow: 4px 5px 0 rgba(17, 24, 39, 0.22);
+}
+
+/* ---------- Hojas ---------- */
+
+body.light-mode .main-content-inner:not(.sheet-canvas),
+body.light-mode .paper-sheet {
+  background: var(--app-sheet) url('./assets/paper-grain.png');
+  border: 2px solid var(--app-ink);
+  border-radius: 6px;
+  box-shadow: var(--app-shadow);
+}
+body.light-mode .main-content-inner .paper-sheet {
+  box-shadow: 4px 5px 0 rgba(17, 24, 39, 0.14);
+}
+
+.demo-banner {
+  border-radius: 3px;
+}
+body.light-mode .demo-banner {
+  background: var(--app-hi);
+  border: 2px dashed var(--app-ink);
+}
+
+/* ---------- Botones ---------- */
+
+.canvas-heading .canvas-create,
+.sheet-action--primary,
+.btn-primary,
+.paper-button.bg-primary {
+  font-family: 'Anton', 'Arial Narrow', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition:
+    transform 160ms var(--app-ease),
+    box-shadow 160ms var(--app-ease),
+    background-color 160ms var(--app-ease);
+}
+.canvas-heading .canvas-create {
+  border: 2px solid var(--app-ink);
+  box-shadow: 3px 4px 0 var(--app-ink);
+}
+.sheet-action--primary {
+  border: 2px solid var(--app-ink);
+  box-shadow: 3px 4px 0 var(--app-ink);
+}
+.btn-primary,
+.paper-button.bg-primary {
+  box-shadow: 3px 4px 0 var(--accent-primary);
+}
+.canvas-heading .canvas-create:hover,
+.sheet-action--primary:hover:not(:disabled) {
+  transform: translate(-1px, -2px);
+  box-shadow: 4px 6px 0 var(--app-ink);
+}
+.btn-primary:hover:not(:disabled),
+.paper-button.bg-primary:hover:not(:disabled) {
+  transform: translate(-1px, -2px);
+  box-shadow: 4px 6px 0 var(--accent-primary);
+}
+.canvas-heading .canvas-create:active,
+.sheet-action--primary:active:not(:disabled) {
+  transform: translate(2px, 3px);
+  box-shadow: 1px 1px 0 var(--app-ink);
+}
+.btn-primary:active:not(:disabled),
+.paper-button.bg-primary:active:not(:disabled) {
+  transform: translate(2px, 3px);
+  box-shadow: 1px 1px 0 var(--accent-primary);
+}
+
+/* ---------- Tarjeta de estudio ---------- */
+
+.flashcard-face {
+  border: 2px solid var(--app-ink);
+  border-radius: 6px;
+  background: var(--app-sheet) url('./assets/paper-grain.png');
+  box-shadow: var(--app-shadow);
+}
+body.dark-mode .flashcard-face {
+  box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Movimiento ---------- */
+
+@keyframes app-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* «backwards» y no «both»: al terminar no deja ningún transform que cambie el
+   posicionamiento de los diálogos fijos que viven dentro de la página. */
+@media (prefers-reduced-motion: no-preference) {
+  .main-content-inner > :not(.mobile-top-bar, .demo-banner),
+  .deck-grid > *,
+  .kpi-grid > * {
+    animation: app-rise 420ms var(--app-ease) backwards;
+  }
+  .deck-grid > :nth-child(2),
+  .kpi-grid > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .deck-grid > :nth-child(3),
+  .kpi-grid > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .deck-grid > :nth-child(4),
+  .kpi-grid > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .deck-grid > :nth-child(n + 5),
+  .kpi-grid > :nth-child(n + 5) {
+    animation-delay: 240ms;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .canvas-heading .canvas-create,
+  .sheet-action--primary,
+  .btn-primary,
+  .paper-button.bg-primary,
+  body.light-mode .sidebar .nav-item {
+    transition: none;
+  }
+  .canvas-heading .canvas-create:hover,
+  .sheet-action--primary:hover,
+  .btn-primary:hover,
+  .paper-button.bg-primary:hover {
+    transform: none;
+  }
+}
