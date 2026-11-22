@@ -119,7 +119,6 @@ export default function AuthForm({
           onChange={handleChange}
           required
           className="fam-input"
-          placeholder="tu@email.com"
         />
         <label htmlFor="auth-password" className="fam-label">
           Contraseña
