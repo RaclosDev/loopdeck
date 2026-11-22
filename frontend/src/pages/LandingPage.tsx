@@ -3,6 +3,7 @@ import { AUTH_PATHS } from '../lib/authRedirect';
 import PosterHeading from './landing/PosterHeading';
 import PublicFooter from './landing/PublicFooter';
 import PublicHeader from './landing/PublicHeader';
+import LiveDemo from './landing/LiveDemo';
 import Reveal from './landing/Reveal';
 import ReviewLoop from './landing/ReviewLoop';
 import SampleDeck from './landing/SampleDeck';
@@ -139,6 +140,8 @@ export default function LandingPage() {
             Ejemplo orientativo: FSRS ajusta cada intervalo a tu memoria y a tus respuestas.
           </p>
         </section>
+
+        <LiveDemo />
 
         <section id="metodos" className="ld-section" aria-labelledby="methods-title">
           <PosterHeading

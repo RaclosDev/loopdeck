@@ -4,6 +4,43 @@
  */
 export const DEMO = /^\/demo(\/|$)/.test(window.location.pathname);
 
+/**
+ * La demo incrustada en la portada (un iframe del mismo origen). Comparte el almacenamiento del
+ * navegador con la página que la contiene, así que guarda el tema y el color solo en memoria.
+ */
+export const EMBED = DEMO && window.parent !== window;
+
+class MemoryStorage implements Storage {
+  private data = new Map<string, string>();
+  get length() {
+    return this.data.size;
+  }
+  clear() {
+    this.data.clear();
+  }
+  getItem(key: string) {
+    return this.data.get(key) ?? null;
+  }
+  key(index: number) {
+    return [...this.data.keys()][index] ?? null;
+  }
+  removeItem(key: string) {
+    this.data.delete(key);
+  }
+  setItem(key: string, value: string) {
+    this.data.set(key, String(value));
+  }
+}
+
+if (EMBED) {
+  Object.defineProperty(window, 'localStorage', { value: new MemoryStorage(), configurable: true });
+  Object.defineProperty(window, 'sessionStorage', {
+    value: new MemoryStorage(),
+    configurable: true,
+  });
+  document.documentElement.classList.add('is-embed');
+}
+
 const encode = (value: object) =>
   btoa(JSON.stringify(value)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 

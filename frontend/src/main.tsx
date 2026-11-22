@@ -14,6 +14,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { hideBootSplash } from './lib/bootSplash';
 
 import { applyThemeColor } from './utils/colorHelper';
+import { EMBED } from './demo/mode';
 
 // Initialize theme before rendering to avoid FOUC
 const savedColor = localStorage.getItem('loopdeck_custom_color');
@@ -21,7 +22,7 @@ if (savedColor) {
   applyThemeColor(savedColor);
 }
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !EMBED) {
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
