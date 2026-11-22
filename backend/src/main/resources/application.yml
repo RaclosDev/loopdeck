@@ -58,6 +58,11 @@ cors:
 jwt:
   secret: ${JWT_SECRET}
 
+# Llaves de acceso (WebAuthn): dominio al que quedan ligadas y orígenes desde los que se aceptan.
+webauthn:
+  rp-id: ${WEBAUTHN_RP_ID:loopdeck.raclos.es}
+  origins: ${WEBAUTHN_ORIGINS:https://loopdeck.raclos.es}
+
 gemini:
   api:
     key: ${GEMINI_API_KEY:}
