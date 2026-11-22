@@ -96,7 +96,7 @@ export default function Layout() {
         return;
       const target = e.target as HTMLElement;
       const anchor = target.closest('a');
-      if (!anchor || anchor.hasAttribute('download')) return;
+      if (!anchor || anchor.hasAttribute('download') || anchor.hasAttribute('data-reload')) return;
       const href = anchor.getAttribute('href');
       if (href && href.startsWith('/') && !href.startsWith('//') && anchor.target !== '_blank') {
         e.preventDefault();
@@ -248,7 +248,9 @@ export default function Layout() {
           {DEMO && !EMBED && !isStudyPage && (
             <p className="demo-banner" role="status">
               <strong>Modo demo.</strong> Datos ficticios: los cambios se pierden al recargar.{' '}
-              <a href="/">Salir y crear una cuenta</a>
+              <a href="/" data-reload>
+                Salir y crear una cuenta
+              </a>
             </p>
           )}
           {!isStudyPage && (
