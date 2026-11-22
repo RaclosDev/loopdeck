@@ -6,14 +6,13 @@ const START = '/demo';
 const POSTER = '/landing/demo';
 const DESKTOP = '(min-width: 1024px)';
 
-// La /demo de verdad, dentro de un móvil. Hasta que se acerca a la pantalla (y siempre en móviles y tabletas)
+// La /demo de verdad, dentro de un móvil. Hasta que la app ha cargado (y siempre en móviles y tabletas)
 // el móvil enseña una captura de la misma pantalla; en el ordenador la app carga detrás y aparece cuando ya se ha
 // pintado. En el móvil va un botón: allí la demo a pantalla completa ya tiene tamaño de móvil.
 export default function LiveDemo() {
-  const phone = useRef<HTMLDivElement>(null);
   const timer = useRef(0);
   const [desktop, setDesktop] = useState(() => window.matchMedia(DESKTOP).matches);
-  const [near, setNear] = useState(false);
+  const [started, setStarted] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -23,22 +22,27 @@ export default function LiveDemo() {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
+  // Cuando la portada ya ha cargado y el navegador está libre, la demo empieza a cargar detrás de la captura, sin
+  // esperar a que se vea: cuando el visitante llega ya está lista.
   useEffect(() => {
-    const el = phone.current;
-    if (!desktop || near || !el) return;
-    if (!('IntersectionObserver' in window)) {
-      setNear(true);
-      return;
-    }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) setNear(true);
-      },
-      { rootMargin: '300px 0px' },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [desktop, near]);
+    if (!desktop || started) return;
+    let idle = 0;
+    let t = 0;
+    const start = () => {
+      if (typeof window.requestIdleCallback === 'function') {
+        idle = window.requestIdleCallback(() => setStarted(true), { timeout: 3000 });
+      } else {
+        t = window.setTimeout(() => setStarted(true), 1500);
+      }
+    };
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+    return () => {
+      window.removeEventListener('load', start);
+      if (idle) window.cancelIdleCallback(idle);
+      window.clearTimeout(t);
+    };
+  }, [desktop, started]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
@@ -52,7 +56,7 @@ export default function LiveDemo() {
     timer.current = window.setTimeout(() => waitForApp(frame, tries + 1), 120);
   };
 
-  const live = desktop && near;
+  const live = desktop && started;
 
   return (
     <section id="demo-en-vivo" className="ld-section" aria-labelledby="live-title">
@@ -75,7 +79,7 @@ export default function LiveDemo() {
           </p>
         </div>
 
-        <div ref={phone} className="ld-live__phone">
+        <div className="ld-live__phone">
           <div className="ld-live__screen">
             <img
               src={`${POSTER}-390.webp`}
