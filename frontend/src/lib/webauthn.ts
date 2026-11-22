@@ -66,19 +66,6 @@ export async function createPasskey({ publicKey }: BrowserOptions): Promise<Json
   };
 }
 
-/**
- * El navegador puede ofrecer las llaves en el autocompletado del campo de email (mediación
- * condicional): quien tenga una la elige ahí sin buscar ningún botón.
- */
-export async function conditionalPasskeysAvailable(): Promise<boolean> {
-  if (!passkeysSupported()) return false;
-  try {
-    return (await window.PublicKeyCredential.isConditionalMediationAvailable?.()) === true;
-  } catch {
-    return false;
-  }
-}
-
 export interface GetPasskeyOptions {
   /** En el autocompletado del campo de email, sin abrir ningún diálogo. */
   conditional?: boolean;
