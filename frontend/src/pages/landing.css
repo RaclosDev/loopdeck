@@ -543,3 +543,8 @@ html body:has(.ld-page) {
 .fam-card .fam-input::placeholder {
   color: #6b7280;
 }
+
+/* Los enlaces del header bajan hasta su sección con desplazamiento, como en Ascension. */
+html:has(.ld-page) {
+  scroll-behavior: smooth;
+}
