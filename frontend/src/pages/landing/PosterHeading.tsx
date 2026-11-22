@@ -13,7 +13,7 @@ const wordStyle = (index: number, base: number) =>
 
 /**
  * Titular de cartel que se escribe palabra a palabra; `marked` va al final, en el color de tinta
- * de acento. `lines` parte el texto en renglones propios (p. ej. «Apréndelo.» / «Repásalo.»).
+ * de acento. `lines` parte el texto en renglones propios (p. ej. «Tus apuntes,» / «en tarjetas»).
  */
 export default function PosterHeading({
   lines,

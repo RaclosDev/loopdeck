@@ -67,14 +67,14 @@ export default function LandingPage() {
               id="landing-title"
               onLoad
               base={60}
-              lines={['Apréndelo.', 'Repásalo.']}
-              marked="Hazlo tuyo."
+              lines={['Tus apuntes,', 'en tarjetas']}
+              marked="que no olvidas."
               className="fam-h1"
             />
             <p className="fam-lede">
-              LoopDeck convierte lo que estudias en tarjetas y te las devuelve justo cuando empiezas
-              a olvidarlas. Escribe un término, deja que la IA proponga la definición y repasa unos
-              minutos al día.
+              Escribe un término o pega tu lista y la IA prepara cada tarjeta con su definición.
+              LoopDeck te la vuelve a preguntar justo antes de que la olvides: con unos minutos al
+              día basta.
             </p>
             <Reveal onLoad className="fam-cta-row" style={motionStyle({ '--base': '420ms' })}>
               <Link className="fam-btn fam-btn--ink fam-btn--lg" to={AUTH_PATHS.register}>

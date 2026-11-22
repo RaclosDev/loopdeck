@@ -5,7 +5,7 @@ for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 960 });
     await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Tus apuntes,');
     const sample = page.locator('.landing-example-flip');
     await page.getByRole('button', { name: /Mostrar respuesta/ }).click();
     await expect(sample).toHaveAttribute('aria-pressed', 'true');
@@ -22,7 +22,7 @@ for (const width of [320, 390, 1440]) {
     );
     await page.getByRole('link', { name: /Volver/ }).click();
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText('Tus apuntes,');
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true,
     );
@@ -41,7 +41,7 @@ test('Iniciar sesión opens /login and the browser back button returns to the la
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Inicia sesión en LoopDeck');
   await page.goBack();
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Apréndelo.');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Tus apuntes,');
   await page.goto('/login');
   await expect(page.getByLabel('Email', { exact: true })).toBeVisible();
 });
