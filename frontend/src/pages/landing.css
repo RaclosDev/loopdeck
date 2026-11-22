@@ -363,12 +363,6 @@ html body:has(.ld-page) {
   align-items: center;
   gap: 14px;
 }
-.ld-live__caption {
-  max-width: 34ch;
-  text-align: center;
-  font-size: 0.875rem;
-  color: var(--ld-muted);
-}
 .ld-live__phone {
   width: min(100%, 320px);
   padding: 7px;
