@@ -18,7 +18,6 @@ describe('Google authentication contract', () => {
   it('exchanges the Google identity credential for an application session', async () => {
     post.mockResolvedValue({ data: { token: 'application-session' } });
     render(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Continuar con Google' }));
     fireEvent.click(screen.getByRole('button', { name: 'Elegir cuenta' }));
     await waitFor(() => expect(login).toHaveBeenCalledWith('application-session'));
     expect(post).toHaveBeenCalledWith('/auth/google', { credential: 'google-id-credential' });
@@ -27,7 +26,6 @@ describe('Google authentication contract', () => {
   it('does not establish a session when the backend omits its token', async () => {
     post.mockResolvedValue({ data: {} });
     render(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Continuar con Google' }));
     fireEvent.click(screen.getByRole('button', { name: 'Elegir cuenta' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('No se ha podido iniciar sesión');
     expect(login).not.toHaveBeenCalled();

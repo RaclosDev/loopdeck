@@ -39,7 +39,7 @@ test('Iniciar sesión opens /login and the browser back button returns to the la
   await page.goto('/');
   await page.getByRole('link', { name: 'Iniciar sesión', exact: true }).first().click();
   await expect(page).toHaveURL(/\/login$/);
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Inicia sesión en LoopDeck');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Inicia sesión');
   await page.goBack();
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Tus apuntes,');
   await page.goto('/login');

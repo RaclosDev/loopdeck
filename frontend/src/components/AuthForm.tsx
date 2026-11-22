@@ -68,10 +68,7 @@ export default function AuthForm({
     <div className="flex w-full flex-col gap-3">
       {googleEnabled && (
         <>
-          <GoogleSignInButton
-            className="fam-btn fam-btn--block"
-            onCredential={handleGoogleSuccess}
-          />
+          <GoogleSignInButton onCredential={handleGoogleSuccess} />
           <p className="fam-divider">o con tu email</p>
         </>
       )}
