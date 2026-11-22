@@ -21,5 +21,6 @@ class SecurityConfigTest {
         assertFalse(csp.contains("script-src 'self' 'unsafe-inline'"));
         assertTrue(csp.contains("object-src 'none'"));
         assertTrue(csp.contains("frame-ancestors 'self'"));
+        assertTrue(csp.contains("frame-src 'self'"), "la portada incrusta su propia /demo");
     }
 }
