@@ -1348,3 +1348,11 @@ textarea,
   border: 0;
   border-top: 1px dashed var(--border-subtle);
 }
+
+/* La demo incrustada en la portada: sin barra de scroll, como en un móvil. */
+html.is-embed {
+  scrollbar-width: none;
+}
+html.is-embed::-webkit-scrollbar {
+  display: none;
+}

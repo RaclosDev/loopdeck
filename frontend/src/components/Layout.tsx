@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, Suspense, type CSSProperties } from 'react
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import BottomSheet from './BottomSheet';
-import { DEMO } from '../demo/mode';
+import { DEMO, EMBED } from '../demo/mode';
 import {
   Folder,
   GraduationCap,
@@ -245,7 +245,7 @@ export default function Layout() {
         </aside>
 
         <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}>
-          {DEMO && !isStudyPage && (
+          {DEMO && !EMBED && !isStudyPage && (
             <p className="demo-banner" role="status">
               <strong>Modo demo.</strong> Datos ficticios: los cambios se pierden al recargar.{' '}
               <a href="/">Salir y crear una cuenta</a>
