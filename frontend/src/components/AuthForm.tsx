@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { KeyRound } from 'lucide-react';
 import GoogleSignInButton from './GoogleSignInButton';
 import api from '../api/client';
+import { passkeysApi } from '../services/api';
+import { isPasskeyCancel, passkeysSupported } from '../lib/webauthn';
 import { useAuth } from '../context/AuthContext';
 
 export type AuthMode = 'login' | 'register';
@@ -30,6 +33,19 @@ export default function AuthForm({
       const res = await api.post<{ token?: string }>('/auth/google', { credential });
       if (!res.data.token) throw new Error('Invalid authentication response');
       login(res.data.token);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handlePasskey = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      login(await passkeysApi.login());
+    } catch (err) {
+      if (!isPasskeyCancel(err)) {
+        setError('No se ha podido entrar con la llave de acceso. Prueba con tu email y contraseña.');
+      }
     } finally {
       setLoading(false);
     }
@@ -144,6 +160,17 @@ export default function AuthForm({
           {loading ? 'Cargando…' : registering ? 'Crear cuenta' : 'Iniciar sesión'}
         </button>
       </form>
+      {!registering && passkeysSupported() && (
+        <button
+          type="button"
+          className="fam-btn fam-btn--block"
+          disabled={loading}
+          onClick={() => void handlePasskey()}
+        >
+          <KeyRound size={18} aria-hidden="true" />
+          Entrar con huella o llave de acceso
+        </button>
+      )}
       <p className="fam-card__switch">
         {registering ? '¿Ya tienes cuenta? ' : '¿No tienes cuenta? '}
         <button type="button" className="fam-textlink" onClick={switchMode}>

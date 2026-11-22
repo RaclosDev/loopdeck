@@ -93,6 +93,11 @@ public class AuthService {
         return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), userMapper.toDto(user));
     }
 
+    /** Abre una sesión de la cuenta: el JWT y un token de refresco nuevo. */
+    public AuthResponse issueSession(User user) {
+        return new AuthResponse(generateToken(user), refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), userMapper.toDto(user));
+    }
+
     public AuthResponse login(LoginRequest req) {
         User user = userRepository.findByEmail(Emails.normalize(req.email()))
                 .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));

@@ -20,6 +20,7 @@ import {
 } from '../types';
 
 import api from '../api/client';
+import { createPasskey, deviceName, getPasskey, type BrowserOptions } from '../lib/webauthn';
 
 export const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -76,6 +77,50 @@ export const accountApi = {
   /** Borra la cuenta y todos sus datos. No se puede deshacer. */
   deleteAccount: async (): Promise<void> => {
     await api.delete('/users/me');
+  },
+};
+
+/** Llave de acceso tal como se ve en los ajustes. */
+export interface PasskeySummary {
+  id: number;
+  name: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
+
+/** Reto de WebAuthn: su id y las opciones para el navegador. */
+export interface PasskeyCeremony {
+  requestId: string;
+  options: BrowserOptions;
+}
+
+export const passkeysApi = {
+  list: async (): Promise<PasskeySummary[]> => (await api.get('/users/me/passkeys')).data,
+  /** Pide al dispositivo una llave nueva y la guarda en la cuenta. */
+  addOnThisDevice: async (): Promise<PasskeySummary> => {
+    const { data } = await api.post<PasskeyCeremony>('/users/me/passkeys/options');
+    const credential = await createPasskey(data.options);
+    return (
+      await api.post('/users/me/passkeys', {
+        requestId: data.requestId,
+        credential,
+        name: deviceName(),
+      })
+    ).data;
+  },
+  /** Borra la llave y devuelve las que quedan. */
+  remove: async (id: number): Promise<PasskeySummary[]> =>
+    (await api.delete(`/users/me/passkeys/${id}`)).data,
+  /** Entra con una llave del dispositivo y devuelve el token de la sesión. */
+  login: async (): Promise<string> => {
+    const { data } = await api.post<PasskeyCeremony>('/auth/passkeys/login/options');
+    const credential = await getPasskey(data.options);
+    const res = await api.post<{ token?: string }>('/auth/passkeys/login', {
+      requestId: data.requestId,
+      credential,
+    });
+    if (!res.data.token) throw new Error('Invalid authentication response');
+    return res.data.token;
   },
 };
 

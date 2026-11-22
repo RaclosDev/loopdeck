@@ -8,6 +8,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import toast from 'react-hot-toast';
 import { accountApi } from '../services/api';
+import PasskeySettings from '../components/PasskeySettings';
 import {
   Dialog,
   DialogContent,
@@ -254,6 +255,8 @@ export default function Settings() {
               Cerrar sesión
             </Button>
           </div>
+
+          {!DEMO && <PasskeySettings />}
 
           {!DEMO && (
             <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">
