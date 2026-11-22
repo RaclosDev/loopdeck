@@ -6,7 +6,6 @@ import PublicHeader from './landing/PublicHeader';
 import LiveDemo from './landing/LiveDemo';
 import Reveal from './landing/Reveal';
 import ReviewLoop from './landing/ReviewLoop';
-import SampleDeck from './landing/SampleDeck';
 import { motionStyle } from './landing/motion';
 import './landing/family.css';
 import './landing.css';
@@ -94,7 +93,7 @@ export default function LandingPage() {
             className="fam-hero__demo"
             style={motionStyle({ '--from-y': '48px', '--base': '320ms', '--dur': '0.8s' })}
           >
-            <SampleDeck />
+            <LiveDemo />
           </Reveal>
         </section>
 
@@ -140,8 +139,6 @@ export default function LandingPage() {
             Ejemplo orientativo: FSRS ajusta cada intervalo a tu memoria y a tus respuestas.
           </p>
         </section>
-
-        <LiveDemo />
 
         <section id="metodos" className="ld-section" aria-labelledby="methods-title">
           <PosterHeading
