@@ -36,7 +36,7 @@ public class SecurityConfig {
         "font-src 'self' https://fonts.gstatic.com data: blob:",
         "img-src 'self' https: data: blob:",
         "connect-src 'self' https:",
-        "frame-src https://accounts.google.com/gsi/",
+        "frame-src 'self' https://accounts.google.com/gsi/",
         "worker-src 'self'",
         "manifest-src 'self'",
         "object-src 'none'",

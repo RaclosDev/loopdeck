@@ -49,10 +49,12 @@ export default function LiveDemo() {
   // Se enseña cuando la app ya ha pintado su pantalla, no la página en blanco de antes.
   const waitForApp = (frame: HTMLIFrameElement, tries = 0) => {
     const painted = frame.contentDocument?.querySelector('.main-content');
-    if (painted || tries >= 50) {
+    if (painted) {
       timer.current = window.setTimeout(() => setReady(true), 200);
       return;
     }
+    // Si no llega a pintarse (bloqueada o con error), se queda la captura: mejor que la página de error del navegador.
+    if (tries >= 100) return;
     timer.current = window.setTimeout(() => waitForApp(frame, tries + 1), 120);
   };
 
