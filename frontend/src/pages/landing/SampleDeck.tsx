@@ -114,9 +114,7 @@ export default function SampleDeck() {
         ))}
       </div>
       <div className="ld-deck__log" aria-live="polite">
-        {log.length === 0 ? (
-          <p>Dale la vuelta y di cuánto la recordabas: LoopDeck decide cuándo vuelve.</p>
-        ) : (
+        {log.length > 0 && (
           <ol aria-label="Próximos repasos">
             {log.map((entry, i) => (
               <li key={`${entry.card}-${log.length - i}`}>
