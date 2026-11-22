@@ -16,7 +16,7 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('loopdeck_jwt_token');
     // Don't send token for specific auth routes to avoid Spring Security rejecting valid requests (like refresh) due to expired token
-    if (token && !config.url?.match(/\/auth\/(login|register|google|refresh|config)/)) {
+    if (token && !config.url?.match(/\/auth\/(login|register|google|refresh|config|passkeys)/)) {
       config.headers.Authorization = 'Bearer ' + token;
     } else {
       delete config.headers.Authorization;
@@ -52,7 +52,7 @@ api.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
-      !originalRequest.url.match(/\/auth\/(login|register|google|refresh|config)/)
+      !originalRequest.url.match(/\/auth\/(login|register|google|refresh|config|passkeys)/)
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
