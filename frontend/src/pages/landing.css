@@ -48,6 +48,11 @@ html body:has(.ld-page) {
   opacity: 1;
   transform: none;
 }
+/* Pasos y métodos llevan las líneas que los separan: entran sin desplazarse para que no se salgan de la caja. */
+.ld-steps > .ld-reveal,
+.ld-methods__list > .ld-reveal {
+  --from-y: 0px;
+}
 .ld-word {
   display: inline-block;
   overflow: hidden;
