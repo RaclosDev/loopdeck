@@ -84,9 +84,6 @@ export default function LandingPage() {
                 Probar la demo
               </a>
             </Reveal>
-            <Reveal as="p" onLoad className="ld-note" style={motionStyle({ '--base': '520ms' })}>
-              Gratis. La demo abre sin registro, con mazos de ejemplo.
-            </Reveal>
           </div>
           <Reveal
             onLoad

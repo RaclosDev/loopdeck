@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -43,6 +44,23 @@ public class SecurityConfig {
         "base-uri 'self'",
         "form-action 'self'",
         "frame-ancestors 'self'");
+
+    /** El portfolio del autor: la única web ajena que puede enseñar la demo dentro de un marco. */
+    static final String PORTFOLIO_ORIGIN = "https://raclosdev.github.io";
+
+    /**
+     * Quién puede enmarcar cada página: la aplicación, solo su propio dominio; la demo (/demo, con
+     * mazos de ejemplo y sin sesión), también el portfolio. Va después de la cabecera de la CSP.
+     */
+    static final HeaderWriter FRAMING = (request, response) -> {
+        String path = request.getRequestURI();
+        if (path.equals("/demo") || path.startsWith("/demo/")) {
+            response.setHeader("Content-Security-Policy", response.getHeader("Content-Security-Policy")
+                .replace("frame-ancestors 'self'", "frame-ancestors 'self' " + PORTFOLIO_ORIGIN));
+        } else {
+            response.setHeader("X-Frame-Options", "SAMEORIGIN");
+        }
+    };
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -101,7 +119,8 @@ public class SecurityConfig {
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         http.headers(headers -> headers
-            .frameOptions(frameOptions -> frameOptions.sameOrigin())
+            .frameOptions(frameOptions -> frameOptions.disable())
+            .addHeaderWriter(FRAMING)
             .contentSecurityPolicy(csp -> csp.policyDirectives(CONTENT_SECURITY_POLICY))
             .referrerPolicy(referrer -> referrer.policy(
                 org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)));

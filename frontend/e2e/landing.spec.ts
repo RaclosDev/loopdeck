@@ -6,7 +6,10 @@ for (const width of [320, 390, 1440]) {
     await page.route('**/api/auth/refresh', (route) => route.fulfill({ status: 401, json: {} }));
     await page.goto('/');
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Tus apuntes,');
-    await expect(page.locator('.ld-live__poster')).toBeVisible();
+    // En el ordenador el móvil lleva la demo de verdad; en móviles y tabletas, la captura que la abre.
+    await expect(
+      page.locator(width >= 1024 ? '.ld-live__frame' : '.ld-live__poster'),
+    ).toBeVisible();
     await page.getByRole('link', { name: 'Empezar a estudiar' }).click();
     await expect(page).toHaveURL(/\/registro$/);
     await expect(page.getByLabel('Tu nombre')).toBeVisible();

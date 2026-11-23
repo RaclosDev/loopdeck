@@ -76,9 +76,6 @@ html body:has(.ld-page) {
 .ld-hero__copy > .fam-lede {
   margin-top: 24px;
 }
-.ld-hero__copy > .ld-note {
-  margin-top: 16px;
-}
 
 .ld-section {
   padding: clamp(56px, 9vw, 120px) 0;
@@ -368,18 +365,23 @@ html body:has(.ld-page) {
   align-items: center;
   gap: 14px;
 }
+/* Con las proporciones de un iPhone 17: pantalla de 402 x 874 puntos y esquinas de unos 55. La app va dentro a su
+   tamaño real de 402 x 874 y se escala para caber. */
 .ld-live__phone {
-  width: min(100%, 320px);
-  padding: 7px;
-  border-radius: 34px;
+  --screen-w: min(calc(100vw - 48px), 320px);
+  --bezel: 7px;
+  width: fit-content;
+  padding: var(--bezel);
+  border-radius: calc(var(--screen-w) * 55 / 402 + var(--bezel));
   background: var(--ld-ink);
   box-shadow: var(--ld-shadow);
 }
 .ld-live__screen {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 1 / 2;
-  border-radius: 27px;
+  width: var(--screen-w);
+  aspect-ratio: 402 / 874;
+  border-radius: calc(var(--screen-w) * 55 / 402);
   background: var(--ld-sheet);
 }
 .ld-live__poster {
@@ -395,36 +397,21 @@ html body:has(.ld-page) {
 }
 .ld-live__frame {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  width: 402px;
+  height: 874px;
   border: 0;
-  opacity: 0;
-  /* Oculta hasta que la app se ha pintado: mientras, los clics van a la captura. */
-  visibility: hidden;
-  transition:
-    opacity 450ms ease-out,
-    visibility 0s 450ms;
-}
-.ld-live__frame.is-ready {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 450ms ease-out;
+  transform: scale(var(--live-scale, 1));
+  transform-origin: 0 0;
 }
 
 @media (min-width: 1024px) {
+  /* En el ordenador, del tamaño de un iPhone 17: pantalla de 66,6 x 144,8 mm y cuerpo de 71,5 mm de ancho. Son mm de
+     CSS (96 ppp): el navegador no sabe cuánto mide el monitor, así que en uno más denso sale más pequeño. */
   .ld-live__phone {
-    width: 390px;
-  }
-  .ld-live__screen {
-    aspect-ratio: auto;
-    height: clamp(520px, calc(100svh - 260px), 720px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ld-live__frame {
-    transition: none;
+    --screen-w: 66.6mm;
+    --bezel: 2.45mm;
   }
 }
 
