@@ -1349,10 +1349,12 @@ textarea,
   border-top: 1px dashed var(--border-subtle);
 }
 
-/* La demo incrustada en la portada: sin barra de scroll, como en un móvil. */
-html.is-embed {
-  scrollbar-width: none;
+/* La demo incrustada (portada o portfolio): sin barras de scroll, ni la de la página ni las de dentro, como en un móvil. */
+html.is-embed,
+html.is-embed * {
+  scrollbar-width: none !important;
 }
-html.is-embed::-webkit-scrollbar {
+html.is-embed::-webkit-scrollbar,
+html.is-embed *::-webkit-scrollbar {
   display: none;
 }
