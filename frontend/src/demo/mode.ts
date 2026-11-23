@@ -51,6 +51,8 @@ export const DEMO_TOKEN = [
     sub: 'demo',
     email: 'demo@loopdeck.example',
     name: 'Visitante demo',
+    // Retrato libre de randomuser.me para que la cabecera se vea como con una cuenta real.
+    picture: 'https://randomuser.me/api/portraits/women/44.jpg',
     exp: Math.floor(Date.now() / 1000) + 10 * 365 * 24 * 3600,
   }),
   'demo',

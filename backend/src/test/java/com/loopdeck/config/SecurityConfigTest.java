@@ -1,6 +1,8 @@
 package com.loopdeck.config;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,5 +24,26 @@ class SecurityConfigTest {
         assertTrue(csp.contains("object-src 'none'"));
         assertTrue(csp.contains("frame-ancestors 'self'"));
         assertTrue(csp.contains("frame-src 'self'"), "la portada incrusta su propia /demo");
+    }
+
+    @Test void onlyTheDemoCanBeFramedByThePortfolio() {
+        for (String path : new String[] { "/demo", "/demo/mazos/3" }) {
+            var response = framingHeaders(path);
+            assertTrue(response.getHeader("Content-Security-Policy")
+                .endsWith("frame-ancestors 'self' https://raclosdev.github.io"), path);
+            assertNull(response.getHeader("X-Frame-Options"), path);
+        }
+        for (String path : new String[] { "/", "/login", "/demos", "/demo-x", "/api/demo", "/api/decks" }) {
+            var response = framingHeaders(path);
+            assertEquals(SecurityConfig.CONTENT_SECURITY_POLICY, response.getHeader("Content-Security-Policy"), path);
+            assertEquals("SAMEORIGIN", response.getHeader("X-Frame-Options"), path);
+        }
+    }
+
+    private static MockHttpServletResponse framingHeaders(String path) {
+        var response = new MockHttpServletResponse();
+        response.setHeader("Content-Security-Policy", SecurityConfig.CONTENT_SECURITY_POLICY);
+        SecurityConfig.FRAMING.writeHeaders(new MockHttpServletRequest("GET", path), response);
+        return response;
     }
 }
