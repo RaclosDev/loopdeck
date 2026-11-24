@@ -26,7 +26,7 @@ import { Pencil, Trash2, Search, Loader2, AlertCircle } from 'lucide-react';
 type BrowserNote = Note & { parsedFields: Record<string, string>; state: string };
 
 const getStateColor = (state: string) => {
-  if (state === 'new') return 'var(--accent-primary)';
+  if (state === 'new') return 'var(--srs-new)';
   if (state.includes('learn')) return 'var(--srs-learning)';
   return 'var(--srs-review)';
 };
@@ -244,16 +244,13 @@ export default function Browser() {
           </div>
         ) : (
           filteredNotes.map((note) => (
-            <div key={note.id} className="card p-4 flex gap-4 items-center flex-row">
+            <div key={note.id} className="card browser-note">
               <div className="flex-1 min-w-0">
                 <div className="flex gap-2 mb-3 items-center flex-wrap">
                   <Badge
                     variant="outline"
-                    style={{
-                      color: getStateColor(note.state),
-                      borderColor: getStateColor(note.state),
-                      backgroundColor: 'transparent',
-                    }}
+                    className="note-chip note-chip--state"
+                    style={{ background: getStateColor(note.state) }}
                   >
                     {note.state === 'new'
                       ? 'NUEVA'
@@ -263,7 +260,7 @@ export default function Browser() {
                   </Badge>
                   {note.tags &&
                     note.tags.split(',').map((t) => (
-                      <Badge key={t} variant="outline">
+                      <Badge key={t} variant="outline" className="note-chip">
                         {t.trim()}
                       </Badge>
                     ))}
@@ -283,23 +280,23 @@ export default function Browser() {
                   }}
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <Button
-                  variant="secondary"
-                  size="icon"
+              <div className="browser-note-actions">
+                <button
+                  type="button"
+                  className="sheet-action sheet-action--icon"
                   aria-label="Editar tarjeta"
                   onClick={() => handleEditClick(note)}
                 >
-                  <Pencil className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="icon"
+                  <Pencil size={17} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  className="sheet-action sheet-action--icon sheet-action--danger"
                   aria-label="Eliminar tarjeta"
                   onClick={() => setDeletingNoteId(note.id)}
                 >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                  <Trash2 size={17} aria-hidden="true" />
+                </button>
               </div>
             </div>
           ))

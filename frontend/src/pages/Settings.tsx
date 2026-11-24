@@ -3,6 +3,7 @@ import useStore from '../store/useStore';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { applyThemeColor } from '../utils/colorHelper';
+import { setTheme, useTheme } from '../utils/theme';
 import { SegmentedControl } from '../components/ui/segmented-control';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -26,18 +27,11 @@ export default function Settings() {
   const [customColor, setCustomColor] = useState(
     localStorage.getItem('loopdeck_custom_color') || '#0b5f74',
   );
-  const [currentTheme, setCurrentTheme] = useState<'dark' | 'light'>(
-    (localStorage.getItem('loopdeck_theme') as 'dark' | 'light') || 'light',
-  );
+  const currentTheme = useTheme();
 
   const handleThemeChange = (newTheme: 'dark' | 'light') => {
-    setCurrentTheme(newTheme);
+    setTheme(newTheme);
     updateSettings({ theme: newTheme });
-    localStorage.setItem('loopdeck_theme', newTheme);
-    document.body.classList.remove('dark-mode', 'light-mode');
-    document.body.classList.add(newTheme === 'light' ? 'light-mode' : 'dark-mode');
-    // El fondo inicial de index.html sigue al tema elegido.
-    document.documentElement.classList.toggle('boot-light', newTheme === 'light');
   };
   const [showClearModal, setShowClearModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);

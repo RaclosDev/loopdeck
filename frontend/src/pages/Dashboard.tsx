@@ -21,7 +21,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '../components/ui/dialog';
-import { Play, Plus, Search, MoreVertical, Trash2, Edit3 } from 'lucide-react';
+import { Play, Plus, Search, MoreVertical, Trash2, Edit3, GraduationCap } from 'lucide-react';
 
 export default function Dashboard() {
   const {
@@ -97,6 +97,13 @@ export default function Dashboard() {
     }
   };
 
+  // El repaso empieza por el mazo con más tarjetas pendientes.
+  const nextDeck = errorStats
+    ? undefined
+    : decks
+        .filter((deck) => deckCounts[deck.id] && pendingCards(deckCounts[deck.id]) > 0)
+        .sort((a, b) => pendingCards(deckCounts[b.id]) - pendingCards(deckCounts[a.id]))[0];
+
   return (
     <div className="fade-in study-canvas-page">
       <header className="canvas-heading">
@@ -137,6 +144,18 @@ export default function Dashboard() {
           {decks.length > 0 && !loadingStats && !errorStats && (
             <StudySummary
               stats={decks.flatMap((deck) => (deckCounts[deck.id] ? [deckCounts[deck.id]] : []))}
+              action={
+                nextDeck && (
+                  <Link
+                    className="sheet-action sheet-action--primary today-action"
+                    to={`/study/${nextDeck.id}`}
+                    state={{ returnTo: '/' }}
+                  >
+                    <Play size={16} aria-hidden="true" />
+                    <span>Repasar {nextDeck.name}</span>
+                  </Link>
+                )
+              }
             />
           )}
           <div className="canvas-section-heading">
@@ -177,6 +196,16 @@ export default function Dashboard() {
                     >
                       <Play size={16} aria-hidden="true" />{' '}
                       {due ? `Repasar (${due.toLocaleString('es-ES')})` : 'Abrir mazo'}
+                    </Link>
+                  )}
+                  {counts?.totalCount !== 0 && (
+                    <Link
+                      className="sheet-action sheet-action--icon"
+                      aria-label={`Elegir método de estudio para ${deck.name}`}
+                      title="Elegir método de estudio"
+                      to={`/hub/${deck.id}`}
+                    >
+                      <GraduationCap size={20} aria-hidden="true" />
                     </Link>
                   )}
                   {counts?.totalCount !== 0 && (

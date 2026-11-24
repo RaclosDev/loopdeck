@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import type { Deck, DeckStats } from '../types';
 import StudyCounts, { pendingCards } from './StudyCounts';
 
@@ -44,23 +44,13 @@ export default function DeckSheet({
               <>
                 <CheckCircle2 size={14} aria-hidden="true" /> Al día
               </>
-            ) : (
-              `${due?.toLocaleString('es-ES')} pendientes`
-            )}
+            ) : null}
           </span>
         )}
       </div>
       <StudyCounts stats={stats} compact />
       <footer className="deck-sheet-actions">{children}</footer>
     </article>
-  );
-}
-
-export function StudyMethodLink({ deck }: { deck: Deck }) {
-  return (
-    <Link className="sheet-action sheet-action--primary" to={`/hub/${deck.id}`}>
-      Elegir método <ArrowRight size={18} aria-hidden="true" />
-    </Link>
   );
 }
 

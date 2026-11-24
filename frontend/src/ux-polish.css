@@ -96,23 +96,8 @@
   font-size: 0.9rem;
   line-height: 1.6;
 }
-.stats-available .stats-help {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
 .add-card-page .card {
   min-width: 0;
-}
-.add-card-page button.form-input {
-  text-align: left;
-  gap: 8px;
-}
-.add-card-page button.form-input span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.add-card-page button.form-input svg {
-  flex-shrink: 0;
 }
 .editor-tools {
   display: grid;
@@ -266,11 +251,6 @@
 .tutor-session {
   height: max(500px, calc(100dvh - 66px));
 }
-@media (min-width: 1100px) {
-  .browser-filters {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 1.2fr);
-  }
-}
 @media (max-width: 768px) {
   body:has([contenteditable='true']:focus) .mobile-bottom-nav {
     display: none;
@@ -300,4 +280,800 @@
 .browser-filters select,
 .browser-filters input {
   font-weight: 400;
+}
+
+/* Los atajos de teclado solo se anuncian donde hay teclado. */
+@media (hover: none) {
+  .kbd-hint {
+    display: none;
+  }
+}
+
+/* Añadir tarjeta: mazo y tipo en una fila, herramientas en línea y acciones siempre a mano. */
+.add-card-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed var(--border-medium);
+}
+.add-card-fields > :only-child {
+  grid-column: 1 / -1;
+}
+.add-card-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+/* La hoja es crema también en oscuro: tinta y papel fijos, como los botones de Añadir. */
+.add-card-field .form-label,
+.add-card-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #111827;
+}
+.add-card-field .select-menu-btn {
+  width: 100%;
+  min-height: 46px;
+  border: 2px solid #111827;
+  border-radius: 4px;
+  background: #fffdf7;
+  color: #111827;
+  font-weight: 700;
+  box-shadow: 3px 4px 0 #11182724;
+}
+.add-card-field .select-menu-btn:hover:not(:disabled),
+.add-card-field .select-menu-btn[aria-expanded='true'] {
+  border-color: #111827;
+  box-shadow: 3px 4px 0 #0b5f74;
+}
+.add-card-field .select-menu-btn:focus-visible {
+  border-color: #111827;
+  outline: 2px solid #0b5f74;
+  outline-offset: 2px;
+}
+.add-card-field .select-menu-chevron {
+  color: #111827;
+}
+/* Tipo de nota: dos botones como Añadir / Añadir y cerrar; el elegido va en tinta. */
+.add-card-page .add-card-types.paper-tabs {
+  gap: 10px;
+  margin: 0;
+  border: 0;
+}
+.add-card-page .add-card-types.paper-tabs button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 46px;
+  padding: 6px 8px;
+  border: 2px solid #111827;
+  border-radius: 4px;
+  background: transparent;
+  color: #111827;
+  font-family: Anton, 'Arial Narrow', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: normal;
+  line-height: 1.15;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+.add-card-page .add-card-types.paper-tabs button:hover {
+  background: #1118270f;
+}
+.add-card-page .add-card-types.paper-tabs button[aria-pressed='true'] {
+  background: #111827;
+  color: #fff;
+  box-shadow: 3px 4px 0 #0b5f74;
+}
+.add-card-page .add-card-types.paper-tabs button:focus-visible {
+  outline: 2px solid #0b5f74;
+  outline-offset: 2px;
+}
+/* Frente, dorso y etiquetas: un marco de tinta por campo, con sus herramientas dentro. */
+.add-card-side {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.add-card-label {
+  display: block;
+}
+.add-card-editor {
+  border: 2px solid #111827;
+  border-radius: 4px;
+  background: #fffdf7;
+  color: #111827;
+  box-shadow: 3px 4px 0 #11182724;
+  transition: box-shadow var(--transition-fast);
+}
+.add-card-editor:focus-within {
+  box-shadow: 3px 4px 0 #0b5f74;
+}
+.add-card-tools {
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #11182733;
+  background: #f3ecdc;
+  border-radius: 2px 2px 0 0;
+}
+.add-card-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 0;
+  border-right: 1px solid #11182733;
+  background: transparent;
+  color: #111827;
+  font:
+    600 0.8rem/1 'Inter',
+    sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.add-card-tool:last-child {
+  border-right: 0;
+}
+.add-card-tool:hover:not(:disabled) {
+  background: #11182712;
+}
+.add-card-tool:focus-visible {
+  outline: 2px solid #0b5f74;
+  outline-offset: -2px;
+}
+.add-card-tool:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+.add-card-editable {
+  min-height: 112px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  outline: none;
+}
+/* La foto se ve en miniatura al escribir; a tamaño real ya sale en la vista previa. */
+.add-card-editable img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 88px;
+  margin: 4px 0;
+  border: 1px solid #11182733;
+  border-radius: 3px;
+}
+.add-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 6px 10px;
+  cursor: text;
+}
+.add-card-tags input {
+  flex: 1;
+  min-width: 120px;
+  min-height: 30px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.add-card-tags input::placeholder {
+  color: #5b6370;
+}
+.add-card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 8px;
+  border-radius: 3px;
+  background: #111827;
+  color: #fffdf7;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.add-card-chip button {
+  display: inline-flex;
+  padding: 3px;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  opacity: 0.75;
+  cursor: pointer;
+}
+.add-card-chip button:hover,
+.add-card-chip button:focus-visible {
+  opacity: 1;
+  background: #fffdf733;
+}
+.add-card-actions .kbd-hint {
+  margin-left: 8px;
+  padding: 2px 6px;
+  border: 1px solid #ffffff59;
+  border-radius: 3px;
+  font:
+    600 0.68rem/1 'Inter',
+    sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.85;
+}
+
+/* Vista previa: la tarjeta de estudio de verdad, sobre la pared y sin estirarse con el formulario. */
+.add-card-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+/* Columna derecha: vista previa y, debajo, etiquetas y botones; en PC todo cabe sin scroll. */
+.add-card-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+  align-self: start;
+  position: sticky;
+  top: 16px;
+}
+.add-card-finish {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.add-card-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.add-card-info {
+  position: relative;
+  display: inline-flex;
+}
+.add-card-info-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -6px -4px -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #111827;
+  cursor: help;
+}
+.add-card-info-btn:hover,
+.add-card-info-btn[aria-expanded='true'] {
+  background: #11182714;
+}
+.add-card-info-btn:focus-visible {
+  outline: 2px solid #0b5f74;
+}
+.add-card-info-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -4px;
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  width: min(290px, 78vw);
+  padding: 12px 14px;
+  border: 2px solid #111827;
+  border-radius: 4px;
+  background: #fffdf7;
+  color: #111827;
+  box-shadow: 3px 4px 0 #0b5f74;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.add-card-info-pop > span {
+  display: block;
+}
+.add-card-info-pop strong {
+  display: block;
+  font-weight: 700;
+}
+/* La «i» de las fases va tras la leyenda; su cartel se abre hacia la derecha desde la fila. */
+.today-legend-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.today-legend-row .phase-info {
+  position: static;
+}
+.today-legend-row .add-card-info-btn {
+  margin: -6px 0;
+}
+.today-legend-row .add-card-info-pop {
+  left: 0;
+  right: auto;
+}
+.add-card-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+}
+.add-card-preview .add-card-label {
+  color: inherit;
+}
+.add-card-page .add-card-preview-switch.paper-tabs {
+  gap: 4px;
+  margin: 0;
+  border-bottom: 0;
+}
+.add-card-page .add-card-preview-switch.paper-tabs button {
+  flex: none;
+  min-height: 34px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--border-medium);
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.add-card-preview-card {
+  display: flex;
+}
+.add-card-preview .flashcard-frame {
+  flex: none !important;
+  height: clamp(200px, 30dvh, 280px);
+  min-height: 0;
+  max-width: none !important;
+}
+.add-card-preview .flashcard-face img {
+  max-width: 100%;
+  max-height: 100px;
+  height: auto;
+}
+.add-card-preview-hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: inherit;
+  opacity: 0.85;
+}
+@media (max-width: 768px) {
+  .add-card-aside {
+    position: static;
+  }
+  .add-card-finish {
+    order: -1;
+  }
+}
+.add-card-page .editor-tools .btn {
+  flex-direction: row !important;
+  justify-content: center;
+  gap: 6px !important;
+  min-height: 40px;
+  padding: 6px 8px !important;
+}
+.add-card-page .editor-tools .btn svg {
+  margin: 0;
+  flex-shrink: 0;
+}
+.add-card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.add-card-actions .btn {
+  flex: 1;
+}
+@media (max-width: 768px) {
+  .add-card-actions {
+    position: sticky;
+    bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-gap) + var(--safe-bottom) + 10px);
+    z-index: 5;
+    margin-inline: -8px;
+    padding: 8px;
+    background: var(--paper, #f3ecdc);
+    border: 1px solid #11182730;
+    border-radius: 3px;
+    box-shadow: 0 6px 16px #0002;
+  }
+}
+.add-card-page .editor-tools {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.add-card-page .editor-tools .btn {
+  flex: 1 1 auto;
+  width: auto;
+  white-space: nowrap;
+}
+@media (max-width: 420px) {
+  .add-card-page .editor-tools {
+    flex-wrap: nowrap;
+  }
+  .add-card-page .editor-tools .btn svg {
+    display: none;
+  }
+}
+
+/* ---------- Páginas de lista sobre el lienzo ----------
+   Estadísticas, plantillas, explorar, añadir y configuración comparten el lienzo de Mis mazos:
+   el título va suelto sobre la pared y cada bloque es una hoja con el mismo borde y sombra. */
+.page-canvas {
+  display: grid;
+  align-content: start;
+  gap: 22px;
+  color: var(--canvas-ink);
+}
+.page-canvas .card,
+.page-canvas .kpi-card {
+  color: var(--ink);
+  background: var(--paper) url('./assets/paper-grain.png');
+  /* En oscuro el borde de tinta no se ve contra la pared: la sombra desplazada va en claro
+     para que la hoja conserve el mismo recuadro y la misma sombrita que en claro. */
+  border: 2px solid #111827;
+  border-radius: 6px;
+  box-shadow: 4px 5px 0 #f3ecdc4d;
+}
+body.light-mode .page-canvas .card,
+body.light-mode .page-canvas .kpi-card {
+  background: var(--app-sheet) url('./assets/paper-grain.png');
+  border: 2px solid var(--app-ink);
+  border-radius: 6px;
+  box-shadow: 4px 5px 0 rgba(17, 24, 39, 0.14);
+}
+/* Una hoja dentro de otra no repite marco: queda como un recuadro fino. */
+.page-canvas .card .card,
+body.light-mode .page-canvas .card .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  box-shadow: none;
+}
+/* Sobre la pared oscura, el texto suelto toma la tinta clara del lienzo; dentro de las hojas
+   vuelve la tinta normal. */
+body:not(.light-mode) .page-canvas {
+  --text-primary: var(--canvas-ink);
+  --text-main: var(--canvas-ink);
+  --text-secondary: var(--canvas-muted);
+  --text-muted: var(--canvas-muted);
+}
+body:not(.light-mode)
+  .page-canvas
+  :is(.card, .kpi-card, [role='dialog'], .form-input, input, select, textarea) {
+  --text-primary: #111827;
+  --text-main: #111827;
+  --text-secondary: #48505c;
+  --text-muted: #565c63;
+}
+/* Pestañas sobre el lienzo: la activa se pinta con la tinta del lienzo para que destaque también
+   sobre la pared oscura. */
+.page-canvas .paper-tabs {
+  border-bottom-color: var(--canvas-ink);
+}
+.page-canvas .paper-tabs button[aria-pressed='true'] {
+  background: var(--canvas-ink);
+  border-color: var(--canvas-ink);
+  color: var(--wall, #0f172a);
+}
+/* En móvil las cuatro herramientas del frente van de dos en dos, no tres y una suelta. */
+@media (max-width: 480px) {
+  .add-card-tools {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .add-card-tool:nth-child(2n) {
+    border-right: 0;
+  }
+  .add-card-tool:nth-child(n + 3) {
+    border-top: 1px solid #11182733;
+  }
+}
+
+/* ---- Títulos de página: rótulo de viñeta (caja de papel, borde de tinta y sombra dura). ---- */
+.sheet-canvas .canvas-heading h1 {
+  display: inline-block;
+  max-width: 100%;
+  padding: 7px 16px 6px;
+  font-size: clamp(1.3rem, 2.3vw, 1.8rem);
+  line-height: 1.15;
+  color: #111827;
+  background: #fffdf7;
+  border: 2px solid #111827;
+  box-shadow: 4px 5px 0 #ffe68c;
+  rotate: -1deg;
+}
+body.light-mode .sheet-canvas .canvas-heading h1 {
+  box-shadow: 4px 5px 0 #111827;
+}
+.sheet-canvas .canvas-heading {
+  padding: 4px 6px 4px 2px;
+}
+
+/* ---- Recuento por estado en grande: una tira de tres viñetas con la cifra arriba. ---- */
+.study-counts:not(.study-counts--compact) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border: 2px solid #111827;
+  border-radius: 4px;
+  background: #fffdf7;
+  box-shadow: 3px 4px 0 #11182726;
+  overflow: hidden;
+}
+.study-counts:not(.study-counts--compact) .study-count {
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px 11px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.study-counts:not(.study-counts--compact) .study-count + .study-count {
+  border-left: 2px solid #111827;
+}
+.study-counts:not(.study-counts--compact) dt {
+  font:
+    400 0.8rem/1.1 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #111827;
+  overflow-wrap: anywhere;
+}
+.study-counts:not(.study-counts--compact) .study-count-mark {
+  display: none;
+}
+.study-counts:not(.study-counts--compact) dd {
+  font:
+    400 2.1rem/1 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Estadísticas ---- */
+.stats-heading {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.stats-heading .phase-info {
+  position: static;
+}
+.stats-heading .add-card-info-btn {
+  margin: -6px 0;
+}
+.stats-heading .add-card-info-pop {
+  left: 0;
+  right: auto;
+}
+.stats-decks {
+  display: grid;
+  gap: 8px;
+}
+.stats-decks h2 {
+  font-size: 1.35rem;
+}
+.stats-deck-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stats-deck-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 6px 20px;
+  padding: 12px 0;
+  border-top: 1px dashed #11182750;
+}
+.stats-deck-list li:first-child {
+  border-top: 0;
+}
+.stats-deck-name {
+  min-width: 0;
+  color: #111827;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+.stats-deck-name:hover {
+  text-decoration: underline;
+}
+.stats-deck-due {
+  min-width: 68px;
+  padding: 4px 8px 3px;
+  border: 2px solid #111827;
+  background: #ffe68c;
+  color: #111827;
+  font:
+    400 0.8rem/1.2 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+.stats-deck-due.is-clear {
+  background: none;
+  border-color: var(--srs-review);
+  color: var(--srs-review);
+}
+@media (max-width: 640px) {
+  .stats-deck-list li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .stats-deck-list .study-counts {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---- Elegir método: el estado del mazo ---- */
+.deck-study-summary {
+  gap: 16px;
+}
+.deck-study-summary .ink-status {
+  padding: 5px 10px 4px;
+  border: 2px solid #111827;
+  border-radius: 0;
+  background: #ffe68c;
+  color: #111827;
+  font:
+    400 0.9rem/1.2 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  rotate: 2deg;
+}
+.deck-study-summary .deck-document-action {
+  padding-top: 14px;
+  border-top: 1px dashed #11182750;
+}
+
+/* ---- Explorar tarjetas ---- */
+.browser-filters label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #111827;
+}
+/* Los mismos campos entintados que en Añadir tarjeta. */
+.browser-filter-field .select-menu-btn,
+.browser-filters .browser-search-input {
+  width: 100%;
+  min-height: 46px;
+  border: 2px solid #111827;
+  border-radius: 4px;
+  background: #fffdf7;
+  color: #111827;
+  box-shadow: 3px 4px 0 #11182724;
+}
+.browser-filter-field .select-menu-btn {
+  font-weight: 700;
+}
+.browser-filter-field .select-menu-btn:hover:not(:disabled),
+.browser-filter-field .select-menu-btn[aria-expanded='true'],
+.browser-filters .browser-search-input:focus {
+  border-color: #111827;
+  box-shadow: 3px 4px 0 #0b5f74;
+}
+.browser-filter-field .select-menu-btn:focus-visible,
+.browser-filters .browser-search-input:focus-visible {
+  border-color: #111827;
+  outline: 2px solid #0b5f74;
+  outline-offset: 2px;
+}
+.browser-filter-field .select-menu-chevron,
+.browser-search > svg {
+  color: #111827;
+}
+.browser-filters {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 16px;
+  padding: 18px;
+}
+.browser-page .results-count {
+  margin: 4px 0 -6px;
+  color: var(--canvas-ink);
+  font:
+    400 1rem/1 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.browser-note {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+}
+.browser-note-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.browser-note-actions .sheet-action--icon {
+  width: 40px;
+  min-height: 40px;
+}
+.sheet-action--danger {
+  color: #991b1b;
+}
+.sheet-action--danger:hover {
+  background: #991b1b;
+  border-color: #991b1b;
+  color: #fff;
+}
+.note-chip {
+  border: 1px solid #1118273d;
+  border-radius: 2px;
+  box-shadow: none;
+  color: #535967;
+  font-weight: 600;
+}
+.note-chip--state {
+  border-color: #111827;
+  color: #fff;
+  font:
+    400 0.72rem/1.5 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.07em;
+}
+
+/* «Nuevo mazo» se usa poco: contorno en vez de amarillo, para no competir con Repasar. */
+.sheet-canvas .canvas-heading .canvas-create,
+.sheet-canvas .canvas-heading .canvas-create:hover,
+.sheet-canvas .canvas-heading .canvas-create:active {
+  background: transparent;
+  color: var(--canvas-ink);
+  border: 2px solid currentColor;
+  box-shadow: none;
+}
+.sheet-canvas .canvas-heading .canvas-create:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+/* En móvil la etiqueta larga del recuento no parte la palabra. */
+@media (max-width: 480px) {
+  .study-counts:not(.study-counts--compact) .study-count {
+    padding: 10px 8px 9px;
+  }
+  .study-counts:not(.study-counts--compact) dt {
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    overflow-wrap: normal;
+  }
 }
