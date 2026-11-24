@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useDecks, useDeckStats } from '../hooks/useDecks';
 import { Skeleton } from '../components/ui/skeleton';
 import StudyCounts, { CountsNotice, pendingCards } from '../components/StudyCounts';
+import PhaseInfo from '../components/PhaseInfo';
 
 export default function Stats() {
   const {
@@ -74,13 +75,32 @@ export default function Stats() {
         ))}
       </dl>
       <section className="card stats-available" aria-labelledby="stats-today">
-        <h2 id="stats-today">Para hoy</h2>
-        <p>{available} tarjetas disponibles para repasar.</p>
+        <div className="stats-heading">
+          <h2 id="stats-today">Para hoy</h2>
+          <PhaseInfo />
+        </div>
         <StudyCounts stats={totals} />
-        <p className="stats-help">
-          Las nuevas están listas para empezar. Aprendiendo y Revisión muestran las que toca repasar
-          ahora.
-        </p>
+      </section>
+      <section className="card stats-decks" aria-labelledby="stats-decks">
+        <h2 id="stats-decks">Por mazo</h2>
+        <ul className="stats-deck-list">
+          {decks.map((deck) => {
+            const stats = deckStats[deck.id];
+            if (!stats) return null;
+            const due = pendingCards(stats);
+            return (
+              <li key={deck.id}>
+                <Link className="stats-deck-name" to={`/hub/${deck.id}`}>
+                  {deck.name}
+                </Link>
+                <StudyCounts stats={stats} compact />
+                <span className={due ? 'stats-deck-due' : 'stats-deck-due is-clear'}>
+                  {due ? `${due.toLocaleString('es-ES')} hoy` : 'Al día'}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
       </section>
     </div>
   );

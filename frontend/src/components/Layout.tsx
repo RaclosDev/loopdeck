@@ -4,11 +4,10 @@ import useStore from '../store/useStore';
 import { useState, useEffect, useRef, Suspense, type CSSProperties } from 'react';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import BottomSheet from './BottomSheet';
+import ThemeToggle from './ThemeToggle';
 import { DEMO, EMBED } from '../demo/mode';
 import {
   Folder,
-  GraduationCap,
   PlusCircle,
   BarChart2,
   LayoutTemplate,
@@ -16,18 +15,11 @@ import {
   Settings,
   Download,
   LogOut,
-  Menu,
   Share,
 } from 'lucide-react';
 
 const navItems = [
   { path: '/', icon: <Folder className="w-5 h-5" />, label: 'Mis Mazos', shortLabel: 'Mazos' },
-  {
-    path: '/hub',
-    icon: <GraduationCap className="w-5 h-5" />,
-    label: 'Centro de Estudio',
-    shortLabel: 'Estudiar',
-  },
   {
     path: '/add',
     icon: <PlusCircle className="w-5 h-5" />,
@@ -60,14 +52,14 @@ const navItems = [
   },
 ];
 
-const bottomNavPaths = ['/', '/hub', '/add', '/stats'];
-const moreMenuPaths = ['/templates', '/browser'];
+const bottomNavPaths = ['/', '/add', '/stats', '/browser'];
+// Al pie del menú lateral, junto a cerrar sesión: lo que se toca de tarde en tarde.
+const footNavPaths = ['/templates', '/settings'];
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
 
@@ -82,9 +74,12 @@ export default function Layout() {
   const isSheetOverview =
     location.pathname === '/' || /^\/hub(?:\/[^/]+)?\/?$/.test(location.pathname);
 
+  // Las páginas de lista (estadísticas, plantillas, explorar…) usan el mismo lienzo que Mis mazos:
+  // título suelto y paneles sueltos, en vez de una hoja grande con tarjetas dentro.
+  const isOpenPage = !isStudyPage && !isSheetOverview;
+
   useEffect(() => {
     setSidebarOpen(false);
-    setMoreMenuOpen(false);
     setAccountMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
@@ -126,14 +121,34 @@ export default function Layout() {
   }, [accountMenuOpen]);
 
   const closeSidebar = () => setSidebarOpen(false);
-  const isMoreActive = moreMenuPaths.some((p) => location.pathname.startsWith(p));
+  const renderNavItem = (item: (typeof navItems)[number]) => {
+    const isActive =
+      item.path === '/' ? location.pathname === '/' : location.pathname.startsWith(item.path);
+    return (
+      <button
+        key={item.path}
+        type="button"
+        className={`nav-item ${isActive ? 'active' : ''}`}
+        aria-current={isActive ? 'page' : undefined}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          closeSidebar();
+          if (location.pathname !== item.path) navigate(item.path);
+        }}
+      >
+        <span className="nav-icon">{item.icon}</span>
+        <span className="nav-label">{item.label}</span>
+      </button>
+    );
+  };
   const bottomItems = navItems.filter((i) => bottomNavPaths.includes(i.path));
   const isNavItemActive = (path: string) =>
-    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
-  // Índice de la pestaña resaltada; «Más» es el último hueco. -1 oculta la píldora.
-  const activeBottomIndex = isMoreActive
-    ? bottomItems.length
-    : bottomItems.findIndex((i) => isNavItemActive(i.path));
+    path === '/'
+      ? location.pathname === '/' || /^\/(hub|study)(\/|$)/.test(location.pathname)
+      : location.pathname.startsWith(path);
+  // Índice de la pestaña resaltada. -1 oculta la píldora.
+  const activeBottomIndex = bottomItems.findIndex((i) => isNavItemActive(i.path));
   const pageTitle = location.pathname.startsWith('/add')
     ? 'Añadir tarjeta'
     : navItems.find((item) => item.path === location.pathname)?.label;
@@ -182,74 +197,46 @@ export default function Layout() {
         onClick={closeSidebar}
       />
 
-      <div className="app-container">
+      <div className="app-container has-rail">
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebar-header">
+            <p className="sidebar-mono brand text-3xl" aria-hidden="true">
+              <span className="text-[var(--accent-primary)]">L</span>
+              <span className="text-foreground">D</span>
+            </p>
             <div className="sidebar-brand-container flex items-center">
               <div className="brand text-3xl m-0">
                 <span className="text-[var(--accent-primary)]">Loop</span>
                 <span className="text-foreground">Deck</span>
               </div>
             </div>
+            <ThemeToggle />
           </div>
-          <nav className="sidebar-nav">
-            {navItems.map((item) => {
-              const isActive =
-                item.path === '/'
-                  ? location.pathname === '/'
-                  : location.pathname.startsWith(item.path);
-              return (
-                <button
-                  key={item.path}
-                  type="button"
-                  className={`nav-item ${isActive ? 'active' : ''}`}
-                  aria-current={isActive ? 'page' : undefined}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeSidebar();
-                    if (location.pathname !== item.path) navigate(item.path);
-                  }}
-                >
-                  <span className="nav-icon">{item.icon}</span>
-                  {item.label}
-                </button>
-              );
-            })}
-
-            {(deferredPrompt || showIosInstall) && (
-              <button type="button" className="nav-item" onClick={handleInstallClick}>
-                <span className="nav-icon">
-                  <Download className="w-5 h-5" />
-                </span>
-                Instalar App
-              </button>
-            )}
-
-            <button
-              type="button"
-              className="nav-item text-destructive hover:bg-destructive/10"
-              onClick={logout}
-            >
+          <nav className="sidebar-nav" aria-label="Secciones">
+            {navItems.filter((i) => !footNavPaths.includes(i.path)).map(renderNavItem)}
+          </nav>
+          <div className="sidebar-foot">
+            {navItems.filter((i) => footNavPaths.includes(i.path)).map(renderNavItem)}
+            <button type="button" className="nav-item text-destructive" onClick={logout}>
               <span className="nav-icon">
                 <LogOut className="w-5 h-5" />
               </span>
-              Cerrar sesión
+              <span className="nav-label">Cerrar sesión</span>
             </button>
-          </nav>
-          <p className="sidebar-note">
-            Tu colección.
-            <br />
-            Un repaso cada día.
-          </p>
+          </div>
         </aside>
 
         <main className={`main-content ${isStudyPage ? 'study-mode' : ''}`}>
           {DEMO && !EMBED && !isStudyPage && (
             <p className="demo-banner" role="status">
-              <strong>Modo demo.</strong> Datos ficticios: los cambios se pierden al recargar.{' '}
+              <span>
+                <strong>Modo demo.</strong>{' '}
+                <span className="demo-banner__long">
+                  Datos ficticios: los cambios se pierden al recargar.
+                </span>
+              </span>{' '}
               <a href="/" data-reload>
-                Salir y crear una cuenta
+                Salir<span className="demo-banner__long"> y crear una cuenta</span>
               </a>
             </p>
           )}
@@ -259,6 +246,7 @@ export default function Layout() {
                 <span>Loop</span>
                 <span>Deck</span>
               </div>
+              <ThemeToggle />
               <div className="mobile-account" ref={accountMenuRef}>
                 <button
                   type="button"
@@ -283,12 +271,38 @@ export default function Layout() {
                       className="account-menu-item"
                       onClick={() => {
                         setAccountMenuOpen(false);
+                        if (location.pathname !== '/templates') navigate('/templates');
+                      }}
+                    >
+                      <LayoutTemplate className="w-4 h-4" aria-hidden="true" />
+                      Plantillas
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="account-menu-item"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
                         if (location.pathname !== '/settings') navigate('/settings');
                       }}
                     >
                       <Settings className="w-4 h-4" aria-hidden="true" />
                       Configuración
                     </button>
+                    {(deferredPrompt || showIosInstall) && (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className="account-menu-item"
+                        onClick={() => {
+                          setAccountMenuOpen(false);
+                          void handleInstallClick();
+                        }}
+                      >
+                        <Download className="w-4 h-4" aria-hidden="true" />
+                        Instalar app
+                      </button>
+                    )}
                     <button
                       type="button"
                       role="menuitem"
@@ -306,9 +320,17 @@ export default function Layout() {
               </div>
             </header>
           )}
-          <div className={`main-content-inner ${isSheetOverview ? 'sheet-canvas' : 'paper-panel'}`}>
-            {pageTitle && !isSheetOverview && (
-              <header className="page-heading">
+          <div
+            className={`main-content-inner ${
+              isSheetOverview
+                ? 'sheet-canvas'
+                : isOpenPage && pageTitle
+                  ? 'sheet-canvas page-canvas'
+                  : 'paper-panel'
+            }`}
+          >
+            {pageTitle && isOpenPage && (
+              <header className="canvas-heading">
                 <h1>{pageTitle}</h1>
               </header>
             )}
@@ -338,7 +360,7 @@ export default function Layout() {
           aria-label="Navegación inferior"
           style={
             {
-              '--nav-count': bottomItems.length + 1,
+              '--nav-count': bottomItems.length,
               '--nav-active': Math.max(activeBottomIndex, 0),
             } as CSSProperties
           }
@@ -358,7 +380,6 @@ export default function Layout() {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setMoreMenuOpen(false);
                   if (location.pathname !== item.path) navigate(item.path);
                 }}
                 aria-label={item.label}
@@ -371,63 +392,7 @@ export default function Layout() {
               </button>
             );
           })}
-          <button
-            type="button"
-            className={`mobile-bottom-item ${isMoreActive ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setMoreMenuOpen(!moreMenuOpen);
-            }}
-            aria-label="Más opciones"
-            aria-expanded={moreMenuOpen}
-            aria-haspopup="dialog"
-            title="Más opciones"
-          >
-            <span className="mobile-bottom-icon" aria-hidden="true">
-              <Menu className="w-5 h-5" />
-            </span>
-          </button>
         </nav>
-      )}
-
-      {moreMenuOpen && !isStudyPage && (
-        <BottomSheet isOpen={moreMenuOpen} onClose={() => setMoreMenuOpen(false)} title="Menú">
-          <div className="bottom-sheet-grid">
-            {navItems
-              .filter((i) => moreMenuPaths.includes(i.path))
-              .map((item) => (
-                <button
-                  key={item.path}
-                  type="button"
-                  className={`bottom-sheet-item ${location.pathname.startsWith(item.path) ? 'active' : ''}`}
-                  onClick={() => {
-                    setMoreMenuOpen(false);
-                    navigate(item.path);
-                  }}
-                >
-                  <span className="bottom-sheet-item-icon">{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
-
-            {(deferredPrompt || showIosInstall) && (
-              <button
-                type="button"
-                className="bottom-sheet-item"
-                onClick={() => {
-                  setMoreMenuOpen(false);
-                  handleInstallClick();
-                }}
-              >
-                <span className="bottom-sheet-item-icon">
-                  <Download className="w-5 h-5" />
-                </span>
-                <span>Instalar App</span>
-              </button>
-            )}
-          </div>
-        </BottomSheet>
       )}
     </div>
   );

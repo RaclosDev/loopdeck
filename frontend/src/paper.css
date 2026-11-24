@@ -92,7 +92,10 @@ textarea::placeholder {
 }
 .page-heading p,
 .marker-ink {
-  font-family: 'Permanent Marker', cursive;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.45;
   color: #0b5f74;
   margin-top: 8px;
 }
@@ -114,22 +117,46 @@ textarea::placeholder {
   min-height: 48px;
   border-radius: 3px;
 }
+/* Como las hojas en oscuro: marco de tinta y sombra clara, para que la sección activa resalte. */
 .sidebar .nav-item.active {
-  border: 1px solid #fffdf7;
-  box-shadow: 2px 3px 0 #0003;
+  border: 2px solid #111827;
+  box-shadow: 3px 4px 0 #f3ecdc4d;
+  font-weight: 700;
+}
+.sidebar .nav-item.active .nav-icon {
+  color: #0b5f74;
 }
 .sidebar .nav-item.text-destructive {
   color: #fca5a5;
 }
-.sidebar .nav-item.text-destructive:hover {
-  color: #991b1b;
+/* Rótulos del menú con la misma letra de cartel que los títulos y los botones. */
+.sidebar .nav-label {
+  font:
+    400 1.02rem/1 'Anton',
+    'Arial Narrow',
+    sans-serif;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
 }
-.sidebar-note {
-  padding: 24px;
-  margin-top: auto;
-  color: #ddd8ce;
-  font-size: 0.8rem;
-  line-height: 1.7;
+/* En oscuro, pasar por encima solo insinúa la fila; el recuadro de papel queda para la activa. */
+body:not(.light-mode) .sidebar .nav-item:not(.active):hover {
+  background: #f3ecdc1f;
+  color: #fffdf7;
+}
+body:not(.light-mode) .sidebar .nav-item.text-destructive:hover {
+  background: #fca5a51f;
+  color: #fca5a5;
+}
+/* Pie del menú: lo que se toca de tarde en tarde y la salida, separados por una raya. */
+.sidebar-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-top: 2px solid #ffffff26;
+}
+body.light-mode .sidebar-foot {
+  border-top-color: var(--app-ink);
 }
 body.light-mode .nav-item {
   color: var(--ink);
@@ -142,9 +169,6 @@ body.light-mode .mobile-top-bar {
 }
 body.light-mode .mobile-avatar-btn {
   border-color: var(--ink);
-}
-body.light-mode .sidebar-note {
-  color: #48505c;
 }
 body.light-mode .sidebar .nav-item.text-destructive {
   color: #991b1b;
@@ -195,7 +219,7 @@ body.light-mode .sidebar .nav-item.text-destructive {
   margin-bottom: 24px;
 }
 .paper-tabs button {
-  flex: 1;
+  flex: 1 0 auto;
   min-height: 46px;
   padding: 10px;
   border: 1px solid var(--border-medium);
@@ -204,6 +228,7 @@ body.light-mode .sidebar .nav-item.text-destructive {
   background: transparent;
   color: var(--text-secondary);
   font-weight: 600;
+  white-space: nowrap;
 }
 .paper-tabs button[aria-pressed='true'] {
   background: var(--ink);

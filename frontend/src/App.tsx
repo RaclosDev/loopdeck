@@ -1,3 +1,4 @@
+import { getTheme } from './utils/theme';
 import { loadStudy } from './lib/studyQuery';
 import { useEffect, useState, lazy, Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -11,7 +12,6 @@ import { DEMO } from './demo/mode';
 import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
-const GlobalStudy = lazy(() => import('./pages/GlobalStudy'));
 const Study = lazy(loadStudy);
 const StudyHub = lazy(() => import('./pages/StudyHub'));
 const StudyGuide = lazy(() => import('./pages/StudyGuide'));
@@ -193,7 +193,7 @@ function AppContent({
           }
         >
           <Route index element={<Dashboard />} />
-          <Route path="hub" element={<GlobalStudy />} />
+          <Route path="hub" element={<Navigate to="/" replace />} />
           <Route path="study/:deckId" element={<Study />} />
           <Route path="hub/:deckId" element={<StudyHub />} />
           <Route path="hub/:deckId/guide" element={<StudyGuide />} />
@@ -216,7 +216,7 @@ function AppContent({
 
 export default function App() {
   useEffect(() => {
-    const savedTheme = localStorage.getItem('loopdeck_theme') || 'light';
+    const savedTheme = getTheme();
     document.body.classList.remove('dark-mode', 'light-mode');
     document.body.classList.add(savedTheme === 'light' ? 'light-mode' : 'dark-mode');
 

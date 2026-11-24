@@ -75,9 +75,9 @@
   /* Aliases & Complementary Tokens */
   --bg-base: var(--bg-primary);
   --accent-hover: var(--accent-primary-dark);
-  --srs-new: #0b5f74;
-  --srs-learning: #87500b;
-  --srs-review: #166544;
+  --srs-new: #2347b5;
+  --srs-learning: #b93a0a;
+  --srs-review: #137a39;
   --shadow-elevated: 0 10px 40px rgba(0, 0, 0, 0.6);
   --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
   --backdrop-blur: none;
@@ -413,7 +413,43 @@ textarea,
 
 .mobile-account {
   position: relative;
+}
+
+/* Sol o luna: el mismo botón en la barra lateral y en la cabecera del móvil. */
+.theme-toggle-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
   margin-left: auto;
+  padding: 0;
+  border: 1px solid #ddd8ce4d;
+  border-radius: 50%;
+  background: none;
+  color: #ddd8ce;
+  cursor: pointer;
+}
+body.light-mode .theme-toggle-btn {
+  border-color: #11182733;
+  color: #111827;
+}
+.theme-toggle-btn:hover {
+  border-color: currentColor;
+}
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.mobile-top-bar .theme-toggle-btn {
+  width: 44px;
+  height: 44px;
+  border: 0;
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .mobile-avatar-btn {
@@ -424,7 +460,7 @@ textarea,
   padding: 0;
   overflow: hidden;
   border: 2px solid var(--paper);
-  border-radius: 4px;
+  border-radius: 50%;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-display);
@@ -1207,6 +1243,33 @@ textarea,
   color: inherit;
   font-weight: 600;
   text-decoration: underline;
+}
+
+/* En el móvil el aviso cabe en una línea: fuera el detalle, enlaces cortos. */
+.demo-banner__short {
+  display: none;
+}
+@media (max-width: 640px) {
+  .demo-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+  .demo-banner__long {
+    display: none;
+  }
+  .demo-banner__short {
+    display: inline;
+  }
+}
+@media (max-width: 640px) {
+  .demo-banner {
+    margin-bottom: 0.5rem;
+  }
 }
 
 /* ==========================================================================

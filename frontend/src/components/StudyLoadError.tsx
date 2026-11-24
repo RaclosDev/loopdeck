@@ -16,7 +16,7 @@ export default function StudyLoadError({
       <button className="sheet-action" onClick={onRetry}>
         Reintentar
       </button>
-      <Link className="sheet-action" to={returnTo ?? (deckId ? `/hub/${deckId}` : '/hub')}>
+      <Link className="sheet-action" to={returnTo ?? (deckId ? `/hub/${deckId}` : '/')}>
         {returnTo === '/' ? 'Volver a Mazos' : 'Volver al mazo'}
       </Link>
     </div>

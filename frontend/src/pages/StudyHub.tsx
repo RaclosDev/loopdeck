@@ -129,8 +129,8 @@ function StudyHub() {
 
   return (
     <div className="fade-in study-canvas-page">
-      <Link className="canvas-back" to="/hub">
-        <ArrowLeft size={17} aria-hidden="true" /> Centro de estudio
+      <Link className="canvas-back" to="/">
+        <ArrowLeft size={17} aria-hidden="true" /> Mis mazos
       </Link>
       <header className="canvas-heading">
         <div>
@@ -158,7 +158,7 @@ function StudyHub() {
             </span>
           )}
         </div>
-        <StudyCounts stats={stats} compact />
+        <StudyCounts stats={stats} />
         <div className="deck-document-action">
           <FileText size={18} aria-hidden="true" />
           <span>Apuntes del mazo</span>

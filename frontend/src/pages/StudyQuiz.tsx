@@ -154,7 +154,7 @@ function StudyQuiz() {
           Has acertado <strong>{score}</strong> de {notes.length}
         </p>
         <button className="btn btn-primary" onClick={() => navigate(`/hub/${deckId}`)}>
-          Volver al Centro de Estudio
+          Volver al mazo
         </button>
       </div>
     );

@@ -225,9 +225,16 @@ function StudyExplore() {
             fontSize: '0.85rem',
           }}
         >
-          Toca la tarjeta o pulsa <kbd>Espacio</kbd> para girar
-          <br />
-          Usa <kbd>Flecha Izquierda</kbd> y <kbd>Flecha Derecha</kbd> para navegar
+          Toca la tarjeta
+          <span className="kbd-hint">
+            {' '}
+            o pulsa <kbd>Espacio</kbd>
+          </span>{' '}
+          para girar
+          <span className="kbd-hint">
+            <br />
+            Usa <kbd>Flecha Izquierda</kbd> y <kbd>Flecha Derecha</kbd> para navegar
+          </span>
         </div>
       </div>
     </div>

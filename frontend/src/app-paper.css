@@ -138,7 +138,7 @@ body.light-mode .demo-banner {
   box-shadow: var(--app-shadow);
 }
 body.dark-mode .flashcard-face {
-  box-shadow: 6px 8px 0 rgba(0, 0, 0, 0.45);
+  box-shadow: 4px 5px 0 #f3ecdc4d;
 }
 
 /* ---------- Movimiento ---------- */
