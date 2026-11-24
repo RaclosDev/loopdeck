@@ -1,16 +1,15 @@
 import { useSyncExternalStore } from 'react';
-import { DEMO } from '../demo/mode';
 
 export type Theme = 'dark' | 'light';
 
 const KEY = 'loopdeck_theme';
 const EVENT = 'loopdeck:theme';
 
-/** Sin elección guardada: papel claro en la app y pizarra oscura en la demo. */
+/** Sin elección guardada: papel claro, también en la demo. */
 export function getTheme(): Theme {
   const saved = localStorage.getItem(KEY);
   if (saved === 'dark' || saved === 'light') return saved;
-  return DEMO ? 'dark' : 'light';
+  return 'light';
 }
 
 export function setTheme(theme: Theme) {
