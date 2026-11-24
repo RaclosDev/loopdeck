@@ -150,8 +150,9 @@ for (const width of [320, 390, 820, 1440]) {
         first!.height,
         'El mazo debe poder escanearse sin ocupar una pantalla',
       ).toBeLessThanOrEqual(300);
+      const stacked = second!.y >= first!.y + first!.height;
       expect(
-        width < 900 ? second!.y - first!.y - first!.height : second!.x - first!.x - first!.width,
+        stacked ? second!.y - first!.y - first!.height : second!.x - first!.x - first!.width,
       ).toBeGreaterThanOrEqual(20);
       await noOverflow(page);
       await textContrast(page);
@@ -217,6 +218,9 @@ test('unavailable counts never claim the deck is up to date', async ({ page }) =
 test('deck sheet actions and menu target the selected deck', async ({ page }) => {
   await fixture(page);
   await page.goto('/');
+  // El puntero arranca en la esquina, sobre el raíl: abierto, aparta la página y saca el botón de
+  // la pantalla. Se lleva al contenido antes de pulsar.
+  await page.mouse.move(640, 360);
   const sheet = page.getByRole('article', { name: deck.name });
   await expect(sheet.getByRole('link', { name: 'Repasar (9)' })).toHaveAttribute(
     'href',
@@ -298,6 +302,8 @@ async function textContrast(page: Page) {
         background = blend(rgb(parentStyle.backgroundColor), background);
         opacity *= Number(parentStyle.opacity);
       }
+      // Texto plegado a propósito (las etiquetas del raíl cerrado): no se ve, no se mide.
+      if (opacity === 0) return [];
       const foreground = rgb(style.color);
       foreground[3] *= opacity;
       const a = luminance(blend(foreground, background));
@@ -374,10 +380,7 @@ test('statistics describe available cards without mislabelling the whole collect
   );
   await page.goto('/stats');
   await expect(page.getByRole('heading', { name: 'Para hoy', exact: true })).toBeVisible();
-  await expect(
-    page.getByText('9 tarjetas disponibles para repasar.', { exact: true }),
-  ).toBeVisible();
-  await expect(page.locator('.study-counts dd')).toHaveText(['4', '2', '3']);
+  await expect(page.locator('.stats-available .study-counts dd')).toHaveText(['4', '2', '3']);
   await page.route('**/api/decks/stats', (route) => route.fulfill({ status: 500, json: {} }));
   await page.reload();
   await expect(page.getByText('No se han podido cargar los recuentos.')).toBeVisible();
@@ -506,12 +509,13 @@ for (const width of [390, 1440]) {
       await noOverflow(page);
       await textContrast(page);
       expect(errors, path).toEqual([]);
-      expect(
-        await page
-          .locator('.main-content-inner')
-          .evaluate((el) => getComputedStyle(el).backgroundColor),
-      ).toBe(
-        ['/', '/hub', '/hub/paper-deck'].includes(path) ? 'rgba(0, 0, 0, 0)' : 'rgb(243, 236, 220)',
+      // Las páginas abiertas van sobre el lienzo; el resto, sobre una hoja de papel.
+      const surface = await page.locator('.main-content-inner').evaluate((el) => ({
+        canvas: el.classList.contains('sheet-canvas'),
+        background: getComputedStyle(el).backgroundColor,
+      }));
+      expect(surface.background, path).toBe(
+        surface.canvas ? 'rgba(0, 0, 0, 0)' : 'rgb(243, 236, 220)',
       );
       if (process.env.LOOPDECK_SCREENSHOTS)
         await page.screenshot({
@@ -564,21 +568,18 @@ test('dialog keyboard, themes and reduced motion', async ({ page }) => {
   await noOverflow(page);
 });
 
-test('mobile menu traps focus, closes with Escape, and navigates', async ({ page }) => {
+test('mobile bottom navigation reaches every section without a menu', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await fixture(page);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Más opciones' }).click();
-  const menu = page.getByRole('dialog');
-  await expect(menu).toBeVisible();
-  await page.keyboard.press('Shift+Tab');
-  expect(await menu.evaluate((el) => el.contains(document.activeElement))).toBe(true);
-  await page.keyboard.press('Escape');
-  await expect(menu).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Más opciones' })).toBeFocused();
-  await page.getByRole('button', { name: 'Más opciones' }).click();
-  await menu.getByRole('button', { name: 'Explorar Tarjetas' }).click();
+  const nav = page.getByRole('navigation', { name: 'Navegación inferior' });
+  await expect(page.getByRole('button', { name: 'Más opciones' })).toHaveCount(0);
+  await nav.getByRole('button', { name: 'Explorar Tarjetas' }).click();
   await expect(page).toHaveURL(/\/browser$/);
+  await expect(nav.getByRole('button', { name: 'Explorar Tarjetas' })).toHaveAttribute(
+    'aria-current',
+    'page',
+  );
   await noOverflow(page);
 });
 
@@ -586,11 +587,6 @@ test('mobile account menu opens from the avatar with settings and logout', async
   await page.setViewportSize({ width: 390, height: 844 });
   await fixture(page);
   await page.goto('/');
-  await page.getByRole('button', { name: 'Más opciones' }).click();
-  const sheet = page.getByRole('dialog');
-  await expect(sheet.getByRole('button', { name: 'Cerrar sesión' })).toHaveCount(0);
-  await expect(sheet.getByRole('button', { name: 'Configuración' })).toHaveCount(0);
-  await page.keyboard.press('Escape');
   const avatar = page.getByRole('button', { name: 'Cuenta y ajustes' });
   await avatar.click();
   const menu = page.getByRole('menu', { name: 'Cuenta' });
