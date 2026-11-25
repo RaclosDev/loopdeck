@@ -30,7 +30,7 @@ class SecurityConfigTest {
         for (String path : new String[] { "/demo", "/demo/mazos/3" }) {
             var response = framingHeaders(path);
             assertTrue(response.getHeader("Content-Security-Policy")
-                .endsWith("frame-ancestors 'self' https://raclosdev.github.io"), path);
+                .endsWith("frame-ancestors 'self' https://portfolio.raclos.es"), path);
             assertNull(response.getHeader("X-Frame-Options"), path);
         }
         for (String path : new String[] { "/", "/login", "/demos", "/demo-x", "/api/demo", "/api/decks" }) {
