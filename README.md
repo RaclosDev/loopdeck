@@ -100,6 +100,6 @@ Continúa con la [configuración paso a paso](CONTRIBUTING.md#configuración): v
 
 ## Autor y licencia
 
-[Carlos Sanz Tomero · RaclosDev](https://github.com/RaclosDev) · [Portfolio](https://raclosdev.github.io/) · [LinkedIn](https://www.linkedin.com/in/carlos-sanz-tomero/)
+[Carlos Sanz Tomero · RaclosDev](https://github.com/RaclosDev) · [Portfolio](https://portfolio.raclos.es/) · [LinkedIn](https://www.linkedin.com/in/carlos-sanz-tomero/)
 
 Código disponible bajo [licencia MIT](LICENSE).
