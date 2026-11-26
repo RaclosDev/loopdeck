@@ -113,7 +113,7 @@
   font-size: 1.15rem;
   line-height: 1.4;
   margin: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .main-content.study-mode {
   padding: calc(16px + var(--safe-top)) max(16px, var(--safe-right)) calc(16px + var(--safe-bottom))
