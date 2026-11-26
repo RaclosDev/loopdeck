@@ -304,13 +304,24 @@ export default function Study() {
       <div
         style={{
           display: 'flex',
+          flexWrap: 'wrap',
+          rowGap: '0.5rem',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: reading ? '0.25rem' : '1.5rem',
           padding: '0 0.5rem',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        {/* Con base propia el título baja los contadores a otra línea en vez de partirse letra a letra. */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            flex: '1 1 10rem',
+            minWidth: 0,
+          }}
+        >
           <button
             onClick={() => navigate(returnTo)}
             aria-label={returnLabel}
@@ -339,7 +350,15 @@ export default function Study() {
             )}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', fontSize: '0.8rem', fontWeight: 700 }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            marginLeft: 'auto',
+            fontSize: '0.8rem',
+            fontWeight: 700,
+          }}
+        >
           <div
             aria-label={`Nuevas: ${counts.new}`}
             className="px-2 py-0.5 rounded-full border"

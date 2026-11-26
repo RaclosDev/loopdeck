@@ -368,8 +368,9 @@ body.light-mode .sidebar .nav-item.text-destructive {
 .main-content-inner pre {
   overflow: auto;
 }
+/* break-word y no anywhere: anywhere deja el ancho mínimo en una letra y en las filas flex las palabras cortas salían partidas. */
 .main-content-inner {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .main-content-inner > * {
   min-width: 0;
