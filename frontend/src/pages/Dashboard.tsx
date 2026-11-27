@@ -1,5 +1,5 @@
 import toast from 'react-hot-toast';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import DeckSheet, { DeckSheetsLoading } from '../components/DeckSheet';
 import { CountsNotice, pendingCards } from '../components/StudyCounts';
@@ -47,7 +47,21 @@ export default function Dashboard() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [modalInputValue, setModalInputValue] = useState('');
 
-  const confirmDelete = async () => {
+  // Un doble clic o un Intro repetido no debe lanzar la misma operación dos veces: el botón se
+  // deshabilita al renderizar, pero antes de eso la segunda llamada ya está en marcha.
+  const working = useRef(false);
+  const busy = createMutation.isPending || deleteMutation.isPending || updateMutation.isPending;
+  const once = (action: () => Promise<void>) => async () => {
+    if (working.current) return;
+    working.current = true;
+    try {
+      await action();
+    } finally {
+      working.current = false;
+    }
+  };
+
+  const confirmDelete = once(async () => {
     if (!deleteModalDeck) return;
     try {
       await deleteMutation.mutateAsync(deleteModalDeck.id);
@@ -57,9 +71,9 @@ export default function Dashboard() {
     } finally {
       setDeleteModalDeck(null);
     }
-  };
+  });
 
-  const confirmEdit = async () => {
+  const confirmEdit = once(async () => {
     if (
       !editModalDeck ||
       !modalInputValue.trim() ||
@@ -79,9 +93,9 @@ export default function Dashboard() {
     } finally {
       setEditModalDeck(null);
     }
-  };
+  });
 
-  const confirmCreate = async () => {
+  const confirmCreate = once(async () => {
     if (!modalInputValue.trim()) {
       setCreateModalOpen(false);
       return;
@@ -95,7 +109,7 @@ export default function Dashboard() {
       setCreateModalOpen(false);
       setModalInputValue('');
     }
-  };
+  });
 
   // El repaso empieza por el mazo con más tarjetas pendientes.
   const nextDeck = errorStats
@@ -284,7 +298,12 @@ export default function Dashboard() {
             <Button variant="secondary" className="flex-1" onClick={() => setDeleteModalDeck(null)}>
               Cancelar
             </Button>
-            <Button variant="destructive" className="flex-1" onClick={confirmDelete}>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={confirmDelete}
+              disabled={busy}
+            >
               Eliminar
             </Button>
           </DialogFooter>
@@ -309,7 +328,7 @@ export default function Dashboard() {
             <Button variant="secondary" className="flex-1" onClick={() => setEditModalDeck(null)}>
               Cancelar
             </Button>
-            <Button className="flex-1" onClick={confirmEdit}>
+            <Button className="flex-1" onClick={confirmEdit} disabled={busy}>
               Guardar
             </Button>
           </DialogFooter>
@@ -339,7 +358,7 @@ export default function Dashboard() {
             >
               Cancelar
             </Button>
-            <Button className="flex-1" onClick={confirmCreate}>
+            <Button className="flex-1" onClick={confirmCreate} disabled={busy}>
               Crear
             </Button>
           </DialogFooter>

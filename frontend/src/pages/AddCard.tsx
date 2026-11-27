@@ -2,7 +2,7 @@ import { createImportJob, saveImportJob, type ImportJob } from '../services/note
 import { useQueryClient } from '@tanstack/react-query';
 import { invalidateStudyData } from '../lib/queryInvalidation';
 import toast from 'react-hot-toast';
-import { useState, useEffect, useRef, KeyboardEvent } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef, KeyboardEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { notesApi, aiApi } from '../services/api';
 import { handleImagePaste, compressImageFromPaste } from '../utils/imageUtils';
@@ -14,6 +14,15 @@ import { BookA, Info, ListPlus, Image, Folder, Search, X } from 'lucide-react';
 import { formatTermHeading, htmlToText } from '../lib/utils';
 import { SelectMenu } from '../components/ui/select-menu';
 import FlashCard from '../components/FlashCard';
+import { Button } from '../components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog';
 
 const NOTE_TYPES = [
   { id: 'basic', name: 'Básica', description: 'Una tarjeta: ves el frente y respondes el dorso.' },
@@ -59,6 +68,12 @@ export default function AddCard() {
   );
 
   const [lookingUpDef, setLookingUpDef] = useState<boolean>(false);
+  /** Definición ya encontrada que sustituiría un dorso con contenido: espera a que el usuario lo confirme. */
+  const [pendingDefinition, setPendingDefinition] = useState<{
+    definition: string;
+    backHtml: string;
+  } | null>(null);
+  const addInFlight = useRef(false);
 
   /** `auto` crea una tarjeta de imagen: la foto elegida al frente y el término detrás. */
   const [imageSearchModalInfo, setImageSearchModalInfo] = useState<{
@@ -76,6 +91,15 @@ export default function AddCard() {
     if (decks.length > 0 && !decks.some((deck) => deck.id === selectedDeckId))
       setSelectedDeckId(decks[0].id);
   }, [decks, selectedDeckId]);
+
+  // Los editores son divs editables que se rellenan a mano: al desmontarse (modo «En masa») o
+  // volver a montarse hay que repintar lo que sigue en el estado, o se guardaría un contenido que
+  // el usuario no ve.
+  useLayoutEffect(() => {
+    if (addMode !== 'single') return;
+    if (frontContentRef.current) frontContentRef.current.innerHTML = fields.front;
+    if (backContentRef.current) backContentRef.current.innerHTML = fields.back;
+  }, [addMode, loadingDecks, errorDecks, decks.length === 0]);
 
   const clearEditor = () => {
     setFields({ front: '', back: '' });
@@ -211,6 +235,18 @@ export default function AddCard() {
     }));
   };
 
+  const applyDefinition = (definition: string, backHtml: string) => {
+    // La definición es texto: se inserta como tal para no interpretar HTML ajeno.
+    const front = frontContentRef.current;
+    if (front) front.textContent = definition;
+    if (backContentRef.current) backContentRef.current.innerHTML = backHtml;
+    setFields((prev) => ({
+      ...prev,
+      front: front?.innerHTML ?? definition,
+      back: backHtml,
+    }));
+  };
+
   const handleDefinition = async () => {
     const term = htmlToText(fields.front || '').trim();
     if (!term) return toast.error('Escribe un término en el frente primero');
@@ -221,16 +257,13 @@ export default function AddCard() {
         toast.error(`No he encontrado una definición para «${term}»`);
         return;
       }
-      // La definición es texto: se inserta como tal para no interpretar HTML ajeno.
-      const front = frontContentRef.current;
       const backHtml = formatTermHeading(fields.front);
-      if (front) front.textContent = def.definition;
-      if (backContentRef.current) backContentRef.current.innerHTML = backHtml;
-      setFields((prev) => ({
-        ...prev,
-        front: front?.innerHTML ?? def.definition,
-        back: backHtml,
-      }));
+      // El dorso se sustituye: si ya tenía algo escrito, antes se pregunta.
+      if (htmlToText(fields.back || '').trim() || /<img/i.test(fields.back)) {
+        setPendingDefinition({ definition: def.definition, backHtml });
+        return;
+      }
+      applyDefinition(def.definition, backHtml);
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Error buscando definicion');
     } finally {
@@ -245,10 +278,13 @@ export default function AddCard() {
   };
 
   const handleAdd = async (closeAfter: boolean) => {
+    // Ctrl+Intro repetido o un doble clic llegan antes de que `saving` deshabilite nada.
+    if (addInFlight.current) return;
     if (!selectedDeckId) return toast.error('Selecciona un mazo');
     if (!fields.front.trim() || !fields.back.trim())
       return toast.error('El frente y el dorso son obligatorios');
 
+    addInFlight.current = true;
     setSaving(true);
     try {
       const fieldsJson = JSON.stringify({ front: fields.front, back: fields.back });
@@ -265,6 +301,7 @@ export default function AddCard() {
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : 'Error al guardar');
     } finally {
+      addInFlight.current = false;
       setSaving(false);
     }
   };
@@ -763,6 +800,40 @@ export default function AddCard() {
           </div>
         </div>
       )}
+
+      <Dialog
+        open={pendingDefinition !== null}
+        onOpenChange={(open) => !open && setPendingDefinition(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>¿Sustituir el dorso?</DialogTitle>
+            <DialogDescription>
+              El dorso ya tiene contenido. Si usas la definición, el frente pasará a ser la
+              definición y el término ocupará el dorso: lo que hay escrito en el dorso se perderá.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="secondary"
+              className="flex-1"
+              onClick={() => setPendingDefinition(null)}
+            >
+              Conservar lo escrito
+            </Button>
+            <Button
+              className="flex-1"
+              onClick={() => {
+                if (pendingDefinition)
+                  applyDefinition(pendingDefinition.definition, pendingDefinition.backHtml);
+                setPendingDefinition(null);
+              }}
+            >
+              Sustituir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {imageSearchModalInfo && (
         <ImageSearchModal
