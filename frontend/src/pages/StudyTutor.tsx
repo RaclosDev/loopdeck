@@ -1,3 +1,4 @@
+import { limitTutorContext } from '../lib/tutorContext';
 import { parseNoteFields } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
@@ -60,12 +61,8 @@ function StudyTutor() {
           context += `Pregunta: ${front}\nRespuesta: ${back}\n\n`;
         });
 
-        // Limit context size just in case (Gemini handles 1M tokens, but we shouldn't send megabytes of text)
-        if (context.length > 50000) {
-          context = context.substring(0, 50000) + '... (contexto truncado)';
-        }
-
-        setContextString(context);
+        // El backend rechaza más de 50.000 caracteres: el recorte cuenta también el aviso final.
+        setContextString(limitTutorContext(context));
       } catch {
         setLoadError(true);
       } finally {

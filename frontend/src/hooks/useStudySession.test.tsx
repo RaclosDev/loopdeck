@@ -3,6 +3,7 @@ import { studyBatchOptions } from '../lib/studyQuery';
 import { invalidateStudyData } from '../lib/queryInvalidation';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AxiosError, type AxiosResponse } from 'axios';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { studyApi } from '../services/api';
 import { useStudySession } from './useStudySession';
@@ -352,4 +353,107 @@ it('does not complete from an empty preview that still reports pending cards', a
   await waitFor(() => expect(result.current.loading).toBe(false));
   expect(result.current.isComplete).toBe(false);
   expect(result.current.queue).toHaveLength(1);
+});
+
+const conflict = () =>
+  new AxiosError('conflict', 'ERR_BAD_REQUEST', undefined, undefined, {
+    status: 409,
+  } as AxiosResponse);
+
+it('sends the repetitions of the card shown as expectedReps', async () => {
+  const seen = { ...pair, card: { ...pair.card, repetitions: 4 } };
+  vi.mocked(studyApi.getBatch)
+    .mockResolvedValueOnce(batch([seen]))
+    .mockResolvedValue(batch([]));
+  vi.mocked(studyApi.reviewCard).mockResolvedValue({ card: seen.card, reviewId: 'action' });
+  const { result } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(3));
+  expect(studyApi.reviewCard).toHaveBeenCalledWith(
+    'one',
+    expect.objectContaining({ rating: 3, expectedReps: 4 }),
+  );
+});
+
+it('drops a review rejected with 409 and carries on with the next card without retrying', async () => {
+  const second = { ...pair, card: { ...pair.card, id: 'two' } };
+  vi.mocked(studyApi.getBatch)
+    .mockResolvedValueOnce(batch([pair, second]))
+    .mockResolvedValue(batch([]));
+  vi.mocked(studyApi.reviewCard)
+    .mockRejectedValueOnce(conflict())
+    .mockResolvedValue({ card: second.card, reviewId: 'second' });
+  const { result } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(3));
+  expect(result.current.saveError).toBe(false);
+  expect(result.current.queue.map((item) => item.card.id)).toEqual(['two']);
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(3));
+  const calls = vi.mocked(studyApi.reviewCard).mock.calls.map((call) => call[0]);
+  expect(calls).toEqual(['one', 'two']);
+  expect(result.current.sessionStats.reviewed).toBe(1);
+  expect(result.current.isComplete).toBe(true);
+});
+
+const failed = (due: Date) => ({
+  ...pair.card,
+  state: 'learning',
+  due: due.toISOString(),
+  repetitions: 1,
+});
+
+it('puts a failed card back in the queue as soon as its learning step is due', async () => {
+  const second = { ...pair, card: { ...pair.card, id: 'two' } };
+  const third = { ...pair, card: { ...pair.card, id: 'three' } };
+  vi.mocked(studyApi.getBatch)
+    .mockResolvedValueOnce(batch([pair, second, third]))
+    .mockResolvedValue(batch([second, third]));
+  vi.mocked(studyApi.reviewCard).mockResolvedValue({
+    card: failed(new Date(Date.now() - 1000)),
+    reviewId: 'action',
+  });
+  const { result } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(1));
+  await waitFor(() =>
+    expect(result.current.queue.map((item) => item.card.id)).toEqual(['two', 'one', 'three']),
+  );
+  expect(result.current.queue[1].card.state).toBe('learning');
+});
+
+it('waits for the learning step to be due and then requeues the failed card, even with nothing else left', async () => {
+  vi.mocked(studyApi.getBatch).mockResolvedValueOnce(batch()).mockResolvedValue(batch([]));
+  vi.mocked(studyApi.reviewCard).mockResolvedValue({
+    card: failed(new Date(Date.now() + 150)),
+    reviewId: 'action',
+  });
+  const { result } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(1));
+  expect(result.current.isComplete).toBe(true);
+  expect(result.current.queue).toHaveLength(0);
+  await waitFor(() => expect(result.current.queue.map((item) => item.card.id)).toEqual(['one']));
+  expect(result.current.isComplete).toBe(false);
+  expect(result.current.counts.learning).toBe(1);
+});
+
+it('does not requeue a card whose rating was undone or a card that graduated', async () => {
+  vi.mocked(studyApi.getBatch).mockResolvedValueOnce(batch()).mockResolvedValue(batch([]));
+  vi.mocked(studyApi.reviewCard).mockResolvedValue({
+    card: failed(new Date(Date.now() + 100)),
+    reviewId: 'action',
+  });
+  vi.mocked(studyApi.restoreCard).mockResolvedValue({ card: pair.card, alreadyUndone: true });
+  const { result } = session();
+  await waitFor(() => expect(result.current.loading).toBe(false));
+  act(() => result.current.handleFlip());
+  await act(() => result.current.handleRate(1));
+  await act(() => result.current.handleUndo());
+  await new Promise((resolve) => setTimeout(resolve, 250));
+  expect(result.current.queue).toHaveLength(0);
 });

@@ -79,6 +79,8 @@ export interface ReviewBody {
   timeTakenMs: number;
   requestId?: string;
   customIntervalMinutes?: number;
+  /** `repetitions` de la tarjeta que vio el usuario: si el servidor tiene otro valor, responde 409. */
+  expectedReps?: number;
 }
 
 // DTOs from CardService.DueCardDto

@@ -1,13 +1,13 @@
-import api from '../api/client';
 import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { googleLogout } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
-import { clearOfflineApiCache } from '../lib/offlineCache';
+import { adoptAccount } from '../lib/offlineCache';
+import { TOKEN_KEY, endLocalSession, revokeRefreshCookie } from '../lib/session';
 import { DEMO, DEMO_TOKEN } from '../demo/mode';
 
 // En el modo demo la sesión es ficticia y no se lee ni se escribe la del navegador.
-const storedToken = () => (DEMO ? DEMO_TOKEN : localStorage.getItem('loopdeck_jwt_token'));
+const storedToken = () => (DEMO ? DEMO_TOKEN : localStorage.getItem(TOKEN_KEY));
 
 export interface CustomJwtPayload extends JwtPayload {
   email?: string;
@@ -29,7 +29,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (jwtToken: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateToken: (newToken: string) => void;
   updateUser: (updates: Partial<User>) => void;
 }
@@ -43,13 +43,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const identity = useRef<string | undefined>(undefined);
 
-  const synchronizeIdentity = (jwtToken: string) => {
+  // Si la cuenta no es la misma que la última que usó este navegador, borra los datos de la
+  // anterior (React Query y caché sin conexión). Devuelve cuando la caché ya está limpia.
+  const synchronizeIdentity = async (jwtToken: string) => {
     const subject = jwtDecode<CustomJwtPayload>(jwtToken).sub;
-    if (identity.current !== undefined && identity.current !== subject) {
-      queryClient.clear();
-      void clearOfflineApiCache();
-    }
+    if (identity.current !== undefined && identity.current !== subject) queryClient.clear();
     identity.current = subject;
+    await adoptAccount(subject);
   };
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentToken) {
         try {
           const decoded = jwtDecode<CustomJwtPayload>(currentToken);
-          synchronizeIdentity(currentToken);
+          await synchronizeIdentity(currentToken);
           // Check if expired (with 10 seconds leeway)
           if (decoded.exp && decoded.exp * 1000 < Date.now() + 10000) {
             needsRefresh = true;
@@ -91,8 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await res.json();
             if (data.token) {
               currentToken = data.token;
-              synchronizeIdentity(currentToken!);
-              localStorage.setItem('loopdeck_jwt_token', currentToken!);
+              await synchronizeIdentity(currentToken!);
+              localStorage.setItem(TOKEN_KEY, currentToken!);
               setToken(currentToken);
 
               const decoded = jwtDecode<CustomJwtPayload>(currentToken!);
@@ -109,13 +109,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             throw new Error('Refresh failed');
           }
         } catch {
-          // Clean up if refresh failed
-          if (currentToken) {
-            localStorage.removeItem('loopdeck_jwt_token');
-            setToken(null);
-            setUser(null);
-            queryClient.clear();
-          }
+          // Sin sesión válida: fuera token, datos en memoria y caché sin conexión.
+          queryClient.clear();
+          identity.current = undefined;
+          setToken(null);
+          setUser(null);
+          await endLocalSession();
         }
       }
 
@@ -131,9 +130,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const handleTokenUpdate = () => {
-      const refreshed = localStorage.getItem('loopdeck_jwt_token');
+      const refreshed = localStorage.getItem(TOKEN_KEY);
       if (refreshed) {
-        synchronizeIdentity(refreshed);
+        void synchronizeIdentity(refreshed);
         setToken(refreshed);
       }
     };
@@ -162,39 +161,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = (jwtToken: string) => {
     queryClient.clear();
-    synchronizeIdentity(jwtToken);
-    localStorage.setItem('loopdeck_jwt_token', jwtToken);
+    void synchronizeIdentity(jwtToken);
+    localStorage.setItem(TOKEN_KEY, jwtToken);
     setToken(jwtToken);
   };
 
+  // Lo local se borra primero y sin esperar a la red: si la navegación corta lo que sigue, la
+  // sesión ya está cerrada en este navegador. Después se anula la cookie de refresco en el servidor.
   const logout = async () => {
     if (DEMO) {
       window.location.href = '/';
       return;
     }
-    setIsLoading(true);
-    queryClient.clear();
-    try {
-      await api.post('/auth/logout', undefined, { timeout: 10000 });
-    } catch {
-      // Ignore network errors during logout
-    }
-    localStorage.removeItem('loopdeck_jwt_token');
-    await clearOfflineApiCache();
+    const cleared = endLocalSession(); // quita el token ya, de forma síncrona
+    identity.current = undefined;
     setToken(null);
     setUser(null);
-    identity.current = undefined;
-    setIsLoading(false);
+    queryClient.clear();
+    await cleared;
     try {
       googleLogout();
     } catch {
       // Local authentication is already cleared if the Google SDK is unavailable.
     }
+    await revokeRefreshCookie();
   };
 
   const updateToken = (newToken: string) => {
-    synchronizeIdentity(newToken);
-    localStorage.setItem('loopdeck_jwt_token', newToken);
+    void synchronizeIdentity(newToken);
+    localStorage.setItem(TOKEN_KEY, newToken);
     setToken(newToken);
   };
 
