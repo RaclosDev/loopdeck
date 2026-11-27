@@ -53,7 +53,7 @@ describe('noteSides', () => {
   });
   it('builds the question and the answers of a cloze note for the chosen gap', () => {
     expect(noteSides(cloze, 1)).toEqual({
-      front: '[ciudad] está en España, [ciudad]',
+      front: '[ciudad] está en España, […]',
       back: 'Madrid, sí',
     });
     expect(noteSides(cloze, 2)).toEqual({ front: 'Madrid está en […], sí', back: 'España' });
