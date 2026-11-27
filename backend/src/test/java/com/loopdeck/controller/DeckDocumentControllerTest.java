@@ -41,6 +41,13 @@ class DeckDocumentControllerTest {
         verify(decks).verifyOwnership("owner", "deck");
     }
 
+    @Test void aDocumentThatExceedsTheAccountQuotaIsRejectedWithoutStoringIt() throws Exception {
+        when(documents.sumBytesByUserExcludingDeck("owner", "deck")).thenReturn(100L * 1024 * 1024 - 2);
+        var file = new MockMultipartFile("file", "apuntes.pdf", "application/pdf", new byte[]{1, 2, 3});
+        mvc.perform(multipart("/api/decks/deck/document").file(file).principal(user)).andExpect(status().isConflict());
+        verify(documents, never()).save(any());
+    }
+
     @Test void sanitizesControlCharactersAndPathsWithoutBreakingUnicode() throws Exception {
         var file = new MockMultipartFile("file", "C:\\carpeta\\apuntes\r\n\"á.docx", "application/octet-stream", new byte[]{80,75,3,4});
         mvc.perform(multipart("/api/decks/deck/document").file(file).principal(user)).andExpect(status().isOk());

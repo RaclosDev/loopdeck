@@ -5,6 +5,7 @@ import tools.jackson.databind.ObjectMapper;
 import com.loopdeck.exception.ConflictException;
 import com.loopdeck.exception.InvalidInputException;
 import com.loopdeck.repository.DeckRepository;
+import com.loopdeck.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 @RequiredArgsConstructor
 public class NoteImportService {
     private final DeckRepository decks;
+    private final NoteRepository notes;
     private final JdbcTemplate jdbc;
     private final ObjectMapper json;
     public record ImportResult(int importedCount, boolean alreadyApplied) {}
@@ -47,6 +49,9 @@ public class NoteImportService {
                 return new ImportResult(contents.size(), true);
             }
         }
+        // Tras el control de repeticiones (reenviar un lote ya aplicado sigue siendo inocuo). Si no cabe, la
+        // transacción se deshace entera, también la marca del lote, y puede reintentarse tras borrar notas.
+        UsageLimits.checkNotes(notes.countByUserId(user), contents.size());
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         var prepared = contents.stream().map(content -> new PreparedNote(UUID.randomUUID().toString(), content)).toList();
         jdbc.batchUpdate("INSERT INTO notes(id,user_id,deck_id,note_type,fields_json,tags,created_at,updated_at) VALUES (?,?,?,?,CAST(? AS jsonb),?,?,?)", prepared, 100, (ps, note) -> {

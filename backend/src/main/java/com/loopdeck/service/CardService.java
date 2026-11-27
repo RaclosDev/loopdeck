@@ -41,6 +41,7 @@ public class CardService {
                 .orElseThrow(() -> new IllegalArgumentException("Deck not found"));
 
         NoteContent content = NoteContent.validate(req.noteType(), req.fieldsJson(), req.tags());
+        UsageLimits.checkNotes(noteRepository.countByUserId(userId), 1);
         Note note = Note.builder()
                 .userId(userId)
                 .deckId(req.deckId())

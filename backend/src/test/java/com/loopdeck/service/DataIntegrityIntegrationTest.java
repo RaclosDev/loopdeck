@@ -192,6 +192,16 @@ class DataIntegrityIntegrationTest {
     static List<String> ids(tools.jackson.databind.JsonNode array) {
         return array.valueStream().map(item -> item.get("id").asString()).toList();
     }
+    @Test void documentBytesAreCountedPerAccountExcludingTheDeckBeingReplaced() {
+        var first = deck(owner); var second = deck(owner); var foreign = deck(other);
+        for (var d : List.of(first, second, foreign))
+            jdbc.update("INSERT INTO deck_documents(deck_id,file_data,file_name,content_type) VALUES (?,?,'a.txt','text/plain')", d.getId(), new byte[]{1, 2, 3, 4, 5});
+        assertEquals(10L, documents.sumBytesByUserExcludingDeck(owner, "ninguno"));
+        assertEquals(5L, documents.sumBytesByUserExcludingDeck(owner, first.getId()));
+        assertEquals(0L, documents.sumBytesByUserExcludingDeck("nadie", first.getId()));
+        assertEquals(2L, decks.getDecks(owner).size());
+        assertEquals(2L, jdbc.queryForObject("SELECT count(*) FROM decks WHERE user_id=?", Long.class, owner));
+    }
     @Test void exportPagesThroughEveryRowWithoutRepeatingOrLosingAny() {
         var mine = deck(owner); var second = deck(owner);
         var created = new ArrayList<String>();

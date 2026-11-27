@@ -47,6 +47,8 @@ public class DeckDocumentService {
         String contentType = DOCUMENT_TYPES.get(extension);
         if (contentType == null) throw new IllegalArgumentException("Formato de archivo no permitido");
 
+        UsageLimits.checkDocumentBytes(documents.sumBytesByUserExcludingDeck(userId, deckId), file.getSize());
+
         DeckDocument doc = new DeckDocument();
         doc.setDeckId(deckId);
         try {
