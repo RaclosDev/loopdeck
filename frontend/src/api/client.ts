@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { DEMO } from '../demo/mode';
+import { TOKEN_KEY, endLocalSession } from '../lib/session';
 
 const api = axios.create({
   baseURL: '/api',
@@ -14,7 +15,7 @@ if (DEMO) {
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('loopdeck_jwt_token');
+    const token = localStorage.getItem(TOKEN_KEY);
     // Don't send token for specific auth routes to avoid Spring Security rejecting valid requests (like refresh) due to expired token
     if (token && !config.url?.match(/\/auth\/(login|register|google|refresh|config|passkeys)/)) {
       config.headers.Authorization = 'Bearer ' + token;
@@ -52,6 +53,8 @@ api.interceptors.response.use(
       error.response &&
       error.response.status === 401 &&
       !originalRequest._retry &&
+      // Sin token la sesión se cerró en este navegador: un refresco la resucitaría con la cookie.
+      localStorage.getItem(TOKEN_KEY) &&
       !originalRequest.url.match(/\/auth\/(login|register|google|refresh|config|passkeys)/)
     ) {
       if (isRefreshing) {
@@ -74,7 +77,7 @@ api.interceptors.response.use(
         const res = await api.post('/auth/refresh');
         const newToken = res.data.token;
 
-        localStorage.setItem('loopdeck_jwt_token', newToken);
+        localStorage.setItem(TOKEN_KEY, newToken);
 
         window.dispatchEvent(new Event('loopdeck:token-updated'));
         originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
@@ -85,7 +88,8 @@ api.interceptors.response.use(
         processQueue(err, null);
         const status = (err as { response?: { status?: number } })?.response?.status;
         if (status === 401 || status === 403) {
-          localStorage.removeItem('loopdeck_jwt_token');
+          // Expulsión: token y caché sin conexión fuera antes de salir, como en «Cerrar sesión».
+          await endLocalSession();
           window.location.href = '/';
         }
         return Promise.reject(err);

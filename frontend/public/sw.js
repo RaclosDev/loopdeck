@@ -3,18 +3,20 @@ import { registerRoute } from 'workbox-routing';
 import { NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { ExpirationPlugin } from 'workbox-expiration';
+import { API_CACHE_NAME, isOfflineCacheable } from '../src/lib/offlineCache';
 
 const CACHE_NAME = 'loopdeck-v2';
 
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST);
 
-// API caching - Network First. La sesión (/api/auth) nunca se guarda, y la app borra esta caché
-// al cerrar sesión o cambiar de cuenta para que nadie vea datos de la cuenta anterior.
+// API caching - Network First, solo para la lista blanca de offlineCache.ts (mazos y notas). La
+// sesión (/api/auth), la exportación, los documentos, las passkeys, la IA y la cola de estudio
+// nunca se guardan. La app borra esta caché al cerrar sesión, al ser expulsada o al cambiar de cuenta.
 registerRoute(
-  ({ url }) => url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/auth/'),
+  ({ url }) => isOfflineCacheable(url.pathname),
   new NetworkFirst({
-    cacheName: 'api-cache',
+    cacheName: API_CACHE_NAME,
     plugins: [
       new CacheableResponsePlugin({
         statuses: [200],
@@ -24,12 +26,16 @@ registerRoute(
         maxAgeSeconds: 24 * 60 * 60, // 24 hours
       }),
     ],
-  })
+  }),
 );
 
 // Assets caching - Stale While Revalidate
 registerRoute(
-  ({ request }) => request.destination === 'image' || request.destination === 'script' || request.destination === 'style' || request.destination === 'font',
+  ({ request }) =>
+    request.destination === 'image' ||
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.destination === 'font',
   new StaleWhileRevalidate({
     cacheName: 'assets-cache',
     plugins: [
@@ -41,7 +47,7 @@ registerRoute(
         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
       }),
     ],
-  })
+  }),
 );
 
 self.addEventListener('install', () => {
@@ -50,14 +56,22 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME && !cacheName.includes('workbox') && !cacheName.includes('api-cache') && !cacheName.includes('assets-cache')) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => clients.claim())
+    caches
+      .keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (
+              cacheName !== CACHE_NAME &&
+              !cacheName.includes('workbox') &&
+              !cacheName.includes('api-cache') &&
+              !cacheName.includes('assets-cache')
+            ) {
+              return caches.delete(cacheName);
+            }
+          }),
+        );
+      })
+      .then(() => clients.claim()),
   );
 });

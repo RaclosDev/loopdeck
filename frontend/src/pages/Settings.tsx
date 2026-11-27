@@ -75,14 +75,15 @@ export default function Settings() {
     applyThemeColor(color);
   };
 
-  const handleClearLocalData = () => {
+  // logout() borra lo local y espera a que el servidor anule la cookie; navegar antes la cortaría.
+  const handleClearLocalData = async () => {
+    await logout();
     if (!DEMO) localStorage.clear();
-    logout();
     window.location.href = '/';
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     window.location.href = '/';
   };
 
