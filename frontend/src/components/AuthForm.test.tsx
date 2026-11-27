@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CredentialResponse } from '@react-oauth/google';
+import { MemoryRouter } from 'react-router-dom';
 import AuthForm from './AuthForm';
 
 const { post, login } = vi.hoisted(() => ({ post: vi.fn(), login: vi.fn() }));
@@ -12,12 +13,14 @@ vi.mock('@react-oauth/google', () => ({
   ),
 }));
 
+const withRouter = (ui: React.ReactElement) => <MemoryRouter>{ui}</MemoryRouter>;
+
 describe('Google authentication contract', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('exchanges the Google identity credential for an application session', async () => {
     post.mockResolvedValue({ data: { token: 'application-session' } });
-    render(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />);
+    render(withRouter(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />));
     fireEvent.click(screen.getByRole('button', { name: 'Elegir cuenta' }));
     await waitFor(() => expect(login).toHaveBeenCalledWith('application-session'));
     expect(post).toHaveBeenCalledWith('/auth/google', { credential: 'google-id-credential' });
@@ -25,7 +28,7 @@ describe('Google authentication contract', () => {
 
   it('does not establish a session when the backend omits its token', async () => {
     post.mockResolvedValue({ data: {} });
-    render(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />);
+    render(withRouter(<AuthForm googleEnabled mode="login" onModeChange={() => {}} />));
     fireEvent.click(screen.getByRole('button', { name: 'Elegir cuenta' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('No se ha podido iniciar sesión');
     expect(login).not.toHaveBeenCalled();
@@ -35,13 +38,25 @@ describe('Google authentication contract', () => {
 describe('AuthForm mode switch', () => {
   it('offers the other mode from the switch line', () => {
     const onModeChange = vi.fn();
-    const { rerender } = render(<AuthForm mode="login" onModeChange={onModeChange} />);
+    const { rerender } = render(withRouter(<AuthForm mode="login" onModeChange={onModeChange} />));
     fireEvent.click(screen.getByRole('button', { name: 'Crea una gratis' }));
     expect(onModeChange).toHaveBeenCalledWith('register');
 
-    rerender(<AuthForm mode="register" onModeChange={onModeChange} />);
+    rerender(withRouter(<AuthForm mode="register" onModeChange={onModeChange} />));
     expect(screen.getByLabelText('Tu nombre')).toBeRequired();
     fireEvent.click(screen.getByRole('button', { name: 'Inicia sesión' }));
     expect(onModeChange).toHaveBeenLastCalledWith('login');
+  });
+});
+
+describe('AuthForm forgotten password', () => {
+  it('links to the recovery page in login mode only', () => {
+    const { rerender } = render(withRouter(<AuthForm mode="login" onModeChange={() => {}} />));
+    expect(screen.getByRole('link', { name: '¿Has olvidado la contraseña?' })).toHaveAttribute(
+      'href',
+      '/recuperar',
+    );
+    rerender(withRouter(<AuthForm mode="register" onModeChange={() => {}} />));
+    expect(screen.queryByRole('link', { name: '¿Has olvidado la contraseña?' })).toBeNull();
   });
 });

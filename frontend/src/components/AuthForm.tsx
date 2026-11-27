@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { KeyRound } from 'lucide-react';
 import GoogleSignInButton from './GoogleSignInButton';
 import api from '../api/client';
 import { passkeysApi } from '../services/api';
 import { isPasskeyCancel, passkeysSupported } from '../lib/webauthn';
 import { useAuth } from '../context/AuthContext';
+import { AUTH_PATHS } from '../lib/authRedirect';
 
 export type AuthMode = 'login' | 'register';
 
@@ -44,7 +46,9 @@ export default function AuthForm({
       login(await passkeysApi.login());
     } catch (err) {
       if (!isPasskeyCancel(err)) {
-        setError('No se ha podido entrar con la llave de acceso. Prueba con tu email y contraseña.');
+        setError(
+          'No se ha podido entrar con la llave de acceso. Prueba con tu email y contraseña.',
+        );
       }
     } finally {
       setLoading(false);
@@ -120,9 +124,16 @@ export default function AuthForm({
           required
           className="fam-input"
         />
-        <label htmlFor="auth-password" className="fam-label">
-          Contraseña
-        </label>
+        <div className="fam-field-head">
+          <label htmlFor="auth-password" className="fam-label">
+            Contraseña
+          </label>
+          {!registering && (
+            <Link className="fam-textlink fam-textlink--sm" to={AUTH_PATHS.forgot}>
+              ¿Has olvidado la contraseña?
+            </Link>
+          )}
+        </div>
         <div className="fam-password">
           <input
             id="auth-password"

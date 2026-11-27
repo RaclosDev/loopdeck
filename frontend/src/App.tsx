@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { GoogleClientIdContext } from './context/GoogleClientIdContext';
 
 import { PublicRoutes, RedirectFromAuth } from './routes/authRoutes';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { AUTH_PATHS } from './lib/authRedirect';
 import { DEMO } from './demo/mode';
 import { useReviewOutbox } from './hooks/useReviewOutbox';
@@ -184,6 +185,9 @@ function AppContent({
         <Routes key={user?.id || 'anonymous'}>
           <Route path={AUTH_PATHS.login} element={<RedirectFromAuth />} />
           <Route path={AUTH_PATHS.register} element={<RedirectFromAuth />} />
+          <Route path={AUTH_PATHS.forgot} element={<RedirectFromAuth />} />
+          {/* El enlace del correo debe funcionar aunque este navegador conserve una sesión. */}
+          <Route path={AUTH_PATHS.reset} element={<ResetPasswordPage />} />
           <Route
             path="/"
             element={

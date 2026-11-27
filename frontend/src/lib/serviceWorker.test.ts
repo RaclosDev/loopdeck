@@ -63,6 +63,8 @@ describe('service worker API route', () => {
       '/api/decks/d1/study/batch?limit=50',
       '/api/ai/definition?word=x',
       '/api/auth/refresh',
+      '/api/auth/password-reset/request',
+      '/api/auth/password-reset/confirm',
     ])
       expect(asks(path), path).toBe(false);
   });

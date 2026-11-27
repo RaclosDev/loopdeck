@@ -29,9 +29,16 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     static final int AI_REQUESTS_PER_USER_PER_DAY = 500;
     private static final long MINUTE_MS = 60_000;
     private static final long DAY_MS = 24 * 60 * 60_000L;
+    private static final long HOUR_MS = 60 * 60_000L;
+    /** Recuperar contraseña manda un correo y prueba enlaces: tope por hora y visitante, además del de por minuto. */
+    static final int PASSWORD_RESET_REQUESTS_PER_HOUR = 10;
+    static final int PASSWORD_RESET_CONFIRMS_PER_HOUR = 20;
+    static final String PASSWORD_RESET_REQUEST_PATH = "/api/auth/password-reset/request";
+    static final String PASSWORD_RESET_CONFIRM_PATH = "/api/auth/password-reset/confirm";
 
     private final SlidingWindowLimiter perMinute = new SlidingWindowLimiter(MINUTE_MS);
     private final SlidingWindowLimiter perDay = new SlidingWindowLimiter(DAY_MS);
+    private final SlidingWindowLimiter perHour = new SlidingWindowLimiter(HOUR_MS);
     private final ClientIp clientIp;
 
     public RateLimitInterceptor(ClientIp clientIp) {
@@ -54,6 +61,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         if (allowed && connection != null && !connection.equals(visitor)) {
             allowed = perMinute.tryAcquire("hop:" + connection + ":" + path, MAX_REQUESTS_PER_MINUTE * PROXY_HOP_MULTIPLIER, now);
         }
+        if (allowed && auth) {
+            allowed = passwordResetAllowed(path, visitor, connection, now);
+        }
         if (allowed && ai) {
             Principal user = request.getUserPrincipal();
             if (user != null && user.getName() != null) {
@@ -66,6 +76,22 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("{\"error\": \"Demasiadas peticiones. Inténtalo de nuevo en un minuto\"}");
+        }
+        return allowed;
+    }
+
+    private boolean passwordResetAllowed(String path, String visitor, String connection, long now) {
+        int limit;
+        if (PASSWORD_RESET_REQUEST_PATH.equals(path)) {
+            limit = PASSWORD_RESET_REQUESTS_PER_HOUR;
+        } else if (PASSWORD_RESET_CONFIRM_PATH.equals(path)) {
+            limit = PASSWORD_RESET_CONFIRMS_PER_HOUR;
+        } else {
+            return true;
+        }
+        boolean allowed = perHour.tryAcquire(visitor + ":" + path, limit, now);
+        if (allowed && connection != null && !connection.equals(visitor)) {
+            allowed = perHour.tryAcquire("hop:" + connection + ":" + path, limit * PROXY_HOP_MULTIPLIER, now);
         }
         return allowed;
     }

@@ -57,4 +57,67 @@ describe('api client session handling', () => {
     expect(REQUEST_TIMEOUT_MS).toBeGreaterThan(0);
     expect(SLOW_REQUEST_TIMEOUT_MS).toBeGreaterThan(REQUEST_TIMEOUT_MS);
   });
+
+  it('renews the session with the rotated token and retries the request with it', async () => {
+    const renewed = `e30.${btoa(JSON.stringify({ sub: 'a', exp: 4102444800 }))}.test`;
+    const calls: string[] = [];
+    const sent: (string | undefined)[] = [];
+    api.defaults.adapter = (config) => {
+      calls.push(String(config.url));
+      if (config.url === '/auth/refresh') {
+        const response = {
+          status: 200,
+          data: { token: renewed },
+          config,
+          headers: {},
+          statusText: '',
+        };
+        return Promise.resolve(response as AxiosResponse);
+      }
+      sent.push(config.headers.Authorization as string | undefined);
+      return sent.length === 1 ? respond(config, 401) : respond(config, 200);
+    };
+    await api.get('/decks');
+    expect(calls).toEqual(['/decks', '/auth/refresh', '/decks']);
+    expect(sent).toEqual(['Bearer old-token', `Bearer ${renewed}`]);
+    expect(localStorage.getItem('loopdeck_jwt_token')).toBe(renewed);
+  });
+
+  it('uses the token another tab already renewed instead of spending the cookie again', async () => {
+    const fresh = `e30.${btoa(JSON.stringify({ sub: 'a', exp: 4102444800 }))}.test`;
+    const calls: string[] = [];
+    let first = true;
+    api.defaults.adapter = (config) => {
+      calls.push(String(config.url));
+      if (first) {
+        first = false;
+        // Mientras fallaba esta petición, otra pestaña renovó y guardó su token.
+        localStorage.setItem('loopdeck_jwt_token', fresh);
+        return respond(config, 401);
+      }
+      return respond(config, 200);
+    };
+    await api.get('/decks');
+    expect(calls).toEqual(['/decks', '/decks']);
+  });
+
+  it('never attaches the session token to the password recovery calls', async () => {
+    let header: unknown = 'unset';
+    api.defaults.adapter = (config) => {
+      header = config.headers.Authorization;
+      return respond(config, 202);
+    };
+    await api.post('/auth/password-reset/request', { email: 'a@example.com' });
+    expect(header).toBeUndefined();
+  });
+
+  it('does not run the refresh flow when the recovery call itself answers 401', async () => {
+    const calls: string[] = [];
+    api.defaults.adapter = (config) => {
+      calls.push(String(config.url));
+      return respond(config, 401);
+    };
+    await expect(api.post('/auth/password-reset/confirm', {})).rejects.toBeTruthy();
+    expect(calls).toEqual(['/auth/password-reset/confirm']);
+  });
 });

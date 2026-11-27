@@ -1,4 +1,9 @@
-export const AUTH_PATHS = { login: '/login', register: '/registro' } as const;
+export const AUTH_PATHS = {
+  login: '/login',
+  register: '/registro',
+  forgot: '/recuperar',
+  reset: '/reset-password',
+} as const;
 
 const isAuthPath = (path: string) =>
   Object.values(AUTH_PATHS).some((p) => path === p || path.startsWith(`${p}?`));

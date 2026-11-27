@@ -37,6 +37,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("La sesión ha caducado. Inicia sesión de nuevo", HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(InvalidResetTokenException.class)
+    public ResponseEntity<?> handleInvalidResetToken(InvalidResetTokenException ex) {
+        return buildErrorResponse("El enlace ha caducado o ya se ha usado. Pide uno nuevo", HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(InvalidInputException.class)
     public ResponseEntity<?> handleInvalidInputException(InvalidInputException ex) {
         log.warn("Invalid input: {}", ex.getMessage());

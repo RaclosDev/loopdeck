@@ -6,6 +6,8 @@ import { PublicRoutes, RedirectFromAuth } from './authRoutes';
 vi.mock('../pages/LandingPage', () => ({ default: () => <h1>Portada</h1> }));
 vi.mock('../pages/LoginPage', () => ({ default: () => <h1>Entrar</h1> }));
 vi.mock('../pages/RegisterPage', () => ({ default: () => <h1>Registro</h1> }));
+vi.mock('../pages/ForgotPasswordPage', () => ({ default: () => <h1>Recuperar</h1> }));
+vi.mock('../pages/ResetPasswordPage', () => ({ default: () => <h1>Nueva contraseña</h1> }));
 
 function Where() {
   const { pathname, search } = useLocation();
@@ -25,6 +27,8 @@ describe('public routes', () => {
     ['/', 'Portada'],
     ['/login', 'Entrar'],
     ['/registro', 'Registro'],
+    ['/recuperar', 'Recuperar'],
+    ['/reset-password?token=abc', 'Nueva contraseña'],
   ])('%s renders its own page', (path, heading) => {
     renderAt(path);
     expect(screen.getByRole('heading', { name: heading })).toBeInTheDocument();

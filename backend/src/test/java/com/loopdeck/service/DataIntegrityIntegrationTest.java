@@ -222,7 +222,7 @@ class DataIntegrityIntegrationTest {
         cards.createNote(other, new CardService.CreateNoteRequest(foreign.getId(), "basic", "{\"front\":\"x\",\"back\":\"y\"}", ""));
         var card = cardRepository.findByNoteId(note.getId()).get(0);
         jdbc.update("INSERT INTO reviews(id,card_id,rating) VALUES (?,?,3)", UUID.randomUUID().toString(), card.getId());
-        refreshTokens.save(new com.loopdeck.model.RefreshToken(owner, Instant.now().plusSeconds(60)));
+        refreshTokens.save(new com.loopdeck.model.RefreshToken(owner, Instant.now().plusSeconds(60), Instant.now().plusSeconds(120)));
 
         var export = export(owner, 500);
         assertEquals(List.of("exportedAt", "account", "decks", "documents", "notes", "cards", "reviews"), export.propertyNames().stream().toList());

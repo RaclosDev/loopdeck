@@ -242,4 +242,25 @@ class AuthServiceTest {
 
         verify(refreshTokens).deleteByUserId("victima");
     }
+
+    @Test
+    void refreshReturnsTheRotatedTokenNotTheOneThatWasPresented() {
+        RefreshToken next = new RefreshToken("victima", java.time.Instant.now().plusSeconds(60), java.time.Instant.now().plusSeconds(120));
+        when(refreshTokens.rotate("viejo")).thenReturn(next);
+        when(users.findById("victima")).thenReturn(Optional.of(passwordUser()));
+
+        AuthService.AuthResponse res = service.refreshToken("viejo");
+
+        assertEquals(next.getPlainToken(), res.refreshToken());
+        org.junit.jupiter.api.Assertions.assertFalse("viejo".equals(res.refreshToken()));
+        assertEquals("jwt", res.token());
+    }
+
+    @Test
+    void refreshPropagatesARejectedRotation() {
+        when(refreshTokens.rotate("reutilizado")).thenThrow(new com.loopdeck.exception.TokenRefreshException("reuse"));
+
+        assertThrows(com.loopdeck.exception.TokenRefreshException.class, () -> service.refreshToken("reutilizado"));
+        verify(users, never()).findById(any());
+    }
 }

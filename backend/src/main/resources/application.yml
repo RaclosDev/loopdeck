@@ -60,6 +60,16 @@ cors:
 jwt:
   secret: ${JWT_SECRET}
 
+# URL pública del frontend: se usa en los enlaces de los correos (recuperar contraseña).
+app:
+  public-url: ${APP_PUBLIC_URL:http://localhost:5173}
+
+# Correo con Resend. Sin RESEND_API_KEY no se envía nada (solo se registra, sin datos personales).
+resend:
+  api-key: ${RESEND_API_KEY:}
+mail:
+  from: ${MAIL_FROM:LoopDeck <no-reply@raclos.es>}
+
 # Llaves de acceso (WebAuthn): dominio al que quedan ligadas y orígenes desde los que se aceptan.
 webauthn:
   rp-id: ${WEBAUTHN_RP_ID:loopdeck.raclos.es}
