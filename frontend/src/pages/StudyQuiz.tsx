@@ -1,4 +1,4 @@
-import { parseNoteFields } from '../lib/noteFields';
+import { noteSides } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect } from 'react';
@@ -73,18 +73,14 @@ function StudyQuiz() {
 
   const generateOptions = (allNotes: Note[], targetIndex: number) => {
     const targetNote = allNotes[targetIndex];
-    const targetFields = JSON.parse(targetNote.fieldsJson || '{}');
-    const correctBack = targetFields.back || '';
+    const correctBack = noteSides(targetNote).back;
 
     // Pick 3 random wrong answers
     const otherNotes = allNotes.filter((_, idx) => idx !== targetIndex);
     const shuffledOthers = shuffleArray(otherNotes);
 
     // Take up to 3 wrong answers
-    const wrongAnswers = shuffledOthers.slice(0, 3).map((n) => {
-      const f = parseNoteFields(n.fieldsJson || '{}');
-      return f.back || '';
-    });
+    const wrongAnswers = shuffledOthers.slice(0, 3).map((n) => noteSides(n).back);
 
     // Combine and shuffle
     const correctHtml = sanitizeHtml(marked.parse(correctBack) as string);
@@ -161,8 +157,9 @@ function StudyQuiz() {
   }
 
   const currentNote = notes[currentIndex];
-  const fields = parseNoteFields(currentNote?.fieldsJson || '{}');
-  const questionHtml = sanitizeHtml(marked.parse(fields.front || '') as string);
+  const questionHtml = sanitizeHtml(
+    marked.parse(currentNote ? noteSides(currentNote).front : '') as string,
+  );
 
   return (
     <div className="study-container">

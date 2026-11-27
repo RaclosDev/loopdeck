@@ -19,7 +19,7 @@ import {
   AiMassDefinePayload,
 } from '../types';
 
-import api from '../api/client';
+import api, { SLOW_REQUEST_TIMEOUT_MS } from '../api/client';
 import { createPasskey, deviceName, getPasskey, type BrowserOptions } from '../lib/webauthn';
 
 export const API_BASE = import.meta.env.VITE_API_URL || '/api';
@@ -44,6 +44,7 @@ export const decksApi = {
     const formData = new FormData();
     formData.append('file', file);
     const res = await api.post<{ hasDocument: boolean }>(`/decks/${id}/document`, formData, {
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -71,7 +72,10 @@ export const decksApi = {
 export const accountApi = {
   /** Todos los datos de la cuenta en JSON, listos para descargar. */
   exportData: async (): Promise<Blob> => {
-    const res = await api.get('/users/me/export', { responseType: 'blob', timeout: 60000 });
+    const res = await api.get('/users/me/export', {
+      responseType: 'blob',
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
+    });
     return res.data;
   },
   /** Borra la cuenta y todos sus datos. No se puede deshacer. */
@@ -217,12 +221,17 @@ export const templatesApi = {
 };
 
 export const aiApi = {
-  chat: async (prompt: string, context?: string): Promise<AiChatResponse> => {
-    const res = await api.post('/ai/chat', { prompt, context } as AiChatPayload);
+  chat: async (prompt: string, context?: string, signal?: AbortSignal): Promise<AiChatResponse> => {
+    const res = await api.post('/ai/chat', { prompt, context } as AiChatPayload, {
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
+      signal,
+    });
     return res.data;
   },
   massDefine: async (words: string): Promise<unknown> => {
-    const res = await api.post('/ai/mass-define', { words } as AiMassDefinePayload);
+    const res = await api.post('/ai/mass-define', { words } as AiMassDefinePayload, {
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
+    });
     return res.data;
   },
 };

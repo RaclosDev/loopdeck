@@ -2,8 +2,14 @@ import axios from 'axios';
 import { DEMO } from '../demo/mode';
 import { TOKEN_KEY, endLocalSession } from '../lib/session';
 
+/** Tiempo máximo de una petición normal: sin él, una conexión colgada deja la pantalla esperando. */
+export const REQUEST_TIMEOUT_MS = 30_000;
+/** Para lo que tarda de verdad: llamadas a la IA y subida de documentos. */
+export const SLOW_REQUEST_TIMEOUT_MS = 120_000;
+
 const api = axios.create({
   baseURL: '/api',
+  timeout: REQUEST_TIMEOUT_MS,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
