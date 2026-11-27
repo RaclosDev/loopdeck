@@ -82,7 +82,28 @@ export const accountApi = {
   deleteAccount: async (): Promise<void> => {
     await api.delete('/users/me');
   },
+  /**
+   * Cambia la contraseña. El servidor cierra las sesiones de los demás dispositivos y devuelve una
+   * sesión nueva para este: hay que guardar su token.
+   */
+  changePassword: async (currentPassword: string, newPassword: string): Promise<string> => {
+    const { data } = await api.put<{ token: string }>('/users/me/password', {
+      currentPassword,
+      newPassword,
+    });
+    return data.token;
+  },
+  /** Cierra la sesión de todos los dispositivos, también este. */
+  logoutEverywhere: async (): Promise<void> => {
+    await api.delete('/users/me/sessions');
+  },
 };
+
+/**
+ * Prueba de que quien tiene la sesión es el dueño de la cuenta, exigida para acciones sensibles: la
+ * contraseña o, en las cuentas que solo entran con Google, una credencial reciente de Google.
+ */
+export type Reauth = { password: string } | { googleCredential: string };
 
 /** Llave de acceso tal como se ve en los ajustes. */
 export interface PasskeySummary {
@@ -101,8 +122,8 @@ export interface PasskeyCeremony {
 export const passkeysApi = {
   list: async (): Promise<PasskeySummary[]> => (await api.get('/users/me/passkeys')).data,
   /** Pide al dispositivo una llave nueva y la guarda en la cuenta. */
-  addOnThisDevice: async (): Promise<PasskeySummary> => {
-    const { data } = await api.post<PasskeyCeremony>('/users/me/passkeys/options');
+  addOnThisDevice: async (reauth: Reauth): Promise<PasskeySummary> => {
+    const { data } = await api.post<PasskeyCeremony>('/users/me/passkeys/options', reauth);
     const credential = await createPasskey(data.options);
     return (
       await api.post('/users/me/passkeys', {
