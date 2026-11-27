@@ -610,8 +610,8 @@ test('study cards retain readable dimensions and keyboard interaction', async ({
   expect(bounds!.width).toBeGreaterThanOrEqual(250);
   expect(bounds!.height).toBeGreaterThanOrEqual(300);
   expect(
-    await card
-      .locator('.card')
+    await page
+      .locator('.flashcard-frame .card')
       .first()
       .evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration)),
   ).toBeLessThanOrEqual(0.01);

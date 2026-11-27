@@ -354,6 +354,24 @@ body.light-mode .sidebar .nav-item.text-destructive {
 .flashcard-frame {
   min-height: clamp(300px, 45dvh, 480px);
 }
+/* El control de voltear cubre la tarjeta; ya volteada deja pasar los clics al contenido. */
+.flashcard-flip {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: inherit;
+}
+.flashcard-flip[aria-disabled='true'] {
+  pointer-events: none;
+}
+.flashcard-flip:focus-visible {
+  outline: 2px solid var(--accent-primary, currentColor);
+  outline-offset: 2px;
+}
 .explore-controls {
   width: 100%;
   max-width: 680px;
