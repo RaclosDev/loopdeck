@@ -1,6 +1,10 @@
 server:
   address: 0.0.0.0
 
+# En producción el enlace de los correos apunta por defecto al dominio real.
+app:
+  public-url: ${APP_PUBLIC_URL:https://loopdeck.raclos.es}
+
 spring:
   datasource:
     # Sin valores por defecto: en producción el arranque falla si falta la base de datos.

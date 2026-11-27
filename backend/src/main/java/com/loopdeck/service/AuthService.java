@@ -307,20 +307,15 @@ public class AuthService {
         return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), userMapper.toDto(user));
     }
 
-    @Transactional
+    /**
+     * Canjea el token de refresco por un JWT nuevo y un token de refresco nuevo (rotación). La revocación
+     * de la familia ante una reutilización se confirma dentro de {@code rotate}, así que este método no es
+     * transaccional: la excepción no debe deshacerla.
+     */
     public AuthResponse refreshToken(String requestRefreshToken) {
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(refreshTokenService::extend)
-                .map(RefreshToken::getUserId)
-                .map(userId -> {
-                    User user = userRepository.findById(userId).orElseThrow(() -> new TokenRefreshException("User not found"));
-                    
-                    // Do not rotate refresh token to prevent PWA race conditions on poor networks
-                    String token = generateToken(user);
-                    return new AuthResponse(token, requestRefreshToken, userMapper.toDto(user));
-                })
-                .orElseThrow(() -> new TokenRefreshException("Refresh token is not in database!"));
+        RefreshToken next = refreshTokenService.rotate(requestRefreshToken);
+        User user = userRepository.findById(next.getUserId()).orElseThrow(() -> new TokenRefreshException("User not found"));
+        return new AuthResponse(generateToken(user), next.getPlainToken(), userMapper.toDto(user));
     }
 
     public void logout(String requestRefreshToken) {

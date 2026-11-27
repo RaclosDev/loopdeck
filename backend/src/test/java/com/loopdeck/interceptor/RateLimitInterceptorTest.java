@@ -56,4 +56,36 @@ class RateLimitInterceptorTest {
             assertTrue(allowed(request("/api/decks", "10.0.0.3", "user-1")));
         }
     }
+
+    @Test
+    void passwordResetRequestHasAnHourlyLimitPerVisitorEvenWhenSpelledDifferently() throws Exception {
+        String[] spellings = {"/api/auth/password-reset/request", "/api/%61uth/password-reset/request", "/api//auth/password-reset/request"};
+        int allowed = 0;
+        for (int i = 0; i < 30; i++) {
+            if (allowed(request(spellings[i % spellings.length], "10.0.1.1", null))) allowed++;
+        }
+        assertEquals(RateLimitInterceptor.PASSWORD_RESET_REQUESTS_PER_HOUR, allowed);
+        // Otro visitante conserva su cupo.
+        assertTrue(allowed(request("/api/auth/password-reset/request", "10.0.1.2", null)));
+    }
+
+    @Test
+    void passwordResetConfirmHasItsOwnHourlyLimit() throws Exception {
+        int allowed = 0;
+        for (int i = 0; i < 40; i++) {
+            if (allowed(request("/api/auth/password-reset/confirm", "10.0.1.3", null))) allowed++;
+        }
+        assertEquals(RateLimitInterceptor.PASSWORD_RESET_CONFIRMS_PER_HOUR, allowed);
+        // Pedir el correo no gasta el cupo de confirmar.
+        assertTrue(allowed(request("/api/auth/password-reset/request", "10.0.1.3", null)));
+    }
+
+    @Test
+    void otherAuthRoutesKeepOnlyTheMinuteLimit() throws Exception {
+        int allowed = 0;
+        for (int i = 0; i < 50; i++) {
+            if (allowed(request("/api/auth/login", "10.0.1.4", null))) allowed++;
+        }
+        assertEquals(50, allowed);
+    }
 }
