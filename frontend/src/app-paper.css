@@ -141,6 +141,19 @@ body.dark-mode .flashcard-face {
   box-shadow: 4px 5px 0 #f3ecdc4d;
 }
 
+/* Hueco de una tarjeta cloze ya descubierto: subrayado de fosforito sobre el papel y tinta del
+   color de acento, para distinguir la respuesta del resto de la frase. La cara de la tarjeta es
+   papel en los dos temas, así que el mismo estilo vale para ambos. */
+.cloze-revealed {
+  padding: 0 0.12em;
+  border-radius: 2px;
+  background: linear-gradient(transparent 55%, var(--app-hi) 55%);
+  color: var(--accent-primary);
+  font-weight: 700;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 /* ---------- Movimiento ---------- */
 
 @keyframes app-rise {

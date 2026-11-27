@@ -58,7 +58,7 @@ const counts = {
   eng: { newCount: 6, learningCount: 2, reviewCount: 14, totalCount: 124, noteCount: 124 },
   his: { newCount: 5, learningCount: 1, reviewCount: 9, totalCount: 68, noteCount: 68 },
   geo: { newCount: 2, learningCount: 1, reviewCount: 6, totalCount: 88, noteCount: 44 },
-  js: { newCount: 0, learningCount: 0, reviewCount: 0, totalCount: 52, noteCount: 52 },
+  js: { newCount: 4, learningCount: 2, reviewCount: 11, totalCount: 52, noteCount: 52 },
 };
 
 const seeds = {
