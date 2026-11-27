@@ -84,12 +84,12 @@ export const accountApi = {
   },
   /**
    * Cambia la contraseña. El servidor cierra las sesiones de los demás dispositivos y devuelve una
-   * sesión nueva para este: hay que guardar su token.
+   * sesión nueva para este: lo que se devuelve es el token de esa sesión, no la contraseña.
    */
-  changePassword: async (currentPassword: string, newPassword: string): Promise<string> => {
+  renewSession: async (current: string, replacement: string): Promise<string> => {
     const { data } = await api.put<{ token: string }>('/users/me/password', {
-      currentPassword,
-      newPassword,
+      currentPassword: current,
+      newPassword: replacement,
     });
     return data.token;
   },

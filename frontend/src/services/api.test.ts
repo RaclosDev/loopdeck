@@ -53,7 +53,7 @@ describe('adding a passkey proves who you are first', () => {
 describe('account security calls', () => {
   it('changes the password and returns the new session token', async () => {
     vi.mocked(api.put).mockResolvedValue({ data: { token: 'jwt-nuevo', user: {} } });
-    await expect(accountApi.changePassword('vieja', 'nueva-123')).resolves.toBe('jwt-nuevo');
+    await expect(accountApi.renewSession('vieja', 'nueva-123')).resolves.toBe('jwt-nuevo');
     expect(api.put).toHaveBeenCalledWith('/users/me/password', {
       currentPassword: 'vieja',
       newPassword: 'nueva-123',
