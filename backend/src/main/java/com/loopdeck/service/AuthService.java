@@ -9,6 +9,8 @@ import com.loopdeck.model.Note;
 import com.loopdeck.model.User;
 import com.loopdeck.repository.DeckRepository;
 import com.loopdeck.repository.NoteRepository;
+import com.loopdeck.repository.PasskeyRepository;
+import com.loopdeck.security.LoginThrottle;
 import com.loopdeck.repository.UserRepository;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -48,6 +50,8 @@ public class AuthService {
     private final JwtEncoder jwtEncoder;
     private final RefreshTokenService refreshTokenService;
     private final com.loopdeck.mapper.UserMapper userMapper;
+    private final PasskeyRepository passkeyRepository;
+    private final LoginThrottle loginThrottle;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final int GOOGLE_TIMEOUT_MS = 5000;
@@ -99,12 +103,17 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest req) {
-        User user = userRepository.findByEmail(Emails.normalize(req.email()))
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+        String email = Emails.normalize(req.email());
+        loginThrottle.check(email);
+        User user = userRepository.findByEmail(email).orElse(null);
 
-        if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) {
+        // Una cuenta sin contraseña (solo Google o clave de acceso) no admite este inicio de sesión.
+        if (user == null || user.getPasswordHash() == null
+                || !passwordEncoder.matches(req.password(), user.getPasswordHash())) {
+            loginThrottle.recordFailure(email);
             throw new IllegalArgumentException("Invalid credentials");
         }
+        loginThrottle.reset(email);
 
         String token = this.generateToken(user);
         return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), userMapper.toDto(user));
@@ -199,7 +208,7 @@ public class AuthService {
         }
     }
 
-    private AuthResponse processGoogleUser(String googleId, String rawEmail, String name) {
+    AuthResponse processGoogleUser(String googleId, String rawEmail, String name) {
         String email = Emails.normalize(rawEmail);
         User user = userRepository.findByGoogleId(googleId)
                 .orElseGet(() -> userRepository.findByEmail(email)
@@ -215,8 +224,18 @@ public class AuthService {
             userRepository.save(user);
 
         } else if (user.getGoogleId() == null) {
+            // Cuenta creada antes con ese correo y una contraseña, sin haber verificado el correo: quien la
+            // registró pudo no ser el dueño del correo. Al vincularla, la contraseña, las sesiones abiertas
+            // y las claves de acceso anteriores dejan de valer; el dueño entra desde ahora con Google.
             user.setGoogleId(googleId);
+            user.setPasswordHash(null);
             userRepository.save(user);
+            refreshTokenService.deleteByUserId(user.getId());
+            passkeyRepository.deleteByUserId(user.getId());
+            log.info("Cuenta vinculada a Google: se revocan contraseña, sesiones y claves de acceso previas");
+        } else if (!googleId.equals(user.getGoogleId())) {
+            // El correo coincide pero la cuenta ya pertenece a otra identidad de Google.
+            throw new IllegalArgumentException("Esta cuenta ya está vinculada a otra cuenta de Google");
         }
 
         String token = this.generateToken(user);
