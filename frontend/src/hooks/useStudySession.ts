@@ -53,6 +53,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
   const pending = useRef<PendingReview[]>([]);
   // Tarjetas falladas que pasan a aprendizaje/reaprendizaje y vuelven a la cola cuando vencen.
   const waiting = useRef(new Map<string, Waiting>());
+  const releaseRef = useRef<() => void>(() => undefined);
   const loadingRef = useRef(true);
   const restored = useRef<DueCardDto | null>(null);
   const started = useRef(Date.now());
@@ -65,7 +66,13 @@ export function useStudySession(deckId: string | undefined, order: string, accou
   const takeDue = useCallback((exclude: Set<string>) => {
     const ready: DueCardDto[] = [];
     for (const [id, entry] of waiting.current) {
-      if (new Date(entry.pair.card.due).getTime() > Date.now()) continue;
+      const remaining = new Date(entry.pair.card.due).getTime() - Date.now();
+      if (remaining > 0) {
+        // Un temporizador puede saltar un milisegundo antes de tiempo: se vuelve a armar.
+        clearTimeout(entry.timer);
+        entry.timer = setTimeout(() => releaseRef.current(), remaining);
+        continue;
+      }
       clearTimeout(entry.timer);
       waiting.current.delete(id);
       if (!exclude.has(id)) ready.push(entry.pair);
@@ -83,6 +90,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     setCounts((previous) => ({ ...previous, learning: previous.learning + ready.length }));
     setIsComplete(false);
   }, [setQueue, takeDue]);
+  releaseRef.current = releaseDue;
 
   const requeueWhenDue = useCallback(
     (pair: DueCardDto) => {
