@@ -35,13 +35,23 @@ Es un proyecto personal de **Carlos Sanz Tomero**, desarrollado desde el modelo 
     <th>Repaso y próxima revisión</th>
   </tr>
   <tr>
-    <td width="33%"><img src="docs/screenshots/decks-mobile.png" alt="Mazos de biología, inglés y arte con recuentos de tarjetas nuevas, en aprendizaje y pendientes"></td>
-    <td width="33%"><img src="docs/screenshots/study-hub-mobile.png" alt="Centro de estudio de un mazo con apuntes, repaso espaciado y guía de estudio"></td>
-    <td width="33%"><img src="docs/screenshots/study-mobile.png" alt="Respuesta de una tarjeta con cuatro valoraciones y la opción de elegir otro momento para repasarla"></td>
+    <td width="33%"><img src="docs/screenshots/decks-mobile.png" alt="Mazos de biología e inglés con 74 tarjetas pendientes hoy y recuentos de nuevas, en aprendizaje y revisión"></td>
+    <td width="33%"><img src="docs/screenshots/study-hub-mobile.png" alt="Centro de estudio del mazo de biología con apuntes, repaso espaciado y guía de estudio"></td>
+    <td width="33%"><img src="docs/screenshots/study-mobile.png" alt="Respuesta de una tarjeta con huecos y cuatro valoraciones con su próximo intervalo"></td>
+  </tr>
+  <tr>
+    <th>Test de cuatro opciones</th>
+    <th>Tutor IA del mazo</th>
+    <th>Estadísticas</th>
+  </tr>
+  <tr>
+    <td width="33%"><img src="docs/screenshots/quiz-mobile.png" alt="Test de historia de España con la respuesta correcta marcada"></td>
+    <td width="33%"><img src="docs/screenshots/tutor-mobile.png" alt="Tutor IA explicando por qué la mitocondria es la central energética de la célula"></td>
+    <td width="33%"><img src="docs/screenshots/stats-mobile.png" alt="Estadísticas con mazos, notas, tarjetas y pendientes de hoy por mazo"></td>
   </tr>
 </table>
 
-_Interfaz real con la sesión iniciada, capturada en noviembre de 2026 con datos ficticios y las fuentes de la app. [Reproducir las capturas](docs/screenshots/README.md)._
+_Interfaz real con la sesión iniciada, capturada en noviembre de 2026 en un móvil de 430 px con las fuentes de la app. [Reproducir las capturas](docs/screenshots/README.md)._
 
 ## Qué puedes hacer
 
