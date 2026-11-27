@@ -9,6 +9,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import toast from 'react-hot-toast';
 import { accountApi } from '../services/api';
+import { clearReviewOutbox } from '../lib/reviewOutbox';
 import PasskeySettings from '../components/PasskeySettings';
 import {
   Dialog,
@@ -62,6 +63,7 @@ export default function Settings() {
     try {
       await accountApi.deleteAccount();
       localStorage.clear();
+      await clearReviewOutbox();
       await logout();
       window.location.href = '/';
     } catch {
@@ -78,7 +80,10 @@ export default function Settings() {
   // logout() borra lo local y espera a que el servidor anule la cookie; navegar antes la cortaría.
   const handleClearLocalData = async () => {
     await logout();
-    if (!DEMO) localStorage.clear();
+    if (!DEMO) {
+      localStorage.clear();
+      await clearReviewOutbox();
+    }
     window.location.href = '/';
   };
 

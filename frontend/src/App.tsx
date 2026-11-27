@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { PublicRoutes, RedirectFromAuth } from './routes/authRoutes';
 import { AUTH_PATHS } from './lib/authRedirect';
 import { DEMO } from './demo/mode';
+import { useReviewOutbox } from './hooks/useReviewOutbox';
 import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
@@ -75,6 +76,8 @@ function AppContent({
   const { token, user, isLoading } = useAuth();
   const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
   const basename = DEMO ? '/demo' : undefined;
+  // Repasos guardados sin enviar (recarga o sin conexión): se mandan al arrancar y al volver la red.
+  useReviewOutbox(token && !isLoading && !DEMO ? user?.id : undefined);
 
   useEffect(() => {
     if (token && !isLoading) {

@@ -11,12 +11,25 @@ import { isAxiosError } from 'axios';
 import toast from 'react-hot-toast';
 import { studyApi } from '../services/api';
 import { invalidateStudyData } from '../lib/queryInvalidation';
-import type { DueCardDto, ReviewBody, StudyBatch, PreparedStudy } from '../types';
+import type { Card, DueCardDto, ReviewBody, StudyBatch, PreparedStudy } from '../types';
 import { studyBatchOptions } from '../lib/studyQuery';
 import { preparedStudy, previewKey } from '../lib/studyPreparation';
+import {
+  classifyReviewError,
+  dropReview,
+  queueReview,
+  storedReviews,
+  whileSending,
+} from '../lib/reviewOutbox';
 
 type UndoAction = { pair: DueCardDto; reviewId: string; rating: number };
-type PendingReview = { pair: DueCardDto; body: ReviewBody };
+/** `stored` termina cuando el repaso ya está apuntado en la cola persistente (nunca rechaza). */
+type PendingReview = {
+  pair: DueCardDto;
+  body: ReviewBody;
+  requestId: string;
+  stored: Promise<void>;
+};
 type Waiting = { pair: DueCardDto; timer: ReturnType<typeof setTimeout> };
 
 /** Más allá de esto la tarjeta en aprendizaje se deja al servidor en la próxima tanda. */
@@ -24,8 +37,32 @@ const MAX_REQUEUE_WAIT_MS = 6 * 60 * 60 * 1000;
 
 const isLearning = (card: DueCardDto['card']) =>
   typeof card.state === 'string' && card.state.includes('learn');
-const isConflict = (error: unknown) => isAxiosError(error) && error.response?.status === 409;
 const CONFLICT_MESSAGE = 'Esa tarjeta ya se había repasado en otro sitio; se omite.';
+const REJECTED_MESSAGE = 'El servidor no ha aceptado una respuesta y se ha descartado.';
+
+/**
+ * Envía un repaso apuntado en la cola persistente y lo borra de ella cuando el servidor lo confirma
+ * o lo rechaza para siempre. Los fallos recuperables (red, 5xx, sesión) se relanzan y el repaso se
+ * queda guardado.
+ */
+async function sendReview(
+  action: PendingReview,
+): Promise<{ card: Card; reviewId: string } | 'conflict' | 'rejected'> {
+  await action.stored;
+  const { requestId } = action;
+  return whileSending(requestId, async () => {
+    try {
+      const result = await studyApi.reviewCard(action.pair.card.id, action.body);
+      await dropReview(requestId);
+      return result;
+    } catch (error) {
+      const kind = classifyReviewError(error);
+      if (kind === 'retry') throw error;
+      await dropReview(requestId);
+      return kind;
+    }
+  });
+}
 
 export function useStudySession(deckId: string | undefined, order: string, account?: string) {
   const client = useQueryClient();
@@ -170,12 +207,20 @@ export function useStudySession(deckId: string | undefined, order: string, accou
           queryKey: ['studyBatch', deckId, account, order],
           refetchType: 'none',
         });
+        // Una tarjeta con un repaso apuntado y aún sin enviar ya está respondida: no se vuelve a ver.
+        const answered = account
+          ? new Set((await storedReviews(account)).map((review) => review.cardId))
+          : new Set<string>();
+        if (version !== generation.current) return;
+        const fresh = batch.items.filter((item) => !answered.has(item.card.id));
+        if (!fresh.length && batch.hasMore && batch.items.length)
+          throw new Error('La cola ha cambiado; vuelve a cargarla');
         const fetched = restored.current
           ? [
               restored.current,
-              ...batch.items.filter((item) => item.card.id !== restored.current?.card.id),
+              ...fresh.filter((item) => item.card.id !== restored.current?.card.id),
             ]
-          : batch.items;
+          : fresh;
         restored.current = null;
         // Las falladas que ya vencieron no se pierden si la tanda del servidor no las trae.
         const due = takeDue(new Set(fetched.map((item) => item.card.id)));
@@ -238,15 +283,14 @@ export function useStudySession(deckId: string | undefined, order: string, accou
       await client.cancelQueries({ queryKey: ['studyBatch', deckId, account, order] });
       while (actions.length) {
         const action = actions[0];
-        let result: Awaited<ReturnType<typeof studyApi.reviewCard>>;
-        try {
-          result = await studyApi.reviewCard(action.pair.card.id, action.body);
-        } catch (error) {
-          if (!isConflict(error)) throw error;
-          // Otra pestaña o dispositivo ya la repasó: reintentarla no sirve, se descarta.
+        const result = await sendReview(action);
+        if (result === 'conflict' || result === 'rejected') {
+          // Otra pestaña o dispositivo ya la repasó, o el servidor no la aceptará nunca:
+          // reintentarla no sirve, se descarta.
           actions.shift();
           void invalidateStudyData(client, deckId);
-          if (version === generation.current) toast(CONFLICT_MESSAGE);
+          if (version === generation.current)
+            toast(result === 'conflict' ? CONFLICT_MESSAGE : REJECTED_MESSAGE);
           continue;
         }
         actions.shift();
@@ -300,12 +344,9 @@ export function useStudySession(deckId: string | undefined, order: string, accou
       try {
         while (actions.length) {
           const action = actions[0];
-          try {
-            await studyApi.reviewCard(action.pair.card.id, action.body);
-          } catch (error) {
-            if (!isConflict(error)) throw error;
-            toast(CONFLICT_MESSAGE);
-          }
+          const result = await sendReview(action);
+          if (result === 'conflict') toast(CONFLICT_MESSAGE);
+          else if (result === 'rejected') toast(REJECTED_MESSAGE);
           actions.shift();
           void invalidateStudyData(client, deckId);
         }
@@ -314,6 +355,17 @@ export function useStudySession(deckId: string | undefined, order: string, accou
       }
     }
   };
+
+  // Al volver la red, los repasos que no pudieron enviarse se reintentan solos.
+  const flushRef = useRef(flushReviews);
+  flushRef.current = flushReviews;
+  useEffect(() => {
+    const retry = () => {
+      if (pending.current.length && !busy.current) void flushRef.current();
+    };
+    window.addEventListener('online', retry);
+    return () => window.removeEventListener('online', retry);
+  }, []);
 
   const handleRate = (rating: number, customIntervalMinutes?: number) => {
     if (saveError) return flushReviews();
@@ -327,18 +379,19 @@ export function useStudySession(deckId: string | undefined, order: string, accou
     )
       return Promise.resolve();
     revealed.current = null;
-    pending.current.push({
-      pair,
-      body: {
-        rating,
-        timeTakenMs: Math.min(2_147_483_647, Date.now() - started.current),
-        requestId: crypto.randomUUID(),
-        ...(typeof pair.card.repetitions === 'number'
-          ? { expectedReps: pair.card.repetitions }
-          : {}),
-        ...(customIntervalMinutes ? { customIntervalMinutes } : {}),
-      },
-    });
+    const requestId = crypto.randomUUID();
+    const body: ReviewBody = {
+      rating,
+      timeTakenMs: Math.min(2_147_483_647, Date.now() - started.current),
+      requestId,
+      ...(typeof pair.card.repetitions === 'number' ? { expectedReps: pair.card.repetitions } : {}),
+      ...(customIntervalMinutes ? { customIntervalMinutes } : {}),
+    };
+    // Se apunta en la cola persistente antes de enviarlo: si se recarga la página, no se pierde.
+    const stored = account
+      ? queueReview({ requestId, account, deckId, cardId: pair.card.id, body })
+      : Promise.resolve();
+    pending.current.push({ pair, body, requestId, stored });
     writeEpoch.current++;
     const state = pair.card.state;
     setCounts((previous) => {
