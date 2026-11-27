@@ -76,6 +76,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     public ResponseEntity<?> handleConflict(ConflictException ex) { return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT); }
 
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ResponseEntity<?> handleOptimisticLock(org.springframework.dao.OptimisticLockingFailureException ex) {
+        return buildErrorResponse("Los datos han cambiado mientras los editabas; recarga e inténtalo de nuevo", HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataConflict(org.springframework.dao.DataIntegrityViolationException ex) {
         return buildErrorResponse("La operación entra en conflicto con los datos actuales", HttpStatus.CONFLICT);

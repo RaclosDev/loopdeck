@@ -65,22 +65,36 @@ public class CardService {
         NoteContent content = NoteContent.validate(note.getNoteType(), req.fieldsJson(), req.tags() == null ? note.getTags() : req.tags());
         note.setFieldsJson(content.fieldsJson());
         note.setTags(content.tags());
+        // Siempre cambia algo en la nota para que la versión avance y dos ediciones simultáneas no se pisen;
+        // se vuelca antes de tocar las tarjetas para que el conflicto salga como tal y no como un error de unicidad.
+        note.setUpdatedAt(Instant.now());
+        noteRepository.saveAndFlush(note);
         if ("cloze".equals(note.getNoteType())) {
-            List<Card> existing = cardRepository.findByNoteId(noteId);
-            var retained = new java.util.HashSet<Integer>();
-            var removed = new java.util.ArrayList<Card>();
-            for (Card card : existing) {
-                if (card.getCardOrdinal() == 0) card.setCardOrdinal(content.ordinals().get(0));
-                if (content.ordinals().contains(card.getCardOrdinal()) && retained.add(card.getCardOrdinal())) {
-                    cardRepository.save(card);
-                } else removed.add(card);
+            // Una tarjeta nunca se borra al quitar su hueco: se suspende y conserva sus repasos, su estado y su programación.
+            // Si el hueco vuelve, se reactiva la misma tarjeta.
+            var byOrdinal = new java.util.HashMap<Integer, Card>();
+            for (Card card : cardRepository.findByNoteId(noteId)) {
+                byOrdinal.putIfAbsent(card.getCardOrdinal() == null ? 0 : card.getCardOrdinal(), card);
             }
-            cardRepository.deleteAllInBatch(removed);
+            int first = content.ordinals().get(0);
+            Card legacy = byOrdinal.get(0);
+            if (legacy != null && !byOrdinal.containsKey(first)) {
+                // Tarjeta heredada con el ordinal 0: pasa a ser la del primer hueco.
+                byOrdinal.remove(0);
+                legacy.setCardOrdinal(first);
+                byOrdinal.put(first, legacy);
+            }
+            for (var entry : byOrdinal.entrySet()) {
+                Card card = entry.getValue();
+                boolean wanted = content.ordinals().contains(entry.getKey());
+                if (wanted == Boolean.TRUE.equals(card.isSuspended())) card.setSuspended(!wanted);
+                cardRepository.save(card);
+            }
             for (int ordinal : content.ordinals()) {
-                if (!retained.contains(ordinal)) cardRepository.save(Card.builder().noteId(noteId).deckId(note.getDeckId()).cardOrdinal(ordinal).build());
+                if (!byOrdinal.containsKey(ordinal)) cardRepository.save(Card.builder().noteId(noteId).deckId(note.getDeckId()).cardOrdinal(ordinal).build());
             }
         }
-        return noteRepository.save(note);
+        return note;
     }
 
     @Transactional

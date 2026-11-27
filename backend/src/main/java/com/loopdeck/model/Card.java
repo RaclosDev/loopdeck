@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "cards", indexes = {
+@Table(name = "cards", uniqueConstraints = @UniqueConstraint(name = "uq_cards_note_ordinal", columnNames = {"note_id", "card_ordinal"}), indexes = {
     @Index(name = "idx_card_note_id", columnList = "note_id"),
     @Index(name = "idx_card_due", columnList = "due"),
     @Index(name = "idx_card_state", columnList = "state")

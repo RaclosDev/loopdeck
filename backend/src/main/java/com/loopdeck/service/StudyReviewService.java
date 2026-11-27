@@ -35,6 +35,18 @@ public class StudyReviewService {
 
     @Transactional
     public ReviewResult review(String user, String cardId, int rating, int timeTakenMs, String requestId, Integer customIntervalMinutes) {
+        return review(user, cardId, rating, timeTakenMs, requestId, customIntervalMinutes, null);
+    }
+
+    /**
+     * {@code expectedReps} es el número de repasos que la tarjeta tenía para quien responde. Si ya no
+     * coincide (la repasó otro dispositivo o pestaña) se responde 409 sin tocar nada, para no aplicar
+     * dos veces el mismo turno de estudio. Sin él se comporta como antes.
+     */
+    @Transactional
+    public ReviewResult review(String user, String cardId, int rating, int timeTakenMs, String requestId,
+                               Integer customIntervalMinutes, Integer expectedReps) {
+        if (expectedReps != null && expectedReps < 0) throw new InvalidInputException("El número de repasos esperado no es válido");
         if (rating < 1 || rating > 4 || timeTakenMs < 0) throw new InvalidInputException("Calificación o tiempo no válido");
         if (customIntervalMinutes != null && (customIntervalMinutes < 1 || customIntervalMinutes > 5_256_000))
             throw new InvalidInputException("El intervalo personalizado no es válido");
@@ -51,6 +63,8 @@ public class StudyReviewService {
             if (review.isUndone()) throw new ConflictException("Esta revisión ya se ha deshecho");
             return new ReviewResult(card, id);
         }
+        if (expectedReps != null && expectedReps != (card.getRepetitions() == null ? 0 : card.getRepetitions()))
+            throw new ConflictException("La tarjeta ya se ha repasado en otro dispositivo; actualiza el estudio");
         if (card.getState() == null || !java.util.List.of("new", "learning", "review", "relearning").contains(card.getState()))
             throw new ConflictException("El estado de la tarjeta no es válido");
         String previous = encode(CardSchedule.capture(card));
