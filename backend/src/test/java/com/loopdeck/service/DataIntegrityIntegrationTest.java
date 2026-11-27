@@ -182,6 +182,30 @@ class DataIntegrityIntegrationTest {
         assertTrue(reviewsFirst.items().stream().allMatch(item -> item.card().getState().equals("review")));
         assertEquals(first.items().stream().map(item -> item.card().getId()).toList(),cards.getStudyBatch(owner,deck.getId(),10,"new_first").items().stream().map(item -> item.card().getId()).toList());
     }
+    tools.jackson.databind.JsonNode export(String user, int pageSize) {
+        try {
+            var out = new java.io.ByteArrayOutputStream();
+            accounts.exportTo(user, out, pageSize);
+            return new tools.jackson.databind.ObjectMapper().readTree(out.toByteArray());
+        } catch (java.io.IOException e) { throw new java.io.UncheckedIOException(e); }
+    }
+    static List<String> ids(tools.jackson.databind.JsonNode array) {
+        return array.valueStream().map(item -> item.get("id").asString()).toList();
+    }
+    @Test void exportPagesThroughEveryRowWithoutRepeatingOrLosingAny() {
+        var mine = deck(owner); var second = deck(owner);
+        var created = new ArrayList<String>();
+        for (int i = 0; i < 7; i++) created.add(note(i % 2 == 0 ? mine : second, "basic", "{\"front\":\"f\",\"back\":\"b\"}").getId());
+        for (var card : cardRepository.findByDeckId(mine.getId()))
+            for (int r = 0; r < 3; r++) jdbc.update("INSERT INTO reviews(id,card_id,rating) VALUES (?,?,3)", UUID.randomUUID().toString(), card.getId());
+
+        var export = export(owner, 2);
+
+        assertEquals(created.stream().sorted().toList(), ids(export.get("notes")));
+        assertEquals(7, export.get("cards").size());
+        assertEquals(7, export.get("cards").valueStream().map(card -> card.get("id").asString()).distinct().count());
+        assertEquals(12, export.get("reviews").size());
+    }
     @Test void exportContainsOnlyTheOwnersDataAndDeletionRemovesEverything() {
         var mine = deck(owner); var foreign = deck(other);
         var note = note(mine, "basic", "{\"front\":\"f\",\"back\":\"b\"}");
@@ -190,12 +214,13 @@ class DataIntegrityIntegrationTest {
         jdbc.update("INSERT INTO reviews(id,card_id,rating) VALUES (?,?,3)", UUID.randomUUID().toString(), card.getId());
         refreshTokens.save(new com.loopdeck.model.RefreshToken(owner, Instant.now().plusSeconds(60)));
 
-        var export = accounts.export(owner);
-        assertEquals(owner, export.account().id());
-        assertEquals(List.of(mine.getId()), export.decks().stream().map(Deck::getId).toList());
-        assertEquals(List.of(note.getId()), export.notes().stream().map(Note::getId).toList());
-        assertEquals(1, export.cards().size());
-        assertEquals(1, export.reviews().size());
+        var export = export(owner, 500);
+        assertEquals(List.of("exportedAt", "account", "decks", "documents", "notes", "cards", "reviews"), export.propertyNames().stream().toList());
+        assertEquals(owner, export.get("account").get("id").asString());
+        assertEquals(List.of(mine.getId()), ids(export.get("decks")));
+        assertEquals(List.of(note.getId()), ids(export.get("notes")));
+        assertEquals(1, export.get("cards").size());
+        assertEquals(1, export.get("reviews").size());
 
         accounts.delete(owner);
         assertEquals(0, jdbc.queryForObject("SELECT count(*) FROM users WHERE id=?", Integer.class, owner));

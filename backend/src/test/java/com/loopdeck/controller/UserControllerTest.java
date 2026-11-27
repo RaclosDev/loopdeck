@@ -15,11 +15,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -88,5 +93,29 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(authService, never()).changePassword(any(), any(), any());
+    }
+
+    @Test
+    void theExportIsStreamedAsADownloadableJsonFile() throws Exception {
+        doAnswer(call -> {
+            call.<java.io.OutputStream>getArgument(1).write("{\"decks\":[]}".getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return null;
+        }).when(accountService).exportTo(eq("u1"), any());
+
+        mockMvc.perform(get("/api/users/me/export").principal(user()))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=\"loopdeck-datos.json\""))
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(content().json("{\"decks\":[]}"));
+    }
+
+    @Test
+    void anUnknownAccountFailsBeforeAnythingIsWritten() throws Exception {
+        doThrow(new IllegalArgumentException("User not found")).when(accountService).requireAccount("u1");
+
+        mockMvc.perform(get("/api/users/me/export").principal(user()))
+                .andExpect(status().is4xxClientError());
+
+        verify(accountService, never()).exportTo(any(), any());
     }
 }

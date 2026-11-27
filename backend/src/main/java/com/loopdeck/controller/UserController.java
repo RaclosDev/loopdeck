@@ -6,11 +6,15 @@ import com.loopdeck.service.AuthService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 
 @RestController
@@ -26,12 +30,17 @@ public class UserController {
         return ResponseEntity.ok(authService.me(auth.getName()));
     }
 
-    /** Todos los datos del usuario en un JSON descargable. */
+    /**
+     * Todos los datos del usuario en un JSON descargable. Se escribe por partes directamente en la respuesta,
+     * sin cargar la cuenta entera en memoria.
+     */
     @GetMapping("/me/export")
-    public ResponseEntity<AccountService.AccountExport> export(Authentication auth) {
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"loopdeck-datos.json\"")
-                .body(accountService.export(auth.getName()));
+    public void export(Authentication auth, HttpServletResponse response) throws IOException {
+        accountService.requireAccount(auth.getName());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"loopdeck-datos.json\"");
+        accountService.exportTo(auth.getName(), response.getOutputStream());
     }
 
     public record ChangePasswordBody(

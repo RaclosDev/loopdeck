@@ -4,6 +4,7 @@ import com.loopdeck.model.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Pageable;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,6 +19,13 @@ public interface CardRepository extends JpaRepository<Card, String> {
     List<Card> findByNoteId(String noteId);
 
     List<Card> findByDeckId(String deckId);
+
+    /** Página de tarjetas de un mazo por id (paginación por clave). */
+    List<Card> findByDeckIdAndIdGreaterThanOrderByIdAsc(String deckId, String afterId, Pageable page);
+
+    /** Solo los ids, para recorrer las tarjetas de un mazo sin cargarlas. */
+    @Query("SELECT c.id FROM Card c WHERE c.deckId = :deckId AND c.id > :afterId ORDER BY c.id")
+    List<String> findIdsByDeckIdAfter(@Param("deckId") String deckId, @Param("afterId") String afterId, Pageable page);
 
     @Query("SELECT c FROM Card c " +
            "WHERE c.deckId = :deckId AND c.suspended = false AND c.buried = false " +
