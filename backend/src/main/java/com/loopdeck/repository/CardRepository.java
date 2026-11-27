@@ -8,6 +8,9 @@ import java.time.Instant;
 import java.util.List;
 
 public interface CardRepository extends JpaRepository<Card, String> {
+    /** Primer criterio de orden de toda cola de estudio: lo que está en aprendizaje y ya vence va delante de lo demás. */
+    String LEARNING_DUE_FIRST = "CASE WHEN c.state IN ('learning','relearning') AND c.due <= :now THEN 0 ELSE 1 END";
+
     @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Card c WHERE c.id = :id")
     java.util.Optional<Card> findLockedById(@Param("id") String id);
@@ -19,12 +22,12 @@ public interface CardRepository extends JpaRepository<Card, String> {
     @Query("SELECT c FROM Card c " +
            "WHERE c.deckId = :deckId AND c.suspended = false AND c.buried = false " +
            "AND ((c.state = 'new') OR (c.due <= :now)) " +
-           "ORDER BY c.due ASC LIMIT :limit")
+           "ORDER BY " + LEARNING_DUE_FIRST + ", c.due ASC LIMIT :limit")
     List<Card> findDueCardsByDeckId(@Param("deckId") String deckId, @Param("now") Instant now, @Param("limit") int limit);
 
     @Query(value = "SELECT c.* FROM cards c WHERE c.deck_id = :deckId AND c.suspended = false AND c.buried = false " +
         "AND (c.state = 'new' OR c.due <= :now) " +
-        "ORDER BY CASE WHEN :studyOrder = 'new_first' AND c.state = 'new' THEN 0 WHEN :studyOrder = 'review_first' AND c.state = 'review' THEN 0 " +
+        "ORDER BY " + LEARNING_DUE_FIRST + ", CASE WHEN :studyOrder = 'new_first' AND c.state = 'new' THEN 0 WHEN :studyOrder = 'review_first' AND c.state = 'review' THEN 0 " +
         "WHEN :studyOrder IN ('new_first','review_first') THEN 1 ELSE 0 END, " +
         "CASE WHEN :studyOrder = 'mixed' THEN random() ELSE 0 END, c.due ASC, c.id ASC LIMIT :limit", nativeQuery = true)
     List<Card> findStudyBatch(@Param("deckId") String deckId, @Param("now") Instant now, @Param("limit") int limit, @Param("studyOrder") String studyOrder);
@@ -33,11 +36,11 @@ public interface CardRepository extends JpaRepository<Card, String> {
 
     @Query(value = "SELECT c.* FROM decks d CROSS JOIN LATERAL (SELECT c.* FROM cards c " +
         "WHERE c.deck_id=d.id AND c.suspended=false AND c.buried=false AND (c.state='new' OR c.due<=:now) " +
-        "ORDER BY CASE WHEN :studyOrder='new_first' AND c.state='new' THEN 0 " +
+        "ORDER BY " + LEARNING_DUE_FIRST + ", CASE WHEN :studyOrder='new_first' AND c.state='new' THEN 0 " +
         "WHEN :studyOrder='review_first' AND c.state='review' THEN 0 " +
         "WHEN :studyOrder IN ('new_first','review_first') THEN 1 ELSE 0 END, " +
         "CASE WHEN :studyOrder='mixed' THEN random() ELSE 0 END, c.due,c.id LIMIT 2) c " +
-        "WHERE d.user_id=:userId AND d.id IN (:deckIds) ORDER BY d.id, " +
+        "WHERE d.user_id=:userId AND d.id IN (:deckIds) ORDER BY d.id, " + LEARNING_DUE_FIRST + ", " +
         "CASE WHEN :studyOrder='new_first' AND c.state='new' THEN 0 " +
         "WHEN :studyOrder='review_first' AND c.state='review' THEN 0 " +
         "WHEN :studyOrder IN ('new_first','review_first') THEN 1 ELSE 0 END, " +
@@ -57,10 +60,10 @@ public interface CardRepository extends JpaRepository<Card, String> {
         String getState();
     }
 
-    @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId")
+    @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId AND c.suspended = false")
     List<CardStateProjection> findCardStatesByDeckId(@Param("deckId") String deckId);
 
-    @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId AND c.noteId IN :noteIds")
+    @Query("SELECT c.noteId as noteId, c.state as state FROM Card c WHERE c.deckId = :deckId AND c.noteId IN :noteIds AND c.suspended = false")
     List<CardStateProjection> findCardStatesForNotes(@Param("deckId") String deckId, @Param("noteIds") List<String> noteIds);
 
     interface DeckStatsProjection {

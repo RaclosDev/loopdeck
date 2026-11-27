@@ -43,6 +43,32 @@ class ReviewPersistenceIntegrationTest {
         assertThrows(ConflictException.class, () -> study.review(owner, cardId, 3, 200, id));
         assertThrows(InvalidInputException.class, () -> study.review(owner, cardId, 5, 0, requestId()));
     }
+    @Test void aReviewWithAStaleExpectedRepsIsRejectedWithoutTouchingTheCard() {
+        String first = requestId();
+        study.review(owner, cardId, 3, 100, first, null, 0);
+        var afterFirst = CardSchedule.capture(cardRepository.findById(cardId).orElseThrow());
+        assertEquals(1, cardRepository.findById(cardId).orElseThrow().getRepetitions());
+
+        // Otro dispositivo sigue creyendo que la tarjeta lleva 0 repasos: 409 y nada cambia.
+        assertThrows(ConflictException.class, () -> study.review(owner, cardId, 4, 100, requestId(), null, 0));
+        assertEquals(afterFirst, CardSchedule.capture(cardRepository.findById(cardId).orElseThrow()));
+        assertEquals(1, reviews.findByCardIdOrderByReviewedAtDesc(cardId).size());
+
+        // Con el valor actual se aplica, y sin él se comporta como siempre.
+        study.review(owner, cardId, 3, 100, requestId(), null, 1);
+        study.review(owner, cardId, 3, 100, requestId(), null, null);
+        assertEquals(3, reviews.findByCardIdOrderByReviewedAtDesc(cardId).size());
+        assertThrows(InvalidInputException.class, () -> study.review(owner, cardId, 3, 100, requestId(), null, -1));
+    }
+    @Test void retryingTheSameRequestStillReturnsTheFirstResultEvenIfExpectedRepsIsStale() {
+        String id = requestId();
+        study.review(owner, cardId, 3, 100, id, null, 0);
+        // El reintento de la misma acción (respuesta perdida) lleva el mismo expectedReps, que ya no coincide.
+        var retry = study.review(owner, cardId, 3, 100, id, null, 0);
+        assertEquals(id, retry.reviewId());
+        assertEquals(1, reviews.findByCardIdOrderByReviewedAtDesc(cardId).size());
+        assertEquals(1, cardRepository.findById(cardId).orElseThrow().getRepetitions());
+    }
     @Test void aCustomIntervalOverridesTheAlgorithmAndCanBeUndone() {
         var before = CardSchedule.capture(cardRepository.findById(cardId).orElseThrow());
         String id = requestId();

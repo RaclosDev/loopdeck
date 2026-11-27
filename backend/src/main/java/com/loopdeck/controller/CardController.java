@@ -49,7 +49,9 @@ public class CardController {
         @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(4) int rating,
         @jakarta.validation.constraints.Min(0) int timeTakenMs,
         String requestId,
-        @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(5_256_000) Integer customIntervalMinutes
+        @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(5_256_000) Integer customIntervalMinutes,
+        /** Repasos que la tarjeta tenía para quien responde; si ya no coinciden, 409. Opcional. */
+        @jakarta.validation.constraints.Min(0) Integer expectedReps
     ) {}
 
 
@@ -132,7 +134,7 @@ public class CardController {
     public ResponseEntity<com.loopdeck.service.StudyReviewService.ReviewResult> review(Authentication auth,
                                        @PathVariable String cardId,
                                        @Valid @RequestBody ReviewBody body) {
-        return ResponseEntity.ok(reviewService.review(auth.getName(), cardId, body.rating(), body.timeTakenMs(), body.requestId(), body.customIntervalMinutes()));
+        return ResponseEntity.ok(reviewService.review(auth.getName(), cardId, body.rating(), body.timeTakenMs(), body.requestId(), body.customIntervalMinutes(), body.expectedReps()));
     }
 
     public record RestoreBody(String reviewId, String state, java.time.Instant due, Double intervalDays, Double easeFactor,

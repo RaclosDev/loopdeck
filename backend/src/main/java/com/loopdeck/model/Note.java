@@ -37,6 +37,11 @@ public class Note {
     @Column(name = "updated_at")
     private Instant updatedAt;
 
+    /** Control de concurrencia: dos ediciones simultáneas de la misma nota no se pisan, la segunda recibe un conflicto. */
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @PrePersist
     void prePersist() {
         if (id == null) id = java.util.UUID.randomUUID().toString();
@@ -62,6 +67,8 @@ public class Note {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+    public Long getVersion() { return version; }
 
     public String getId() { return id; }
 

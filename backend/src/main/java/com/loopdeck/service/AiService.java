@@ -31,6 +31,8 @@ public class AiService {
     private static final Logger log = LoggerFactory.getLogger(AiService.class);
     private static final String API_BASE = "https://generativelanguage.googleapis.com/v1beta/models/";
     private static final ObjectMapper JSON = new ObjectMapper();
+    /** Pasado este tiempo desde que empezó una petición a Gemini no se prueban más modelos de reserva. */
+    private static final long TOTAL_BUDGET_MS = 100_000;
 
     private static final String CARD_RULES = """
         Reglas obligatorias para cada definición:
@@ -211,7 +213,12 @@ public class AiService {
         models.add(primary);
         if (!models.contains(model)) models.add(model);
         fallbackModels.stream().filter(m -> !models.contains(m)).forEach(models::add);
+        long budgetStart = System.nanoTime();
         for (String current : models) {
+            if (!current.equals(models.get(0)) && elapsedMs(budgetStart) > TOTAL_BUDGET_MS) {
+                log.warn("Gemini: se agotó el tiempo total ({} ms); no se prueban más modelos", elapsedMs(budgetStart));
+                break;
+            }
             // El nivel de razonamiento se ajusta al modelo principal; los de reserva usan el suyo por defecto.
             Map<String, Object> body = requestBody(system, userText, maxOutputTokens, schema, current.equals(model));
             long start = System.nanoTime();
