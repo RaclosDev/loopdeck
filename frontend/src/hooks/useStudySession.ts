@@ -252,7 +252,7 @@ export function useStudySession(deckId: string | undefined, order: string, accou
         actions.shift();
         void invalidateStudyData(client, deckId);
         if (version !== generation.current) continue;
-        requeueWhenDue({ ...action.pair, card: result.card });
+        if (result?.card) requeueWhenDue({ ...action.pair, card: result.card });
         setUndoStack((stack) => [
           ...stack,
           { pair: action.pair, reviewId: result.reviewId, rating: action.body.rating },
