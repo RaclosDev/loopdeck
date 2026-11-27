@@ -11,6 +11,7 @@ import toast from 'react-hot-toast';
 import { accountApi } from '../services/api';
 import { clearReviewOutbox } from '../lib/reviewOutbox';
 import PasskeySettings from '../components/PasskeySettings';
+import AccountSecuritySettings from '../components/AccountSecuritySettings';
 import {
   Dialog,
   DialogContent,
@@ -257,6 +258,8 @@ export default function Settings() {
           </div>
 
           {!DEMO && <PasskeySettings />}
+
+          {!DEMO && <AccountSecuritySettings />}
 
           {!DEMO && (
             <div className="mt-8 pt-6 border-t border-[var(--border-subtle)]">

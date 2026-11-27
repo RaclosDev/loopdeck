@@ -10,6 +10,7 @@ vi.mock('../context/AuthContext', () => ({
   useAuth: () => ({ user: { id: 'a', email: 'a@x.test', name: 'A' }, logout }),
 }));
 vi.mock('../components/PasskeySettings', () => ({ default: () => null }));
+vi.mock('../components/AccountSecuritySettings', () => ({ default: () => null }));
 
 describe('Settings logout', () => {
   const realLocation = window.location;
