@@ -154,6 +154,31 @@ describe('account data isolation', () => {
       expect(removeCache).toHaveBeenCalledWith('api-cache');
     });
 
+    it('stores the rotated token the server returns', async () => {
+      fetchMock.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ token: tokenFor('a') }),
+      });
+      mount();
+      await screen.findByText('a');
+      expect(localStorage.getItem('loopdeck_jwt_token')).toBe(tokenFor('a'));
+    });
+
+    it('does not call the server when another tab already left a fresh token', async () => {
+      const lockRequest = vi.fn(async (_name: string, callback: () => Promise<unknown>) => {
+        // La otra pestaña termina su refresco mientras esta espera el bloqueo.
+        localStorage.setItem('loopdeck_jwt_token', tokenFor('a'));
+        return callback();
+      });
+      vi.stubGlobal('navigator', { ...navigator, locks: { request: lockRequest } });
+      mount();
+      await screen.findByText('a');
+      expect(lockRequest).toHaveBeenCalledWith('loopdeck-refresh', expect.any(Function));
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(localStorage.getItem('loopdeck_jwt_token')).toBe(tokenFor('a'));
+    });
+
     it('puts a maximum time on the startup refresh', async () => {
       fetchMock.mockResolvedValue({ ok: false, status: 401 });
       mount();

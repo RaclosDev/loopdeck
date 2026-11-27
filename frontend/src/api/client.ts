@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { DEMO } from '../demo/mode';
 import { TOKEN_KEY, endLocalSession } from '../lib/session';
+import { refreshAcrossTabs } from '../lib/refreshLock';
 
 /** Tiempo máximo de una petición normal: sin él, una conexión colgada deja la pantalla esperando. */
 export const REQUEST_TIMEOUT_MS = 30_000;
@@ -23,7 +24,10 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem(TOKEN_KEY);
     // Don't send token for specific auth routes to avoid Spring Security rejecting valid requests (like refresh) due to expired token
-    if (token && !config.url?.match(/\/auth\/(login|register|google|refresh|config|passkeys)/)) {
+    if (
+      token &&
+      !config.url?.match(/\/auth\/(login|register|google|refresh|config|passkeys|password-reset)/)
+    ) {
       config.headers.Authorization = 'Bearer ' + token;
     } else {
       delete config.headers.Authorization;
@@ -61,7 +65,9 @@ api.interceptors.response.use(
       !originalRequest._retry &&
       // Sin token la sesión se cerró en este navegador: un refresco la resucitaría con la cookie.
       localStorage.getItem(TOKEN_KEY) &&
-      !originalRequest.url.match(/\/auth\/(login|register|google|refresh|config|passkeys)/)
+      !originalRequest.url.match(
+        /\/auth\/(login|register|google|refresh|config|passkeys|password-reset)/,
+      )
     ) {
       if (isRefreshing) {
         return new Promise(function (resolve, reject) {
@@ -80,10 +86,15 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const res = await api.post('/auth/refresh');
-        const newToken = res.data.token;
-
-        localStorage.setItem(TOKEN_KEY, newToken);
+        // El token con el que falló la petición: si otra pestaña ya lo renovó, se usa el suyo.
+        const usedToken = String(originalRequest.headers?.Authorization ?? '').replace(
+          /^Bearer /,
+          '',
+        );
+        const newToken = await refreshAcrossTabs(usedToken || null, async () => {
+          const res = await api.post('/auth/refresh');
+          return res.data.token as string;
+        });
 
         window.dispatchEvent(new Event('loopdeck:token-updated'));
         originalRequest.headers['Authorization'] = 'Bearer ' + newToken;

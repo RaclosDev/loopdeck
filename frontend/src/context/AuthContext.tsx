@@ -4,6 +4,7 @@ import { googleLogout } from '@react-oauth/google';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { adoptAccount } from '../lib/offlineCache';
 import { TOKEN_KEY, endLocalSession, revokeRefreshCookie } from '../lib/session';
+import { refreshAcrossTabs } from '../lib/refreshLock';
 import { DEMO, DEMO_TOKEN } from '../demo/mode';
 
 // En el modo demo la sesión es ficticia y no se lee ni se escribe la del navegador.
@@ -106,27 +107,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (needsRefresh) {
         try {
-          // Proactive refresh bypassing Axios interceptors to avoid race conditions on mount
-          const res = await fetch('/api/auth/refresh', {
-            method: 'POST',
-            signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
-          });
-          if (res.status >= 500) throw new RefreshUnavailable('Refresh unavailable');
-          if (res.ok) {
+          // Refresco directo (sin los interceptores de Axios, para evitar carreras al montar) y
+          // coordinado con las demás pestañas: el refresh token rota en cada uso.
+          currentToken = await refreshAcrossTabs(currentToken, async () => {
+            const res = await fetch('/api/auth/refresh', {
+              method: 'POST',
+              signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
+            });
+            if (res.status >= 500) throw new RefreshUnavailable('Refresh unavailable');
+            if (!res.ok) throw new Error('Refresh failed');
             const data = await res.json();
-            if (data.token) {
-              currentToken = data.token;
-              await synchronizeIdentity(currentToken!);
-              localStorage.setItem(TOKEN_KEY, currentToken!);
-              setToken(currentToken);
-
-              setUser(userFromToken(currentToken!));
-            } else {
-              throw new Error('No token in response');
-            }
-          } else {
-            throw new Error('Refresh failed');
-          }
+            if (!data.token) throw new Error('No token in response');
+            return data.token as string;
+          });
+          await synchronizeIdentity(currentToken);
+          setToken(currentToken);
+          setUser(userFromToken(currentToken));
         } catch (error) {
           if (offlineUser && refreshUnavailable(error)) {
             // Sin red (o con el servidor caído) la sesión no se pierde: se abre con el token
