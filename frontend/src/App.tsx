@@ -10,6 +10,7 @@ import { PublicRoutes, RedirectFromAuth } from './routes/authRoutes';
 import { AUTH_PATHS } from './lib/authRedirect';
 import { DEMO } from './demo/mode';
 import { useReviewOutbox } from './hooks/useReviewOutbox';
+import { requestReload } from './lib/reloadGuard';
 import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
@@ -94,7 +95,7 @@ function AppContent({
             .get<{ version: string }>('/version')
             .then((res) => {
               if (currentAppVersion && res.data.version !== currentAppVersion) {
-                window.location.reload();
+                requestReload(() => window.location.reload());
               }
             })
             .catch((err) => console.error('Error fetching app version', err));

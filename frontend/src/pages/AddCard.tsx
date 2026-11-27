@@ -15,6 +15,7 @@ import { formatTermHeading, htmlToText } from '../lib/utils';
 import { SelectMenu } from '../components/ui/select-menu';
 import FlashCard from '../components/FlashCard';
 import { Button } from '../components/ui/button';
+import { useUnsavedWork } from '../lib/reloadGuard';
 import {
   Dialog,
   DialogContent,
@@ -74,6 +75,13 @@ export default function AddCard() {
     backHtml: string;
   } | null>(null);
   const addInFlight = useRef(false);
+  // También cuenta lo escrito en el modo que ahora está oculto.
+  useUnsavedWork(
+    fields.front.trim() !== '' ||
+      fields.back.trim() !== '' ||
+      massInput.trim() !== '' ||
+      !!pendingImport.current,
+  );
 
   /** `auto` crea una tarjeta de imagen: la foto elegida al frente y el término detrás. */
   const [imageSearchModalInfo, setImageSearchModalInfo] = useState<{
@@ -259,7 +267,7 @@ export default function AddCard() {
       }
       const backHtml = formatTermHeading(fields.front);
       // El dorso se sustituye: si ya tenía algo escrito, antes se pregunta.
-      if (htmlToText(fields.back || '').trim() || /<img/i.test(fields.back)) {
+      if (htmlToText(fields.back || '').trim() || /<img\b/i.test(fields.back)) {
         setPendingDefinition({ definition: def.definition, backHtml });
         return;
       }
