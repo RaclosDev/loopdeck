@@ -37,6 +37,7 @@ public class DeckService {
         Deck deck = deckMapper.toEntity(req);
         if (req.parentId() == null || req.parentId().isBlank()) deck.setParentId(null);
         deck.setUserId(userId);
+        UsageLimits.checkDecks(deckRepository.countByUserId(userId));
         return deckRepository.save(deck);
     }
 

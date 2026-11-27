@@ -9,4 +9,5 @@ public interface DeckRepository extends JpaRepository<Deck, String> {
     List<Deck> findByUserIdOrderByNameAsc(String userId);
     Optional<Deck> findByIdAndUserId(String id, String userId);
     List<Deck> findByIdInAndUserId(List<String> ids, String userId);
+    long countByUserId(String userId);
 }

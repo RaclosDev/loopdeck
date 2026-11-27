@@ -14,7 +14,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
+import com.loopdeck.exception.ReauthenticationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -77,5 +82,28 @@ class PasskeyControllerTest {
         mockMvc.perform(post("/api/auth/passkeys/login").contentType(MediaType.APPLICATION_JSON)
                         .content("{\"requestId\":\"abc\"}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void registrationOptionsPassTheConfirmationToTheService() throws Exception {
+        when(passkeyService.startRegistration("u1", "secreta", null)).thenReturn(
+                new PasskeyService.Ceremony("abc", "{\"publicKey\":{\"challenge\":\"c\"}}"));
+
+        mockMvc.perform(post("/api/users/me/passkeys/options")
+                        .principal(new UsernamePasswordAuthenticationToken("u1", null))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"password\":\"secreta\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.requestId").value("abc"));
+    }
+
+    @Test
+    void registrationOptionsWithoutBodyAreForbiddenWhenTheIdentityIsNotConfirmed() throws Exception {
+        when(passkeyService.startRegistration(eq("u1"), isNull(), isNull()))
+                .thenThrow(new ReauthenticationException("Confirma tu identidad para continuar"));
+
+        mockMvc.perform(post("/api/users/me/passkeys/options")
+                        .principal(new UsernamePasswordAuthenticationToken("u1", null)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("Confirma tu identidad para continuar"));
     }
 }

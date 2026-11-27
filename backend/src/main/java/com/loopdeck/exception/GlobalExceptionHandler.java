@@ -26,6 +26,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("No tienes acceso a este recurso", HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(ReauthenticationException.class)
+    public ResponseEntity<?> handleReauthentication(ReauthenticationException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<?> handleTokenRefreshException(TokenRefreshException ex) {
         log.warn("Refresh token error: {}", ex.getMessage());
@@ -81,6 +86,32 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("Los datos han cambiado mientras los editabas; recarga e inténtalo de nuevo", HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<?> handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex) {
+        ResponseEntity.BodyBuilder response = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+            .contentType(org.springframework.http.MediaType.APPLICATION_JSON);
+        if (ex.getSupportedHttpMethods() != null && !ex.getSupportedHttpMethods().isEmpty()) {
+            response.allow(ex.getSupportedHttpMethods().toArray(new org.springframework.http.HttpMethod[0]));
+        }
+        return response.body(Map.of("error", "Método no permitido"));
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<?> handleUnsupportedMediaType(org.springframework.web.HttpMediaTypeNotSupportedException ex) {
+        return jsonError("Tipo de contenido no admitido", HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotAcceptableException.class)
+    public ResponseEntity<?> handleNotAcceptable(org.springframework.web.HttpMediaTypeNotAcceptableException ex) {
+        return jsonError("Formato de respuesta no disponible", HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler(org.springframework.dao.PessimisticLockingFailureException.class)
+    public ResponseEntity<?> handleLockTimeout(org.springframework.dao.PessimisticLockingFailureException ex) {
+        log.warn("Lock timeout: {}", ex.getMessage());
+        return jsonError("El recurso está ocupado; inténtalo de nuevo en un momento", HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
     public ResponseEntity<?> handleDataConflict(org.springframework.dao.DataIntegrityViolationException ex) {
         return buildErrorResponse("La operación entra en conflicto con los datos actuales", HttpStatus.CONFLICT);
@@ -95,6 +126,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleGlobalException(Exception ex) {
         log.error("Unhandled exception occurred", ex);
         return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ResponseEntity<?> jsonError(String message, HttpStatus status) {
+        return ResponseEntity.status(status).contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+            .body(Map.of("error", message));
     }
 
     private ResponseEntity<?> buildErrorResponse(String message, HttpStatus status) {

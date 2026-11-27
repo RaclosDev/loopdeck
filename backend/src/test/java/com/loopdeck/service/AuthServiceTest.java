@@ -1,5 +1,7 @@
 package com.loopdeck.service;
 
+import com.loopdeck.exception.ConflictException;
+import com.loopdeck.exception.ReauthenticationException;
 import com.loopdeck.exception.TooManyRequestsException;
 import com.loopdeck.mapper.UserMapper;
 import com.loopdeck.model.RefreshToken;
@@ -154,5 +156,90 @@ class AuthServiceTest {
             }
             assertEquals("jwt", service.login(new AuthService.LoginRequest("victima@example.com", "buena")).token());
         }
+    }
+
+    @Test
+    void confirmIdentityAcceptsTheRightPasswordAndRejectsMissingOrWrongOnes() {
+        when(users.findById("victima")).thenReturn(Optional.of(passwordUser()));
+        when(encoder.matches("buena", "hash-del-atacante")).thenReturn(true);
+
+        service.confirmIdentity("victima", "buena", null);
+
+        assertThrows(ReauthenticationException.class, () -> service.confirmIdentity("victima", "mala", null));
+        assertThrows(ReauthenticationException.class, () -> service.confirmIdentity("victima", null, null));
+        assertThrows(ReauthenticationException.class, () -> service.confirmIdentity("victima", "", "token-google"));
+    }
+
+    @Test
+    void confirmIdentityNeedsAGoogleCredentialForGoogleOnlyAccountsAndNeverTrustsAPassword() {
+        User googleOnly = User.builder().id("g").email("g@example.com").name("G").googleId("g-1").build();
+        when(users.findById("g")).thenReturn(Optional.of(googleOnly));
+
+        assertThrows(ReauthenticationException.class, () -> service.confirmIdentity("g", "cualquiera", null));
+        verify(encoder, never()).matches(any(), any());
+    }
+
+    @Test
+    void confirmIdentityFailsForUnknownAccounts() {
+        when(users.findById("nadie")).thenReturn(Optional.empty());
+
+        assertThrows(ReauthenticationException.class, () -> service.confirmIdentity("nadie", "x", null));
+    }
+
+    @Test
+    void confirmIdentityFailuresAreThrottledPerAccount() {
+        when(users.findById("victima")).thenReturn(Optional.of(passwordUser()));
+        when(encoder.matches("mala", "hash-del-atacante")).thenReturn(false);
+        when(encoder.matches("buena", "hash-del-atacante")).thenReturn(true);
+
+        for (int i = 0; i < 10; i++) {
+            assertThrows(ReauthenticationException.class, () -> service.confirmIdentity("victima", "mala", null));
+        }
+        assertThrows(TooManyRequestsException.class, () -> service.confirmIdentity("victima", "buena", null));
+    }
+
+    @Test
+    void changingThePasswordRevokesEverySessionAndOpensANewOne() {
+        User user = passwordUser();
+        when(users.findById("victima")).thenReturn(Optional.of(user));
+        when(encoder.matches("vieja", "hash-del-atacante")).thenReturn(true);
+        when(encoder.encode("nueva-segura")).thenReturn("hash-nuevo");
+
+        AuthService.AuthResponse res = service.changePassword("victima", "vieja", "nueva-segura");
+
+        assertEquals("hash-nuevo", user.getPasswordHash());
+        verify(users).save(user);
+        verify(refreshTokens).deleteByUserId("victima");
+        verify(refreshTokens).createRefreshToken("victima");
+        assertEquals("jwt", res.token());
+    }
+
+    @Test
+    void changingThePasswordWithAWrongCurrentOneChangesNothing() {
+        User user = passwordUser();
+        when(users.findById("victima")).thenReturn(Optional.of(user));
+        when(encoder.matches("mala", "hash-del-atacante")).thenReturn(false);
+
+        assertThrows(ReauthenticationException.class, () -> service.changePassword("victima", "mala", "nueva-segura"));
+
+        assertEquals("hash-del-atacante", user.getPasswordHash());
+        verify(users, never()).save(any());
+        verify(refreshTokens, never()).deleteByUserId(any());
+    }
+
+    @Test
+    void googleOnlyAccountsHaveNoPasswordToChange() {
+        User googleOnly = User.builder().id("g").email("g@example.com").name("G").googleId("g-1").build();
+        when(users.findById("g")).thenReturn(Optional.of(googleOnly));
+
+        assertThrows(ConflictException.class, () -> service.changePassword("g", "x", "nueva-segura"));
+        verify(refreshTokens, never()).deleteByUserId(any());
+    }
+
+    @Test
+    void logoutAllDeletesEveryRefreshTokenOfTheAccount() {
+        service.logoutAll("victima");
+
+        verify(refreshTokens).deleteByUserId("victima");
     }
 }

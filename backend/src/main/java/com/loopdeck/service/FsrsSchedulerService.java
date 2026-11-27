@@ -27,20 +27,67 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FsrsSchedulerService {
     private static final String FSRS_STATE_PREFIX = "FSRS-5:";
+    private static final double LEGACY_DIFFICULTY = 5.0;
     private final ReviewRepository reviews;
 
-    private Scheduler schedulerFor(Card card) {
-        String seedMaterial = (card.getId() == null ? "new-card" : card.getId()) + ":"
-                + (card.getRepetitions() == null ? 0 : card.getRepetitions());
-        int seed = seedMaterial.hashCode() & 0x7fffffff;
+    private static final int MAXIMUM_INTERVAL_DAYS = 36500;
+
+    /**
+     * El fuzz de la librería se desactiva: su cálculo del rango está mal (usa
+     * {@code min(intervalo, fin - inicio)} en lugar de {@code min(intervalo, fin) - inicio}) y redondea
+     * hacia arriba. El fuzz correcto se aplica en {@link #fuzzed}.
+     */
+    private Scheduler schedulerFor() {
         return Scheduler.builder()
                 .desiredRetention(0.90)
                 .learningSteps(new Duration[]{Duration.ofMinutes(1), Duration.ofMinutes(10)})
                 .relearningSteps(new Duration[]{Duration.ofMinutes(10)})
-                .maximumInterval(36500)
-                .enableFuzzing(true)
-                .randomSeedNumber(seed == 0 ? 1 : seed)
+                .maximumInterval(MAXIMUM_INTERVAL_DAYS)
+                .enableFuzzing(false)
                 .build();
+    }
+
+    private static long fuzzSeed(Card card) {
+        String seedMaterial = (card.getId() == null ? "new-card" : card.getId()) + ":"
+                + (card.getRepetitions() == null ? 0 : card.getRepetitions());
+        int seed = seedMaterial.hashCode() & 0x7fffffff;
+        return seed == 0 ? 1 : seed;
+    }
+
+    /** Rango {mínimo, máximo} en días del fuzz de FSRS para un intervalo de {@code interval} días. */
+    static int[] fuzzRange(int interval, int maximumInterval) {
+        double[][] ranges = {{2.5, 7.0, 0.15}, {7.0, 20.0, 0.1}, {20.0, Double.POSITIVE_INFINITY, 0.05}};
+        double delta = 1.0;
+        for (double[] range : ranges) {
+            delta += range[2] * Math.max(Math.min(interval, range[1]) - range[0], 0.0);
+        }
+        int min = Math.max(2, (int) Math.round(interval - delta));
+        int max = Math.min((int) Math.round(interval + delta), maximumInterval);
+        return new int[]{Math.min(min, max), max};
+    }
+
+    /** Intervalo con fuzz (en días) para {@code interval} >= 3; {@code random} es un valor en [0, 1). */
+    static int fuzzedDays(int interval, double random, int maximumInterval) {
+        if (interval < 3) return interval;
+        int[] range = fuzzRange(interval, maximumInterval);
+        return Math.min((int) Math.floor(random * (range[1] - range[0] + 1) + range[0]), maximumInterval);
+    }
+
+    /**
+     * Revisa la tarjeta y aplica el fuzz al intervalo cuando la tarjeta queda en repaso. Se usa tanto en la
+     * previsualización como al guardar, con la misma semilla, para que ambas coincidan.
+     */
+    private io.github.openspacedrepetition.Card reviewWithFuzz(Card card, Scheduler scheduler,
+            io.github.openspacedrepetition.Card current, int rating, Instant now) {
+        io.github.openspacedrepetition.Card next = scheduler.reviewCard(current, rating(rating), now).card();
+        if (next.getState() == State.REVIEW) {
+            int days = (int) Duration.between(now, next.getDue()).toDays();
+            if (days >= 3) {
+                double random = new java.util.Random(fuzzSeed(card)).nextDouble();
+                next.setDue(now.plus(Duration.ofDays(fuzzedDays(days, random, MAXIMUM_INTERVAL_DAYS))));
+            }
+        }
+        return next;
     }
 
     private io.github.openspacedrepetition.Card stateFor(Card card, Scheduler scheduler, List<Review> loadedHistory) {
@@ -69,12 +116,18 @@ public class FsrsSchedulerService {
             return fsrs;
         }
 
-        // Legacy cards may predate review logging. Give already-graduated cards a conservative
-        // initial memory state instead of attempting to run FSRS with null stability/difficulty.
+        // Las tarjetas antiguas pueden no tener historial de repasos. Se reconstruye la memoria desde su
+        // intervalo actual (con 90 % de retención, la estabilidad equivale al intervalo) en lugar de simular
+        // dos repasos buenos, que convertían un intervalo de 3 días en unos 60.
         if ("review".equals(card.getState()) || "relearning".equals(card.getState())) {
-            Instant created = card.getCreatedAt() == null ? Instant.now().minus(Duration.ofDays(2)) : card.getCreatedAt();
-            fsrs = scheduler.reviewCard(fsrs, Rating.GOOD, created).card();
-            fsrs = scheduler.reviewCard(fsrs, Rating.GOOD, created.plus(Duration.ofMinutes(10))).card();
+            double interval = card.getIntervalDays() == null ? 0.0 : Math.max(0.0, card.getIntervalDays());
+            double stability = Math.max(1.0, interval);
+            Instant due = card.getDue() == null ? Instant.now() : card.getDue();
+            fsrs.setState(State.REVIEW);
+            fsrs.setStep(null);
+            fsrs.setStability(stability);
+            fsrs.setDifficulty(LEGACY_DIFFICULTY);
+            fsrs.setLastReview(due.minus(Duration.ofMillis((long) (stability * 86_400_000L))));
             if ("relearning".equals(card.getState())) {
                 fsrs.setState(State.RELEARNING);
                 fsrs.setStep(0);
@@ -108,10 +161,10 @@ public class FsrsSchedulerService {
             for (int value = 1; value <= 4; value++) {
                 // A fresh scheduler per option makes preview fuzzing identical to the subsequent
                 // persisted answer, regardless of which other buttons were calculated first.
-                Scheduler scheduler = schedulerFor(card);
+                Scheduler scheduler = schedulerFor();
                 io.github.openspacedrepetition.Card current = stateFor(card, scheduler, history);
-                CardAndReviewLog next = scheduler.reviewCard(current, rating(value), now);
-                options.put(value, format(Duration.between(now, next.card().getDue())));
+                io.github.openspacedrepetition.Card next = reviewWithFuzz(card, scheduler, current, value, now);
+                options.put(value, format(Duration.between(now, next.getDue())));
             }
             result.put(card.getId(), Map.copyOf(options));
         }
@@ -119,12 +172,12 @@ public class FsrsSchedulerService {
     }
 
     public void apply(Card card, int rating, Integer customIntervalMinutes) {
-        Scheduler scheduler = schedulerFor(card);
+        Scheduler scheduler = schedulerFor();
         List<Review> history = card.getFsrsState() == null || card.getFsrsState().isBlank()
                 ? reviews.findByCardIdOrderByReviewedAtDesc(card.getId()) : List.of();
         io.github.openspacedrepetition.Card current = stateFor(card, scheduler, history);
         Instant now = Instant.now();
-        io.github.openspacedrepetition.Card next = scheduler.reviewCard(current, rating(rating), now).card();
+        io.github.openspacedrepetition.Card next = reviewWithFuzz(card, scheduler, current, rating, now);
 
         if (customIntervalMinutes != null) {
             next.setDue(now.plus(Duration.ofMinutes(customIntervalMinutes)));
