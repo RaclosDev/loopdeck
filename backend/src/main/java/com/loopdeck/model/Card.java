@@ -53,6 +53,10 @@ public class Card {
     @Column
     private Boolean buried;
 
+    /** Cuándo se enterró (una hermana ya repasada hoy); sirve para devolverla al empezar el siguiente día de estudio. */
+    @Column(name = "buried_at")
+    private Instant buriedAt;
+
     @Column(name = "flag_color")
     private String flagColor;
 
@@ -150,6 +154,11 @@ public class Card {
     public Boolean isBuried() { return buried; }
 
     public void setBuried(Boolean buried) { this.buried = buried; }
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public Instant getBuriedAt() { return buriedAt; }
+
+    public void setBuriedAt(Instant buriedAt) { this.buriedAt = buriedAt; }
 
     public String getFlagColor() { return flagColor; }
 

@@ -24,6 +24,7 @@ public class StudyReviewService {
     private final FsrsSchedulerService scheduler;
     private final ObjectMapper json;
     private final jakarta.persistence.EntityManager entityManager;
+    private final SiblingBurying burying;
 
     public record ReviewResult(Card card, String reviewId) {}
     public record RestoreResult(Card card, boolean alreadyUndone) {}
@@ -70,6 +71,8 @@ public class StudyReviewService {
         String previous = encode(CardSchedule.capture(card));
         scheduler.apply(card, rating, customIntervalMinutes);
         cards.save(card);
+        // Las hermanas esperan al siguiente día de estudio. Deshacer no las desentierra: siguen donde estaban.
+        burying.buryAfterReview(card.getNoteId(), card.getId(), Instant.now());
         Instant timestamp = Instant.now().truncatedTo(ChronoUnit.MICROS);
         var latest = reviews.findFirstByCardIdOrderByReviewedAtDescIdDesc(cardId);
         if (latest.isPresent() && !timestamp.isAfter(latest.get().getReviewedAt())) timestamp = latest.get().getReviewedAt().plus(1, ChronoUnit.MICROS);
