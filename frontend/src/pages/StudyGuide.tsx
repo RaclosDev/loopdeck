@@ -1,4 +1,4 @@
-import { parseNoteFields } from '../lib/noteFields';
+import { noteSides } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useMemo } from 'react';
@@ -46,12 +46,12 @@ function StudyGuide() {
 
   const parsedNotes = useMemo(() => {
     return notes.map((note, index) => {
-      const fields = parseNoteFields(note.fieldsJson || '{}');
+      const sides = noteSides(note);
       return {
         id: note.id,
         index,
-        frontHtml: sanitizeHtml(marked.parse(fields.front || '') as string),
-        backHtml: sanitizeHtml(marked.parse(fields.back || '') as string),
+        frontHtml: sanitizeHtml(marked.parse(sides.front) as string),
+        backHtml: sanitizeHtml(marked.parse(sides.back) as string),
       };
     });
   }, [notes]);

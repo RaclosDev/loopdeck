@@ -1,8 +1,9 @@
 import { limitTutorContext } from '../lib/tutorContext';
-import { parseNoteFields } from '../lib/noteFields';
+import { noteSides } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import toast from 'react-hot-toast';
 import { useState, useEffect, useRef, FormEvent } from 'react';
+import { isCancel } from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { decksApi, notesApi, aiApi } from '../services/api';
 import { marked } from 'marked';
@@ -34,6 +35,10 @@ function StudyTutor() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pendingChat = useRef<AbortController | null>(null);
+
+  // Al salir de la pantalla no queda una consulta a la IA esperando una respuesta que nadie verá.
+  useEffect(() => () => pendingChat.current?.abort(), []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -55,9 +60,9 @@ function StudyTutor() {
         let context = `Mazo: ${d.name}\n\n`;
         const reversedNotes = [...allNotes].reverse();
         reversedNotes.forEach((n) => {
-          const f = parseNoteFields(n.fieldsJson || '{}');
-          const front = htmlToText(f.front || '');
-          const back = htmlToText(f.back || '');
+          const sides = noteSides(n);
+          const front = htmlToText(sides.front);
+          const back = htmlToText(sides.back);
           context += `Pregunta: ${front}\nRespuesta: ${back}\n\n`;
         });
 
@@ -88,20 +93,29 @@ function StudyTutor() {
     setInput('');
     setMessages((prev) => [...prev, { role: 'user', text: userMessage }]);
     setIsTyping(true);
+    const controller = new AbortController();
+    pendingChat.current = controller;
 
     try {
-      const res = await aiApi.chat(userMessage, contextString);
+      const res = await aiApi.chat(userMessage, contextString, controller.signal);
       setMessages((prev) => [...prev, { role: 'ai', text: res.response }]);
-    } catch {
+    } catch (error) {
+      if (isCancel(error)) {
+        setMessages((prev) => [...prev, { role: 'ai', text: 'Has cancelado la consulta.' }]);
+        return;
+      }
       toast.error('Error al comunicar con la IA');
       setMessages((prev) => [
         ...prev,
         { role: 'ai', text: 'Lo siento, hubo un error al conectar con el servidor de IA.' },
       ]);
     } finally {
+      if (pendingChat.current === controller) pendingChat.current = null;
       setIsTyping(false);
     }
   };
+
+  const handleCancel = () => pendingChat.current?.abort();
 
   if (loadError)
     return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;
@@ -196,6 +210,14 @@ function StudyTutor() {
             }}
           >
             La IA está escribiendo...
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ marginLeft: '12px', padding: '2px 10px', fontSize: '0.8rem' }}
+              onClick={handleCancel}
+            >
+              Cancelar
+            </button>
           </div>
         )}
         <div ref={messagesEndRef} />

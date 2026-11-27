@@ -1,4 +1,4 @@
-import { parseNoteFields } from '../lib/noteFields';
+import { noteSides } from '../lib/noteFields';
 import StudyLoadError from '../components/StudyLoadError';
 import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
@@ -95,18 +95,12 @@ function StudyExplore() {
   }, [notes.length, settings?.animationsEnabled]);
 
   const currentNote = notes[currentIndex];
-  const fields = useMemo(
-    () => parseNoteFields(currentNote?.fieldsJson || '{}'),
-    [currentNote?.fieldsJson],
+  const sides = useMemo(
+    () => (currentNote ? noteSides(currentNote) : { front: '', back: '' }),
+    [currentNote],
   );
-  const frontHtml = useMemo(
-    () => sanitizeHtml(marked.parse(fields.front || '') as string),
-    [fields.front],
-  );
-  const backHtml = useMemo(
-    () => sanitizeHtml(marked.parse(fields.back || '') as string),
-    [fields.back],
-  );
+  const frontHtml = useMemo(() => sanitizeHtml(marked.parse(sides.front) as string), [sides.front]);
+  const backHtml = useMemo(() => sanitizeHtml(marked.parse(sides.back) as string), [sides.back]);
 
   if (loadError)
     return <StudyLoadError deckId={deckId} onRetry={() => setReloadKey((key) => key + 1)} />;

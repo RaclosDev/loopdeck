@@ -77,4 +77,48 @@ describe('FlashCard Component', () => {
 
     expect(onFlipMock).not.toHaveBeenCalled();
   });
+
+  it('keeps the card text outside the button so screen readers can read it', () => {
+    render(
+      <FlashCard
+        front="<p>Capital de Francia</p>"
+        back="París"
+        isFlipped={false}
+        onFlip={() => {}}
+        cardState="new"
+      />,
+    );
+    const button = screen.getByRole('button', { name: 'Voltear tarjeta' });
+    expect(button.textContent).toBe('');
+    expect(button.contains(screen.getByText('Capital de Francia'))).toBe(false);
+    expect(screen.getByText('Capital de Francia').closest('[role="button"]')).toBeNull();
+    expect(screen.getByText('Capital de Francia').closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('flips from the button, which a keyboard activates with Enter or Space', () => {
+    const onFlip = vi.fn();
+    render(
+      <FlashCard
+        front="Question"
+        back="Answer"
+        isFlipped={false}
+        onFlip={onFlip}
+        cardState="new"
+      />,
+    );
+    const button = screen.getByRole('button', { name: 'Voltear tarjeta' });
+    expect(button.tagName).toBe('BUTTON');
+    fireEvent.click(button);
+    expect(onFlip).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps a disabled button named after the state once flipped, without flipping again', () => {
+    const onFlip = vi.fn();
+    render(<FlashCard front="Question" back="Answer" isFlipped onFlip={onFlip} cardState="new" />);
+    const button = screen.getByRole('button', { name: 'Tarjeta volteada' });
+    expect(button.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(button);
+    expect(onFlip).not.toHaveBeenCalled();
+    expect(screen.getByText('Answer').closest('[aria-hidden="true"]')).toBeNull();
+  });
 });

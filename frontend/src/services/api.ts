@@ -19,7 +19,7 @@ import {
   AiMassDefinePayload,
 } from '../types';
 
-import api from '../api/client';
+import api, { SLOW_REQUEST_TIMEOUT_MS } from '../api/client';
 import { createPasskey, deviceName, getPasskey, type BrowserOptions } from '../lib/webauthn';
 
 export const API_BASE = import.meta.env.VITE_API_URL || '/api';
@@ -44,6 +44,7 @@ export const decksApi = {
     const formData = new FormData();
     formData.append('file', file);
     const res = await api.post<{ hasDocument: boolean }>(`/decks/${id}/document`, formData, {
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -71,14 +72,38 @@ export const decksApi = {
 export const accountApi = {
   /** Todos los datos de la cuenta en JSON, listos para descargar. */
   exportData: async (): Promise<Blob> => {
-    const res = await api.get('/users/me/export', { responseType: 'blob', timeout: 60000 });
+    const res = await api.get('/users/me/export', {
+      responseType: 'blob',
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
+    });
     return res.data;
   },
   /** Borra la cuenta y todos sus datos. No se puede deshacer. */
   deleteAccount: async (): Promise<void> => {
     await api.delete('/users/me');
   },
+  /**
+   * Cambia la contraseña. El servidor cierra las sesiones de los demás dispositivos y devuelve una
+   * sesión nueva para este: hay que guardar su token.
+   */
+  changePassword: async (currentPassword: string, newPassword: string): Promise<string> => {
+    const { data } = await api.put<{ token: string }>('/users/me/password', {
+      currentPassword,
+      newPassword,
+    });
+    return data.token;
+  },
+  /** Cierra la sesión de todos los dispositivos, también este. */
+  logoutEverywhere: async (): Promise<void> => {
+    await api.delete('/users/me/sessions');
+  },
 };
+
+/**
+ * Prueba de que quien tiene la sesión es el dueño de la cuenta, exigida para acciones sensibles: la
+ * contraseña o, en las cuentas que solo entran con Google, una credencial reciente de Google.
+ */
+export type Reauth = { password: string } | { googleCredential: string };
 
 /** Llave de acceso tal como se ve en los ajustes. */
 export interface PasskeySummary {
@@ -97,8 +122,8 @@ export interface PasskeyCeremony {
 export const passkeysApi = {
   list: async (): Promise<PasskeySummary[]> => (await api.get('/users/me/passkeys')).data,
   /** Pide al dispositivo una llave nueva y la guarda en la cuenta. */
-  addOnThisDevice: async (): Promise<PasskeySummary> => {
-    const { data } = await api.post<PasskeyCeremony>('/users/me/passkeys/options');
+  addOnThisDevice: async (reauth: Reauth): Promise<PasskeySummary> => {
+    const { data } = await api.post<PasskeyCeremony>('/users/me/passkeys/options', reauth);
     const credential = await createPasskey(data.options);
     return (
       await api.post('/users/me/passkeys', {
@@ -217,12 +242,17 @@ export const templatesApi = {
 };
 
 export const aiApi = {
-  chat: async (prompt: string, context?: string): Promise<AiChatResponse> => {
-    const res = await api.post('/ai/chat', { prompt, context } as AiChatPayload);
+  chat: async (prompt: string, context?: string, signal?: AbortSignal): Promise<AiChatResponse> => {
+    const res = await api.post('/ai/chat', { prompt, context } as AiChatPayload, {
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
+      signal,
+    });
     return res.data;
   },
   massDefine: async (words: string): Promise<unknown> => {
-    const res = await api.post('/ai/mass-define', { words } as AiMassDefinePayload);
+    const res = await api.post('/ai/mass-define', { words } as AiMassDefinePayload, {
+      timeout: SLOW_REQUEST_TIMEOUT_MS,
+    });
     return res.data;
   },
 };

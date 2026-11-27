@@ -9,6 +9,29 @@ import { DEMO, DEMO_TOKEN } from '../demo/mode';
 // En el modo demo la sesión es ficticia y no se lee ni se escribe la del navegador.
 const storedToken = () => (DEMO ? DEMO_TOKEN : localStorage.getItem(TOKEN_KEY));
 
+/** Cuánto espera el refresco del arranque: una conexión colgada no debe dejar la app cargando. */
+const REFRESH_TIMEOUT_MS = 15_000;
+
+/**
+ * Un refresco que no llegó a decidir nada: sin red, tiempo agotado o fallo del servidor (5xx).
+ * No es lo mismo que un rechazo (401/403): en ese caso la sesión sí ha terminado.
+ */
+class RefreshUnavailable extends Error {}
+const refreshUnavailable = (error: unknown) =>
+  error instanceof RefreshUnavailable ||
+  error instanceof TypeError ||
+  (error instanceof DOMException && (error.name === 'TimeoutError' || error.name === 'AbortError'));
+
+const userFromToken = (jwtToken: string): User => {
+  const decoded = jwtDecode<CustomJwtPayload>(jwtToken);
+  return {
+    id: decoded.sub || '',
+    email: decoded.email || '',
+    name: decoded.name || 'User',
+    picture: decoded.picture || undefined,
+  };
+};
+
 export interface CustomJwtPayload extends JwtPayload {
   email?: string;
   name?: string;
@@ -58,6 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const initializeAuth = async () => {
       let currentToken = storedToken();
       let needsRefresh = false;
+      // Si no se puede refrescar por falta de red, se sigue con la sesión que ya había.
+      let offlineUser: User | null = null;
 
       if (currentToken) {
         try {
@@ -66,13 +91,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Check if expired (with 10 seconds leeway)
           if (decoded.exp && decoded.exp * 1000 < Date.now() + 10000) {
             needsRefresh = true;
+            offlineUser = userFromToken(currentToken);
           } else {
-            setUser({
-              id: decoded.sub || '',
-              email: decoded.email || '',
-              name: decoded.name || 'User',
-              picture: decoded.picture || undefined,
-            });
+            setUser(userFromToken(currentToken));
           }
         } catch (err) {
           console.error('Token inválido', err);
@@ -86,7 +107,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (needsRefresh) {
         try {
           // Proactive refresh bypassing Axios interceptors to avoid race conditions on mount
-          const res = await fetch('/api/auth/refresh', { method: 'POST' });
+          const res = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            signal: AbortSignal.timeout(REFRESH_TIMEOUT_MS),
+          });
+          if (res.status >= 500) throw new RefreshUnavailable('Refresh unavailable');
           if (res.ok) {
             const data = await res.json();
             if (data.token) {
@@ -95,26 +120,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               localStorage.setItem(TOKEN_KEY, currentToken!);
               setToken(currentToken);
 
-              const decoded = jwtDecode<CustomJwtPayload>(currentToken!);
-              setUser({
-                id: decoded.sub || '',
-                email: decoded.email || '',
-                name: decoded.name || 'User',
-                picture: decoded.picture || undefined,
-              });
+              setUser(userFromToken(currentToken!));
             } else {
               throw new Error('No token in response');
             }
           } else {
             throw new Error('Refresh failed');
           }
-        } catch {
-          // Sin sesión válida: fuera token, datos en memoria y caché sin conexión.
-          queryClient.clear();
-          identity.current = undefined;
-          setToken(null);
-          setUser(null);
-          await endLocalSession();
+        } catch (error) {
+          if (offlineUser && refreshUnavailable(error)) {
+            // Sin red (o con el servidor caído) la sesión no se pierde: se abre con el token
+            // caducado y los datos guardados, y la primera petición que llegue lo renovará.
+            setUser(offlineUser);
+          } else {
+            // Sin sesión válida: fuera token, datos en memoria y caché sin conexión.
+            queryClient.clear();
+            identity.current = undefined;
+            setToken(null);
+            setUser(null);
+            await endLocalSession();
+          }
         }
       }
 
@@ -138,6 +163,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     window.addEventListener('loopdeck:token-updated', handleTokenUpdate);
     return () => window.removeEventListener('loopdeck:token-updated', handleTokenUpdate);
+  }, []);
+
+  // Otra pestaña ha cambiado la sesión (el evento `storage` solo llega a las demás pestañas). Lo
+  // que se hiciera aquí caería en la cuenta nueva con el token nuevo, así que esta pestaña la sigue.
+  useEffect(() => {
+    if (DEMO) return;
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== null && event.key !== TOKEN_KEY) return;
+      const current = localStorage.getItem(TOKEN_KEY);
+      if (!current) {
+        identity.current = undefined;
+        queryClient.clear();
+        setToken(null);
+        setUser(null);
+        return;
+      }
+      let subject: string | undefined;
+      try {
+        subject = jwtDecode<CustomJwtPayload>(current).sub;
+      } catch {
+        return;
+      }
+      if (identity.current !== undefined && identity.current !== subject) {
+        // Otra cuenta: lo que hay en pantalla es de la anterior, así que se vuelve al inicio.
+        void synchronizeIdentity(current).then(() => {
+          setToken(current);
+          window.location.href = '/';
+        });
+        return;
+      }
+      void synchronizeIdentity(current);
+      setToken(current);
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   // Sync token state for subsequent changes (e.g. login/logout)

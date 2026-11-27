@@ -5,10 +5,13 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { GoogleClientIdContext } from './context/GoogleClientIdContext';
 
 import { PublicRoutes, RedirectFromAuth } from './routes/authRoutes';
 import { AUTH_PATHS } from './lib/authRedirect';
 import { DEMO } from './demo/mode';
+import { useReviewOutbox } from './hooks/useReviewOutbox';
+import { requestReload } from './lib/reloadGuard';
 import Dashboard from './pages/Dashboard';
 
 const Layout = lazy(() => import('./components/Layout'));
@@ -75,6 +78,8 @@ function AppContent({
   const { token, user, isLoading } = useAuth();
   const setDeferredPrompt = useStore((s) => s.setDeferredPrompt);
   const basename = DEMO ? '/demo' : undefined;
+  // Repasos guardados sin enviar (recarga o sin conexión): se mandan al arrancar y al volver la red.
+  useReviewOutbox(token && !isLoading && !DEMO ? user?.id : undefined);
 
   useEffect(() => {
     if (token && !isLoading) {
@@ -91,7 +96,7 @@ function AppContent({
             .get<{ version: string }>('/version')
             .then((res) => {
               if (currentAppVersion && res.data.version !== currentAppVersion) {
-                window.location.reload();
+                requestReload(() => window.location.reload());
               }
             })
             .catch((err) => console.error('Error fetching app version', err));
@@ -156,61 +161,63 @@ function AppContent({
 
   // Si hay token, renderizamos la app directamente
   return (
-    <BrowserRouter basename={basename}>
-      <Toaster
-        position="top-center"
-        containerStyle={{
-          top: 70,
-          left: 20,
-          right: 20,
-        }}
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: 'var(--paper)',
-            color: 'var(--text-primary, #f1f5f9)',
-            border: '1px solid var(--border-medium, rgba(255,255,255,0.1))',
-            borderRadius: '4px',
-            boxShadow: '3px 4px 0 #0003',
-          },
-        }}
-      />
-      <Routes key={user?.id || 'anonymous'}>
-        <Route path={AUTH_PATHS.login} element={<RedirectFromAuth />} />
-        <Route path={AUTH_PATHS.register} element={<RedirectFromAuth />} />
-        <Route
-          path="/"
-          element={
-            <Suspense
-              fallback={
-                <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-                  <div className="spinner" />
-                </div>
-              }
-            >
-              <Layout />
-            </Suspense>
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="hub" element={<Navigate to="/" replace />} />
-          <Route path="study/:deckId" element={<Study />} />
-          <Route path="hub/:deckId" element={<StudyHub />} />
-          <Route path="hub/:deckId/guide" element={<StudyGuide />} />
-          <Route path="hub/:deckId/explore" element={<StudyExplore />} />
-          <Route path="hub/:deckId/quiz" element={<StudyQuiz />} />
-          <Route path="hub/:deckId/chunked" element={<StudyChunkedQuiz />} />
-          <Route path="hub/:deckId/tutor" element={<StudyTutor />} />
-          <Route path="add" element={<AddCard />} />
-          <Route path="add/:deckId" element={<AddCard />} />
-          <Route path="stats" element={<Stats />} />
-          <Route path="browser" element={<Browser />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="templates" element={<Templates />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <GoogleClientIdContext.Provider value={googleClientId}>
+      <BrowserRouter basename={basename}>
+        <Toaster
+          position="top-center"
+          containerStyle={{
+            top: 70,
+            left: 20,
+            right: 20,
+          }}
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: 'var(--paper)',
+              color: 'var(--text-primary, #f1f5f9)',
+              border: '1px solid var(--border-medium, rgba(255,255,255,0.1))',
+              borderRadius: '4px',
+              boxShadow: '3px 4px 0 #0003',
+            },
+          }}
+        />
+        <Routes key={user?.id || 'anonymous'}>
+          <Route path={AUTH_PATHS.login} element={<RedirectFromAuth />} />
+          <Route path={AUTH_PATHS.register} element={<RedirectFromAuth />} />
+          <Route
+            path="/"
+            element={
+              <Suspense
+                fallback={
+                  <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
+                    <div className="spinner" />
+                  </div>
+                }
+              >
+                <Layout />
+              </Suspense>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="hub" element={<Navigate to="/" replace />} />
+            <Route path="study/:deckId" element={<Study />} />
+            <Route path="hub/:deckId" element={<StudyHub />} />
+            <Route path="hub/:deckId/guide" element={<StudyGuide />} />
+            <Route path="hub/:deckId/explore" element={<StudyExplore />} />
+            <Route path="hub/:deckId/quiz" element={<StudyQuiz />} />
+            <Route path="hub/:deckId/chunked" element={<StudyChunkedQuiz />} />
+            <Route path="hub/:deckId/tutor" element={<StudyTutor />} />
+            <Route path="add" element={<AddCard />} />
+            <Route path="add/:deckId" element={<AddCard />} />
+            <Route path="stats" element={<Stats />} />
+            <Route path="browser" element={<Browser />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="templates" element={<Templates />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </GoogleClientIdContext.Provider>
   );
 }
 

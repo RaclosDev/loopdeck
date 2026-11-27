@@ -1,7 +1,7 @@
 import type { AxiosAdapter, AxiosResponse } from 'axios';
 import { AxiosError } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import api from './client';
+import api, { REQUEST_TIMEOUT_MS, SLOW_REQUEST_TIMEOUT_MS } from './client';
 
 const respond = (config: Parameters<AxiosAdapter>[0], status: number) => {
   const response = { status, data: {}, config, headers: {}, statusText: '' } as AxiosResponse;
@@ -43,5 +43,18 @@ describe('api client session handling', () => {
     };
     await expect(api.get('/decks')).rejects.toBeTruthy();
     expect(calls).toEqual(['/decks']);
+  });
+
+  it('gives every request a maximum time and more room to the slow ones', async () => {
+    const seen: (number | undefined)[] = [];
+    api.defaults.adapter = (config) => {
+      seen.push(config.timeout);
+      return respond(config, 200);
+    };
+    await api.get('/decks');
+    await api.get('/ai/chat', { timeout: SLOW_REQUEST_TIMEOUT_MS });
+    expect(seen).toEqual([REQUEST_TIMEOUT_MS, SLOW_REQUEST_TIMEOUT_MS]);
+    expect(REQUEST_TIMEOUT_MS).toBeGreaterThan(0);
+    expect(SLOW_REQUEST_TIMEOUT_MS).toBeGreaterThan(REQUEST_TIMEOUT_MS);
   });
 });

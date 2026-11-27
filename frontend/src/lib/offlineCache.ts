@@ -1,3 +1,5 @@
+import { purgeReviewsExcept } from './reviewOutbox';
+
 /** Caché del service worker con respuestas de la API (ver public/sw.js). */
 export const API_CACHE_NAME = 'api-cache';
 
@@ -37,11 +39,14 @@ export async function clearOfflineApiCache(): Promise<void> {
 /**
  * Apunta qué cuenta está usando el navegador. Si no es la misma que la última (o no hay registro,
  * por ejemplo tras una versión antigua), borra la caché sin conexión antes de que nadie la lea.
+ * También vacía la cola de repasos pendientes de cualquier otra cuenta.
  */
 export async function adoptAccount(subject: string | undefined): Promise<boolean> {
   const previous = localStorage.getItem(LAST_ACCOUNT_KEY);
   const changed = previous !== (subject ?? null);
   if (changed) await clearOfflineApiCache();
+  // Los repasos pendientes de otra cuenta no se envían con esta sesión: se descartan.
+  if (subject) await purgeReviewsExcept(subject);
   if (subject) localStorage.setItem(LAST_ACCOUNT_KEY, subject);
   return changed;
 }

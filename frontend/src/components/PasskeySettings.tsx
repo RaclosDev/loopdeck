@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react';
 import { KeyRound, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from './ui/button';
-import { passkeysApi, type PasskeySummary } from '../services/api';
+import ReauthDialog from './ReauthDialog';
+import { passkeysApi, type PasskeySummary, type Reauth } from '../services/api';
 import { isPasskeyCancel, passkeysSupported } from '../lib/webauthn';
+import { reauthMessage } from '../lib/reauth';
 
 const dateFormat = new Intl.DateTimeFormat('es-ES', {
   day: 'numeric',
@@ -16,6 +18,7 @@ export default function PasskeySettings() {
   const supported = passkeysSupported();
   const [passkeys, setPasskeys] = useState<PasskeySummary[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     if (!supported) return;
@@ -27,13 +30,16 @@ export default function PasskeySettings() {
 
   if (!supported) return null;
 
-  const add = async () => {
+  /** Devuelve el mensaje si no se ha podido confirmar la identidad; `null` si ya no hay nada que pedir. */
+  const add = async (proof: Reauth): Promise<string | null> => {
     setBusy(true);
     try {
-      const saved = await passkeysApi.addOnThisDevice();
+      const saved = await passkeysApi.addOnThisDevice(proof);
       setPasskeys((list) => [...(list ?? []), saved]);
       toast.success('Llave de acceso añadida. La próxima vez entra con ella.');
     } catch (err) {
+      const message = reauthMessage(err);
+      if (message) return message;
       if (err instanceof DOMException && err.name === 'InvalidStateError') {
         toast('Este dispositivo ya tiene una llave de acceso de tu cuenta.');
       } else if (!isPasskeyCancel(err)) {
@@ -42,6 +48,7 @@ export default function PasskeySettings() {
     } finally {
       setBusy(false);
     }
+    return null;
   };
 
   const remove = async (passkey: PasskeySummary) => {
@@ -101,11 +108,19 @@ export default function PasskeySettings() {
         variant="secondary"
         className="w-full"
         disabled={busy}
-        onClick={() => void add()}
+        onClick={() => setConfirming(true)}
       >
         <KeyRound size={16} aria-hidden="true" />
-        {busy ? 'Un momento…' : 'Añadir llave en este dispositivo'}
+        Añadir llave en este dispositivo
       </Button>
+      <ReauthDialog
+        open={confirming}
+        title="Confirma que eres tú"
+        description="Para añadir una llave de acceso, vuelve a confirmar tu identidad."
+        confirmLabel="Continuar"
+        onConfirm={add}
+        onClose={() => setConfirming(false)}
+      />
     </section>
   );
 }

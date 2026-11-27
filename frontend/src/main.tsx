@@ -13,6 +13,7 @@ import './sidebar-rail.css';
 import App from './App.tsx';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { hideBootSplash } from './lib/bootSplash';
+import { requestReload } from './lib/reloadGuard';
 
 import { applyThemeColor } from './utils/colorHelper';
 import { EMBED } from './demo/mode';
@@ -27,7 +28,8 @@ if ('serviceWorker' in navigator && !EMBED) {
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
-      updateSW(true);
+      // Recargar para estrenar la versión no debe tirar lo que se está escribiendo.
+      requestReload(() => void updateSW(true));
     },
     onOfflineReady() {},
   });

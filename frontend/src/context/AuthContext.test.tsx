@@ -121,4 +121,94 @@ describe('account data isolation', () => {
     await act(() => auth.logout());
     await waitFor(() => expect(client.getQueryCache().getAll()).toHaveLength(0));
   });
+
+  describe('startup with an expired token', () => {
+    const expired = (id: string) => `e30.${btoa(JSON.stringify({ sub: id, exp: 1000 }))}.test`;
+    beforeEach(() => localStorage.setItem('loopdeck_jwt_token', expired('a')));
+
+    it('keeps the session when there is no network to refresh it', async () => {
+      fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+      mount();
+      await screen.findByText('a');
+      expect(localStorage.getItem('loopdeck_jwt_token')).toBe(expired('a'));
+      expect(removeCache).not.toHaveBeenCalled();
+    });
+
+    it('keeps the session when the server is down (5xx) or too slow', async () => {
+      fetchMock.mockResolvedValue({ ok: false, status: 503 });
+      const first = mount();
+      await screen.findByText('a');
+      expect(localStorage.getItem('loopdeck_jwt_token')).toBe(expired('a'));
+      first.unmount();
+      fetchMock.mockRejectedValue(new DOMException('timeout', 'TimeoutError'));
+      mount();
+      await screen.findByText('a');
+      expect(localStorage.getItem('loopdeck_jwt_token')).toBe(expired('a'));
+    });
+
+    it('still signs out when the server rejects the refresh (401)', async () => {
+      fetchMock.mockResolvedValue({ ok: false, status: 401 });
+      mount();
+      await screen.findByText('signed-out');
+      expect(localStorage.getItem('loopdeck_jwt_token')).toBeNull();
+      expect(removeCache).toHaveBeenCalledWith('api-cache');
+    });
+
+    it('puts a maximum time on the startup refresh', async () => {
+      fetchMock.mockResolvedValue({ ok: false, status: 401 });
+      mount();
+      await screen.findByText('signed-out');
+      const options = fetchMock.mock.calls[0][1] as { signal?: AbortSignal };
+      expect(options.signal).toBeInstanceOf(AbortSignal);
+    });
+  });
+
+  describe('another tab changes the session', () => {
+    const realLocation = window.location;
+    beforeEach(() => {
+      Object.defineProperty(window, 'location', { value: { href: '/decks' }, writable: true });
+    });
+    afterEach(() => {
+      Object.defineProperty(window, 'location', { value: realLocation, writable: true });
+    });
+    const fromOtherTab = (token: string | null) => {
+      if (token) localStorage.setItem('loopdeck_jwt_token', token);
+      else localStorage.removeItem('loopdeck_jwt_token');
+      act(() => {
+        window.dispatchEvent(new StorageEvent('storage', { key: 'loopdeck_jwt_token' }));
+      });
+    };
+
+    it('signs this tab out when the session is closed in another one', async () => {
+      const client = new QueryClient();
+      client.setQueryData(['decks', 'a'], ['private-a']);
+      mount(client);
+      await screen.findByText('a');
+      fromOtherTab(null);
+      await screen.findByText('signed-out');
+      expect(client.getQueryData(['decks', 'a'])).toBeUndefined();
+    });
+
+    it('drops the old account data and goes back to the start when another account signs in', async () => {
+      const client = new QueryClient();
+      client.setQueryData(['decks', 'a'], ['private-a']);
+      mount(client);
+      await screen.findByText('a');
+      fromOtherTab(tokenFor('b'));
+      await screen.findByText('b');
+      await waitFor(() => expect(window.location.href).toBe('/'));
+      expect(client.getQueryData(['decks', 'a'])).toBeUndefined();
+    });
+
+    it('follows a refreshed token of the same account without leaving the page', async () => {
+      const client = new QueryClient();
+      client.setQueryData(['decks', 'a'], ['private-a']);
+      mount(client);
+      await screen.findByText('a');
+      fromOtherTab(`${tokenFor('a')}x`);
+      expect(window.location.href).toBe('/decks');
+      expect(client.getQueryData(['decks', 'a'])).toEqual(['private-a']);
+      expect(auth.token).toBe(`${tokenFor('a')}x`);
+    });
+  });
 });

@@ -44,15 +44,10 @@ export default function FlashCard({
         flexDirection: 'column',
         cursor: !isFlipped ? 'pointer' : 'default',
       }}
-      role="button"
-      tabIndex={0}
-      aria-label={isFlipped ? 'Tarjeta volteada' : 'Voltear tarjeta'}
-      onKeyDown={(e) => {
-        if (!isFlipped && (e.key === ' ' || e.key === 'Enter')) {
-          e.preventDefault();
-          onFlip();
-        }
-      }}
+      // Un `role="button"` aquí volvería el contenido «presentacional» y los lectores de pantalla
+      // solo dirían «Voltear tarjeta». El marco es neutro, las caras son texto normal y el botón
+      // de abajo es el único control (también para teclado: Intro y Espacio).
+      role="presentation"
       onClick={() => !isFlipped && onFlip()}
     >
       {/* Front */}
@@ -147,6 +142,13 @@ export default function FlashCard({
           />
         </div>
       </div>
+
+      <button
+        type="button"
+        className="flashcard-flip"
+        aria-label={isFlipped ? 'Tarjeta volteada' : 'Voltear tarjeta'}
+        aria-disabled={isFlipped}
+      />
     </div>
   );
 }
