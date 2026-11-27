@@ -60,7 +60,7 @@ export default function AccountSecuritySettings() {
     setError('');
     try {
       // El servidor cierra las demás sesiones y abre una nueva para este dispositivo.
-      updateToken(await accountApi.changePassword(current, next));
+      updateToken(await accountApi.renewSession(current, next));
       toast.success('Contraseña cambiada. Se ha cerrado la sesión en los demás dispositivos.');
       closePasswordDialog();
     } catch (err) {

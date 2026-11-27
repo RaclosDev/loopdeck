@@ -9,7 +9,7 @@ const logout = vi.fn();
 const updateToken = vi.fn();
 vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ logout, updateToken }) }));
 vi.mock('../services/api', () => ({
-  accountApi: { changePassword: vi.fn(), logoutEverywhere: vi.fn() },
+  accountApi: { renewSession: vi.fn(), logoutEverywhere: vi.fn() },
 }));
 vi.mock('react-hot-toast', () => ({
   default: Object.assign(vi.fn(), { error: vi.fn(), success: vi.fn() }),
@@ -41,11 +41,11 @@ beforeEach(() => {
 
 describe('changing the password', () => {
   it('sends both passwords, keeps the new session token and closes', async () => {
-    vi.mocked(accountApi.changePassword).mockResolvedValue('jwt-nuevo');
+    vi.mocked(accountApi.renewSession).mockResolvedValue('jwt-nuevo');
     fillPasswords('vieja123', 'nueva456');
     submit();
     await waitFor(() => expect(updateToken).toHaveBeenCalledWith('jwt-nuevo'));
-    expect(accountApi.changePassword).toHaveBeenCalledWith('vieja123', 'nueva456');
+    expect(accountApi.renewSession).toHaveBeenCalledWith('vieja123', 'nueva456');
     expect(toast.success).toHaveBeenCalled();
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
   });
@@ -58,11 +58,11 @@ describe('changing the password', () => {
     fireEvent.change(field('Repite la contraseña nueva'), { target: { value: 'otra4567' } });
     submit();
     expect(screen.getByRole('alert')).toHaveTextContent('no coinciden');
-    expect(accountApi.changePassword).not.toHaveBeenCalled();
+    expect(accountApi.renewSession).not.toHaveBeenCalled();
   });
 
   it('says so when the current password is wrong and clears what was typed', async () => {
-    vi.mocked(accountApi.changePassword).mockRejectedValue(status(403));
+    vi.mocked(accountApi.renewSession).mockRejectedValue(status(403));
     fillPasswords('mala', 'nueva456');
     submit();
     expect(await screen.findByRole('alert')).toHaveTextContent('contraseña actual no es correcta');
@@ -72,14 +72,14 @@ describe('changing the password', () => {
   });
 
   it('explains the attempt limit', async () => {
-    vi.mocked(accountApi.changePassword).mockRejectedValue(status(429));
+    vi.mocked(accountApi.renewSession).mockRejectedValue(status(429));
     fillPasswords('mala', 'nueva456');
     submit();
     expect(await screen.findByRole('alert')).toHaveTextContent('Demasiados intentos');
   });
 
   it('explains that Google accounts have no password to change', async () => {
-    vi.mocked(accountApi.changePassword).mockRejectedValue(status(409));
+    vi.mocked(accountApi.renewSession).mockRejectedValue(status(409));
     fillPasswords('x', 'nueva456');
     submit();
     expect(await screen.findByRole('alert')).toHaveTextContent('entra con Google');
