@@ -57,8 +57,10 @@ public class PasskeyController {
     }
 
     @PostMapping(value = "/api/users/me/passkeys/options", produces = MediaType.APPLICATION_JSON_VALUE)
-    public String registrationOptions(Authentication auth) {
-        return ceremonyJson(passkeyService.startRegistration(auth.getName()));
+    public String registrationOptions(Authentication auth, @Valid @RequestBody(required = false) Reauth body) {
+        String password = body == null ? null : body.password();
+        String googleCredential = body == null ? null : body.googleCredential();
+        return ceremonyJson(passkeyService.startRegistration(auth.getName(), password, googleCredential));
     }
 
     @PostMapping("/api/users/me/passkeys")
@@ -83,6 +85,10 @@ public class PasskeyController {
 
     /** Respuesta del navegador a un reto: la credencial en el formato JSON de WebAuthn. */
     public record PasskeyResponse(@NotBlank @Size(max = 64) String requestId, @NotNull JsonNode credential) {
+    }
+
+    /** Confirmación de identidad para añadir una llave: la contraseña, o una credencial de Google si no tiene. */
+    public record Reauth(@Size(max = 100) String password, @Size(max = 8192) String googleCredential) {
     }
 
     public record NewPasskey(@NotBlank @Size(max = 64) String requestId, @NotNull JsonNode credential,

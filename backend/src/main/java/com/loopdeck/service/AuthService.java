@@ -18,6 +18,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import com.loopdeck.model.RefreshToken;
+import com.loopdeck.exception.ConflictException;
+import com.loopdeck.exception.ReauthenticationException;
 import com.loopdeck.exception.TokenRefreshException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -119,8 +121,16 @@ public class AuthService {
         return new AuthResponse(token, refreshTokenService.createRefreshToken(user.getId()).getPlainToken(), userMapper.toDto(user));
     }
 
+    /** Identidad verificada por Google: id estable ({@code sub}), correo verificado y nombre. */
+    record GoogleIdentity(String id, String email, String name) {}
+
     @Transactional
     public AuthResponse googleLogin(String credential) {
+        GoogleIdentity identity = verifyGoogleCredential(credential);
+        return processGoogleUser(identity.id(), identity.email(), identity.name());
+    }
+
+    private GoogleIdentity verifyGoogleCredential(String credential) {
         try {
             // Primero como ID token (botón de Google); si no lo es, como access token.
             GoogleIdToken.Payload payload = verifyIdToken(credential);
@@ -128,7 +138,7 @@ public class AuthService {
                 if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
                     throw new IllegalArgumentException("El email de Google no está verificado");
                 }
-                return processGoogleUser(payload.getSubject(), payload.getEmail(), (String) payload.get("name"));
+                return new GoogleIdentity(payload.getSubject(), payload.getEmail(), (String) payload.get("name"));
             }
 
             HttpURLConnection tokenInfoConn = open("https://oauth2.googleapis.com/tokeninfo?access_token="
@@ -157,11 +167,66 @@ public class AuthService {
             if (googleId.isBlank() || email.isBlank()) {
                 throw new IllegalArgumentException("Token de Google sin identidad");
             }
-            return processGoogleUser(googleId, email, fetchGoogleName(credential));
+            return new GoogleIdentity(googleId, email, fetchGoogleName(credential));
         } catch (IOException e) {
             log.error("Error al verificar con Google", e);
             throw new IllegalArgumentException("Error al verificar credenciales de Google");
         }
+    }
+
+    /**
+     * Confirma que quien tiene la sesión es el dueño de la cuenta antes de una acción sensible (por ejemplo,
+     * añadir una llave de acceso): con la contraseña si la cuenta tiene una; si solo entra con Google, con una
+     * credencial de Google reciente de la misma identidad. Los fallos cuentan para el límite de intentos.
+     */
+    public void confirmIdentity(String userId, String password, String googleCredential) {
+        String key = "reauth:" + userId;
+        loginThrottle.check(key);
+        User user = userRepository.findById(userId).orElse(null);
+        boolean confirmed = false;
+        if (user != null && user.getPasswordHash() != null) {
+            confirmed = password != null && !password.isEmpty()
+                    && passwordEncoder.matches(password, user.getPasswordHash());
+        } else if (user != null && user.getGoogleId() != null && googleCredential != null && !googleCredential.isBlank()) {
+            try {
+                confirmed = user.getGoogleId().equals(verifyGoogleCredential(googleCredential).id());
+            } catch (IllegalArgumentException e) {
+                confirmed = false;
+            }
+        }
+        if (!confirmed) {
+            loginThrottle.recordFailure(key);
+            throw new ReauthenticationException("Confirma tu identidad para continuar");
+        }
+        loginThrottle.reset(key);
+    }
+
+    /**
+     * Cambia la contraseña: exige la actual, cierra todas las sesiones de la cuenta (también las de otros
+     * dispositivos) y abre una nueva para quien la cambia.
+     */
+    @Transactional
+    public AuthResponse changePassword(String userId, String currentPassword, String newPassword) {
+        String key = "reauth:" + userId;
+        loginThrottle.check(key);
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if (user.getPasswordHash() == null) {
+            throw new ConflictException("Tu cuenta entra con Google y no tiene contraseña que cambiar");
+        }
+        if (currentPassword == null || !passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            loginThrottle.recordFailure(key);
+            throw new ReauthenticationException("La contraseña actual no es correcta");
+        }
+        loginThrottle.reset(key);
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        refreshTokenService.deleteByUserId(userId);
+        return issueSession(user);
+    }
+
+    /** Cierra todas las sesiones de la cuenta: ningún token de refresco sigue sirviendo. */
+    public void logoutAll(String userId) {
+        refreshTokenService.deleteByUserId(userId);
     }
 
     private GoogleIdToken.Payload verifyIdToken(String credential) {

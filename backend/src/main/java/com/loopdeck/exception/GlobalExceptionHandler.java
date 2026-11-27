@@ -26,6 +26,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse("No tienes acceso a este recurso", HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(ReauthenticationException.class)
+    public ResponseEntity<?> handleReauthentication(ReauthenticationException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<?> handleTokenRefreshException(TokenRefreshException ex) {
         log.warn("Refresh token error: {}", ex.getMessage());

@@ -70,9 +70,13 @@ public class PasskeyService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
-    /** Opciones para que el navegador cree una llave de la cuenta. */
+    /**
+     * Opciones para que el navegador cree una llave de la cuenta. Antes se confirma la identidad (contraseña o
+     * credencial de Google): con solo una sesión robada no se puede dejar una llave propia en la cuenta.
+     */
     @Transactional
-    public Ceremony startRegistration(String userId) {
+    public Ceremony startRegistration(String userId, String password, String googleCredential) {
+        authService.confirmIdentity(userId, password, googleCredential);
         User user = requireUser(userId);
         ensureRoomForAnother(user);
         ByteArray userHandle = passkeyRepository.findFirstByUserId(user.getId())
