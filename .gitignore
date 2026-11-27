@@ -87,3 +87,13 @@ graphify-out/
 /anti-slop/
 /docs/audits/
 /docs/plans/
+
+# Informes y material local que no se publican (auditorías, pentests, pruebas de diseño)
+*-pentest-*.md
+ANALISIS-CODIGO-*.md
+/PRODUCT.md
+strix-ref/
+design-icono*/
+.impeccable/
+propuestas-icono-*.html
+.claude/
